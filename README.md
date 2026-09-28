@@ -272,6 +272,81 @@ Detailed API documentation is available in:
 docs/API.md
 ```
 
+## 🔁 CI/CD & Commit Convention
+
+GitHub Actions automatically validates every push and pull request.
+
+### CI Pipeline
+
+```text
+Commit / Pull Request
+        ↓
+Commit Message Check
+        ↓
+Backend Validate + Test + Build
+        ↓
+Frontend Structure Check
+        ↓
+PASS ✅ / FAIL ❌
+```
+
+All commit messages must follow this format:
+
+```text
+type(scope): description [Task X.X]
+```
+
+Examples:
+
+```text
+feat(camels): add camel management service [Task 2.1]
+fix(auth): handle invalid login credentials [Task 3.2]
+test(races): add race service tests [Task 3.3]
+docs(api): document race endpoints [Task 4.1]
+ci(actions): update CI workflow [Task 5.1]
+```
+
+Allowed commit types:
+
+```text
+feat
+fix
+test
+docs
+refactor
+ci
+chore
+build
+perf
+```
+
+If a commit message does not follow the required format, the CI workflow fails.
+
+### CD Pipeline
+
+The CD workflow runs only after CI completes successfully on the `main` branch.
+
+```text
+main
+ ↓
+CI PASS
+ ↓
+Backend Tests
+ ↓
+Backend Package
+ ↓
+Frontend Package
+ ↓
+GitHub Actions Artifacts
+```
+
+Workflow files:
+
+```text
+.github/workflows/ci.yml
+.github/workflows/cd.yml
+```
+
 ## 👥 Team
 
 | Role | Member |
