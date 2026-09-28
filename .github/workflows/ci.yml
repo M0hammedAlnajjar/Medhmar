@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  backend-ci:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Validate Maven project
+        run: mvn -B validate
+
+      - name: Run tests
+        run: mvn -B test
+
+      - name: Build backend
+        run: mvn -B package
+
+  frontend-ci:
+    name: Frontend Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify frontend structure
+        run: |
+          test -f frontend/index.html
+          test -d frontend/css
+          test -d frontend/js
+          test -d frontend/assets
+          echo "Frontend structure is valid."
