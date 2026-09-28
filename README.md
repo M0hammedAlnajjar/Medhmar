@@ -276,8 +276,8 @@ docs/API.md
 
 | Role | Member |
 |---|---|
-| Team Leader / Focal Person |  |
-| Team Members | Jokha, Mohammed, Suliman, Maiyada |
+| Team Leader / Focal Person | Mohammed Al-Najjar |
+| Team Members | Jokha Al-Harthi, Suliman Mohammed, Maiyada Albarwani |
 | Supervisor | Fatma Al-mamari & Is'haq Al-balushi |
 
 ## 📌 Project Status
