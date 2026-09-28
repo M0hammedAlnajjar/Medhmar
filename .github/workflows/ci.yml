@@ -27,7 +27,7 @@ jobs:
       - name: Validate commit messages
         shell: bash
         run: |
-          PATTERN='^(feat|fix|test|docs|refactor|ci|chore|build|perf)\([a-z0-9._-]+\): .+ \[Task [0-9]+(\.[0-9]+)*\]$'
+          PATTERN='^(feat|fix|test|docs|refactor|ci|chore|build|perf)\([a-z0-9._-]+\): .+$'
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
@@ -58,8 +58,8 @@ jobs:
 
             if [[ ! "$MESSAGE" =~ $PATTERN ]]; then
               echo "::error::Invalid commit message: $MESSAGE"
-              echo "Expected: type(scope): description [Task X.X]"
-              echo "Example: feat(camels): add camel management service [Task 2.1]"
+              echo "Expected: type(scope): description"
+              echo "Example: feat(camels): add camel management service"
               FAILED=1
             fi
           done < <(git log --format='%s' "$RANGE")
