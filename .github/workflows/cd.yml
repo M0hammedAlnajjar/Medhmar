@@ -1,0 +1,52 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-deliverables:
+    name: Build Delivery Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Test backend
+        working-directory: backend
+        run: mvn -B test
+
+      - name: Package backend
+        working-directory: backend
+        run: mvn -B package
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: medhmar-backend
+          path: backend/target/*.jar
+          if-no-files-found: error
+
+      - name: Package frontend
+        run: zip -r medhmar-frontend.zip frontend
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: medhmar-frontend
+          path: medhmar-frontend.zip
+          if-no-files-found: error
