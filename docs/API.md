@@ -1,4 +1,4 @@
-## API Documentation
+### API Documentation
 
 API endpoints will be documented here.
  
