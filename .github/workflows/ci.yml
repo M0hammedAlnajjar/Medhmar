@@ -14,6 +14,63 @@ permissions:
   contents: read
 
 jobs:
+  commit-message:
+    name: Commit Message Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        shell: bash
+        run: |
+          PATTERN='^(feat|fix|test|docs|refactor|ci|chore|build|perf)\([a-z0-9._-]+\): .+ \[Task [0-9]+(\.[0-9]+)*\]$'
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+
+            if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              RANGE="$AFTER^..$AFTER"
+            else
+              RANGE="$BEFORE..$AFTER"
+            fi
+          fi
+
+          echo "Checking commits in range: $RANGE"
+          FAILED=0
+
+          while IFS= read -r MESSAGE; do
+            [ -z "$MESSAGE" ] && continue
+
+            # GitHub-generated merge commits are allowed.
+            if [[ "$MESSAGE" =~ ^Merge[[:space:]] ]]; then
+              echo "Skipping merge commit: $MESSAGE"
+              continue
+            fi
+
+            echo "Checking: $MESSAGE"
+
+            if [[ ! "$MESSAGE" =~ $PATTERN ]]; then
+              echo "::error::Invalid commit message: $MESSAGE"
+              echo "Expected: type(scope): description [Task X.X]"
+              echo "Example: feat(camels): add camel management service [Task 2.1]"
+              FAILED=1
+            fi
+          done < <(git log --format='%s' "$RANGE")
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "Commit message validation failed."
+            exit 1
+          fi
+
+          echo "All commit messages are valid."
+
   backend-ci:
     name: Backend Build & Test
     runs-on: ubuntu-latest
