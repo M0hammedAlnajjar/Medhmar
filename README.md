@@ -293,17 +293,17 @@ PASS ✅ / FAIL ❌
 All commit messages must follow this format:
 
 ```text
-type(scope): description [Task X.X]
+type(scope): description
 ```
 
 Examples:
 
 ```text
-feat(camels): add camel management service [Task 2.1]
-fix(auth): handle invalid login credentials [Task 3.2]
-test(races): add race service tests [Task 3.3]
-docs(api): document race endpoints [Task 4.1]
-ci(actions): update CI workflow [Task 5.1]
+feat(camels): add camel management service
+fix(auth): handle invalid login credentials
+test(races): add race service tests
+docs(api): document race endpoints
+ci(actions): update CI workflow
 ```
 
 Allowed commit types:
