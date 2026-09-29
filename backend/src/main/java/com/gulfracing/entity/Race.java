@@ -1,5 +1,6 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.RaceStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,8 +31,9 @@ public class Race {
     @Column(name = "distance_km", nullable = false)
     private Double distanceKm;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
-    private String status;
+    private RaceStatus status;
 
     @Column(name = "results_image_url", length = 2048)
     private String resultsImageUrl;
