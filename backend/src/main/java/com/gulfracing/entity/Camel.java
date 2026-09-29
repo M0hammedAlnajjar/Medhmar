@@ -1,5 +1,7 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +24,7 @@ public class Camel {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private String gender;
+    private Gender gender;
 
     private Date birthDate;
     private String breed;
@@ -32,7 +34,7 @@ public class Camel {
     private Date updatedDate;
 
     @Enumerated(EnumType.STRING)
-    private String status;
+    private CamelStatus status;
 
     @OneToMany(mappedBy = "camel")
     private List<OwnershipRecord> ownershipRecords;
