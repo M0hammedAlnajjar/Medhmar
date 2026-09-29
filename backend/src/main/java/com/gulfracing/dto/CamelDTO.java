@@ -1,6 +1,8 @@
 package com.gulfracing.dto;
 
 import com.gulfracing.entity.Camel;
+import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.Gender;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +24,7 @@ public class CamelDTO {
     private String name;
 
     @NotBlank(message = "Camel gender cannot be blank")
-    private String gender;
+    private Gender gender;
 
     @NotNull(message = "Camel birth date cannot be null")
     @Past(message = "Camel birth date must be in the past")
@@ -36,7 +38,7 @@ public class CamelDTO {
     private String photoUrl;
 
     @NotBlank(message = "Camel status cannot be blank")
-    private String status;
+    private CamelStatus status;
 
 
     public static CamelDTO convertToDTO(Camel entity) {
