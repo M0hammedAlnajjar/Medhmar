@@ -1,5 +1,6 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.RaceEntryStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,8 +25,9 @@ public class RaceEntry {
     @Column(name = "participant_number", nullable = false)
     private Integer participantNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "entry_status", nullable = false, length = 30)
-    private String entryStatus;
+    private RaceEntryStatus entryStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "race_id", nullable = false)
