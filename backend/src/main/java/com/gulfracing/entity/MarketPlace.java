@@ -1,5 +1,6 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.MarketPlaceStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,8 +23,14 @@ public class MarketPlace {
 
     private Double askingPriceOmr;
     private Date createdAt;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private MarketPlaceStatus status;
+
     private String description;
+    private Boolean isActive;
+    private Date createdDate;
+    private Date updatedDate;
 
     @ManyToOne
     @JoinColumn(name = "camel_id")
