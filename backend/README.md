@@ -23,6 +23,10 @@ Spring AI BOM.
 | MySQL Connector/J | MySQL database connections |
 | Validation | Request constraints such as `@NotBlank` and `@Valid` |
 | Spring Security | Authentication and authorization infrastructure |
+| Spring OAuth2 Client | Optional Google OpenID Connect login |
+| Spring Mail | Optional SMTP password-reset delivery |
+| Flyway + MySQL support | Versioned tables, constraints and role seed data |
+| Caffeine | Bounded in-process authentication rate limiter |
 | Spring AI Chat Client | Provider-independent AI client APIs |
 | Spring Boot Web MVC Test | JUnit, assertions, application context tests, MockMvc |
 | Spring Boot Security Test | Security testing support |
@@ -60,14 +64,23 @@ Spring AI BOM.
    Alternatively, run `GulfRacingApplication` in IntelliJ after reloading Maven.
    The default port is `8080`; set `PORT` to override it.
 
-Spring Security currently applies its default development login. Its username
-is `user`, and the generated password is printed at startup. Authentication,
-roles, and business endpoints still need implementation. A login page or an
-HTTP 401 response is expected at this stage.
+The backend now provides local registration/login, roles, profile management,
+password reset, optional Google login, challenges and voting. New accounts receive
+VIEWER; there is no default administrator or password. Browser authentication uses
+an HttpOnly session cookie and CSRF protection. See [API.md](../docs/API.md) for
+the endpoint contracts, frontend fetch examples and first-admin setup.
 
-Hibernate uses `ddl-auto=validate`. Create and update the schema through
-`database/schema.sql` as entities are introduced. The database script currently
-contains a placeholder, so no domain tables are created by this setup.
+Flyway applies migrations and seeds the five roles before Hibernate performs
+`ddl-auto=validate`. Start with an empty database. Migrations are stored under
+`src/main/resources/db/migration/{mysql,h2}`. The SQL files under `database/`
+are reference copies and should not be run separately against a Flyway database.
+For an existing populated database, review its schema before planning a baseline.
+
+Local registration/login and voting need only the database settings. To enable
+Google sign-in, configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and activate
+the `google` profile. SMTP password-reset delivery uses the `mail` profile.
+For both, set `SPRING_PROFILES_ACTIVE=google,mail`; required variables are
+listed in `.env.example` and the API guide.
 
 ## Build and test
 
@@ -77,10 +90,11 @@ From `backend`:
 mvn clean verify
 ```
 
-The tests load the real application context with an H2 database and check that
-anonymous requests to the admin API require authentication. They require no
-MySQL account or AI credentials. H2 tests do not validate MySQL-specific SQL;
-add MySQL integration tests as database modules are implemented.
+The tests load the real application context and apply Flyway migrations on H2.
+They cover authentication, CSRF, permissions, password resets, Google identity
+provisioning, challenge rules and concurrent voting. They require no Google,
+SMTP or AI credentials. CI repeats the suite against a disposable MySQL 8.4
+service to validate the actual database mappings and constraints.
 
 The executable JAR is generated at:
 

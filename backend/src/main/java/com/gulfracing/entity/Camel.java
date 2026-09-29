@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,5 +30,5 @@ public class Camel {
     private List<OwnershipRecord> ownershipRecords;
 
     @OneToMany(mappedBy = "camel")
-    private List<Marketplace> marketplaces;
+    private List<MarketPlace> marketplaces;
 }

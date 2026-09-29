@@ -3,6 +3,8 @@ package com.gulfracing.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gulfracing.enums.Provider;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,7 @@ public class AuthAccount {
     private Long accountId;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "provider", nullable = false, length = 20)
     private Provider provider;
 

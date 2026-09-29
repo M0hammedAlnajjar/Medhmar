@@ -24,7 +24,8 @@ class GulfRacingApplicationTests {
     void applicationStartsWithAnIsolatedDatabase(@Autowired DataSource dataSource) throws Exception {
         try (Connection connection = dataSource.getConnection()) {
             assertThat(connection.isValid(2)).isTrue();
-            assertThat(connection.getMetaData().getURL()).startsWith("jdbc:h2:mem:");
+            assertThat(connection.getMetaData().getURL()).startsWith(
+                    System.getenv().getOrDefault("TEST_DB_URL", "jdbc:h2:mem:"));
         }
     }
 

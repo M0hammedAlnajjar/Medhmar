@@ -2,6 +2,8 @@ package com.gulfracing.entity;
 
 import com.gulfracing.enums.RaceStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +34,7 @@ public class Race {
     private Double distanceKm;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "status", nullable = false, length = 30)
     private RaceStatus status;
 
@@ -42,5 +45,3 @@ public class Race {
     @JoinColumn(name = "organizer_id", nullable = false)
     private User organizer;
 }
-
-
