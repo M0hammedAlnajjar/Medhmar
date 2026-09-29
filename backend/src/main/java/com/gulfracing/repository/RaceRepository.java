@@ -1,4 +1,8 @@
 package com.gulfracing.repository;
 
-public class RaceRepository {
+import com.gulfracing.entity.Race;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RaceRepository extends JpaRepository<Race, Long> {
+
 }
