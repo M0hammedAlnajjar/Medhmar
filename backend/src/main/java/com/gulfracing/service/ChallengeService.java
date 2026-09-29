@@ -49,6 +49,7 @@ public class ChallengeService {
         if (entries.countById_ChallengeId(id) >= 2)
             throw ApiException.conflict("A challenge can contain at most two camels.");
         var camel = camels.findById(camelId).orElseThrow(() -> ApiException.notFound("Camel"));
+        if (Boolean.FALSE.equals(camel.getIsActive())) throw ApiException.badRequest("This camel is inactive.");
         var entry = new ChallengeCamel();
         entry.setChallenge(challenge);
         entry.setCamel(camel);

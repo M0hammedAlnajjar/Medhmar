@@ -80,9 +80,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/races", "/api/races/*").permitAll()
                 .requestMatchers("/api/races", "/api/races/**").hasAnyRole("ORGANIZER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/camel/**").permitAll()
+                .requestMatchers("/camel/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers("/api/challenges/mine").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/challenges", "/api/challenges/*", "/api/challenges/*/results").permitAll()
-                .anyRequest().authenticated())
+                .requestMatchers("/api/users/me", "/api/challenges", "/api/challenges/**").authenticated()
+                .anyRequest().denyAll())
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, error) ->
                     errors.write(response, 401, "UNAUTHORIZED", "Authentication is required."))

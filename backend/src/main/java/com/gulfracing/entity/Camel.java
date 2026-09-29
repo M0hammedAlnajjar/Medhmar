@@ -1,6 +1,10 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.Gender;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,11 +24,21 @@ public class Camel {
     private Long camelId;
 
     private String name;
-    private String gender;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private Gender gender;
+
     private Date birthDate;
     private String breed;
     private String photoUrl;
-    private String status;
+    private Boolean isActive;
+    private Date createdDate;
+    private Date updatedDate;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private CamelStatus status;
 
     @OneToMany(mappedBy = "camel")
     private List<OwnershipRecord> ownershipRecords;

@@ -134,3 +134,8 @@ CREATE TABLE races (
     organizer_id BIGINT NOT NULL,
     CONSTRAINT fk_race_organizer FOREIGN KEY (organizer_id) REFERENCES users(user_id)
 );
+
+-- V5: tracking fields added by the camel module.
+ALTER TABLE camel ADD COLUMN is_active BOOLEAN;
+ALTER TABLE camel ADD COLUMN created_date TIMESTAMP(6);
+ALTER TABLE camel ADD COLUMN updated_date TIMESTAMP(6);
