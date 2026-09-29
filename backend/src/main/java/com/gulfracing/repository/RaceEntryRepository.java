@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RaceEntryRepository extends JpaRepository<RaceEntry, Long> {
 
+    boolean existsByRaceRaceIdAndCamelCamelId(Long raceId, Long camelId);
 }
