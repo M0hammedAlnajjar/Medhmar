@@ -2,6 +2,7 @@ package com.gulfracing.dto;
 
 import com.gulfracing.entity.Race;
 import com.gulfracing.entity.User;
+import com.gulfracing.enums.RaceStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -37,9 +38,8 @@ public class RaceDTO {
     @Positive(message = "Race distance must be greater than zero")
     private Double distanceKm;
 
-    @NotBlank(message = "Race status is required")
-    @Size(max = 30, message = "Race status cannot exceed 30 characters")
-    private String status;
+    @NotNull(message = "Race status is required")
+    private RaceStatus status;
 
     @Size(max = 2048, message = "Results image URL cannot exceed 2048 characters")
     private String resultsImageUrl;
