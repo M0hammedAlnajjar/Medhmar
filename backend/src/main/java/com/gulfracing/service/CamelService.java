@@ -1,6 +1,8 @@
 package com.gulfracing.service;
 
 import com.gulfracing.entity.Camel;
+import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.Gender;
 import com.gulfracing.repository.CamelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public class CamelService {
     }
 
     //Add service
-    public Long addCamel(String name, String gender, Date birthDate, String breed, String photoUrl, String status) {
+    public Long addCamel(String name, Gender gender, Date birthDate, String breed, String photoUrl, CamelStatus status) {
         Camel camel = new Camel();
         camel.setIsActive(true);
         camel.setCreatedDate(new Date());
@@ -50,9 +52,9 @@ public class CamelService {
 
     //Update service
     public Camel updateCamel(Long id, String updateName,
-                             String updateGender, Date updateBirthDate,
+                             Gender updateGender, Date updateBirthDate,
                              String updateBreed, String updatePhotoUrl,
-                             String updateStatus) {
+                             CamelStatus updateStatus) {
         Camel camelToUpdate = camelRepository.getById(id);
         if(camelToUpdate==null){
             return new Camel();
