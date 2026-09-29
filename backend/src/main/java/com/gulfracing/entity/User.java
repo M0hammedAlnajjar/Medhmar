@@ -1,5 +1,6 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,11 +58,5 @@ public class User {
         if (joinedAt == null) {
             joinedAt = Instant.now();
         }
-    }
-
-    public enum AccountStatus {
-        ACTIVE,
-        INACTIVE,
-        SUSPENDED
     }
 }
