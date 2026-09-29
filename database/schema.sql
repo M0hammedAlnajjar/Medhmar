@@ -142,3 +142,12 @@ ALTER TABLE camel ADD COLUMN updated_date TIMESTAMP(6);
 ALTER TABLE market_place ADD COLUMN is_active BOOLEAN;
 ALTER TABLE market_place ADD COLUMN created_date TIMESTAMP(6);
 ALTER TABLE market_place ADD COLUMN updated_date TIMESTAMP(6);
+
+ALTER TABLE offer ADD COLUMN is_active BOOLEAN;
+ALTER TABLE offer ADD COLUMN created_date TIMESTAMP(6);
+ALTER TABLE offer ADD COLUMN updated_date TIMESTAMP(6);
+
+-- Tracking fields added by the ownership record module.
+ALTER TABLE ownership_record ADD COLUMN is_active BOOLEAN;
+ALTER TABLE ownership_record ADD COLUMN created_date TIMESTAMP(6);
+ALTER TABLE ownership_record ADD COLUMN updated_date TIMESTAMP(6);
