@@ -1,5 +1,8 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.MarketPlaceStatus;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,8 +24,13 @@ public class MarketPlace {
 
     private Double askingPriceOmr;
     private Date createdAt;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private MarketPlaceStatus status;
     private String description;
+    private Boolean isActive;
+    private Date createdDate;
+    private Date updatedDate;
 
     @ManyToOne
     @JoinColumn(name = "camel_id")

@@ -184,7 +184,8 @@ not accept votes even if their stored status has not been changed.
 
 A challenge has at most two camel entries. Entries cannot change after opening.
 Camel CRUD is maintained by the camel module; create camels there before adding
-them to challenges. There is no demo camel data inserted into production.
+them to challenges. Camels marked inactive cannot be added. There is no demo
+camel data inserted into production.
 
 Each user has at most one vote per challenge. Challenge row locks serialize
 voting and closing, the database has a unique user/challenge constraint, and
@@ -198,6 +199,27 @@ Race reads remain public. Race mutations require ORGANIZER or ADMIN.
 An organizer can create races only under their own organizer ID, and can modify
 or delete only races they own. ADMIN can manage all races. The existing race DTO
 still requires organizerId for create/update requests.
+
+## Integration with the camel module
+
+Camel reads (`GET /camel/getAll` and `GET /camel/getById?id=...`) are public.
+Creating, updating and deleting camels requires OWNER or ADMIN and a CSRF token.
+`POST /camel/add` also creates a 100% ownership record for the signed-in user;
+the client cannot choose a different owner. `PUT /camel/update` and
+`DELETE /camel/deleteById?id=...` require a current, positive ownership share
+unless the caller is ADMIN. Existing camels need accurate ownership records
+before an owner can manage them.
+
+Camel deletion marks the row inactive, preserving ownership and voting history.
+Existing challenge entries and results remain available. Gender is MALE or FEMALE;
+camel status is ACTIVE, INACTIVE, RETIRED or SOLD. The existing camel request
+fields and response shapes remain unchanged.
+
+Other module endpoints are denied until their access rules are explicitly added
+to SecurityConfig. This keeps new controllers from becoming writable merely
+because a caller has registered an account. The teammate marketplace module is
+preserved, with schema support for its tracking fields; its routes remain denied
+until that module connects listings to authenticated ownership.
 
 ## Errors
 
@@ -240,4 +262,5 @@ Coverage includes registration, password hashing, CSRF/session rotation,
 logout, roles/status/session revocation, private drafts, challenge ownership,
 entry limits, voting time boundaries, cross-challenge membership, percentages,
 duplicate/concurrent votes, expired/reused/concurrent reset tokens, Google
-identity rules, rate limiting, race authorization, and migration validation.
+identity rules, rate limiting, race/camel ownership authorization, and migration
+validation, including camel tracking fields.

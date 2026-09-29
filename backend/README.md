@@ -94,7 +94,9 @@ The tests load the real application context and apply Flyway migrations on H2.
 They cover authentication, CSRF, permissions, password resets, Google identity
 provisioning, challenge rules and concurrent voting. They require no Google,
 SMTP or AI credentials. CI repeats the suite against a disposable MySQL 8.4
-service to validate the actual database mappings and constraints.
+service to validate the actual database mappings and constraints. The suite also
+checks ownership restrictions on race/camel changes and preserves camel history
+when a camel is deleted.
 
 The executable JAR is generated at:
 
