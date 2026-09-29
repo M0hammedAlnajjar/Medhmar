@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +16,7 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class CamelDTO {
     @Positive
     private Long camelId;
@@ -23,7 +25,7 @@ public class CamelDTO {
     @Size(min = 2, max = 50, message = "Camel name has to be between 2 and 50 characters")
     private String name;
 
-    @NotBlank(message = "Camel gender cannot be blank")
+    @NotNull(message = "Camel gender cannot be null")
     private Gender gender;
 
     @NotNull(message = "Camel birth date cannot be null")
@@ -37,7 +39,7 @@ public class CamelDTO {
 
     private String photoUrl;
 
-    @NotBlank(message = "Camel status cannot be blank")
+    @NotNull(message = "Camel status cannot be null")
     private CamelStatus status;
 
 

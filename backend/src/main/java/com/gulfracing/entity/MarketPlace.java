@@ -1,6 +1,8 @@
 package com.gulfracing.entity;
 
 import com.gulfracing.enums.MarketPlaceStatus;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +11,6 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
@@ -23,10 +24,9 @@ public class MarketPlace {
 
     private Double askingPriceOmr;
     private Date createdAt;
-
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private MarketPlaceStatus status;
-
     private String description;
     private Boolean isActive;
     private Date createdDate;

@@ -43,7 +43,7 @@ public class CamelService {
     //Get By Id service
     public Camel getById(Long id) {
         Optional<Camel> camel = camelRepository.findById(id);
-        if (camel.isPresent() && camel.get().getIsActive()) {
+        if (camel.isPresent() && Boolean.TRUE.equals(camel.get().getIsActive())) {
             return camel.get();
         }
 
@@ -78,7 +78,7 @@ public class CamelService {
         }else{
             deleteCamel.setIsActive(false);
             deleteCamel.setUpdatedDate(new Date());
-            camelRepository.deleteById(id);
+            camelRepository.save(deleteCamel);
             return true;
         }
     }
