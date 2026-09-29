@@ -1,0 +1,3 @@
+ALTER TABLE offer ADD COLUMN is_active BOOLEAN;
+ALTER TABLE offer ADD COLUMN created_date TIMESTAMP(6);
+ALTER TABLE offer ADD COLUMN updated_date TIMESTAMP(6);
