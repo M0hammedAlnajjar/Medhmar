@@ -1,6 +1,7 @@
 package com.gulfracing.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gulfracing.enums.Provider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,9 +43,4 @@ public class AuthAccount {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    public enum Provider {
-        LOCAL,
-        GOOGLE
-    }
 }

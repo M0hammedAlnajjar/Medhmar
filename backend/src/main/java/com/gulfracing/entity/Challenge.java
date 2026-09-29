@@ -1,5 +1,6 @@
 package com.gulfracing.entity;
 
+import com.gulfracing.enums.ChallengeStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,10 +36,4 @@ public class Challenge {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
-
-    public enum ChallengeStatus {
-        DRAFT,
-        OPEN,
-        CLOSED
-    }
 }
