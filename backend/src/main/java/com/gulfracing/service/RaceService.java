@@ -87,9 +87,10 @@ public class RaceService {
             throw new IllegalArgumentException("Race distance must be greater than zero");
         }
 
-        if (race.getStatus() == null ||
-                race.getStatus().trim().isEmpty()) {
-            throw new IllegalArgumentException("Race status is required");
+        if (race.getStatus() == null) {
+            throw new IllegalArgumentException(
+                    "Race status is required"
+            );
         }
 
         if (race.getOrganizer() == null) {
