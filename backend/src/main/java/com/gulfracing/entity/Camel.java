@@ -20,10 +20,18 @@ public class Camel {
     private Long camelId;
 
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private String gender;
+
     private Date birthDate;
     private String breed;
     private String photoUrl;
+    private Boolean isActive;
+    private Date createdDate;
+    private Date updatedDate;
+
+    @Enumerated(EnumType.STRING)
     private String status;
 
     @OneToMany(mappedBy = "camel")
