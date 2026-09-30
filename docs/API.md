@@ -200,6 +200,81 @@ An organizer can create races only under their own organizer ID, and can modify
 or delete only races they own. ADMIN can manage all races. The existing race DTO
 still requires organizerId for create/update requests.
 
+
+### Race entries
+
+Race entry endpoints require an authenticated user with one of the allowed roles.
+
+When a race entry is created, the registrant ID is taken from the authenticated
+session. The client cannot choose another registrant ID.
+
+New race entries always start with PENDING status.
+
+The authenticated camel owner can submit their camel for a race. ADMIN can also
+create race entries.
+
+The same camel cannot be registered more than once in the same race.
+
+| Method | Endpoint | Access | Behavior |
+| --- | --- | --- | --- |
+| GET | /api/race-entries | Allowed authenticated role | Returns all race entries |
+| GET | /api/race-entries/{id} | Allowed authenticated role | Returns one race entry |
+| POST | /api/race-entries | Camel owner / ADMIN | Creates a PENDING race entry |
+| PUT | /api/race-entries/{id} | Race organizer / ADMIN | Updates the race entry status |
+| DELETE | /api/race-entries/{id} | Race organizer / ADMIN | Deletes the race entry |
+
+Race entry status values are:
+
+```text
+PENDING
+ACCEPTED
+REJECTED
+```
+
+Example create request:
+
+```json
+{
+  "registeredAt": "2030-01-01T10:00:00Z",
+  "participantNumber": 1,
+  "raceId": 1,
+  "camelId": 1
+}
+```
+
+The server assigns registrantId and entryStatus automatically.
+
+
+### Race results
+
+Race results are linked one-to-one with race entries.
+
+The race entry ID is also used as the primary key of the race result.
+
+Result reads are public. Creating, updating and deleting a result requires the
+organizer of the related race or ADMIN.
+
+| Method | Endpoint | Access | Behavior |
+| --- | --- | --- | --- |
+| GET | /api/race-results | Public | Returns all race results |
+| GET | /api/race-results/{entryId} | Public | Returns one race result |
+| POST | /api/race-results | Race organizer / ADMIN | Creates a race result |
+| PUT | /api/race-results/{entryId} | Race organizer / ADMIN | Updates a race result |
+| DELETE | /api/race-results/{entryId} | Race organizer / ADMIN | Deletes a race result |
+
+Example request:
+
+```json
+{
+  "entryId": 1,
+  "finishPosition": 1,
+  "elapsedMs": 320000
+}
+```
+
+Each race entry can have only one race result.
+
+
 ## Integration with the camel module
 
 Camel reads (`GET /camel/getAll` and `GET /camel/getById?id=...`) are public.
