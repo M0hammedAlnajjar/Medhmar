@@ -1,65 +1,115 @@
 package com.gulfracing.controller;
 
 import com.gulfracing.dto.OfferDTO;
+import com.gulfracing.security.AccountAccess;
 import com.gulfracing.service.OfferService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("offer")
+@RequestMapping("/offer")
+@RequiredArgsConstructor
 public class OfferController {
-    OfferService offerService;
 
-    @Autowired
-    public OfferController(OfferService offerService) {
-        this.offerService = offerService;
-    }
+    private final OfferService offerService;
 
-    //Add API
-    @PostMapping("add")
-    public Long addOffer(@Valid @RequestBody OfferDTO dto) {
+    @PostMapping("/add")
+    public Long addOffer(
+            @Valid @RequestBody OfferDTO dto,
+            Authentication auth
+    ) {
         return offerService.addOffer(
                 dto.getOfferedPriceOmr(),
-                dto.getStatus(),
-                dto.getUserId(),
-                dto.getListingId()
+                dto.getListingId(),
+                AccountAccess.requiredId(auth)
         );
     }
 
-    //Get all API
-    @GetMapping("getAll")
-    public List<OfferDTO> getAllOffers() {
-        List<OfferDTO> offers = OfferDTO.convertToDTO(
-                offerService.getAllOffers()
-        );
-        return offers;
-    }
-
-    //Get By Id API
-    @GetMapping("getById")
-    public OfferDTO getById(@RequestParam Long id) {
-        return OfferDTO.convertToDTO(offerService.getById(id));
-    }
-
-    //Update API
-    @PutMapping("update")
-    public OfferDTO updateOffer(
-            @Valid @RequestBody OfferDTO dto) {
+    @GetMapping("/getAll")
+    public List<OfferDTO> getAllOffers(Authentication auth) {
         return OfferDTO.convertToDTO(
-                offerService.updateOffer(
-                        dto.getOfferId(),
-                        dto.getOfferedPriceOmr(),
-                        dto.getStatus()
+                offerService.getAllOffers(AccountAccess.requiredId(auth))
+        );
+    }
+
+    @GetMapping("/listing/{listingId}")
+    public List<OfferDTO> getOffersForListing(
+            @PathVariable Long listingId,
+            Authentication auth
+    ) {
+        return OfferDTO.convertToDTO(
+                offerService.getOffersForListing(
+                        listingId,
+                        AccountAccess.requiredId(auth)
                 )
         );
     }
 
-    //Delete API
-    @DeleteMapping("deleteById")
-    public Boolean deleteOffer(@RequestParam Long id) {
-        return offerService.deleteById(id);
+    @GetMapping("/getById")
+    public OfferDTO getById(
+            @RequestParam Long id,
+            Authentication auth
+    ) {
+        return OfferDTO.convertToDTO(
+                offerService.getById(
+                        id,
+                        AccountAccess.requiredId(auth)
+                )
+        );
+    }
+
+    @PutMapping("/update")
+    public OfferDTO updateOffer(
+            @Valid @RequestBody OfferDTO dto,
+            Authentication auth
+    ) {
+        return OfferDTO.convertToDTO(
+                offerService.updateOffer(
+                        dto.getOfferId(),
+                        dto.getOfferedPriceOmr(),
+                        AccountAccess.requiredId(auth)
+                )
+        );
+    }
+
+    @PostMapping("/{id}/accept")
+    public OfferDTO acceptOffer(
+            @PathVariable Long id,
+            Authentication auth
+    ) {
+        return OfferDTO.convertToDTO(
+                offerService.acceptOffer(
+                        id,
+                        AccountAccess.requiredId(auth)
+                )
+        );
+    }
+
+    @PostMapping("/{id}/decline")
+    public OfferDTO declineOffer(
+            @PathVariable Long id,
+            Authentication auth
+    ) {
+        return OfferDTO.convertToDTO(
+                offerService.declineOffer(
+                        id,
+                        AccountAccess.requiredId(auth)
+                )
+        );
+    }
+
+    @DeleteMapping("/deleteById")
+    public Boolean deleteOffer(
+            @RequestParam Long id,
+            Authentication auth
+    ) {
+        return offerService.deleteById(
+                id,
+                AccountAccess.requiredId(auth)
+        );
     }
 }
