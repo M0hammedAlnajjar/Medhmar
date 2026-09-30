@@ -13,6 +13,10 @@ import java.util.Optional;
 public interface TrainingAgreementRepository extends JpaRepository<TrainingAgreement, Long> {
     boolean existsByCamel_CamelIdAndStatusIn(Long camelId, Collection<AgreementStatus> statuses);
 
+    List<TrainingAgreement> findByTrainer_UserIdAndStatusOrderByAgreementIdDesc(
+            Long trainerUserId, AgreementStatus status
+    );
+
     List<TrainingAgreement> findByOwner_UserIdOrTrainer_UserIdOrderByAgreementIdDesc(
             Long ownerId, Long trainerUserId
     );

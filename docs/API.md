@@ -313,3 +313,20 @@ agreement, enforced by a camel-row lock while proposing. Historical agreements a
 Prize-share and sale-share percentages are independent, each 0–100.
 Agreements do not yet transfer money, prevent marketplace sales, or synchronize termination when
 ownership changes. Those integrations belong to later changes.
+
+
+## Assigned camels and training log
+
+`GET /api/agreements/assigned` returns the signed-in TRAINER's ACCEPTED/ACTIVE agreements,
+including camelId, ownerUserId and agreed terms. A pending or rejected assignment does not appear.
+An ACTIVE status alone is not permission to record a training session outside the agreement's date window.
+
+| Method | Route | Authorization |
+| --- | --- | --- |
+| GET | /api/agreements/assigned | TRAINER: own ACTIVE assignments only |
+| POST | /api/training-logs | Designated TRAINER only; agreementId, sessionAt, durationMinutes (1–720), notes (1–2000 characters) |
+| GET | /api/training-logs/agreement/{agreementId} | Agreement owner, designated trainer, or ADMIN |
+
+Training logs are append-only, preserving the historical record. Session timestamps must fall within
+the agreed interval and cannot be in the future; an agreement must be ACTIVE and currently within
+its effective date interval. Pending, rejected and terminated agreements cannot receive new logs.
