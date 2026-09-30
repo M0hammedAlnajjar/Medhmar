@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Long> {
 
+    List<Offer> findByIsActiveTrueOrderByOfferIdDesc();
+
     List<Offer> findByUser_UserIdAndIsActiveTrueOrderByOfferIdDesc(Long userId);
 
     List<Offer> findByMarketplace_ListingIdAndIsActiveTrueOrderByOfferIdDesc(Long listingId);
