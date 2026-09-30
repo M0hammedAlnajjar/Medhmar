@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,7 +14,9 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class OwnershipRecordDTO {
+
     @Positive
     private Long ownershipId;
 
@@ -36,8 +39,7 @@ public class OwnershipRecordDTO {
     private Long ownerId;
 
     public static OwnershipRecordDTO convertToDTO(OwnershipRecord entity) {
-
-        OwnershipRecordDTO dto = OwnershipRecordDTO.builder()
+        return OwnershipRecordDTO.builder()
                 .ownershipId(entity.getOwnershipId())
                 .sharePercent(entity.getSharePercent())
                 .startAt(entity.getStartAt())
@@ -45,11 +47,9 @@ public class OwnershipRecordDTO {
                 .camelId(entity.getCamel() != null ? entity.getCamel().getCamelId() : null)
                 .ownerId(entity.getOwner() != null ? entity.getOwner().getUserId() : null)
                 .build();
-        return dto;
     }
 
-    public static List<OwnershipRecordDTO> convertToDTO(
-            List<OwnershipRecord> entityList) {
+    public static List<OwnershipRecordDTO> convertToDTO(List<OwnershipRecord> entityList) {
         List<OwnershipRecordDTO> dtos = new ArrayList<>();
         for (OwnershipRecord ownershipRecord : entityList) {
             dtos.add(convertToDTO(ownershipRecord));
