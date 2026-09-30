@@ -115,3 +115,38 @@ jobs:
           test -d frontend/js
           test -d frontend/assets
           echo "Frontend structure is valid."
+
+  backend-mysql:
+    name: Backend MySQL Integration
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: integration-test-only
+          MYSQL_DATABASE: medhmar_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pintegration-test-only"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      TEST_DB_URL: jdbc:mysql://127.0.0.1:3306/medhmar_ci
+      TEST_DB_DRIVER: com.mysql.cj.jdbc.Driver
+      TEST_DB_USERNAME: root
+      TEST_DB_PASSWORD: integration-test-only
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Validate migrations and run the API suite on MySQL
+        run: mvn -B test

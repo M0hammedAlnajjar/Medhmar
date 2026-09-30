@@ -21,6 +21,9 @@ public class OwnershipRecord {
     private Double sharePercent;
     private Date startAt;
     private Date endAt;
+    private Boolean isActive;
+    private Date createdDate;
+    private Date updatedDate;
 
     @ManyToOne
     @JoinColumn(name = "camel_id")

@@ -2,6 +2,8 @@ package com.gulfracing.entity;
 
 import com.gulfracing.enums.AccountStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +34,7 @@ public class User {
     private String preferredLanguage = "ar";
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "account_status", nullable = false, length = 20)
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
@@ -40,6 +43,14 @@ public class User {
 
     @Column(name = "avatar_url", length = 2048)
     private String avatarUrl;
+
+    // Incremented on password, role or account-status changes to revoke old sessions.
+    @Column(name = "security_version", nullable = false)
+    private long securityVersion;
+
+    @Version
+    @Column(name = "row_version", nullable = false)
+    private long rowVersion;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

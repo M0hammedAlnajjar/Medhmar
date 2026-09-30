@@ -1,0 +1,3 @@
+ALTER TABLE camel ADD COLUMN is_active BOOLEAN;
+ALTER TABLE camel ADD COLUMN created_date TIMESTAMP(6);
+ALTER TABLE camel ADD COLUMN updated_date TIMESTAMP(6);
