@@ -25,7 +25,14 @@ public record CamelProfileDTO(
         List<OwnerInfo> owners,
         ListingInfo activeListing
 ) {
-    public record PedigreeInfo(Long pedigreeId, Date recordedAt, String sire, String dam) {}
+    public record PedigreeInfo(
+            Long pedigreeId,
+            Date recordedAt,
+            String sire,
+            String dam,
+            Long sireCamelId,
+            Long damCamelId
+    ) {}
 
     public record OwnerInfo(String name, Double sharePercent) {}
 
@@ -34,6 +41,7 @@ public record CamelProfileDTO(
 
     public static CamelProfileDTO of(Camel camel, Pedigree pedigree,
                                      List<OwnershipRecord> owners, MarketPlace listing) {
+        PedigreeDTO family = PedigreeDTO.of(camel, pedigree);
         return new CamelProfileDTO(
                 camel.getCamelId(),
                 camel.getName(),
@@ -44,10 +52,12 @@ public record CamelProfileDTO(
                 camel.getCategory(),
                 camel.getStatus(),
                 new PedigreeInfo(
-                        pedigree == null ? null : pedigree.getPedigreeId(),
-                        pedigree == null ? null : pedigree.getRecordedAt(),
-                        camel.getSire(),
-                        camel.getDam()),
+                        family.pedigreeId(),
+                        family.recordedAt(),
+                        family.sire(),
+                        family.dam(),
+                        family.sireCamelId(),
+                        family.damCamelId()),
                 owners.stream()
                         .map(o -> new OwnerInfo(o.getOwner().getFullName(), o.getSharePercent()))
                         .toList(),

@@ -48,7 +48,7 @@ abstract class IntegrationSupport {
 
     @BeforeEach
     void cleanDatabase() {
-        for (String table : List.of("votes","challenge_camels","challenges","races","offer","market_place",
+        for (String table : List.of("votes","challenge_camels","challenges","race_entries","races","offer","market_place",
             "ownership_record","pedigree","password_resets","auth_accounts","user_roles","users","camel"))
             jdbc.update("DELETE FROM " + table);
         when(clock.instant()).thenReturn(NOW);
