@@ -2,6 +2,8 @@ package com.gulfracing.controller;
 
 import com.gulfracing.dto.CamelDTO;
 import com.gulfracing.dto.CamelProfileDTO;
+import com.gulfracing.dto.OwnershipHistoryDTO;
+import com.gulfracing.service.OwnershipRecordService;
 import com.gulfracing.service.CamelProfileService;
 import com.gulfracing.entity.Camel;
 import com.gulfracing.service.CamelService;
@@ -21,13 +23,15 @@ public class CamelController {
 
     CamelService camelService;
     private final CamelProfileService profiles;
+    private final OwnershipRecordService ownershipRecords;
     private final CamelAccessService access;
 
     @Autowired
     public CamelController(CamelService camelService, CamelAccessService access,
-                           CamelProfileService profiles) {
+                           CamelProfileService profiles, OwnershipRecordService ownershipRecords) {
         this.camelService = camelService;
         this.profiles = profiles;
+        this.ownershipRecords = ownershipRecords;
         this.access = access;
     }
 
@@ -54,6 +58,12 @@ public class CamelController {
     @GetMapping("profile")
     public CamelProfileDTO getProfile(@RequestParam Long id) {
         return profiles.getProfile(id);
+    }
+
+    //Ownership History API
+    @GetMapping("ownership-history")
+    public List<OwnershipHistoryDTO> getOwnershipHistory(@RequestParam Long id) {
+        return ownershipRecords.getOwnershipHistory(id);
     }
 
     //Update API
