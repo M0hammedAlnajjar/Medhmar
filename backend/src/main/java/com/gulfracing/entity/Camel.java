@@ -32,6 +32,9 @@ public class Camel {
     private Date birthDate;
     private String breed;
     private String photoUrl;
+    private String sire;
+    private String dam;
+    private String category;
     private Boolean isActive;
     private Date createdDate;
     private Date updatedDate;
@@ -45,4 +48,7 @@ public class Camel {
 
     @OneToMany(mappedBy = "camel")
     private List<MarketPlace> marketplaces;
+
+    @OneToOne(mappedBy = "camel")
+    private Pedigree pedigree;
 }
