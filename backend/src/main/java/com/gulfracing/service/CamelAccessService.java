@@ -65,10 +65,6 @@ public class CamelAccessService {
     public void requireFullOwner(Long camelId, Long actorId) {
         validateCamelId(camelId);
 
-        if (users.isAdmin(actorId)) {
-            return;
-        }
-
         Double share = ownerships.currentOwnershipShare(
                 camelId,
                 actorId,
