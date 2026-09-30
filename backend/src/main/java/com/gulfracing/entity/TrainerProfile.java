@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,8 +28,7 @@ public class TrainerProfile {
     private User user;
 
     // "Assigned To": one trainer profile -> many training agreements
-    @OneToMany(mappedBy = "mudammer")
-    private Set<Mudammer> agreements = new HashSet<>();
-}
+    @OneToMany(mappedBy = "trainer")
+    private List<Mudammer> agreements = new ArrayList<>();}
 
 
