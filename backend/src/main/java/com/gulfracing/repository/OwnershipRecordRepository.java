@@ -33,7 +33,7 @@ public interface OwnershipRecordRepository extends JpaRepository<OwnershipRecord
     );
 
     @Query("""
-        select coalesce(sum(o.sharePercent), 0)
+        select coalesce(sum(o.sharePercent), 0.0)
         from OwnershipRecord o
         where o.camel.camelId = :camelId
           and o.owner.userId = :ownerId
