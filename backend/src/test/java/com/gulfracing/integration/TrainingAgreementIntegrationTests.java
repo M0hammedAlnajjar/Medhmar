@@ -138,12 +138,12 @@ class TrainingAgreementIntegrationTests extends IntegrationSupport {
                 .content(payload(Map.of("camelId", camelId, "trainerUserId", trainer.userId(),
                         "feeOmr", 1, "prizeSharePct", 120, "saleSharePct", 15,
                         "startsAt", NOW.plusSeconds(3600).toString(),
-                        "endsAt", NOW.plusSeconds(86400).toString()))).andExpect(status().isBadRequest());
+                        "endsAt", NOW.plusSeconds(86400).toString())))).andExpect(status().isBadRequest());
         mvc.perform(post("/api/agreements").session(login(owner.email())).with(csrf())
                 .contentType("application/json")
                 .content(payload(Map.of("camelId", camelId, "trainerUserId", trainer.userId(),
                         "feeOmr", 1, "prizeSharePct", 10, "saleSharePct", 15,
                         "startsAt", NOW.plusSeconds(86400).toString(),
-                        "endsAt", NOW.plusSeconds(3600).toString()))).andExpect(status().isBadRequest());
+                        "endsAt", NOW.plusSeconds(3600).toString())))).andExpect(status().isBadRequest());
     }
 }
