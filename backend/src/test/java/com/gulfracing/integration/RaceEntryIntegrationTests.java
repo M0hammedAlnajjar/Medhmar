@@ -106,7 +106,7 @@ class RaceEntryIntegrationTests extends IntegrationSupport {
         mvc.perform(put("/api/race-entries/" + id).session(unrelatedSession).with(csrf())
                 .contentType("application/json").content(decision)).andExpect(status().isForbidden());
         mvc.perform(put("/api/race-entries/" + id).session(organizerSession).with(csrf())
-                .contentType("application/json").content(payload(Map.of("entryStatus", "PENDING")))
+                .contentType("application/json").content(payload(Map.of("entryStatus", "PENDING"))))
                 .andExpect(status().isBadRequest());
         mvc.perform(put("/api/race-entries/" + id).session(organizerSession).with(csrf())
                 .contentType("application/json").content(decision))
