@@ -1,5 +1,6 @@
 package com.gulfracing.service;
 
+import com.gulfracing.dto.OwnershipHistoryDTO;
 import com.gulfracing.entity.OwnershipRecord;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.CamelRepository;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class OwnershipRecordService {
     private final OwnershipRecordRepository ownershipRecords;
     private final CamelRepository camels;
     private final UserRepository users;
+    private final Clock clock;
 
     @Transactional
     public Long addOwnershipRecord(
@@ -62,6 +65,31 @@ public class OwnershipRecordService {
             throw ApiException.notFound("Ownership record");
         }
         return record;
+    }
+
+    @Transactional(readOnly = true)
+    public List<OwnershipHistoryDTO> getOwnershipHistory(Long camelId) {
+        validateCamelId(camelId);
+        if (camels.getById(camelId) == null) {
+            throw ApiException.notFound("Camel");
+        }
+        Date now = Date.from(clock.instant());
+        return ownershipRecords.findHistoryByCamelId(camelId).stream()
+                .map(record -> OwnershipHistoryDTO.of(record, isCurrent(record, now)))
+                .toList();
+    }
+
+    private boolean isCurrent(OwnershipRecord record, Date now) {
+        return Boolean.TRUE.equals(record.getIsActive())
+                && record.getSharePercent() != null && record.getSharePercent() > 0
+                && (record.getStartAt() == null || !record.getStartAt().after(now))
+                && (record.getEndAt() == null || record.getEndAt().after(now));
+    }
+
+    private void validateCamelId(Long id) {
+        if (id == null || id <= 0) {
+            throw ApiException.badRequest("A camel ID is required.");
+        }
     }
 
     @Transactional
