@@ -25,6 +25,9 @@ public class CamelService {
             Date birthDate,
             String breed,
             String photoUrl,
+            String sire,
+            String dam,
+            String category,
             CamelStatus status
     ) {
         Camel camel = new Camel();
@@ -35,6 +38,9 @@ public class CamelService {
         camel.setBirthDate(birthDate);
         camel.setBreed(breed);
         camel.setPhotoUrl(photoUrl);
+        camel.setSire(sire);
+        camel.setDam(dam);
+        camel.setCategory(category);
         camel.setStatus(status);
 
         return camelRepository.save(camel).getCamelId();
@@ -64,6 +70,9 @@ public class CamelService {
             Date updateBirthDate,
             String updateBreed,
             String updatePhotoUrl,
+            String updateSire,
+            String updateDam,
+            String updateCategory,
             CamelStatus updateStatus
     ) {
         Camel camelToUpdate = getById(id);
@@ -73,6 +82,9 @@ public class CamelService {
         camelToUpdate.setBirthDate(updateBirthDate);
         camelToUpdate.setBreed(updateBreed);
         camelToUpdate.setPhotoUrl(updatePhotoUrl);
+        camelToUpdate.setSire(updateSire);
+        camelToUpdate.setDam(updateDam);
+        camelToUpdate.setCategory(updateCategory);
         camelToUpdate.setStatus(updateStatus);
         return camelToUpdate;
     }

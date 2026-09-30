@@ -48,6 +48,22 @@ public interface OwnershipRecordRepository extends JpaRepository<OwnershipRecord
             @Param("now") Date now
     );
 
+    @Query("""
+        select o
+        from OwnershipRecord o
+        join fetch o.owner
+        where o.camel.camelId = :camelId
+          and o.isActive = true
+          and o.sharePercent > 0
+          and (o.startAt is null or o.startAt <= :now)
+          and (o.endAt is null or o.endAt > :now)
+        order by o.sharePercent desc, o.ownershipId
+        """)
+    List<OwnershipRecord> findCurrentOwnershipsWithOwner(
+            @Param("camelId") Long camelId,
+            @Param("now") Date now
+    );
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         select o
