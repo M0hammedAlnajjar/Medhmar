@@ -30,14 +30,12 @@ public class RaceEntryDTO {
     @Positive(message = "Participant number must be greater than zero")
     private Integer participantNumber;
 
-    @NotNull(message = "Race entry status is required")
     private RaceEntryStatus entryStatus;
 
     @NotNull(message = "Race ID is required")
     @Positive(message = "Race ID must be greater than zero")
     private Long raceId;
 
-    @NotNull(message = "Registrant ID is required")
     @Positive(message = "Registrant ID must be greater than zero")
     private Long registrantId;
 
