@@ -1,6 +1,7 @@
 package com.gulfracing.repository;
 
 import com.gulfracing.entity.MarketPlace;
+import com.gulfracing.enums.MarketPlaceStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,9 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
     Optional<MarketPlace> findByListingIdAndIsActiveTrue(Long listingId);
 
     boolean existsByCamel_CamelIdAndIsActiveTrue(Long camelId);
+
+    Optional<MarketPlace> findFirstByCamel_CamelIdAndIsActiveTrueAndStatusOrderByListingIdDesc(
+            Long camelId, MarketPlaceStatus status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT m FROM MarketPlace m WHERE m.listingId = :id")
