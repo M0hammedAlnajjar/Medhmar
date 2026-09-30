@@ -80,7 +80,7 @@ class PedigreeIntegrationTests extends IntegrationSupport {
 
         mvc.perform(put("/camel/" + child + "/pedigree").with(csrf())
                         .contentType("application/json").content(payload(Map.of())))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
         mvc.perform(put("/camel/" + child + "/pedigree").session(login(viewer.email())).with(csrf())
                         .contentType("application/json").content(payload(Map.of())))
                 .andExpect(status().isForbidden());
