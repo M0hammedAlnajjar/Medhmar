@@ -288,3 +288,28 @@ An organizer decision requires a PENDING entry, before the race starts, and a ra
 An entry cannot be reapproved, withdrawn after a decision, or deleted physically through this API.
 Sending a different `registrantId` than the authenticated account returns 403. Race-result creation
 requires an ACCEPTED entry. For a race organiser, update the race's status through the race API.
+
+
+## Camel partnership agreements
+
+Authenticated OWNER accounts propose agreements for camels of which they currently own the full 100%
+share. The intended TRAINER must have an active account and an existing trainer profile. The platform
+records fees in OMR (3 decimal places), prize share percentage, sale share percentage, start and end dates,
+and owner/trainer/camel references. Ownership is rechecked on acceptance.
+
+| Method | Route | Allowed actor |
+| --- | --- | --- |
+| POST | /api/agreements | OWNER (or ADMIN who is the actual full owner); request: camelId, trainerUserId, feeOmr, prizeSharePct, saleSharePct, startsAt, endsAt |
+| GET | /api/agreements/mine | Signed-in owner/trainer sees own agreements |
+| GET | /api/agreements/{id} | Owner, trainer or ADMIN |
+| GET | /api/agreements | ADMIN only |
+| POST | /api/agreements/{id}/accept | Designated trainer, if PENDING_APPROVAL |
+| POST | /api/agreements/{id}/reject | Designated trainer, if PENDING_APPROVAL |
+| POST | /api/agreements/{id}/terminate | Owner may withdraw pending proposal; owner or trainer may terminate ACTIVE agreement |
+
+New proposals start `PENDING_APPROVAL`; acceptance sets `ACTIVE`; rejection sets `REJECTED`;
+cancellation/termination sets `TERMINATED`. A camel may have at most one PENDING_APPROVAL or ACTIVE
+agreement, enforced by a camel-row lock while proposing. Historical agreements are never deleted.
+Prize-share and sale-share percentages are independent, each 0–100.
+Agreements do not yet transfer money, prevent marketplace sales, or synchronize termination when
+ownership changes. Those integrations belong to later changes.
