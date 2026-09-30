@@ -50,9 +50,7 @@ public class CamelAccessService {
 
     @Transactional(readOnly = true)
     public void requireOwner(Long camelId, Long actorId) {
-        if (camelId == null || camelId <= 0) {
-            throw ApiException.badRequest("A camel ID is required.");
-        }
+        validateCamelId(camelId);
 
         if (users.isAdmin(actorId)) {
             return;
@@ -60,6 +58,31 @@ public class CamelAccessService {
 
         if (!ownerships.hasCurrentOwnership(camelId, actorId, Date.from(clock.instant()))) {
             throw ApiException.forbidden();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void requireFullOwner(Long camelId, Long actorId) {
+        validateCamelId(camelId);
+
+        if (users.isAdmin(actorId)) {
+            return;
+        }
+
+        Double share = ownerships.currentOwnershipShare(
+                camelId,
+                actorId,
+                Date.from(clock.instant())
+        );
+
+        if (share == null || share < 99.999d) {
+            throw ApiException.conflict("Only the full owner can list this camel for sale.");
+        }
+    }
+
+    private void validateCamelId(Long camelId) {
+        if (camelId == null || camelId <= 0) {
+            throw ApiException.badRequest("A camel ID is required.");
         }
     }
 }
