@@ -103,11 +103,7 @@ public class RaceResultController {
             return;
         }
 
-        Long organizerId = raceEntryService
-                .getRaceEntryById(entryId)
-                .getRace()
-                .getOrganizer()
-                .getUserId();
+        Long organizerId = raceEntryService.getRaceOrganizerId(entryId);
 
         if (!actorId.equals(organizerId)) {
             throw ApiException.forbidden();
