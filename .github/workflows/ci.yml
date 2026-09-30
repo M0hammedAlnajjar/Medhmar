@@ -111,10 +111,22 @@ jobs:
       - name: Verify frontend structure
         run: |
           test -f frontend/index.html
-          test -d frontend/css
-          test -d frontend/js
+          test -f frontend/reset-password.html
+          test -f frontend/css/styles.css
+          test -s frontend/js/app.js
+          test -f frontend/README.md
           test -d frontend/assets
+          grep -q 'css/styles.css' frontend/index.html
+          grep -q 'js/app.js' frontend/index.html
           echo "Frontend structure is valid."
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check client JavaScript syntax
+        run: node --check frontend/js/app.js
 
   backend-mysql:
     name: Backend MySQL Integration
