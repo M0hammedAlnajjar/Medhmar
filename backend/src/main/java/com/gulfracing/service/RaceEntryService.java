@@ -1,6 +1,7 @@
 package com.gulfracing.service;
 
 import com.gulfracing.entity.RaceEntry;
+import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.RaceEntryRepository;
 import org.springframework.stereotype.Service;
 
@@ -146,5 +147,15 @@ public class RaceEntryService {
                     "Race entry ID must be greater than zero"
             );
         }
+    }
+
+
+    public Long getRaceOrganizerId(Long entryId) {
+        if (entryId == null || entryId <= 0) {
+            throw ApiException.badRequest("Race entry ID must be greater than zero.");
+        }
+
+        return raceEntryRepository.findRaceOrganizerIdByEntryId(entryId)
+                .orElseThrow(() -> ApiException.notFound("Race entry"));
     }
 }
