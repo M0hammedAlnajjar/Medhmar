@@ -32,6 +32,9 @@ public class CamelAccessService {
                 request.getBirthDate(),
                 request.getBreed(),
                 request.getPhotoUrl(),
+                request.getSire(),
+                request.getDam(),
+                request.getCategory(),
                 request.getStatus()
         );
 
