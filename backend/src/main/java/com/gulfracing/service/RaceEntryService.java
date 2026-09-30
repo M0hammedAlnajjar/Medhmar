@@ -24,8 +24,8 @@ public class RaceEntryService {
                 raceEntry.getRace().getRaceId(),
                 raceEntry.getCamel().getCamelId())) {
 
-            throw new IllegalArgumentException(
-                    "Camel is already registered in this race"
+            throw ApiException.conflict(
+                    "Camel is already registered in this race."
             );
         }
 
@@ -44,42 +44,38 @@ public class RaceEntryService {
 
         return raceEntryRepository.findById(id)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Race entry not found with ID: " + id
-                        )
+                        ApiException.notFound("Race entry")
                 );
     }
 
-    public RaceEntry updateRaceEntry(Long id, RaceEntry updatedRaceEntry) {
+    public RaceEntry updateRaceEntry(
+            Long id,
+            RaceEntry updatedRaceEntry) {
 
         validateId(id);
-        validateRaceEntry(updatedRaceEntry);
 
-        RaceEntry raceEntry = getRaceEntryById(id);
-
-        boolean changedRaceOrCamel =
-                !raceEntry.getRace().getRaceId()
-                        .equals(updatedRaceEntry.getRace().getRaceId())
-                        ||
-                        !raceEntry.getCamel().getCamelId()
-                                .equals(updatedRaceEntry.getCamel().getCamelId());
-
-        if (changedRaceOrCamel &&
-                raceEntryRepository.existsByRaceRaceIdAndCamelCamelId(
-                        updatedRaceEntry.getRace().getRaceId(),
-                        updatedRaceEntry.getCamel().getCamelId())) {
-
-            throw new IllegalArgumentException(
-                    "Camel is already registered in this race"
+        if (updatedRaceEntry == null) {
+            throw ApiException.badRequest(
+                    "Race entry cannot be null."
             );
         }
 
-        raceEntry.setRegisteredAt(updatedRaceEntry.getRegisteredAt());
-        raceEntry.setParticipantNumber(updatedRaceEntry.getParticipantNumber());
-        raceEntry.setEntryStatus(updatedRaceEntry.getEntryStatus());
-        raceEntry.setRace(updatedRaceEntry.getRace());
-        raceEntry.setRegistrant(updatedRaceEntry.getRegistrant());
-        raceEntry.setCamel(updatedRaceEntry.getCamel());
+        if (updatedRaceEntry.getEntryStatus() == null) {
+            throw ApiException.badRequest(
+                    "Race entry status is required."
+            );
+        }
+
+        RaceEntry raceEntry = getRaceEntryById(id);
+
+        /*
+         * Organizer/Admin may change the registration decision,
+         * but cannot move the entry to another race, camel,
+         * or registrant.
+         */
+        raceEntry.setEntryStatus(
+                updatedRaceEntry.getEntryStatus()
+        );
 
         return raceEntryRepository.save(raceEntry);
     }
@@ -91,51 +87,66 @@ public class RaceEntryService {
         raceEntryRepository.delete(raceEntry);
     }
 
+    public Long getRaceOrganizerId(Long entryId) {
+
+        validateId(entryId);
+
+        return raceEntryRepository
+                .findRaceOrganizerIdByEntryId(entryId)
+                .orElseThrow(() ->
+                        ApiException.notFound("Race entry")
+                );
+    }
+
     private void validateRaceEntry(RaceEntry raceEntry) {
 
         if (raceEntry == null) {
-            throw new IllegalArgumentException(
-                    "Race entry cannot be null"
+            throw ApiException.badRequest(
+                    "Race entry cannot be null."
             );
         }
 
         if (raceEntry.getRegisteredAt() == null) {
-            throw new IllegalArgumentException(
-                    "Registration date is required"
+            throw ApiException.badRequest(
+                    "Registration date is required."
             );
         }
 
         if (raceEntry.getParticipantNumber() == null ||
                 raceEntry.getParticipantNumber() <= 0) {
-            throw new IllegalArgumentException(
-                    "Participant number must be greater than zero"
+
+            throw ApiException.badRequest(
+                    "Participant number must be greater than zero."
             );
         }
 
         if (raceEntry.getEntryStatus() == null) {
-            throw new IllegalArgumentException(
-                    "Race entry status is required"
+            throw ApiException.badRequest(
+                    "Race entry status is required."
             );
         }
 
         if (raceEntry.getRace() == null ||
                 raceEntry.getRace().getRaceId() == null) {
-            throw new IllegalArgumentException(
-                    "Race ID is required"
+
+            throw ApiException.badRequest(
+                    "Race ID is required."
             );
         }
 
         if (raceEntry.getRegistrant() == null ||
                 raceEntry.getRegistrant().getUserId() == null) {
-            throw new IllegalArgumentException(
-                    "Registrant ID is required"
+
+            throw ApiException.badRequest(
+                    "Registrant ID is required."
             );
         }
 
         if (raceEntry.getCamel() == null ||
                 raceEntry.getCamel().getCamelId() == null) {
-            throw new IllegalArgumentException(
-                    "Camel ID is required"
+
+            throw ApiException.badRequest(
+                    "Camel ID is required."
             );
         }
     }
@@ -143,19 +154,9 @@ public class RaceEntryService {
     private void validateId(Long id) {
 
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException(
-                    "Race entry ID must be greater than zero"
+            throw ApiException.badRequest(
+                    "Race entry ID must be greater than zero."
             );
         }
-    }
-
-
-    public Long getRaceOrganizerId(Long entryId) {
-        if (entryId == null || entryId <= 0) {
-            throw ApiException.badRequest("Race entry ID must be greater than zero.");
-        }
-
-        return raceEntryRepository.findRaceOrganizerIdByEntryId(entryId)
-                .orElseThrow(() -> ApiException.notFound("Race entry"));
     }
 }
