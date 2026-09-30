@@ -1,90 +1,100 @@
 package com.gulfracing.service;
 
-import com.gulfracing.entity.Camel;
 import com.gulfracing.entity.OwnershipRecord;
-import com.gulfracing.entity.User;
+import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.CamelRepository;
 import com.gulfracing.repository.OwnershipRecordRepository;
 import com.gulfracing.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OwnershipRecordService {
-    OwnershipRecordRepository ownershipRecordRepository;
-    CamelRepository camelRepository;
-    UserRepository userRepository;
 
-    @Autowired
-    public OwnershipRecordService(OwnershipRecordRepository ownershipRecordRepository, CamelRepository camelRepository, UserRepository userRepository) {
-        this.ownershipRecordRepository = ownershipRecordRepository;
-        this.camelRepository = camelRepository;
-        this.userRepository = userRepository;
-    }
+    private final OwnershipRecordRepository ownershipRecords;
+    private final CamelRepository camels;
+    private final UserRepository users;
 
-    //Add service
-    public Long addOwnershipRecord(Double sharePercent, Date startAt, Date endAt, Long camelId, Long ownerId) {
-        Optional<Camel> camel = camelRepository.findById(camelId);
-        Optional<User> owner = userRepository.findById(ownerId);
-        if (camel.isEmpty() || owner.isEmpty()) {
-            return null;
+    @Transactional
+    public Long addOwnershipRecord(
+            Double sharePercent,
+            Date startAt,
+            Date endAt,
+            Long camelId,
+            Long ownerId
+    ) {
+        if (endAt != null && !endAt.after(startAt)) {
+            throw ApiException.badRequest("Ownership end date must be after the start date.");
         }
 
-        OwnershipRecord ownershipRecord = new OwnershipRecord();
+        var camel = camels.findById(camelId)
+                .orElseThrow(() -> ApiException.notFound("Camel"));
+        var owner = users.findById(ownerId)
+                .orElseThrow(() -> ApiException.notFound("User"));
+
+        var ownershipRecord = new OwnershipRecord();
         ownershipRecord.setSharePercent(sharePercent);
         ownershipRecord.setStartAt(startAt);
         ownershipRecord.setEndAt(endAt);
-        ownershipRecord.setCamel(camel.get());
-        ownershipRecord.setOwner(owner.get());
+        ownershipRecord.setCamel(camel);
+        ownershipRecord.setOwner(owner);
         ownershipRecord.setIsActive(true);
         ownershipRecord.setCreatedDate(new Date());
-        ownershipRecord = ownershipRecordRepository.save(ownershipRecord);
-        return ownershipRecord.getOwnershipId();
+
+        return ownershipRecords.save(ownershipRecord).getOwnershipId();
     }
 
-    //Get all service
+    @Transactional(readOnly = true)
     public List<OwnershipRecord> getAllOwnershipRecords() {
-        return ownershipRecordRepository.getAllOwnershipRecords();
+        return ownershipRecords.getAllOwnershipRecords();
     }
 
-    //Get By Id service
+    @Transactional(readOnly = true)
     public OwnershipRecord getById(Long id) {
-        Optional<OwnershipRecord> ownershipRecord = ownershipRecordRepository.findById(id);
-        if (ownershipRecord.isPresent()
-                && ownershipRecord.get().getIsActive()) {
-            return ownershipRecord.get();
+        validateId(id);
+        var record = ownershipRecords.getById(id);
+        if (record == null) {
+            throw ApiException.notFound("Ownership record");
         }
-
-        return new OwnershipRecord();
+        return record;
     }
 
-    //Update service
-    public OwnershipRecord updateOwnershipRecord(Long id, Double updateSharePercent, Date updateStartAt, Date updateEndAt) {
-        OwnershipRecord ownershipRecordToUpdate = ownershipRecordRepository.getById(id);
-        if (ownershipRecordToUpdate == null) {
-            return new OwnershipRecord();
+    @Transactional
+    public OwnershipRecord updateOwnershipRecord(
+            Long id,
+            Double updateSharePercent,
+            Date updateStartAt,
+            Date updateEndAt
+    ) {
+        if (updateEndAt != null && !updateEndAt.after(updateStartAt)) {
+            throw ApiException.badRequest("Ownership end date must be after the start date.");
         }
 
-        ownershipRecordToUpdate.setSharePercent(updateSharePercent);
-        ownershipRecordToUpdate.setStartAt(updateStartAt);
-        ownershipRecordToUpdate.setEndAt(updateEndAt);
-        ownershipRecordToUpdate.setUpdatedDate(new Date());
-        return ownershipRecordRepository.save(ownershipRecordToUpdate);
+        OwnershipRecord record = getById(id);
+        record.setSharePercent(updateSharePercent);
+        record.setStartAt(updateStartAt);
+        record.setEndAt(updateEndAt);
+        record.setUpdatedDate(new Date());
+        return record;
     }
 
-    //Delete service
+    @Transactional
     public Boolean deleteById(Long id) {
-        OwnershipRecord deleteOwnershipRecord = ownershipRecordRepository.getById(id);
-        if (deleteOwnershipRecord == null) {
-            return false;
-        }
-        deleteOwnershipRecord.setIsActive(false);
-        deleteOwnershipRecord.setUpdatedDate(new Date());
-        ownershipRecordRepository.save(deleteOwnershipRecord);
+        OwnershipRecord record = getById(id);
+        record.setIsActive(false);
+        record.setEndAt(record.getEndAt() == null ? new Date() : record.getEndAt());
+        record.setUpdatedDate(new Date());
         return true;
+    }
+
+    private void validateId(Long id) {
+        if (id == null || id <= 0) {
+            throw ApiException.badRequest("An ownership record ID is required.");
+        }
     }
 }
