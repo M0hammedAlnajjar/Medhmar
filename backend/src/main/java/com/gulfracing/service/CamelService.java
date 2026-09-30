@@ -3,25 +3,30 @@ package com.gulfracing.service;
 import com.gulfracing.entity.Camel;
 import com.gulfracing.enums.CamelStatus;
 import com.gulfracing.enums.Gender;
+import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.CamelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CamelService {
-    CamelRepository camelRepository;
 
-    @Autowired
-    public CamelService(CamelRepository camelRepository) {
-        this.camelRepository = camelRepository;
-    }
+    private final CamelRepository camelRepository;
 
-    //Add service
-    public Long addCamel(String name, Gender gender, Date birthDate, String breed, String photoUrl, CamelStatus status) {
+    @Transactional
+    public Long addCamel(
+            String name,
+            Gender gender,
+            Date birthDate,
+            String breed,
+            String photoUrl,
+            CamelStatus status
+    ) {
         Camel camel = new Camel();
         camel.setIsActive(true);
         camel.setCreatedDate(new Date());
@@ -31,34 +36,37 @@ public class CamelService {
         camel.setBreed(breed);
         camel.setPhotoUrl(photoUrl);
         camel.setStatus(status);
-        camel = camelRepository.save(camel);
-        return camel.getCamelId();
+
+        return camelRepository.save(camel).getCamelId();
     }
 
-    //Get all service
+    @Transactional(readOnly = true)
     public List<Camel> getAllCamels() {
         return camelRepository.getAllCamels();
     }
 
-    //Get By Id service
+    @Transactional(readOnly = true)
     public Camel getById(Long id) {
-        Optional<Camel> camel = camelRepository.findById(id);
-        if (camel.isPresent() && Boolean.TRUE.equals(camel.get().getIsActive())) {
-            return camel.get();
+        if (id == null || id <= 0) {
+            throw ApiException.badRequest("A camel ID is required.");
         }
 
-        return new Camel();
+        return camelRepository.findById(id)
+                .filter(camel -> Boolean.TRUE.equals(camel.getIsActive()))
+                .orElseThrow(() -> ApiException.notFound("Camel"));
     }
 
-    //Update service
-    public Camel updateCamel(Long id, String updateName,
-                             Gender updateGender, Date updateBirthDate,
-                             String updateBreed, String updatePhotoUrl,
-                             CamelStatus updateStatus) {
-        Camel camelToUpdate = camelRepository.getById(id);
-        if(camelToUpdate==null){
-            return new Camel();
-        }
+    @Transactional
+    public Camel updateCamel(
+            Long id,
+            String updateName,
+            Gender updateGender,
+            Date updateBirthDate,
+            String updateBreed,
+            String updatePhotoUrl,
+            CamelStatus updateStatus
+    ) {
+        Camel camelToUpdate = getById(id);
         camelToUpdate.setUpdatedDate(new Date());
         camelToUpdate.setName(updateName);
         camelToUpdate.setGender(updateGender);
@@ -66,20 +74,14 @@ public class CamelService {
         camelToUpdate.setBreed(updateBreed);
         camelToUpdate.setPhotoUrl(updatePhotoUrl);
         camelToUpdate.setStatus(updateStatus);
-        camelToUpdate = camelRepository.save(camelToUpdate);
         return camelToUpdate;
     }
 
-    //Delete service
+    @Transactional
     public Boolean deleteById(Long id) {
-        Camel deleteCamel = camelRepository.getById(id);
-        if(deleteCamel == null){
-            return false;
-        }else{
-            deleteCamel.setIsActive(false);
-            deleteCamel.setUpdatedDate(new Date());
-            camelRepository.save(deleteCamel);
-            return true;
-        }
+        Camel camel = getById(id);
+        camel.setIsActive(false);
+        camel.setUpdatedDate(new Date());
+        return true;
     }
 }
