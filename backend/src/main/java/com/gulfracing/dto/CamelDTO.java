@@ -39,6 +39,15 @@ public class CamelDTO {
 
     private String photoUrl;
 
+    @Size(max = 100, message = "Camel sire cannot exceed 100 characters")
+    private String sire;
+
+    @Size(max = 100, message = "Camel dam cannot exceed 100 characters")
+    private String dam;
+
+    @Size(max = 50, message = "Camel category cannot exceed 50 characters")
+    private String category;
+
     @NotNull(message = "Camel status cannot be null")
     private CamelStatus status;
 
@@ -51,6 +60,9 @@ public class CamelDTO {
                 .birthDate(entity.getBirthDate())
                 .breed(entity.getBreed())
                 .photoUrl(entity.getPhotoUrl())
+                .sire(entity.getSire())
+                .dam(entity.getDam())
+                .category(entity.getCategory())
                 .status(entity.getStatus())
                 .build();
         return dto;
