@@ -113,6 +113,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/races", "/api/races/*").permitAll()
                         .requestMatchers("/api/races", "/api/races/**").hasAnyRole("ORGANIZER", "ADMIN")
 
+                        .requestMatchers("/api/race-entries", "/api/race-entries/**")
+                        .hasAnyRole("OWNER", "TRAINER", "ORGANIZER", "ADMIN")
+
                         .requestMatchers(HttpMethod.GET, "/api/race-results", "/api/race-results/*").permitAll()
                         .requestMatchers("/api/race-results", "/api/race-results/**").hasAnyRole("ORGANIZER", "ADMIN")
 
