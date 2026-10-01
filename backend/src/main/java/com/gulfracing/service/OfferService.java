@@ -3,12 +3,14 @@ package com.gulfracing.service;
 import com.gulfracing.entity.MarketPlace;
 import com.gulfracing.entity.Offer;
 import com.gulfracing.entity.OwnershipRecord;
+import com.gulfracing.entity.SaleTransaction;
 import com.gulfracing.enums.MarketPlaceStatus;
 import com.gulfracing.enums.OfferStatus;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.MarketPlaceRepository;
 import com.gulfracing.repository.OfferRepository;
 import com.gulfracing.repository.OwnershipRecordRepository;
+import com.gulfracing.repository.SaleTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class OfferService {
     private final MarketPlaceService marketplaceService;
     private final UserService users;
     private final Clock clock;
+    private final SaleTransactionRepository saleTransactions;
 
     @Transactional
     public Long addOffer(
@@ -199,6 +202,17 @@ public class OfferService {
         newOwnership.setIsActive(true);
         newOwnership.setCreatedDate(now);
         ownerships.save(newOwnership);
+
+        var saleTransaction = new SaleTransaction();
+        saleTransaction.setSalePriceOmr(offer.getOfferedPriceOmr());
+        saleTransaction.setSoldAt(now);
+        saleTransaction.setOffer(offer);
+        saleTransaction.setMarketplace(listing);
+        saleTransaction.setCamel(listing.getCamel());
+        saleTransaction.setSeller(listing.getUser());
+        saleTransaction.setBuyer(offer.getUser());
+
+        saleTransactions.save(saleTransaction);
 
         return offer;
     }
