@@ -1,161 +1,163 @@
 package com.gulfracing.service;
 
+import com.gulfracing.dto.RaceEntryRequests;
+import com.gulfracing.entity.Race;
 import com.gulfracing.entity.RaceEntry;
+import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.RaceEntryStatus;
+import com.gulfracing.enums.RaceStatus;
 import com.gulfracing.exception.ApiException;
+import com.gulfracing.repository.CamelRepository;
 import com.gulfracing.repository.RaceEntryRepository;
+import com.gulfracing.repository.RaceRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RaceEntryService {
+    private final RaceEntryRepository entries;
+    private final RaceRepository races;
+    private final CamelRepository camels;
+    private final CamelAccessService camelAccess;
+    private final UserService users;
+    private final Clock clock;
 
-    private final RaceEntryRepository raceEntryRepository;
-
-    public RaceEntryService(RaceEntryRepository raceEntryRepository) {
-        this.raceEntryRepository = raceEntryRepository;
-    }
-
-    public RaceEntry addRaceEntry(RaceEntry raceEntry) {
-
-        validateRaceEntry(raceEntry);
-
-        if (raceEntryRepository.existsByRaceRaceIdAndCamelCamelId(
-                raceEntry.getRace().getRaceId(),
-                raceEntry.getCamel().getCamelId())) {
-
-            throw new IllegalArgumentException(
-                    "Camel is already registered in this race"
-            );
+    @Transactional
+    public RaceEntry register(RaceEntryRequests.Create request, Long actorId) {
+        var registrant = users.getActive(actorId);
+        if (request.registrantId() != null && !request.registrantId().equals(actorId)) {
+            throw ApiException.forbidden();
+        }
+        var race = races.findLockedById(request.raceId())
+                .orElseThrow(() -> ApiException.notFound("Race"));
+        Instant now = clock.instant();
+        if (race.getStatus() != RaceStatus.OPEN || !race.getStartsAt().isAfter(now)) {
+            throw ApiException.conflict("Registration is not open for this race.");
+        }
+        var camel = camels.findById(request.camelId())
+                .orElseThrow(() -> ApiException.notFound("Camel"));
+        if (!Boolean.TRUE.equals(camel.getIsActive()) || camel.getStatus() != CamelStatus.ACTIVE) {
+            throw ApiException.conflict("Only active camels can be registered.");
+        }
+        camelAccess.requireOwner(camel.getCamelId(), actorId);
+        if (entries.existsByRaceRaceIdAndCamelCamelId(race.getRaceId(), camel.getCamelId())) {
+            throw ApiException.conflict("This camel is already registered for the race.");
         }
 
-        raceEntry.setEntryId(null);
-
-        return raceEntryRepository.save(raceEntry);
+        int nextNumber = entries.maxParticipantNumber(race.getRaceId()) + 1;
+        var entry = new RaceEntry();
+        entry.setRace(race);
+        entry.setCamel(camel);
+        entry.setRegistrant(registrant);
+        entry.setRegisteredAt(now);
+        entry.setParticipantNumber(nextNumber);
+        entry.setEntryStatus(RaceEntryStatus.PENDING);
+        return entries.saveAndFlush(entry);
     }
 
-    public List<RaceEntry> getAllRaceEntries() {
-        return raceEntryRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<RaceEntry> getAllRaceEntries(Long actorId) {
+        requireAdmin(actorId);
+        return entries.findAll();
     }
 
-    public RaceEntry getRaceEntryById(Long id) {
+    @Transactional(readOnly = true)
+    public List<RaceEntry> mine(Long actorId) {
+        users.getActive(actorId);
+        return entries.findByRegistrant_UserIdOrderByEntryIdDesc(actorId);
+    }
 
+    @Transactional(readOnly = true)
+    public List<RaceEntry> forRace(Long raceId, Long actorId) {
+        requireOrganizer(raceById(raceId), actorId);
+        return entries.findByRace_RaceIdOrderByEntryIdAsc(raceId);
+    }
+
+    @Transactional(readOnly = true)
+    public RaceEntry getById(Long id, Long actorId) {
+        var entry = entryById(id);
+        users.getActive(actorId);
+        if (!actorId.equals(entry.getRegistrant().getUserId())
+                && !actorId.equals(entry.getRace().getOrganizer().getUserId())
+                && !users.isAdmin(actorId)) {
+            throw ApiException.forbidden();
+        }
+        return entry;
+    }
+
+    @Transactional
+    public RaceEntry decide(Long id, RaceEntryStatus decision, Long actorId) {
+        if (decision != RaceEntryStatus.ACCEPTED && decision != RaceEntryStatus.REJECTED) {
+            throw ApiException.badRequest("Decision must be ACCEPTED or REJECTED.");
+        }
+        var entry = lockedEntry(id);
+        requireOrganizer(entry.getRace(), actorId);
+        if (entry.getEntryStatus() != RaceEntryStatus.PENDING) {
+            throw ApiException.conflict("Only pending entries can be decided.");
+        }
+        if (!entry.getRace().getStartsAt().isAfter(clock.instant())
+                || (entry.getRace().getStatus() != RaceStatus.OPEN
+                && entry.getRace().getStatus() != RaceStatus.CLOSED)) {
+            throw ApiException.conflict("Registration decisions are closed for this race.");
+        }
+        entry.setEntryStatus(decision);
+        return entry;
+    }
+
+    @Transactional
+    public void withdraw(Long id, Long actorId) {
+        var entry = lockedEntry(id);
+        users.getActive(actorId);
+        if (!actorId.equals(entry.getRegistrant().getUserId())) {
+            throw ApiException.forbidden();
+        }
+        if (entry.getEntryStatus() != RaceEntryStatus.PENDING
+                || !entry.getRace().getStartsAt().isAfter(clock.instant())) {
+            throw ApiException.conflict("Only a pending entry can be withdrawn before the race starts.");
+        }
+        entry.setEntryStatus(RaceEntryStatus.WITHDRAWN);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getRaceOrganizerId(Long entryId) {
+        validateId(entryId);
+        return entries.findRaceOrganizerIdByEntryId(entryId)
+                .orElseThrow(() -> ApiException.notFound("Race entry"));
+    }
+
+    private Race raceById(Long raceId) {
+        validateId(raceId);
+        return races.findById(raceId).orElseThrow(() -> ApiException.notFound("Race"));
+    }
+
+    private RaceEntry entryById(Long id) {
         validateId(id);
-
-        return raceEntryRepository.findById(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Race entry not found with ID: " + id
-                        )
-                );
+        return entries.findById(id).orElseThrow(() -> ApiException.notFound("Race entry"));
     }
 
-    public RaceEntry updateRaceEntry(Long id, RaceEntry updatedRaceEntry) {
-
+    private RaceEntry lockedEntry(Long id) {
         validateId(id);
-        validateRaceEntry(updatedRaceEntry);
-
-        RaceEntry raceEntry = getRaceEntryById(id);
-
-        boolean changedRaceOrCamel =
-                !raceEntry.getRace().getRaceId()
-                        .equals(updatedRaceEntry.getRace().getRaceId())
-                        ||
-                        !raceEntry.getCamel().getCamelId()
-                                .equals(updatedRaceEntry.getCamel().getCamelId());
-
-        if (changedRaceOrCamel &&
-                raceEntryRepository.existsByRaceRaceIdAndCamelCamelId(
-                        updatedRaceEntry.getRace().getRaceId(),
-                        updatedRaceEntry.getCamel().getCamelId())) {
-
-            throw new IllegalArgumentException(
-                    "Camel is already registered in this race"
-            );
-        }
-
-        raceEntry.setRegisteredAt(updatedRaceEntry.getRegisteredAt());
-        raceEntry.setParticipantNumber(updatedRaceEntry.getParticipantNumber());
-        raceEntry.setEntryStatus(updatedRaceEntry.getEntryStatus());
-        raceEntry.setRace(updatedRaceEntry.getRace());
-        raceEntry.setRegistrant(updatedRaceEntry.getRegistrant());
-        raceEntry.setCamel(updatedRaceEntry.getCamel());
-
-        return raceEntryRepository.save(raceEntry);
+        return entries.findLockedById(id).orElseThrow(() -> ApiException.notFound("Race entry"));
     }
 
-    public void deleteRaceEntry(Long id) {
-
-        RaceEntry raceEntry = getRaceEntryById(id);
-
-        raceEntryRepository.delete(raceEntry);
+    private void requireOrganizer(Race race, Long actorId) {
+        users.getActive(actorId);
+        if (!users.isAdmin(actorId) && !actorId.equals(race.getOrganizer().getUserId())) {
+            throw ApiException.forbidden();
+        }
     }
 
-    private void validateRaceEntry(RaceEntry raceEntry) {
-
-        if (raceEntry == null) {
-            throw new IllegalArgumentException(
-                    "Race entry cannot be null"
-            );
-        }
-
-        if (raceEntry.getRegisteredAt() == null) {
-            throw new IllegalArgumentException(
-                    "Registration date is required"
-            );
-        }
-
-        if (raceEntry.getParticipantNumber() == null ||
-                raceEntry.getParticipantNumber() <= 0) {
-            throw new IllegalArgumentException(
-                    "Participant number must be greater than zero"
-            );
-        }
-
-        if (raceEntry.getEntryStatus() == null) {
-            throw new IllegalArgumentException(
-                    "Race entry status is required"
-            );
-        }
-
-        if (raceEntry.getRace() == null ||
-                raceEntry.getRace().getRaceId() == null) {
-            throw new IllegalArgumentException(
-                    "Race ID is required"
-            );
-        }
-
-        if (raceEntry.getRegistrant() == null ||
-                raceEntry.getRegistrant().getUserId() == null) {
-            throw new IllegalArgumentException(
-                    "Registrant ID is required"
-            );
-        }
-
-        if (raceEntry.getCamel() == null ||
-                raceEntry.getCamel().getCamelId() == null) {
-            throw new IllegalArgumentException(
-                    "Camel ID is required"
-            );
-        }
+    private void requireAdmin(Long actorId) {
+        if (!users.isAdmin(actorId)) throw ApiException.forbidden();
     }
 
     private void validateId(Long id) {
-
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException(
-                    "Race entry ID must be greater than zero"
-            );
-        }
-    }
-
-
-    public Long getRaceOrganizerId(Long entryId) {
-        if (entryId == null || entryId <= 0) {
-            throw ApiException.badRequest("Race entry ID must be greater than zero.");
-        }
-
-        return raceEntryRepository.findRaceOrganizerIdByEntryId(entryId)
-                .orElseThrow(() -> ApiException.notFound("Race entry"));
+        if (id == null || id <= 0) throw ApiException.badRequest("A positive ID is required.");
     }
 }

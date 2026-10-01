@@ -113,6 +113,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/races", "/api/races/*").permitAll()
                         .requestMatchers("/api/races", "/api/races/**").hasAnyRole("ORGANIZER", "ADMIN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/race-entries", "/api/race-entries/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/race-entries").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/race-entries/*").hasAnyRole("ORGANIZER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/race-entries/*").hasAnyRole("OWNER", "ADMIN")
+
                         .requestMatchers(HttpMethod.GET, "/api/race-results", "/api/race-results/*").permitAll()
                         .requestMatchers("/api/race-results", "/api/race-results/**").hasAnyRole("ORGANIZER", "ADMIN")
 

@@ -264,3 +264,27 @@ entry limits, voting time boundaries, cross-challenge membership, percentages,
 duplicate/concurrent votes, expired/reused/concurrent reset tokens, Google
 identity rules, rate limiting, race/camel ownership authorization, and migration
 validation, including camel tracking fields.
+
+
+## Race registration and approval
+
+Race entry mutations require a valid session and CSRF token. The server controls identity, registration time,
+participant number, and initial status. `OPEN` races accept owner registrations only before `startsAt`.
+The camel must be active, and the submitting user must have a current positive ownership share.
+The same camel cannot be registered twice in one race, including after withdrawal. Participant numbers
+are unique within a race and generated under a race-row lock; MySQL and H2 enforce both constraints.
+
+| Method | Endpoint | Permission | Request or result |
+| --- | --- | --- | --- |
+| POST | /api/race-entries | OWNER or ADMIN | `raceId`, `camelId`, optional matching `registrantId`; creates PENDING |
+| GET | /api/race-entries/mine | Signed-in account | Own registrations |
+| GET | /api/race-entries/race/{raceId} | Race organizer or ADMIN | Registrations for the race |
+| GET | /api/race-entries/{id} | Registrant, race organizer or ADMIN | Single entry |
+| GET | /api/race-entries | ADMIN | All registrations |
+| PUT | /api/race-entries/{id} | Race organizer or ADMIN | `{"entryStatus":"ACCEPTED"}` or `{"entryStatus":"REJECTED"}` |
+| DELETE | /api/race-entries/{id} | OWNER or ADMIN, **registrant only** | Withdraw own PENDING entry; returns 204, retains history |
+
+An organizer decision requires a PENDING entry, before the race starts, and a race that is OPEN or CLOSED.
+An entry cannot be reapproved, withdrawn after a decision, or deleted physically through this API.
+Sending a different `registrantId` than the authenticated account returns 403. Race-result creation
+requires an ACCEPTED entry. For a race organiser, update the race's status through the race API.
