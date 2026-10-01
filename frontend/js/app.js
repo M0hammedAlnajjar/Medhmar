@@ -14,17 +14,17 @@
     selectedRaceId: null, selectedAgreementId: null, loading: false
   };
   var nav = [
-    { id: "home", name: "Overview", symbol: "◈" },
-    { id: "races", name: "Race schedule", symbol: "◷" },
-    { id: "camels", name: "Camels", symbol: "◇" },
-    { id: "trainers", name: "Trainer directory", symbol: "♙" },
+    { id: "home", name: "Home", symbol: "◈" },
+    { id: "races", name: "Races", symbol: "◷" },
     { id: "marketplace", name: "Marketplace", symbol: "▣" },
-    { id: "challenges", name: "Audience voting", symbol: "◎" },
-    { id: "entries", name: "My registrations", symbol: "≡", roles: ["OWNER", "ADMIN"] },
-    { id: "agreements", name: "My partnerships", symbol: "♧", roles: ["OWNER", "ADMIN"] },
-    { id: "trainer", name: "Trainer workspace", symbol: "◉", roles: ["TRAINER", "ADMIN"] },
-    { id: "organizer", name: "Organizer workspace", symbol: "▤", roles: ["ORGANIZER", "ADMIN"] },
-    { id: "settings", name: "Account settings", symbol: "⚙", login: true }
+    { id: "agreements", name: "Partnerships", symbol: "♧", roles: ["OWNER", "ADMIN"] },
+    { id: "camels", name: "My Camels", symbol: "◇" },
+    { id: "trainers", name: "Trainers", symbol: "♙" },
+    { id: "challenges", name: "Challenges", symbol: "◎" },
+    { id: "entries", name: "My Registrations", symbol: "≡", roles: ["OWNER", "ADMIN"] },
+    { id: "trainer", name: "Trainer Workspace", symbol: "◉", roles: ["TRAINER", "ADMIN"] },
+    { id: "organizer", name: "Organizer Workspace", symbol: "▤", roles: ["ORGANIZER", "ADMIN"] },
+    { id: "settings", name: "Account", symbol: "⚙", login: true }
   ];
   var escapeMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 
@@ -504,19 +504,24 @@
         '" data-nav="' + item.id + '"><span class="symbol">' + item.symbol +
         '</span>' + esc(item.name) + '</button>';
     }).join("");
-    root.innerHTML = '<div class="app-shell"><aside class="sidebar">' +
+
+    root.innerHTML = '<div class="app-shell">' +
+      '<header class="site-header"><div class="header-inner">' +
       '<div class="brand"><div class="brand-icon" aria-hidden="true">🐪</div>' +
-      '<div><div class="brand-name">Medhmar</div><div class="brand-sub">Gulf Racing</div></div></div>' +
-      '<nav aria-label="Main navigation"><div class="nav-label">Explore</div><div class="nav-links">' +
-      links + '</div></nav><div class="side-end"><strong>Made for the racing community</strong>' +
-      '<small>Secure access for owners, trainers, organizers and spectators.</small></div></aside>' +
-      '<main class="main-area"><div class="topbar"><div class="breadcrumb">MEDHMAR / <strong>' +
-      esc(state.view.replace(/-/g, " ").toUpperCase()) + '</strong></div>' +
-      '<div class="user-actions"><span class="pill">● ' + (state.user ? "Session active" : "Public access") +
-      '</span>' + (state.user ? '<span class="avatar" title="' + esc(state.user.fullName) + '">' +
+      '<div><div class="brand-name">GULF RACING</div><div class="brand-sub">Medhmar Platform</div></div></div>' +
+      '<nav class="nav-links" aria-label="Main navigation">' + links + '</nav>' +
+      '<div class="user-actions">' +
+      (state.user ? '<span class="avatar" title="' + esc(state.user.fullName) + '">' +
       esc((state.user.fullName || "?").charAt(0).toUpperCase()) + '</span>'
       : '<button class="btn secondary small" data-nav="signin">Sign in</button>' +
-      '<button class="btn small" data-nav="register">Join now</button>') + '</div></div>' +
+      '<button class="btn small" data-nav="register">Join now</button>') +
+      '</div></div>' +
+      '<div class="workspace-strip"><div class="workspace-inner">' +
+      '<div class="breadcrumb">GULF RACING / <strong>' +
+      esc(state.view.replace(/-/g, " ").toUpperCase()) + '</strong></div>' +
+      '<span class="pill">● ' + (state.user ? "Session active" : "Public access") + '</span>' +
+      '</div></div></header>' +
+      '<main class="main-area">' +
       noticeHtml() + (state.loading ? '<p class="boot-message">Loading this workspace...</p>' : content()) +
       '<div class="footer">© Medhmar · Gulf Racing Platform · Desktop MVP</div></main></div>';
   }
