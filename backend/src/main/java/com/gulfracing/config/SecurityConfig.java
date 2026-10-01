@@ -144,7 +144,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/camel/**").permitAll()
                         .requestMatchers("/camel/**").hasAnyRole("OWNER", "ADMIN")
 
+                        // Private marketplace endpoints - logged-in user only
+                        .requestMatchers(HttpMethod.GET, "/marketplace/my-listings", "/marketplace/history").authenticated()
+
+                        // Public marketplace endpoints
                         .requestMatchers(HttpMethod.GET, "/marketplace/**").permitAll()
+
+                        // Marketplace create/update/delete
                         .requestMatchers("/marketplace/**").hasAnyRole("OWNER", "ADMIN")
 
                         .requestMatchers("/offer/**").authenticated()
