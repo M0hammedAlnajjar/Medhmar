@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -27,6 +25,8 @@ public class Mudammer {
     private Date endsAt;
     private BigDecimal feeOmr;
     private BigDecimal offeredSharePct;
+    private Boolean isActive;
+    private Date updatedDate;
 
     @Enumerated(EnumType.STRING)
     private AgreementStatus status;
@@ -44,8 +44,4 @@ public class Mudammer {
 
     @ManyToOne
     private Camel camel;
-
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<TrainingLog> trainingLogs = new ArrayList<>();
 }
