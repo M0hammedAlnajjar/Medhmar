@@ -101,32 +101,20 @@ jobs:
         run: mvn -B package
 
   frontend-ci:
-    name: Frontend Check
+    name: Frontend Placeholder Check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify frontend structure
+      - name: Verify frontend is intentionally empty
+        shell: bash
         run: |
-          test -f frontend/index.html
-          test -f frontend/reset-password.html
-          test -f frontend/css/styles.css
-          test -s frontend/js/app.js
-          test -f frontend/README.md
-          test -d frontend/assets
-          grep -q 'css/styles.css' frontend/index.html
-          grep -q 'js/app.js' frontend/index.html
-          echo "Frontend structure is valid."
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Check client JavaScript syntax
-        run: node --check frontend/js/app.js
+          test -f frontend/.gitkeep
+          COUNT="$(find frontend -type f | wc -l)"
+          test "$COUNT" -eq 1
+          echo "Frontend is intentionally empty and ready for a fresh rebuild."
 
   backend-mysql:
     name: Backend MySQL Integration
