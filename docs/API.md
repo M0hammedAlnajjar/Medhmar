@@ -200,6 +200,42 @@ An organizer can create races only under their own organizer ID, and can modify
 or delete only races they own. ADMIN can manage all races. The existing race DTO
 still requires organizerId for create/update requests.
 
+
+
+
+### Race results
+
+Race results are linked one-to-one with race entries.
+
+The race entry ID is also used as the primary key of the race result.
+
+Result reads are public. Creating, updating and deleting a result requires the
+organizer of the related race or ADMIN.
+
+A race result can only be created for an ACCEPTED race entry.
+
+
+| Method | Endpoint | Access | Behavior |
+| --- | --- | --- | --- |
+| GET | /api/race-results | Public | Returns all race results |
+| GET | /api/race-results/{entryId} | Public | Returns one race result |
+| POST | /api/race-results | Race organizer / ADMIN | Creates a race result |
+| PUT | /api/race-results/{entryId} | Race organizer / ADMIN | Updates a race result |
+| DELETE | /api/race-results/{entryId} | Race organizer / ADMIN | Deletes a race result |
+
+Example request:
+
+```json
+{
+  "entryId": 1,
+  "finishPosition": 1,
+  "elapsedMs": 320000
+}
+```
+
+Each race entry can have only one race result.
+
+
 ## Integration with the camel module
 
 Camel reads (`GET /camel/getAll` and `GET /camel/getById?id=...`) are public.
