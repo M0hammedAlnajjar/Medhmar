@@ -1,6 +1,7 @@
 package com.gulfracing.service;
 
 import com.gulfracing.dto.OwnershipHistoryDTO;
+import com.gulfracing.entity.Camel;
 import com.gulfracing.entity.OwnershipRecord;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.CamelRepository;
@@ -124,5 +125,16 @@ public class OwnershipRecordService {
         if (id == null || id <= 0) {
             throw ApiException.badRequest("An ownership record ID is required.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Camel> getMyCamels(Long ownerId) {
+        if (ownerId == null || ownerId <= 0) {
+            throw ApiException.badRequest("A user ID is required.");
+        }
+
+        Date now = Date.from(clock.instant());
+
+        return ownershipRecords.findCurrentCamelsByOwnerId(ownerId, now);
     }
 }
