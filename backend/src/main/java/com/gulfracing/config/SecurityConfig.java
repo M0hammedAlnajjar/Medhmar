@@ -132,6 +132,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/trainer-profile/**").permitAll()
                         .requestMatchers("/trainer-profile/**").hasAnyRole("TRAINER", "ADMIN")
 
+                        .requestMatchers(HttpMethod.POST, "/api/agreements").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers("/api/agreements", "/api/agreements/**").authenticated()
+
                         // Ownership records are authoritative data. Public ownership changes happen
                         // through camel creation and accepted marketplace offers, not direct writes.
                         .requestMatchers("/ownershipRecord/**").hasRole("ADMIN")
