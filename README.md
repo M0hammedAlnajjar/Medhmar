@@ -359,6 +359,61 @@ Workflow files:
 
 🚧 In Development — OPAL 3 Program 2026
 
+| الجزء | الحالة | التفاصيل الحالية |
+|---|---|---|
+| Authentication | ✅ مكتمل | Register, Login, Logout, Session, CSRF |
+| Google Login | ✅ مكتمل | OAuth2 integration موجود |
+| Password Reset | ✅ مكتمل | Forgot / Reset Password |
+| Roles & Permissions | ✅ مكتمل | `VIEWER`, `OWNER`, `TRAINER`, `ORGANIZER`, `ADMIN` |
+| User Profile | ✅ مكتمل | عرض وتعديل بيانات المستخدم |
+| Admin User Management | ✅ مكتمل | Users, Roles, Status |
+| Camel Management | ✅ مكتمل | Add, Update, View, Soft Delete |
+| Camel Profile | ✅ مكتمل | بيانات الهجن |
+| Pedigree | ✅ مكتمل | الأب والأم وشجرة النسب |
+| Ownership | ✅ مكتمل | سجل الملكية ونسبة الملكية |
+| Ownership History | ✅ مكتمل | الاحتفاظ بتاريخ المالكين |
+| Marketplace | ✅ مكتمل | عرض الهجن للبيع |
+| Offers | ✅ مكتمل | تقديم وتعديل وإلغاء العرض |
+| Accept / Decline Offer | ✅ مكتمل | قبول ورفض العروض |
+| Ownership Transfer | ✅ مكتمل | تنتقل الملكية عند قبول العرض |
+| Race Management | ✅ مكتمل | Create, Update, View, Delete |
+| Race Registration | ✅ مكتمل | تسجيل الهجن في السباق |
+| Registration Approval | ✅ مكتمل | `PENDING / ACCEPTED / REJECTED / WITHDRAWN` |
+| Race Results | ✅ مكتمل | نشر نتائج السباق |
+| Trainer Profile | ✅ مكتمل | ملف المدرب |
+| Trainer Directory | ✅ مكتمل | عرض المدربين |
+| Partnership Agreement | ✅ مكتمل | اتفاقية Owner ↔ Trainer |
+| Assigned Camels | ✅ مكتمل | الهجن المسندة للمدرب |
+| Training Logs | ✅ مكتمل | تسجيل جلسات التدريب |
+| Challenges | ✅ مكتمل | إنشاء وإدارة التحديات |
+| Voting | ✅ مكتمل | التصويت بين الهجن |
+| Organization System | ✅ مكتمل Backend | Organization + Members + Organization-scoped races |
+| Organization Members | ✅ مكتمل | إضافة/إزالة أعضاء وصلاحيات المنظمة |
+| Tourism Events | ✅ مكتمل Backend | إنشاء وعرض الفعاليات السياحية |
+| Visitor Info | ✅ مكتمل Backend | تسجيل بيانات الزيارات |
+| Cultural Content | ✅ مكتمل Backend | محتوى ثقافي + Approval workflow |
+| Race Cards | ✅ مكتمل Backend | Digital Race Cards |
+| Race Card Entry | ✅ مكتمل | يولد من `ACCEPTED Race Entries` |
+| Race Card Versioning | ✅ مكتمل | كل Publish ينشئ Version جديد |
+| Flyway Migrations | ✅ مكتمل | MySQL + H2 حتى `V19` |
+| Integration Tests | ✅ مكتمل | الأنظمة الجديدة معها Tests |
+| Security Integration | ✅ مكتمل | Organization / Tourism / Race Cards داخل Security |
+| API Documentation | ✅ محدث | APIs الجديدة موثقة |
+| CI | ✅ ناجح | Backend, MySQL, Commit Check, Frontend Check |
+| CD | ✅ ناجح | Build Delivery Artifacts |
+| Frontend MVP | 🟡 جزئي | الواجهات الأساسية موجودة |
+| Organization Frontend | ❌ غير موجود | Backend جاهز لكن UI غير مربوط |
+| Tourism Frontend | ❌ غير موجود | Backend جاهز لكن UI غير مربوط |
+| Race Cards Frontend | ❌ غير موجود | Backend جاهز لكن UI غير مربوط |
+| Full Admin Dashboard | 🟡 جزئي | ليس كاملًا |
+| Full Organizer Dashboard | 🟡 جزئي | الوظائف الأساسية موجودة |
+| Mobile Responsive UI | ❌ غير موجود | Desktop-first حاليًا |
+| AI Assistant | ❌ غير موجود | Spring AI dependency فقط |
+| AI Race Insights | ❌ غير موجود | لم يتم تنفيذه |
+| Personalized Recommendations | ❌ غير موجود | لم يتم تنفيذه |
+| Audit Log | ❌ غير موجود | موجود في ERD فقط |
+| Full ERD ↔ Code Sync | 🟡 يحتاج مراجعة | بعض أجزاء الرسم تحتاج تحديث لتطابق الكود الحالي |
+
 
 ## Desktop MVP (frontend integration)
 
