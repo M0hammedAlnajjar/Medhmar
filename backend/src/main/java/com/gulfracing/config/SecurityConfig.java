@@ -108,6 +108,26 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/organizations",
+                                "/api/organizations/*",
+                                "/api/organizations/*/members"
+                        ).permitAll()
+                        .requestMatchers("/api/organizations", "/api/organizations/**")
+                                .hasAnyRole("ORGANIZER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/tourism/events",
+                                "/api/tourism/events/*",
+                                "/api/tourism/content",
+                                "/api/tourism/content/*"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/tourism/events/*/visits").permitAll()
+                        .requestMatchers("/api/tourism/**").hasAnyRole("ORGANIZER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/race-cards/**").permitAll()
+                        .requestMatchers("/api/race-cards/**").hasAnyRole("ORGANIZER", "ADMIN")
+
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/races", "/api/races/*").permitAll()
