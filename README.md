@@ -97,7 +97,7 @@ AI Response
 
 | Layer | Technology |
 |---|---|
-| Frontend | HTML, CSS, JavaScript |
+| Frontend | Reset / ready for fresh implementation |
 | Backend | Java, Spring Boot |
 | API | REST API |
 | AI | Spring AI |
@@ -130,10 +130,7 @@ Gulf-Racing/
 │   └── pom.xml
 │
 ├── frontend/
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   └── assets/
+│   └── .gitkeep   # intentionally empty; ready for a fresh frontend
 │
 ├── database/
 │   ├── schema.sql
@@ -219,17 +216,10 @@ mvn spring-boot:run
 
 The Spring Boot application will start locally.
 
-### 5. Run the Frontend
+### 5. Frontend
 
-Open the frontend folder using a local development server.
-
-For example, using VS Code Live Server, open:
-
-```text
-frontend/index.html
-```
-
-The frontend communicates with the Spring Boot backend through REST APIs.
+The `frontend/` directory has been intentionally reset and is currently empty except for `.gitkeep`.
+A new frontend can be built from scratch without carrying over the previous MVP.
 
 ## 🧪 Testing
 
@@ -356,13 +346,6 @@ Workflow files:
 | Supervisor | Fatma Al-mamari & Is'haq Al-balushi |
 
 
-## Desktop MVP (frontend integration)
+## Frontend Status
 
-The desktop-first frontend is implemented under `frontend/`; see [frontend/README.md](frontend/README.md)
-for local startup, supported screens, environment/CORS settings, login/CSRF behavior and scope.
-Run the Spring Boot backend first, then serve `frontend/index.html` at
-`http://localhost:5500`. A static HTML file opened via `file://` is not the supported runtime.
-
-The UI currently integrates race registration, trainer profiles, owner–trainer agreements,
-assigned camels, training logs, organizer approvals, challenges and marketplace APIs.
-Mobile layouts, the extended AI assistant, tourism features and recommendations are later work.
+The previous desktop MVP was removed intentionally. The `frontend/` folder is currently a clean placeholder for a new implementation.
