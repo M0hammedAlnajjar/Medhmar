@@ -1,8 +1,12 @@
 package com.gulfracing.enums;
 
 public enum AgreementStatus {
+    DRAFT,
     PENDING_APPROVAL,
-    ACTIVE,
+    APPROVED,
     REJECTED,
-    TERMINATED
+    ACTIVE,
+    COMPLETED,
+    TERMINATED,
+    EXPIRED
 }
