@@ -59,7 +59,13 @@ public class CamelAccessService {
             return;
         }
 
-        if (!ownerships.hasCurrentOwnership(camelId, actorId, Date.from(clock.instant()))) {
+        Double share = ownerships.currentOwnershipShare(
+                camelId,
+                actorId,
+                Date.from(clock.instant())
+        );
+
+        if (share == null || share < 99.999d) {
             throw ApiException.forbidden();
         }
     }
