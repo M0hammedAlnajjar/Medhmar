@@ -358,3 +358,15 @@ Workflow files:
 ## 📌 Project Status
 
 🚧 In Development — OPAL 3 Program 2026
+
+
+## Desktop MVP (frontend integration)
+
+The desktop-first frontend is implemented under `frontend/`; see [frontend/README.md](frontend/README.md)
+for local startup, supported screens, environment/CORS settings, login/CSRF behavior and scope.
+Run the Spring Boot backend first, then serve `frontend/index.html` at
+`http://localhost:5500`. A static HTML file opened via `file://` is not the supported runtime.
+
+The UI currently integrates race registration, trainer profiles, owner–trainer agreements,
+assigned camels, training logs, organizer approvals, challenges and marketplace APIs.
+Mobile layouts, the extended AI assistant, tourism features and recommendations are later work.
