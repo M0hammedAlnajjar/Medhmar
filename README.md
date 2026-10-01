@@ -97,7 +97,7 @@ AI Response
 
 | Layer | Technology |
 |---|---|
-| Frontend | HTML, CSS, JavaScript |
+| Frontend | Reset / ready for fresh implementation |
 | Backend | Java, Spring Boot |
 | API | REST API |
 | AI | Spring AI |
@@ -130,10 +130,7 @@ Gulf-Racing/
 │   └── pom.xml
 │
 ├── frontend/
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   └── assets/
+│   └── .gitkeep   # intentionally empty; ready for a fresh frontend
 │
 ├── database/
 │   ├── schema.sql
@@ -219,17 +216,10 @@ mvn spring-boot:run
 
 The Spring Boot application will start locally.
 
-### 5. Run the Frontend
+### 5. Frontend
 
-Open the frontend folder using a local development server.
-
-For example, using VS Code Live Server, open:
-
-```text
-frontend/index.html
-```
-
-The frontend communicates with the Spring Boot backend through REST APIs.
+The `frontend/` directory has been intentionally reset and is currently empty except for `.gitkeep`.
+A new frontend can be built from scratch without carrying over the previous MVP.
 
 ## 🧪 Testing
 
@@ -355,6 +345,7 @@ Workflow files:
 | Team Members | Jokha Al-Harthi, Suliman Mohammed, Maiyada Albarwani |
 | Supervisor | Fatma Al-mamari & Is'haq Al-balushi |
 
-## 📌 Project Status
 
-🚧 In Development — OPAL 3 Program 2026
+## Frontend Status
+
+The previous desktop MVP was removed intentionally. The `frontend/` folder is currently a clean placeholder for a new implementation.

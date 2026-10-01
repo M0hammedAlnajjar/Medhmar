@@ -108,10 +108,35 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/organizations",
+                                "/api/organizations/*",
+                                "/api/organizations/*/members"
+                        ).permitAll()
+                        .requestMatchers("/api/organizations", "/api/organizations/**")
+                                .hasAnyRole("ORGANIZER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/tourism/events",
+                                "/api/tourism/events/*",
+                                "/api/tourism/content",
+                                "/api/tourism/content/*"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/tourism/events/*/visits").permitAll()
+                        .requestMatchers("/api/tourism/**").hasAnyRole("ORGANIZER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/race-cards/**").permitAll()
+                        .requestMatchers("/api/race-cards/**").hasAnyRole("ORGANIZER", "ADMIN")
+
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/races", "/api/races/*").permitAll()
                         .requestMatchers("/api/races", "/api/races/**").hasAnyRole("ORGANIZER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/race-entries", "/api/race-entries/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/race-entries").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/race-entries/*").hasAnyRole("ORGANIZER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/race-entries/*").hasAnyRole("OWNER", "ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/race-results", "/api/race-results/*").permitAll()
                         .requestMatchers("/api/race-results", "/api/race-results/**").hasAnyRole("ORGANIZER", "ADMIN")
@@ -119,13 +144,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/camel/**").permitAll()
                         .requestMatchers("/camel/**").hasAnyRole("OWNER", "ADMIN")
 
+                        // Private marketplace endpoints - logged-in user only
+                        .requestMatchers(HttpMethod.GET, "/marketplace/my-listings", "/marketplace/history").authenticated()
+
+                        // Public marketplace endpoints
                         .requestMatchers(HttpMethod.GET, "/marketplace/**").permitAll()
+
+                        // Marketplace create/update/delete
                         .requestMatchers("/marketplace/**").hasAnyRole("OWNER", "ADMIN")
 
                         .requestMatchers("/offer/**").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/trainer-profile/**").permitAll()
                         .requestMatchers("/trainer-profile/**").hasAnyRole("TRAINER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/agreements").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers("/api/agreements", "/api/agreements/**").authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/api/training-logs").hasRole("TRAINER")
+                        .requestMatchers("/api/training-logs", "/api/training-logs/**").authenticated()
 
                         // Ownership records are authoritative data. Public ownership changes happen
                         // through camel creation and accepted marketplace offers, not direct writes.

@@ -2,6 +2,8 @@ package com.gulfracing.repository;
 
 import com.gulfracing.entity.Camel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,4 +18,8 @@ public interface CamelRepository extends JpaRepository<Camel, Long> {
 
     @Query("SELECT a FROM Camel a WHERE a.isActive = true AND a.camelId = :camel")
     Camel getById(@Param("camel") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Camel c WHERE c.camelId = :id")
+    java.util.Optional<Camel> findLockedById(@Param("id") Long id);
 }

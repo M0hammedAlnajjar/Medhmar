@@ -101,20 +101,20 @@ jobs:
         run: mvn -B package
 
   frontend-ci:
-    name: Frontend Check
+    name: Frontend Placeholder Check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify frontend structure
+      - name: Verify frontend is intentionally empty
+        shell: bash
         run: |
-          test -f frontend/index.html
-          test -d frontend/css
-          test -d frontend/js
-          test -d frontend/assets
-          echo "Frontend structure is valid."
+          test -f frontend/.gitkeep
+          COUNT="$(find frontend -type f | wc -l)"
+          test "$COUNT" -eq 1
+          echo "Frontend is intentionally empty and ready for a fresh rebuild."
 
   backend-mysql:
     name: Backend MySQL Integration

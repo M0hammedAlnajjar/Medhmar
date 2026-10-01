@@ -44,6 +44,7 @@ public class RaceService {
         race.setStatus(updatedRace.getStatus());
         race.setResultsImageUrl(updatedRace.getResultsImageUrl());
         race.setOrganizer(updatedRace.getOrganizer());
+        race.setOrganization(updatedRace.getOrganization());
 
         return raceRepository.save(race);
     }

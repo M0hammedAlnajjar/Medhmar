@@ -2,6 +2,7 @@ package com.gulfracing.service;
 
 import com.gulfracing.entity.RaceEntry;
 import com.gulfracing.entity.RaceResult;
+import com.gulfracing.enums.RaceEntryStatus;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.RaceEntryRepository;
 import com.gulfracing.repository.RaceResultRepository;
@@ -35,6 +36,10 @@ public class RaceResultService {
             throw ApiException.badRequest(
                     "Race result already exists for this race entry."
             );
+        }
+
+        if (raceEntry.getEntryStatus() != RaceEntryStatus.ACCEPTED) {
+            throw ApiException.conflict("Results can only be recorded for accepted race entries.");
         }
 
         raceResult.setRaceEntry(raceEntry);
