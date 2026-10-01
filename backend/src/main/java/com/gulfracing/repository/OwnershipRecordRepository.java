@@ -1,5 +1,6 @@
 package com.gulfracing.repository;
 
+import com.gulfracing.entity.Camel;
 import com.gulfracing.entity.OwnershipRecord;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
@@ -86,6 +87,38 @@ public interface OwnershipRecordRepository extends JpaRepository<OwnershipRecord
         """)
     List<OwnershipRecord> findCurrentOwnershipsForUpdate(
             @Param("camelId") Long camelId,
+            @Param("now") Date now
+    );
+
+    @Query("""
+    select distinct o
+    from OwnershipRecord o
+    join fetch o.camel
+    where o.owner.userId = :ownerId
+      and o.isActive = true
+      and o.sharePercent > 0
+      and (o.startAt is null or o.startAt <= :now)
+      and (o.endAt is null or o.endAt > :now)
+    order by o.camel.camelId desc
+    """)
+    List<OwnershipRecord> findCurrentOwnershipsByOwner(
+            @Param("ownerId") Long ownerId,
+            @Param("now") Date now
+    );
+
+    @Query("""
+    select distinct o.camel
+    from OwnershipRecord o
+    where o.owner.userId = :ownerId
+      and o.isActive = true
+      and o.sharePercent > 0
+      and o.camel.isActive = true
+      and (o.startAt is null or o.startAt <= :now)
+      and (o.endAt is null or o.endAt > :now)
+    order by o.camel.camelId
+    """)
+    List<Camel> findCurrentCamelsByOwnerId(
+            @Param("ownerId") Long ownerId,
             @Param("now") Date now
     );
 }
