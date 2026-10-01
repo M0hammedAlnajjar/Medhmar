@@ -330,3 +330,55 @@ An ACTIVE status alone is not permission to record a training session outside th
 Training logs are append-only, preserving the historical record. Session timestamps must fall within
 the agreed interval and cannot be in the future; an agreement must be ACTIVE and currently within
 its effective date interval. Pending, rejected and terminated agreements cannot receive new logs.
+
+
+## Organizations
+
+Organizations group regional organizers and can own races. Creating an organization requires ORGANIZER or ADMIN.
+The creator is automatically added as an active ORGANIZER member. Organization managers can add or end memberships.
+A race may optionally include `organizationId`; a non-admin organizer can attach a race only to an organization they manage.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| GET | /api/organizations | Public |
+| GET | /api/organizations/{id} | Public |
+| GET | /api/organizations/{id}/members | Public |
+| POST | /api/organizations | ORGANIZER or ADMIN |
+| PUT | /api/organizations/{id} | Organization organizer or ADMIN |
+| POST | /api/organizations/{id}/members | Organization organizer or ADMIN |
+| DELETE | /api/organizations/{id}/members/{userId} | Organization organizer or ADMIN |
+
+The last active ORGANIZER membership cannot be removed.
+
+## Tourism
+
+Tourism events and approved cultural content are public. Organization organizers manage their own tourism data.
+Visitor records are created by the server from the visit request and are visible only to that organization’s organizer or ADMIN.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| GET | /api/tourism/events | Public |
+| GET | /api/tourism/events/{id} | Public |
+| POST | /api/tourism/events | Organization organizer or ADMIN |
+| PUT | /api/tourism/events/{id} | Organization organizer or ADMIN |
+| POST | /api/tourism/events/{id}/visits | Public + CSRF |
+| GET | /api/tourism/events/{id}/visits | Organization organizer or ADMIN |
+| GET | /api/tourism/content | Public approved content |
+| GET | /api/tourism/content/{id} | Public approved content |
+| POST | /api/tourism/content | Organization organizer or ADMIN |
+| PUT | /api/tourism/content/{id} | Organization organizer or ADMIN |
+| POST | /api/tourism/content/{id}/approve | Organization organizer or ADMIN |
+| POST | /api/tourism/content/{id}/reject | Organization organizer or ADMIN |
+| GET | /api/tourism/content/manage/{organizationId} | Organization organizer or ADMIN |
+
+## Digital race cards
+
+Race cards are immutable, versioned publications generated from ACCEPTED race entries. Participant/camel/owner/trainer
+display names are snapshotted at publication time. Republishing creates a new version rather than mutating an old card.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| POST | /api/race-cards/races/{raceId}/publish | Race organizer, organization organizer, or ADMIN |
+| GET | /api/race-cards/{cardId} | Public |
+| GET | /api/race-cards/races/{raceId}/latest | Public |
+| GET | /api/race-cards/races/{raceId} | Public version history |

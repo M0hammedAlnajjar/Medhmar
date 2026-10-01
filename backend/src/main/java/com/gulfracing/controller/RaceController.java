@@ -1,6 +1,7 @@
 package com.gulfracing.controller;
 
 import com.gulfracing.dto.RaceDTO;
+import com.gulfracing.service.OrganizationService;
 import com.gulfracing.service.RaceService;
 import com.gulfracing.service.UserService;
 import com.gulfracing.security.AccountAccess;
@@ -18,10 +19,12 @@ public class RaceController {
 
     private final RaceService raceService;
     private final UserService users;
+    private final OrganizationService organizations;
 
-    public RaceController(RaceService raceService, UserService users) {
+    public RaceController(RaceService raceService, UserService users, OrganizationService organizations) {
         this.raceService = raceService;
         this.users = users;
+        this.organizations = organizations;
     }
 
     @PostMapping
@@ -75,8 +78,22 @@ public class RaceController {
     private void requireManager(Long raceId, RaceDTO request, Authentication auth) {
         Long actorId = AccountAccess.requiredId(auth);
         if (users.isAdmin(actorId)) return;
-        if (request != null && !actorId.equals(request.getOrganizerId())) throw ApiException.forbidden();
-        if (raceId != null && !actorId.equals(raceService.getRaceById(raceId).getOrganizer().getUserId()))
+
+        if (request != null && !actorId.equals(request.getOrganizerId())) {
             throw ApiException.forbidden();
+        }
+        if (request != null && request.getOrganizationId() != null) {
+            organizations.requireManager(request.getOrganizationId(), actorId);
+        }
+
+        if (raceId != null) {
+            var existing = raceService.getRaceById(raceId);
+            if (!actorId.equals(existing.getOrganizer().getUserId())) {
+                throw ApiException.forbidden();
+            }
+            if (existing.getOrganization() != null) {
+                organizations.requireManager(existing.getOrganization().getOrganizationId(), actorId);
+            }
+        }
     }
 }

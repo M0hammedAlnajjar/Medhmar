@@ -48,8 +48,11 @@ abstract class IntegrationSupport {
 
     @BeforeEach
     void cleanDatabase() {
-        for (String table : List.of("votes","challenge_camels","challenges","race_results","race_entries","races","offer","market_place",
-            "training_logs","training_agreements","ownership_record","pedigree","trainer_profile","password_resets","auth_accounts","user_roles","users","camel"))
+        for (String table : List.of(
+            "race_card_entries","race_cards","visitor_info","cultural_content","tourist_events","organization_members",
+            "votes","challenge_camels","challenges","race_results","race_entries","races","organizations","offer","market_place",
+            "training_logs","training_agreements","ownership_record","pedigree","trainer_profile","password_resets","auth_accounts",
+            "user_roles","users","camel"))
             jdbc.update("DELETE FROM " + table);
         when(clock.instant()).thenReturn(NOW);
     }
