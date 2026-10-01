@@ -140,8 +140,12 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/race-results", "/api/race-results/*").permitAll()
                         .requestMatchers("/api/race-results", "/api/race-results/**").hasAnyRole("ORGANIZER", "ADMIN")
+                        // My Camels - must be logged in
+                        .requestMatchers(HttpMethod.GET, "/camel/my-camels").authenticated()
 
+                        // Other camel GET endpoints are public
                         .requestMatchers(HttpMethod.GET, "/camel/**").permitAll()
+
                         .requestMatchers("/camel/**").hasAnyRole("OWNER", "ADMIN")
 
                         // Private marketplace endpoints - logged-in user only
