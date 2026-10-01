@@ -48,6 +48,16 @@ public class CamelController {
         return camels;
     }
 
+    // My Camels API
+    @GetMapping("my-camels")
+    public List<CamelDTO> getMyCamels(Authentication auth) {
+        Long userId = AccountAccess.requiredId(auth);
+
+        return CamelDTO.convertToDTO(
+                ownershipRecords.getMyCamels(userId)
+        );
+    }
+
     //Get By Id API
     @GetMapping("getById")
     public CamelDTO getById(@RequestParam Long id) {
