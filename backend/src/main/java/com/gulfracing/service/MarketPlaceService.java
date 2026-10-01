@@ -148,4 +148,24 @@ public class MarketPlaceService {
             throw ApiException.badRequest("A marketplace listing ID is required.");
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<MarketPlace> getMyListings(Long actorId) {
+        users.getActive(actorId);
+
+        return marketPlaces.findByUser_UserIdOrderByListingIdDesc(actorId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MarketPlace> getMyListingHistory(Long actorId) {
+        users.getActive(actorId);
+
+        return marketPlaces.findByUser_UserIdAndStatusInOrderByListingIdDesc(
+                actorId,
+                List.of(
+                        MarketPlaceStatus.SOLD,
+                        MarketPlaceStatus.CANCELLED
+                )
+        );
+    }
 }

@@ -69,4 +69,22 @@ public class MarketPlaceController {
                 AccountAccess.requiredId(auth)
         );
     }
+
+    @GetMapping("/my-listings")
+    public List<MarketPlaceDTO> getMyListings(Authentication auth) {
+        return MarketPlaceDTO.convertToDTO(
+                marketPlaceService.getMyListings(
+                        AccountAccess.requiredId(auth)
+                )
+        );
+    }
+
+    @GetMapping("/history")
+    public List<MarketPlaceDTO> getMyListingHistory(Authentication auth) {
+        return MarketPlaceDTO.convertToDTO(
+                marketPlaceService.getMyListingHistory(
+                        AccountAccess.requiredId(auth)
+                )
+        );
+    }
 }
