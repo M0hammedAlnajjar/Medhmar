@@ -1,5 +1,6 @@
 package com.gulfracing.dto;
 
+import com.gulfracing.entity.Organization;
 import com.gulfracing.entity.Race;
 import com.gulfracing.entity.User;
 import com.gulfracing.enums.RaceStatus;
@@ -48,6 +49,9 @@ public class RaceDTO {
     @Positive(message = "Organizer ID must be greater than zero")
     private Long organizerId;
 
+    @Positive(message = "Organization ID must be greater than zero")
+    private Long organizationId;
+
     public static RaceDTO convertToDTO(Race entity) {
 
         if (entity == null) {
@@ -66,6 +70,11 @@ public class RaceDTO {
                         entity.getOrganizer() == null
                                 ? null
                                 : entity.getOrganizer().getUserId()
+                )
+                .organizationId(
+                        entity.getOrganization() == null
+                                ? null
+                                : entity.getOrganization().getOrganizationId()
                 )
                 .build();
     }
@@ -96,6 +105,12 @@ public class RaceDTO {
             User organizer = new User();
             organizer.setUserId(organizerId);
             race.setOrganizer(organizer);
+        }
+
+        if (organizationId != null) {
+            Organization organization = new Organization();
+            organization.setOrganizationId(organizationId);
+            race.setOrganization(organization);
         }
 
         return race;

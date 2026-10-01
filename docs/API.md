@@ -201,48 +201,6 @@ or delete only races they own. ADMIN can manage all races. The existing race DTO
 still requires organizerId for create/update requests.
 
 
-### Race entries
-
-Race entry endpoints require an authenticated user with one of the allowed roles.
-
-When a race entry is created, the registrant ID is taken from the authenticated
-session. The client cannot choose another registrant ID.
-
-New race entries always start with PENDING status.
-
-The authenticated camel owner can submit their camel for a race. ADMIN can also
-create race entries.
-
-The same camel cannot be registered more than once in the same race.
-
-| Method | Endpoint | Access | Behavior |
-| --- | --- | --- | --- |
-| GET | /api/race-entries | Allowed authenticated role | Returns all race entries |
-| GET | /api/race-entries/{id} | Allowed authenticated role | Returns one race entry |
-| POST | /api/race-entries | Camel owner / ADMIN | Creates a PENDING race entry |
-| PUT | /api/race-entries/{id} | Race organizer / ADMIN | Updates the race entry status |
-| DELETE | /api/race-entries/{id} | Race organizer / ADMIN | Deletes the race entry |
-
-Race entry status values are:
-
-```text
-PENDING
-ACCEPTED
-REJECTED
-```
-
-Example create request:
-
-```json
-{
-  "registeredAt": "2030-01-01T10:00:00Z",
-  "participantNumber": 1,
-  "raceId": 1,
-  "camelId": 1
-}
-```
-
-The server assigns registrantId and entryStatus automatically.
 
 
 ### Race results
@@ -253,6 +211,9 @@ The race entry ID is also used as the primary key of the race result.
 
 Result reads are public. Creating, updating and deleting a result requires the
 organizer of the related race or ADMIN.
+
+A race result can only be created for an ACCEPTED race entry.
+
 
 | Method | Endpoint | Access | Behavior |
 | --- | --- | --- | --- |
@@ -339,3 +300,121 @@ entry limits, voting time boundaries, cross-challenge membership, percentages,
 duplicate/concurrent votes, expired/reused/concurrent reset tokens, Google
 identity rules, rate limiting, race/camel ownership authorization, and migration
 validation, including camel tracking fields.
+
+
+## Race registration and approval
+
+Race entry mutations require a valid session and CSRF token. The server controls identity, registration time,
+participant number, and initial status. `OPEN` races accept owner registrations only before `startsAt`.
+The camel must be active, and the submitting user must have a current positive ownership share.
+The same camel cannot be registered twice in one race, including after withdrawal. Participant numbers
+are unique within a race and generated under a race-row lock; MySQL and H2 enforce both constraints.
+
+| Method | Endpoint | Permission | Request or result |
+| --- | --- | --- | --- |
+| POST | /api/race-entries | OWNER or ADMIN | `raceId`, `camelId`, optional matching `registrantId`; creates PENDING |
+| GET | /api/race-entries/mine | Signed-in account | Own registrations |
+| GET | /api/race-entries/race/{raceId} | Race organizer or ADMIN | Registrations for the race |
+| GET | /api/race-entries/{id} | Registrant, race organizer or ADMIN | Single entry |
+| GET | /api/race-entries | ADMIN | All registrations |
+| PUT | /api/race-entries/{id} | Race organizer or ADMIN | `{"entryStatus":"ACCEPTED"}` or `{"entryStatus":"REJECTED"}` |
+| DELETE | /api/race-entries/{id} | OWNER or ADMIN, **registrant only** | Withdraw own PENDING entry; returns 204, retains history |
+
+An organizer decision requires a PENDING entry, before the race starts, and a race that is OPEN or CLOSED.
+An entry cannot be reapproved, withdrawn after a decision, or deleted physically through this API.
+Sending a different `registrantId` than the authenticated account returns 403. Race-result creation
+requires an ACCEPTED entry. For a race organiser, update the race's status through the race API.
+
+
+## Camel partnership agreements
+
+Authenticated OWNER accounts propose agreements for camels of which they currently own the full 100%
+share. The intended TRAINER must have an active account and an existing trainer profile. The platform
+records fees in OMR (3 decimal places), prize share percentage, sale share percentage, start and end dates,
+and owner/trainer/camel references. Ownership is rechecked on acceptance.
+
+| Method | Route | Allowed actor |
+| --- | --- | --- |
+| POST | /api/agreements | OWNER (or ADMIN who is the actual full owner); request: camelId, trainerUserId, feeOmr, prizeSharePct, saleSharePct, startsAt, endsAt |
+| GET | /api/agreements/mine | Signed-in owner/trainer sees own agreements |
+| GET | /api/agreements/{id} | Owner, trainer or ADMIN |
+| GET | /api/agreements | ADMIN only |
+| POST | /api/agreements/{id}/accept | Designated trainer, if PENDING_APPROVAL |
+| POST | /api/agreements/{id}/reject | Designated trainer, if PENDING_APPROVAL |
+| POST | /api/agreements/{id}/terminate | Owner may withdraw pending proposal; owner or trainer may terminate ACTIVE agreement |
+
+New proposals start `PENDING_APPROVAL`; acceptance sets `ACTIVE`; rejection sets `REJECTED`;
+cancellation/termination sets `TERMINATED`. A camel may have at most one PENDING_APPROVAL or ACTIVE
+agreement, enforced by a camel-row lock while proposing. Historical agreements are never deleted.
+Prize-share and sale-share percentages are independent, each 0–100.
+Agreements do not yet transfer money, prevent marketplace sales, or synchronize termination when
+ownership changes. Those integrations belong to later changes.
+
+
+## Assigned camels and training log
+
+`GET /api/agreements/assigned` returns the signed-in TRAINER's ACCEPTED/ACTIVE agreements,
+including camelId, ownerUserId and agreed terms. A pending or rejected assignment does not appear.
+An ACTIVE status alone is not permission to record a training session outside the agreement's date window.
+
+| Method | Route | Authorization |
+| --- | --- | --- |
+| GET | /api/agreements/assigned | TRAINER: own ACTIVE assignments only |
+| POST | /api/training-logs | Designated TRAINER only; agreementId, sessionAt, durationMinutes (1–720), notes (1–2000 characters) |
+| GET | /api/training-logs/agreement/{agreementId} | Agreement owner, designated trainer, or ADMIN |
+
+Training logs are append-only, preserving the historical record. Session timestamps must fall within
+the agreed interval and cannot be in the future; an agreement must be ACTIVE and currently within
+its effective date interval. Pending, rejected and terminated agreements cannot receive new logs.
+
+
+## Organizations
+
+Organizations group regional organizers and can own races. Creating an organization requires ORGANIZER or ADMIN.
+The creator is automatically added as an active ORGANIZER member. Organization managers can add or end memberships.
+A race may optionally include `organizationId`; a non-admin organizer can attach a race only to an organization they manage.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| GET | /api/organizations | Public |
+| GET | /api/organizations/{id} | Public |
+| GET | /api/organizations/{id}/members | Public |
+| POST | /api/organizations | ORGANIZER or ADMIN |
+| PUT | /api/organizations/{id} | Organization organizer or ADMIN |
+| POST | /api/organizations/{id}/members | Organization organizer or ADMIN |
+| DELETE | /api/organizations/{id}/members/{userId} | Organization organizer or ADMIN |
+
+The last active ORGANIZER membership cannot be removed.
+
+## Tourism
+
+Tourism events and approved cultural content are public. Organization organizers manage their own tourism data.
+Visitor records are created by the server from the visit request and are visible only to that organization’s organizer or ADMIN.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| GET | /api/tourism/events | Public |
+| GET | /api/tourism/events/{id} | Public |
+| POST | /api/tourism/events | Organization organizer or ADMIN |
+| PUT | /api/tourism/events/{id} | Organization organizer or ADMIN |
+| POST | /api/tourism/events/{id}/visits | Public + CSRF |
+| GET | /api/tourism/events/{id}/visits | Organization organizer or ADMIN |
+| GET | /api/tourism/content | Public approved content |
+| GET | /api/tourism/content/{id} | Public approved content |
+| POST | /api/tourism/content | Organization organizer or ADMIN |
+| PUT | /api/tourism/content/{id} | Organization organizer or ADMIN |
+| POST | /api/tourism/content/{id}/approve | Organization organizer or ADMIN |
+| POST | /api/tourism/content/{id}/reject | Organization organizer or ADMIN |
+| GET | /api/tourism/content/manage/{organizationId} | Organization organizer or ADMIN |
+
+## Digital race cards
+
+Race cards are immutable, versioned publications generated from ACCEPTED race entries. Participant/camel/owner/trainer
+display names are snapshotted at publication time. Republishing creates a new version rather than mutating an old card.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| POST | /api/race-cards/races/{raceId}/publish | Race organizer, organization organizer, or ADMIN |
+| GET | /api/race-cards/{cardId} | Public |
+| GET | /api/race-cards/races/{raceId}/latest | Public |
+| GET | /api/race-cards/races/{raceId} | Public version history |

@@ -23,6 +23,13 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
     Optional<MarketPlace> findFirstByCamel_CamelIdAndIsActiveTrueAndStatusOrderByListingIdDesc(
             Long camelId, MarketPlaceStatus status);
 
+    List<MarketPlace> findByUser_UserIdOrderByListingIdDesc(Long userId);
+
+    List<MarketPlace> findByUser_UserIdAndStatusInOrderByListingIdDesc(
+            Long userId,
+            List<MarketPlaceStatus> statuses
+    );
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT m FROM MarketPlace m WHERE m.listingId = :id")
     Optional<MarketPlace> findLockedById(@Param("id") Long id);
