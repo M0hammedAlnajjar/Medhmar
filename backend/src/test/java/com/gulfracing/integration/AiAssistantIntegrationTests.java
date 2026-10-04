@@ -143,7 +143,7 @@ class AiAssistantIntegrationTests extends IntegrationSupport {
                 .andExpect(status().isBadGateway()).andExpect(jsonPath("$.code").value("AI_PROVIDER_UNAVAILABLE"))
                 .andReturn();
         assertThat(failed.getResponse().getContentAsString()).doesNotContain("secret-provider-key");
-        when(model.answer(anyString(), anyString())).thenReturn("Recovered answer");
+        doReturn("Recovered answer").when(model).answer(anyString(), anyString());
         mvc.perform(post("/api/ai/chat").session(session).with(csrf()).contentType("application/json")
                 .content(payload(Map.of("question", "Help")))).andExpect(status().isOk());
     }
