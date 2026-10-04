@@ -65,6 +65,29 @@ public class TrainingAgreement {
     @Column(name = "terminated_at")
     private Instant terminatedAt;
 
+    @Column(name = "rejection_reason", length = 1000)
+    private String rejectionReason;
+
+    @Column(name = "termination_reason", length = 1000)
+    private String terminationReason;
+
+    @Column(name = "completed_at")
+    private Instant completedAt;
+
+    @Column(name = "expired_at")
+    private Instant expiredAt;
+
+    @Column(name = "terms", columnDefinition = "TEXT")
+    private String terms;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "terminated_by")
+    private User terminatedBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rejected_by")
+    private User rejectedBy;
+
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "status", nullable = false, length = 30)

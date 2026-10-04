@@ -113,6 +113,7 @@ public class TrainingAgreementService {
         }
         agreement.setStatus(AgreementStatus.REJECTED);
         agreement.setRespondedAt(clock.instant());
+        agreement.setRejectedBy(users.getActive(actorId));
         return AgreementDtos.View.from(agreement);
     }
 
@@ -128,6 +129,7 @@ public class TrainingAgreementService {
         }
         agreement.setStatus(AgreementStatus.TERMINATED);
         agreement.setTerminatedAt(clock.instant());
+        agreement.setTerminatedBy(users.getActive(actorId));
         return AgreementDtos.View.from(agreement);
     }
 
