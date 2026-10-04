@@ -10,6 +10,10 @@ import com.gulfracing.repository.PedigreeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.Date;
 import java.util.List;
@@ -52,6 +56,36 @@ public class CamelService {
     @Transactional(readOnly = true)
     public List<Camel> getAllCamels() {
         return camelRepository.getAllCamels();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Camel> searchCamels(
+            int page,
+            int size,
+            String search,
+            Gender gender,
+            String breed,
+            String category,
+            CamelStatus status
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "camelId")
+        );
+
+        search = normalize(search);
+        breed = normalize(breed);
+        category = normalize(category);
+
+        return camelRepository.searchCamels(
+                search,
+                gender,
+                breed,
+                category,
+                status,
+                pageable
+        );
     }
 
     @Transactional(readOnly = true)
@@ -147,5 +181,12 @@ public class CamelService {
         if (parentBirth != null && childBirth != null && !parentBirth.before(childBirth)) {
             throw ApiException.conflict("A recorded parent must be born before its child.");
         }
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }

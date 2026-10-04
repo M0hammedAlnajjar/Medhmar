@@ -3,18 +3,21 @@ package com.gulfracing.controller;
 import com.gulfracing.dto.CamelDTO;
 import com.gulfracing.dto.CamelProfileDTO;
 import com.gulfracing.dto.OwnershipHistoryDTO;
+import com.gulfracing.dto.PageResponse;
+import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.Gender;
 import com.gulfracing.service.OwnershipRecordService;
 import com.gulfracing.service.CamelProfileService;
-import com.gulfracing.entity.Camel;
 import com.gulfracing.service.CamelService;
 import com.gulfracing.service.CamelAccessService;
 import com.gulfracing.security.AccountAccess;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -43,9 +46,27 @@ public class CamelController {
 
     //Get all API
     @GetMapping("getAll")
-    public List<CamelDTO> getAllCamels() {
-        List<CamelDTO> camels = CamelDTO.convertToDTO(camelService.getAllCamels());
-        return camels;
+    public PageResponse<CamelDTO> getAllCamels(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Gender gender,
+            @RequestParam(required = false) String breed,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) CamelStatus status
+    ) {
+        return PageResponse.from(
+                camelService.searchCamels(
+                        page,
+                        size,
+                        search,
+                        gender,
+                        breed,
+                        category,
+                        status
+                ),
+                CamelDTO::convertToDTO
+        );
     }
 
     // My Camels API
