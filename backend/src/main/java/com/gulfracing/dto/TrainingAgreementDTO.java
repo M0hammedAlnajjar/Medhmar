@@ -36,6 +36,17 @@ public class TrainingAgreementDTO {
     private Instant acceptedAt;
     private Instant terminatedAt;
 
+    private String rejectionReason;
+    private String terminationReason;
+
+    private Instant completedAt;
+    private Instant expiredAt;
+
+    private String terms;
+
+    private Long terminatedBy;
+    private Long rejectedBy;
+
     private Long ownerUserId;
     private Long trainerId;
     private Long camelId;
@@ -55,6 +66,17 @@ public class TrainingAgreementDTO {
                 .terminatedAt(entity.getTerminatedAt())
                 .ownerUserId(entity.getOwner() != null
                         ? entity.getOwner().getUserId()
+                        : null)
+                .rejectionReason(entity.getRejectionReason())
+                .terminationReason(entity.getTerminationReason())
+                .completedAt(entity.getCompletedAt())
+                .expiredAt(entity.getExpiredAt())
+                .terms(entity.getTerms())
+                .terminatedBy(entity.getTerminatedBy() != null
+                        ? entity.getTerminatedBy().getUserId()
+                        : null)
+                .rejectedBy(entity.getRejectedBy() != null
+                        ? entity.getRejectedBy().getUserId()
                         : null)
                 .trainerId(entity.getTrainer() != null
                         ? entity.getTrainer().getUserId()
