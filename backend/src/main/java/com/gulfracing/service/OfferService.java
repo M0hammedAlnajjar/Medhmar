@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +32,7 @@ public class OfferService {
     private final UserService users;
     private final Clock clock;
     private final SaleTransactionRepository saleTransactions;
+    private final TrainingAgreementService trainingAgreementService;
 
     @Transactional
     public Long addOffer(
@@ -169,6 +172,26 @@ public class OfferService {
             throw ApiException.conflict("The listing seller is no longer the full owner of this camel.");
         }
 
+        var effectiveAgreement = trainingAgreementService.findActiveAgreementForSale(camelId);
+
+        BigDecimal trainerShareOmr = BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP);
+        BigDecimal sellerNetOmr = BigDecimal.valueOf(offer.getOfferedPriceOmr())
+                .setScale(3, RoundingMode.HALF_UP);
+
+        if (effectiveAgreement != null) {
+            BigDecimal salePrice = BigDecimal.valueOf(offer.getOfferedPriceOmr());
+            trainerShareOmr = salePrice
+                    .multiply(effectiveAgreement.getSaleSharePct())
+                    .divide(BigDecimal.valueOf(100), 3, RoundingMode.HALF_UP);
+            sellerNetOmr = salePrice.subtract(trainerShareOmr)
+                    .setScale(3, RoundingMode.HALF_UP);
+        }
+
+        trainingAgreementService.terminateForOwnershipChange(
+                camelId,
+                sellerId
+        );
+
         offer.setStatus(OfferStatus.ACCEPTED);
         offer.setRespondedAt(now);
         offer.setUpdatedDate(now);
@@ -212,8 +235,15 @@ public class OfferService {
         saleTransaction.setSeller(listing.getUser());
         saleTransaction.setBuyer(offer.getUser());
 
-        saleTransactions.save(saleTransaction);
+        saleTransaction.setTrainerShareOmr(trainerShareOmr);
+        saleTransaction.setSellerNetOmr(sellerNetOmr);
 
+        if (effectiveAgreement != null) {
+            saleTransaction.setTrainer(effectiveAgreement.getTrainer().getUser());
+            saleTransaction.setAgreement(effectiveAgreement);
+        }
+
+        saleTransactions.save(saleTransaction);
         return offer;
     }
 
