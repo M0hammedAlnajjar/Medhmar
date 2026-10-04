@@ -65,27 +65,26 @@ public class RaceService {
                 );
     }
 
-    public Race updateRace(
-            Long id,
-            Race updatedRace) {
+    public Race updateRace(Long id, Race updatedRace) {
 
         validateId(id);
         validateRace(updatedRace);
 
         Race race = getRaceById(id);
 
+        validateStatusTransition(
+                race.getStatus(),
+                updatedRace.getStatus()
+        );
+
         race.setName(updatedRace.getName());
         race.setStartsAt(updatedRace.getStartsAt());
         race.setLocation(updatedRace.getLocation());
         race.setDistanceKm(updatedRace.getDistanceKm());
         race.setStatus(updatedRace.getStatus());
-        race.setResultsImageUrl(
-                updatedRace.getResultsImageUrl()
-        );
+        race.setResultsImageUrl(updatedRace.getResultsImageUrl());
         race.setOrganizer(updatedRace.getOrganizer());
-        race.setOrganization(
-                updatedRace.getOrganization()
-        );
+        race.setOrganization(updatedRace.getOrganization());
 
         return raceRepository.save(race);
     }
@@ -93,6 +92,42 @@ public class RaceService {
     public void deleteRace(Long id) {
         Race race = getRaceById(id);
         raceRepository.delete(race);
+    }
+
+    private void validateStatusTransition(
+            RaceStatus currentStatus,
+            RaceStatus newStatus) {
+
+        if (currentStatus == newStatus) {
+            return;
+        }
+
+        boolean validTransition = switch (currentStatus) {
+
+            case SCHEDULED ->
+                    newStatus == RaceStatus.OPEN
+                            || newStatus == RaceStatus.CANCELLED;
+
+            case OPEN ->
+                    newStatus == RaceStatus.CLOSED
+                            || newStatus == RaceStatus.CANCELLED;
+
+            case CLOSED ->
+                    newStatus == RaceStatus.COMPLETED
+                            || newStatus == RaceStatus.CANCELLED;
+
+            case COMPLETED, CANCELLED -> false;
+        };
+
+        if (!validTransition) {
+            throw ApiException.conflict(
+                    "Race status cannot change from "
+                            + currentStatus
+                            + " to "
+                            + newStatus
+                            + "."
+            );
+        }
     }
 
     private void validateRace(Race race) {
