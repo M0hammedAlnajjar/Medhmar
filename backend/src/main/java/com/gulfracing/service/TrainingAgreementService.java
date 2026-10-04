@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.gulfracing.repository.OwnershipRecordRepository;
 
 import java.time.Clock;
 import java.util.List;
@@ -26,6 +27,7 @@ public class TrainingAgreementService {
     private final CamelAccessService camelAccess;
     private final UserService users;
     private final Clock clock;
+    private final OwnershipRecordRepository ownerships;
 
     @Transactional
     public AgreementDtos.View propose(AgreementDtos.Create request, Long actorId) {
@@ -131,6 +133,63 @@ public class TrainingAgreementService {
         agreement.setTerminatedAt(clock.instant());
         agreement.setTerminatedBy(users.getActive(actorId));
         return AgreementDtos.View.from(agreement);
+    }
+
+    @Transactional
+    public TrainingAgreement findActiveAgreementForSale(Long camelId) {
+        return agreements.findActiveForCamelForUpdate(
+                camelId,
+                List.of(AgreementStatus.ACTIVE)
+        ).stream().findFirst().orElse(null);
+    }
+
+    @Transactional
+    public void terminateForOwnershipChange(Long camelId, Long actorId) {
+        var activeAgreements = agreements.findActiveForCamelForUpdate(
+                camelId,
+                ACTIVE_STATES
+        );
+
+        if (activeAgreements.isEmpty()) {
+            return;
+        }
+
+        var actor = users.getActive(actorId);
+
+        for (var agreement : activeAgreements) {
+            agreement.setStatus(AgreementStatus.TERMINATED);
+            agreement.setTerminatedAt(clock.instant());
+            agreement.setTerminatedBy(actor);
+        }
+    }
+
+    @Transactional
+    public void terminateIfOwnerLostFullOwnership(Long camelId) {
+        var activeAgreements = agreements.findActiveForCamelForUpdate(
+                camelId,
+                ACTIVE_STATES
+        );
+
+        if (activeAgreements.isEmpty()) {
+            return;
+        }
+
+        var now = java.util.Date.from(clock.instant());
+
+        for (var agreement : activeAgreements) {
+            Long ownerId = agreement.getOwner().getUserId();
+
+            Double share = ownerships.currentOwnershipShare(
+                    camelId,
+                    ownerId,
+                    now
+            );
+
+            if (share == null || share < 99.999d) {
+                agreement.setStatus(AgreementStatus.TERMINATED);
+                agreement.setTerminatedAt(clock.instant());
+            }
+        }
     }
 
     private TrainingAgreement find(Long id) {
