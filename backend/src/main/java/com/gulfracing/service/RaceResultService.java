@@ -8,6 +8,7 @@ import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.RaceEntryRepository;
 import com.gulfracing.repository.RaceResultRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.util.List;
@@ -29,6 +30,7 @@ public class RaceResultService {
         this.clock = clock;
     }
 
+    @Transactional
     public RaceResult addRaceResult(RaceResult raceResult) {
 
         validateRaceResult(raceResult);
@@ -73,6 +75,7 @@ public class RaceResultService {
                 );
     }
 
+    @Transactional
     public RaceResult updateRaceResult(
             Long entryId,
             RaceResult updatedRaceResult) {
