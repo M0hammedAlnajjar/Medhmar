@@ -1,5 +1,5 @@
 package com.gulfracing.controller;
-
+//
 import com.gulfracing.dto.RaceDTO;
 import com.gulfracing.service.OrganizationService;
 import com.gulfracing.service.RaceService;
@@ -44,7 +44,7 @@ public class RaceController {
                 raceService.getAllRaces()
         );
     }
-
+    // Get by id.
     @GetMapping("/{id}")
     public RaceDTO getRaceById(@PathVariable Long id) {
 
