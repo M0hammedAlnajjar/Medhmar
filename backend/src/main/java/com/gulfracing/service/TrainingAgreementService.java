@@ -74,16 +74,6 @@ public class TrainingAgreementService {
     }
 
     @Transactional(readOnly = true)
-    public List<AgreementDtos.View> assigned(Long actorId) {
-        var actor = users.getActive(actorId);
-        if (actor.getRoles().stream().noneMatch(r -> "TRAINER".equals(r.getRoleName()))) {
-            throw ApiException.forbidden();
-        }
-        return agreements.findByTrainer_UserIdAndStatusOrderByAgreementIdDesc(
-                actorId, AgreementStatus.ACTIVE).stream().map(AgreementDtos.View::from).toList();
-    }
-
-    @Transactional(readOnly = true)
     public List<AgreementDtos.View> all(Long actorId) {
         if (!users.isAdmin(actorId)) throw ApiException.forbidden();
         return agreements.findAll(Sort.by(Sort.Direction.DESC, "agreementId"))
