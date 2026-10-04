@@ -6,7 +6,6 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -14,26 +13,8 @@ import java.util.Optional;
 public interface TrainingAgreementRepository extends JpaRepository<TrainingAgreement, Long> {
     boolean existsByCamel_CamelIdAndStatusIn(Long camelId, Collection<AgreementStatus> statuses);
 
-    List<TrainingAgreement> findByTrainer_UserIdAndStatusOrderByAgreementIdDesc(
-            Long trainerUserId, AgreementStatus status
-    );
-
     List<TrainingAgreement> findByOwner_UserIdOrTrainer_UserIdOrderByAgreementIdDesc(
             Long ownerId, Long trainerUserId
-    );
-
-    @Query("""
-            SELECT a FROM TrainingAgreement a
-            WHERE a.camel.camelId = :camelId
-              AND a.status = :status
-              AND a.startsAt <= :at
-              AND a.endsAt >= :at
-            ORDER BY a.agreementId DESC
-            """)
-    List<TrainingAgreement> findEffectiveForCamel(
-            @Param("camelId") Long camelId,
-            @Param("status") AgreementStatus status,
-            @Param("at") Instant at
     );
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
