@@ -1,5 +1,6 @@
 package com.gulfracing.dto;
-import com.gulfracing.entity.Mudammer;
+
+import com.gulfracing.entity.TrainingAgreement;
 import com.gulfracing.enums.AgreementStatus;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -8,41 +9,52 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MudammerDTO {
+public class TrainingAgreementDTO {
 
     @Positive
     private Long agreementId;
-    private Date proposedAt;
-    private Date startsAt;
-    private Date endsAt;
+
+    private Instant proposedAt;
+    private Instant startsAt;
+    private Instant endsAt;
+
     private BigDecimal feeOmr;
-    private BigDecimal offeredSharePct;
+    private BigDecimal prizeSharePct;
+    private BigDecimal saleSharePct;
+
     private AgreementStatus status;
-    private Date acceptedAt;
-    private Long userId;
+
+    private Instant respondedAt;
+    private Instant acceptedAt;
+    private Instant terminatedAt;
+
+    private Long ownerUserId;
     private Long trainerId;
     private Long camelId;
 
-    public static MudammerDTO convertToDTO(Mudammer entity) {
-        return MudammerDTO.builder()
+    public static TrainingAgreementDTO convertToDTO(TrainingAgreement entity) {
+        return TrainingAgreementDTO.builder()
                 .agreementId(entity.getAgreementId())
                 .proposedAt(entity.getProposedAt())
                 .startsAt(entity.getStartsAt())
                 .endsAt(entity.getEndsAt())
                 .feeOmr(entity.getFeeOmr())
-                .offeredSharePct(entity.getOfferedSharePct())
+                .prizeSharePct(entity.getPrizeSharePct())
+                .saleSharePct(entity.getSaleSharePct())
                 .status(entity.getStatus())
+                .respondedAt(entity.getRespondedAt())
                 .acceptedAt(entity.getAcceptedAt())
-                .userId(entity.getUser() != null
-                        ? entity.getUser().getUserId()
+                .terminatedAt(entity.getTerminatedAt())
+                .ownerUserId(entity.getOwner() != null
+                        ? entity.getOwner().getUserId()
                         : null)
                 .trainerId(entity.getTrainer() != null
                         ? entity.getTrainer().getUserId()
@@ -53,11 +65,13 @@ public class MudammerDTO {
                 .build();
     }
 
-    public static List<MudammerDTO> convertToDTO(List<Mudammer> entityList) {
-        List<MudammerDTO> dtos = new ArrayList<>();
+    public static List<TrainingAgreementDTO> convertToDTO(
+            List<TrainingAgreement> entityList
+    ) {
+        List<TrainingAgreementDTO> dtos = new ArrayList<>();
 
-        for (Mudammer mudammer : entityList) {
-            dtos.add(convertToDTO(mudammer));
+        for (TrainingAgreement agreement : entityList) {
+            dtos.add(convertToDTO(agreement));
         }
 
         return dtos;

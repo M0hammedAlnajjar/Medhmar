@@ -33,11 +33,6 @@ public class TrainingAgreementController {
         return agreements.mine(AccountAccess.requiredId(auth));
     }
 
-    @GetMapping("/assigned")
-    public List<AgreementDtos.View> assigned(Authentication auth) {
-        return agreements.assigned(AccountAccess.requiredId(auth));
-    }
-
     @GetMapping("/{id}")
     public AgreementDtos.View get(@PathVariable Long id, Authentication auth) {
         return agreements.get(id, AccountAccess.requiredId(auth));
