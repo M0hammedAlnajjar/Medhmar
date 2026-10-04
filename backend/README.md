@@ -27,7 +27,7 @@ Spring AI BOM.
 | Spring Mail | Optional SMTP password-reset delivery |
 | Flyway + MySQL support | Versioned tables, constraints and role seed data |
 | Caffeine | Bounded in-process authentication rate limiter |
-| Spring AI Chat Client | Provider-independent AI client APIs |
+| Spring AI OpenAI starter | Optional, read-only Medhmar knowledge assistant |
 | Spring Boot Web MVC Test | JUnit, assertions, application context tests, MockMvc |
 | Spring Boot Security Test | Security testing support |
 | H2 (test scope) | In-memory database used only by automated tests |
@@ -52,7 +52,7 @@ Spring AI BOM.
 
    `.env.example` documents the variable names. Spring Boot does not load a plain
    `.env` file automatically; configure the variables in your terminal or IDE.
-   `AI_API_KEY` is not used until an AI model provider is configured.
+   `AI_API_KEY` is used only when the optional `ai` profile is enabled.
 
 3. From the repository root, run:
 
@@ -112,9 +112,18 @@ java -jar target/medhmar-backend-0.0.1-SNAPSHOT.jar
 
 ## AI setup
 
-The POM includes the provider-independent Chat Client library. When the team
-chooses an AI provider, add its Spring AI model starter and configure its model
-and credentials. There is no model bean or AI endpoint in this foundation.
+The authenticated assistant API is `POST /api/ai/chat`. It answers in Arabic or
+English using a maintained platform guide and optional, explicitly selected
+public race/camel fields. It has no write tools or access to private agreements,
+offers, account details or training logs.
+
+Enable the `ai` profile and configure `AI_API_KEY`; `AI_MODEL` defaults to
+`gpt-4o-mini`. Without that profile the backend starts normally and the assistant
+returns `503 AI_NOT_CONFIGURED`. See [AI.md](../docs/AI.md) for IntelliJ setup,
+the request contract, CSRF integration, limits and provider behavior.
+
+The AI tests use mocks and a local HTTP provider stub. No real key, external
+model call or paid quota is needed for `mvn clean verify` or CI.
 
 ## Version references
 

@@ -3,6 +3,22 @@
 Base URL for local development: `http://localhost:8080`.
 JSON uses UTF-8 and ISO-8601 UTC timestamps, for example `2030-01-01T10:00:00Z`.
 
+## AI knowledge assistant
+
+| Method | Route | Contract |
+| --- | --- | --- |
+| GET | /api/ai/status | Signed-in active account; configured availability, supported languages and input limit |
+| GET | /api/ai/guide | Signed-in active account; the approved platform guidance used by the assistant |
+| POST | /api/ai/chat | Signed-in active account + CSRF; question, optional language (ar/en), raceId and camelId |
+
+Responses contain `answer`, `language` and server-generated `sources`. Language
+defaults to Arabic. Questions have a 2000-character limit; IDs must be positive.
+The optional `ai` profile enables the model; otherwise chat returns
+`503 AI_NOT_CONFIGURED`. Provider failures return a redacted
+`502 AI_PROVIDER_UNAVAILABLE`. Limits return `429 AI_RATE_LIMITED`.
+Unknown/inactive selected records return 404 before a model call.
+See [AI.md](AI.md) for setup, a browser example and the privacy/scope contract.
+
 ## Authentication contract
 
 Authentication uses an HttpOnly session cookie. Every modifying request, including
