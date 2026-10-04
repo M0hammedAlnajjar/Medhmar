@@ -28,16 +28,19 @@ class RaceResultIntegrationTests extends IntegrationSupport {
     void raceResultCanBeManagedByRaceOrganizer() throws Exception {
 
         var organizer = register("organizer@example.com");
-        users.updateRoles(organizer.userId(), Set.of("ORGANIZER"));
+        users.updateRoles(
+                organizer.userId(),
+                Set.of("ORGANIZER")
+        );
 
         var camel = camel("Test Camel");
 
         var race = new Race();
         race.setName("Test Race");
-        race.setStartsAt(NOW.plusSeconds(3600));
+        race.setStartsAt(NOW.minusSeconds(3600));
         race.setLocation("Muscat");
         race.setDistanceKm(5.0);
-        race.setStatus(RaceStatus.SCHEDULED);
+        race.setStatus(RaceStatus.CLOSED);
         race.setOrganizer(
                 userRepository.findById(
                         organizer.userId()
@@ -47,7 +50,9 @@ class RaceResultIntegrationTests extends IntegrationSupport {
         race = raceRepository.saveAndFlush(race);
 
         var raceEntry = new RaceEntry();
-        raceEntry.setRegisteredAt(NOW);
+        raceEntry.setRegisteredAt(
+                NOW.minusSeconds(7200)
+        );
         raceEntry.setParticipantNumber(1);
         raceEntry.setEntryStatus(
                 RaceEntryStatus.ACCEPTED
@@ -123,5 +128,129 @@ class RaceResultIntegrationTests extends IntegrationSupport {
                                 .with(csrf())
                 )
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldRejectResultBeforeRaceStarts() throws Exception {
+
+        var organizer = register("organizer@example.com");
+        users.updateRoles(
+                organizer.userId(),
+                Set.of("ORGANIZER")
+        );
+
+        var camel = camel("Future Camel");
+
+        var race = new Race();
+        race.setName("Future Race");
+        race.setStartsAt(NOW.plusSeconds(3600));
+        race.setLocation("Muscat");
+        race.setDistanceKm(5.0);
+        race.setStatus(RaceStatus.CLOSED);
+        race.setOrganizer(
+                userRepository.findById(
+                        organizer.userId()
+                ).orElseThrow()
+        );
+
+        race = raceRepository.saveAndFlush(race);
+
+        var raceEntry = new RaceEntry();
+        raceEntry.setRegisteredAt(NOW);
+        raceEntry.setParticipantNumber(1);
+        raceEntry.setEntryStatus(
+                RaceEntryStatus.ACCEPTED
+        );
+        raceEntry.setRace(race);
+        raceEntry.setRegistrant(
+                userRepository.findById(
+                        organizer.userId()
+                ).orElseThrow()
+        );
+        raceEntry.setCamel(camel);
+
+        raceEntry = raceEntryRepository.saveAndFlush(
+                raceEntry
+        );
+
+        mvc.perform(
+                        post("/api/race-results")
+                                .session(login(organizer.email()))
+                                .with(csrf())
+                                .contentType("application/json")
+                                .content(
+                                        payload(
+                                                Map.of(
+                                                        "entryId", raceEntry.getEntryId(),
+                                                        "finishPosition", 1,
+                                                        "elapsedMs", 320000
+                                                )
+                                        )
+                                )
+                )
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldRejectResultWhenRaceIsNotClosedOrCompleted() throws Exception {
+
+        var organizer = register("organizer@example.com");
+        users.updateRoles(
+                organizer.userId(),
+                Set.of("ORGANIZER")
+        );
+
+        var camel = camel("Open Race Camel");
+
+        var race = new Race();
+        race.setName("Open Race");
+        race.setStartsAt(NOW.minusSeconds(3600));
+        race.setLocation("Muscat");
+        race.setDistanceKm(5.0);
+        race.setStatus(RaceStatus.OPEN);
+        race.setOrganizer(
+                userRepository.findById(
+                        organizer.userId()
+                ).orElseThrow()
+        );
+
+        race = raceRepository.saveAndFlush(race);
+
+        var raceEntry = new RaceEntry();
+        raceEntry.setRegisteredAt(
+                NOW.minusSeconds(7200)
+        );
+        raceEntry.setParticipantNumber(1);
+        raceEntry.setEntryStatus(
+                RaceEntryStatus.ACCEPTED
+        );
+        raceEntry.setRace(race);
+        raceEntry.setRegistrant(
+                userRepository.findById(
+                        organizer.userId()
+                ).orElseThrow()
+        );
+        raceEntry.setCamel(camel);
+
+        raceEntry = raceEntryRepository.saveAndFlush(
+                raceEntry
+        );
+
+        mvc.perform(
+                        post("/api/race-results")
+                                .session(login(organizer.email()))
+                                .with(csrf())
+                                .contentType("application/json")
+                                .content(
+                                        payload(
+                                                Map.of(
+                                                        "entryId", raceEntry.getEntryId(),
+                                                        "finishPosition", 1,
+                                                        "elapsedMs", 320000
+                                                )
+                                        )
+                                )
+                )
+                .andExpect(status().isConflict());
     }
 }
