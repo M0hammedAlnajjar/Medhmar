@@ -10,12 +10,19 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.gulfracing.entity.TrainerProfile;
+import com.gulfracing.repository.TrainerProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 class MarketplaceOfferIntegrationTests extends IntegrationSupport {
 
+    @Autowired
+    TrainerProfileRepository profiles;
+
     @Test
     void marketplaceListingUsesAuthenticatedSellerAndActiveOwnership() throws Exception {
+
         var owner = register("market-owner@example.com");
         var other = register("market-other@example.com");
         users.updateRoles(owner.userId(), Set.of("OWNER"));
@@ -201,6 +208,201 @@ class MarketplaceOfferIntegrationTests extends IntegrationSupport {
                 camelId,
                 buyer.userId()
         )).isEqualTo(100.0);
+    }
+
+    @Test
+    void acceptingOfferTerminatesActiveTrainingAgreement() throws Exception {
+
+        var seller = register("sale-agreement-seller@example.com");
+        var buyer = register("sale-agreement-buyer@example.com");
+        var trainer = register("sale-agreement-trainer@example.com");
+
+        users.updateRoles(seller.userId(), Set.of("OWNER"));
+        users.updateRoles(trainer.userId(), Set.of("TRAINER"));
+
+        var sellerSession = login(seller.email());
+        var buyerSession = login(buyer.email());
+        var trainerSession = login(trainer.email());
+
+        long camelId = createCamel(sellerSession);
+
+        var profile = new TrainerProfile();
+        profile.setUser(userRepository.findById(trainer.userId()).orElseThrow());
+        profile.setBio("Marketplace sale trainer");
+        profile.setLocation("Muscat");
+        profiles.saveAndFlush(profile);
+
+        var agreementResult = mvc.perform(post("/api/agreements")
+                        .session(sellerSession)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of(
+                                "camelId", camelId,
+                                "trainerUserId", trainer.userId(),
+                                "feeOmr", 25.5,
+                                "prizeSharePct", 10,
+                                "saleSharePct", 5,
+                                "startsAt", NOW.plusSeconds(3600).toString(),
+                                "endsAt", NOW.plusSeconds(86400).toString()
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+                .andReturn();
+
+        long agreementId = json.readTree(
+                agreementResult.getResponse().getContentAsString()
+        ).get("agreementId").asLong();
+
+        mvc.perform(post("/api/agreements/" + agreementId + "/accept")
+                        .session(trainerSession)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+
+        long listingId = createListing(sellerSession, camelId);
+
+        long offerId = createOffer(
+                buyerSession,
+                listingId,
+                3100,
+                seller.userId(),
+                "ACCEPTED"
+        );
+
+        mvc.perform(post("/offer/" + offerId + "/accept")
+                        .session(sellerSession)
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        assertThat(jdbc.queryForObject(
+                "SELECT status FROM training_agreements WHERE agreement_id = ?",
+                String.class,
+                agreementId
+        )).isEqualTo("TERMINATED");
+
+        assertThat(jdbc.queryForObject(
+                "SELECT terminated_at IS NOT NULL FROM training_agreements WHERE agreement_id = ?",
+                Boolean.class,
+                agreementId
+        )).isTrue();
+
+        assertThat(jdbc.queryForObject(
+                "SELECT trainer_share_omr FROM sale_transaction WHERE offer_id = ?",
+                java.math.BigDecimal.class,
+                offerId
+        )).isEqualByComparingTo("155.000");
+
+        assertThat(jdbc.queryForObject(
+                "SELECT seller_net_omr FROM sale_transaction WHERE offer_id = ?",
+                java.math.BigDecimal.class,
+                offerId
+        )).isEqualByComparingTo("2945.000");
+
+        assertThat(jdbc.queryForObject(
+                "SELECT trainer_id FROM sale_transaction WHERE offer_id = ?",
+                Long.class,
+                offerId
+        )).isEqualTo(trainer.userId());
+
+        assertThat(jdbc.queryForObject(
+                "SELECT agreement_id FROM sale_transaction WHERE offer_id = ?",
+                Long.class,
+                offerId
+        )).isEqualTo(agreementId);
+    }
+
+    @Test
+    void acceptingOfferTerminatesPendingTrainingAgreement() throws Exception {
+
+        var seller = register("pending-sale-seller@example.com");
+        var buyer = register("pending-sale-buyer@example.com");
+        var trainer = register("pending-sale-trainer@example.com");
+
+        users.updateRoles(seller.userId(), Set.of("OWNER"));
+        users.updateRoles(trainer.userId(), Set.of("TRAINER"));
+
+        var sellerSession = login(seller.email());
+        var buyerSession = login(buyer.email());
+
+        long camelId = createCamel(sellerSession);
+
+        var profile = new TrainerProfile();
+        profile.setUser(userRepository.findById(trainer.userId()).orElseThrow());
+        profile.setBio("Pending agreement trainer");
+        profile.setLocation("Muscat");
+        profiles.saveAndFlush(profile);
+
+        var agreementResult = mvc.perform(post("/api/agreements")
+                        .session(sellerSession)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of(
+                                "camelId", camelId,
+                                "trainerUserId", trainer.userId(),
+                                "feeOmr", 25.5,
+                                "prizeSharePct", 10,
+                                "saleSharePct", 5,
+                                "startsAt", NOW.plusSeconds(3600).toString(),
+                                "endsAt", NOW.plusSeconds(86400).toString()
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+                .andReturn();
+
+        long agreementId = json.readTree(
+                agreementResult.getResponse().getContentAsString()
+        ).get("agreementId").asLong();
+
+        long listingId = createListing(sellerSession, camelId);
+
+        long offerId = createOffer(
+                buyerSession,
+                listingId,
+                3100,
+                seller.userId(),
+                "ACCEPTED"
+        );
+
+        mvc.perform(post("/offer/" + offerId + "/accept")
+                        .session(sellerSession)
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        assertThat(jdbc.queryForObject(
+                "SELECT status FROM training_agreements WHERE agreement_id = ?",
+                String.class,
+                agreementId
+        )).isEqualTo("TERMINATED");
+
+        assertThat(jdbc.queryForObject(
+                "SELECT terminated_at IS NOT NULL FROM training_agreements WHERE agreement_id = ?",
+                Boolean.class,
+                agreementId
+        )).isTrue();
+
+        assertThat(jdbc.queryForObject(
+                "SELECT trainer_share_omr FROM sale_transaction WHERE offer_id = ?",
+                java.math.BigDecimal.class,
+                offerId
+        )).isEqualByComparingTo("0.000");
+
+        assertThat(jdbc.queryForObject(
+                "SELECT seller_net_omr FROM sale_transaction WHERE offer_id = ?",
+                java.math.BigDecimal.class,
+                offerId
+        )).isEqualByComparingTo("3100.000");
+
+        assertThat(jdbc.queryForObject(
+                "SELECT trainer_id IS NULL FROM sale_transaction WHERE offer_id = ?",
+                Boolean.class,
+                offerId
+        )).isTrue();
+
+        assertThat(jdbc.queryForObject(
+                "SELECT agreement_id IS NULL FROM sale_transaction WHERE offer_id = ?",
+                Boolean.class,
+                offerId
+        )).isTrue();
     }
 
     // ---------------------------------------------------------

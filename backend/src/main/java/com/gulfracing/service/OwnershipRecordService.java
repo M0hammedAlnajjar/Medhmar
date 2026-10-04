@@ -23,6 +23,7 @@ public class OwnershipRecordService {
     private final CamelRepository camels;
     private final UserRepository users;
     private final Clock clock;
+    private final TrainingAgreementService trainingAgreementService;
 
     @Transactional
     public Long addOwnershipRecord(
@@ -33,11 +34,14 @@ public class OwnershipRecordService {
             Long ownerId
     ) {
         if (endAt != null && !endAt.after(startAt)) {
-            throw ApiException.badRequest("Ownership end date must be after the start date.");
+            throw ApiException.badRequest(
+                    "Ownership end date must be after the start date."
+            );
         }
 
         var camel = camels.findById(camelId)
                 .orElseThrow(() -> ApiException.notFound("Camel"));
+
         var owner = users.findById(ownerId)
                 .orElseThrow(() -> ApiException.notFound("User"));
 
@@ -50,7 +54,13 @@ public class OwnershipRecordService {
         ownershipRecord.setIsActive(true);
         ownershipRecord.setCreatedDate(new Date());
 
-        return ownershipRecords.save(ownershipRecord).getOwnershipId();
+        Long ownershipId = ownershipRecords
+                .saveAndFlush(ownershipRecord)
+                .getOwnershipId();
+
+        trainingAgreementService.terminateIfOwnerLostFullOwnership(camelId);
+
+        return ownershipId;
     }
 
     @Transactional(readOnly = true)
@@ -101,14 +111,20 @@ public class OwnershipRecordService {
             Date updateEndAt
     ) {
         if (updateEndAt != null && !updateEndAt.after(updateStartAt)) {
-            throw ApiException.badRequest("Ownership end date must be after the start date.");
+            throw ApiException.badRequest(
+                    "Ownership end date must be after the start date."
+            );
         }
 
         OwnershipRecord record = getById(id);
         record.setSharePercent(updateSharePercent);
         record.setStartAt(updateStartAt);
         record.setEndAt(updateEndAt);
-        record.setUpdatedDate(new Date());
+        record.setUpdatedDate(Date.from(clock.instant()));
+        ownershipRecords.saveAndFlush(record);
+        trainingAgreementService.terminateIfOwnerLostFullOwnership(
+                record.getCamel().getCamelId()
+        );
         return record;
     }
 
@@ -116,8 +132,11 @@ public class OwnershipRecordService {
     public Boolean deleteById(Long id) {
         OwnershipRecord record = getById(id);
         record.setIsActive(false);
-        record.setEndAt(record.getEndAt() == null ? new Date() : record.getEndAt());
-        record.setUpdatedDate(new Date());
+        Date now = Date.from(clock.instant());
+        record.setEndAt(record.getEndAt() == null ? now : record.getEndAt());
+        record.setUpdatedDate(now);
+        ownershipRecords.saveAndFlush(record);
+        trainingAgreementService.terminateIfOwnerLostFullOwnership(record.getCamel().getCamelId());
         return true;
     }
 
