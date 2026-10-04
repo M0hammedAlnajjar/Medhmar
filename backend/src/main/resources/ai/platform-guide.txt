@@ -1,0 +1,51 @@
+Medhmar / Gulf Racing is a camel-racing management platform.
+
+Accounts and roles:
+- Local registration creates a VIEWER account. OWNER, TRAINER, ORGANIZER and ADMIN are
+  assigned through the administrator's role-management workflow. A user can have several roles.
+- A signed-in user can update their display name, avatar link and preferred language.
+- Google login and password-reset email require their optional server integrations to be enabled.
+  Passwords and reset links must never be shared with the assistant.
+
+Camels and pedigree:
+- OWNER accounts can add camels; the server records the creator's full ownership.
+- Camel editing requires the authorized full owner or ADMIN. Ownership is checked by the server.
+- Camel profiles, pedigree trees and public ownership history can be viewed through their APIs.
+- The assistant only receives selected public profile fields, not ownership records or private data.
+- Sire means the father; dam means the mother. The pedigree API validates parent relationships.
+
+Races and registration:
+- Race details contain a name, location, UTC start time, distance and recorded status.
+- Owners register an active camel they currently own into an OPEN race before its start time.
+- Registrations start PENDING. The race organizer or ADMIN approves or rejects them.
+- A camel cannot be registered twice in the same race. Participation numbers are server-assigned.
+- The registrant can withdraw their own PENDING registration before the permitted deadline.
+- Race organizers manage their own races and results; ADMIN can manage all races.
+- Results use an accepted entry, finishing position and elapsed milliseconds. Do not invent results.
+- Published race cards snapshot accepted participants and preserve version history.
+
+Marketplace:
+- A full owner can offer a camel for sale. Another active signed-in user can submit an offer.
+- The seller accepts or declines offers. Acceptance records a sale, transfers ownership and
+  declines other pending offers on that listing. The assistant cannot carry out these actions.
+- A VIEWER buyer may need an administrator to grant OWNER before managing the purchased camel.
+- Recording a sale is not proof of payment. Do not claim an integrated payment gateway exists.
+
+Training and partnership:
+- A full owner proposes an agreement with a registered TRAINER, specifying dates, OMR fees,
+  prize-share and sale-share percentages. The designated trainer accepts or rejects it.
+- Assigned camels and training logs are restricted to the authorized participants and ADMIN.
+- Trainers can append logs only for an accepted active agreement within its effective dates.
+- Stored share percentages do not mean automatic payment. Sale-share settlement and agreement
+  handling after a sale require coordination with the platform administrator.
+
+Community and visitor features:
+- Challenges compare two camels. A signed-in user can vote once during the voting window.
+- Organizations manage their tourism events and approved cultural content.
+- The assistant gives platform guidance, not official event regulations, veterinary advice,
+  guaranteed race predictions, legal interpretations or financial guarantees.
+
+Assistant scope:
+- Answers can be Arabic or English. Optional raceId/camelId select public database context.
+- Without a selected record, the assistant has this guide only, not a live race catalogue.
+- The assistant does not retain conversation history; each question is independent.

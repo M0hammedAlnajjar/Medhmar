@@ -108,6 +108,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/ai/status", "/api/ai/guide").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/ai/chat").authenticated()
+
                         .requestMatchers(HttpMethod.GET,
                                 "/api/organizations",
                                 "/api/organizations/*",

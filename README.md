@@ -262,6 +262,11 @@ Detailed API documentation is available in:
 docs/API.md
 ```
 
+The optional AI assistant is implemented at `POST /api/ai/chat`. Enable the `ai`
+profile and set `AI_API_KEY` to activate it. It supports Arabic and English,
+uses approved guidance and selected public records, and requires login and CSRF.
+See [Assistant setup and examples](docs/AI.md).
+
 ## 🔁 CI/CD & Commit Convention
 
 GitHub Actions automatically validates every push and pull request.

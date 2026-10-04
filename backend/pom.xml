@@ -86,10 +86,10 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Provider-independent AI client; configure a model when implementing AI -->
+        <!-- OpenAI chat is opt-in through the ai profile; tests need no API key. -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-client-chat</artifactId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
         </dependency>
 
         <!-- JUnit, assertions, Spring Boot tests, and MockMvc -->
