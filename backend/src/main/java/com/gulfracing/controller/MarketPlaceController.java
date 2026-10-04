@@ -7,6 +7,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.gulfracing.dto.PageResponse;
+import com.gulfracing.enums.MarketPlaceStatus;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import java.util.List;
 
@@ -31,9 +35,26 @@ public class MarketPlaceController {
     }
 
     @GetMapping("/getAll")
-    public List<MarketPlaceDTO> getAllMarketPlaces() {
-        return MarketPlaceDTO.convertToDTO(
-                marketPlaceService.getAllMarketPlaces()
+    public PageResponse<MarketPlaceDTO> getAllMarketPlaces(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) MarketPlaceStatus status,
+            @RequestParam(required = false) Long camelId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
+    ) {
+        return PageResponse.from(
+                marketPlaceService.searchMarketPlaces(
+                        page,
+                        size,
+                        search,
+                        status,
+                        camelId,
+                        minPrice,
+                        maxPrice
+                ),
+                MarketPlaceDTO::convertToDTO
         );
     }
 
