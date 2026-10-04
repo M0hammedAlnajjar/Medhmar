@@ -176,3 +176,72 @@ ALTER TABLE offer ADD COLUMN updated_date TIMESTAMP(6);
 ALTER TABLE ownership_record ADD COLUMN is_active BOOLEAN;
 ALTER TABLE ownership_record ADD COLUMN created_date TIMESTAMP(6);
 ALTER TABLE ownership_record ADD COLUMN updated_date TIMESTAMP(6);
+CREATE TABLE trainer_profile (
+    user_id BIGINT NOT NULL PRIMARY KEY,
+    bio TEXT,
+    location VARCHAR(150),
+    CONSTRAINT fk_trainer_profile_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+CREATE TABLE training_agreements (
+    agreement_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    owner_id BIGINT NOT NULL,
+    trainer_user_id BIGINT NOT NULL,
+    camel_id BIGINT NOT NULL,
+    fee_omr DECIMAL(12,3) NOT NULL,
+    prize_share_pct DECIMAL(5,2) NOT NULL,
+    sale_share_pct DECIMAL(5,2) NOT NULL,
+    starts_at TIMESTAMP(6) NOT NULL,
+    ends_at TIMESTAMP(6) NOT NULL,
+    proposed_at TIMESTAMP(6) NOT NULL,
+    responded_at TIMESTAMP(6),
+    accepted_at TIMESTAMP(6),
+    terminated_at TIMESTAMP(6),
+    status VARCHAR(30) NOT NULL,
+    row_version BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_agreement_owner FOREIGN KEY (owner_id) REFERENCES users(user_id),
+    CONSTRAINT fk_agreement_trainer FOREIGN KEY (trainer_user_id) REFERENCES trainer_profile(user_id),
+    CONSTRAINT fk_agreement_camel FOREIGN KEY (camel_id) REFERENCES camel(camel_id),
+    CONSTRAINT ck_agreement_prize_pct CHECK (prize_share_pct BETWEEN 0 AND 100),
+    CONSTRAINT ck_agreement_sale_pct CHECK (sale_share_pct BETWEEN 0 AND 100),
+    CONSTRAINT ck_agreement_fee CHECK (fee_omr >= 0),
+    CONSTRAINT ck_agreement_dates CHECK (ends_at > starts_at)
+);
+CREATE INDEX ix_agreement_camel_status ON training_agreements(camel_id,status);
+CREATE INDEX ix_agreement_owner ON training_agreements(owner_id);
+CREATE INDEX ix_agreement_trainer ON training_agreements(trainer_user_id);
+ALTER TABLE training_agreements
+    ADD COLUMN rejection_reason VARCHAR(1000),
+    ADD COLUMN termination_reason VARCHAR(1000),
+    ADD COLUMN completed_at TIMESTAMP(6),
+    ADD COLUMN expired_at TIMESTAMP(6),
+    ADD COLUMN terms TEXT,
+    ADD COLUMN terminated_by BIGINT,
+    ADD COLUMN rejected_by BIGINT;
+
+ALTER TABLE training_agreements
+    ADD CONSTRAINT fk_agreement_terminated_by
+        FOREIGN KEY (terminated_by) REFERENCES users(user_id);
+
+ALTER TABLE training_agreements
+    ADD CONSTRAINT fk_agreement_rejected_by
+        FOREIGN KEY (rejected_by) REFERENCES users(user_id);
+
+CREATE TABLE audit_log (
+    audit_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    action_type VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    created_at TIMESTAMP(6) NOT NULL,
+    description TEXT,
+    camel_id BIGINT NOT NULL,
+
+    CONSTRAINT fk_audit_log_camel
+        FOREIGN KEY (camel_id) REFERENCES camel(camel_id)
+);
+
+CREATE INDEX ix_audit_log_camel
+    ON audit_log(camel_id);
+
+CREATE INDEX ix_audit_log_entity
+    ON audit_log(entity_type, entity_id);
