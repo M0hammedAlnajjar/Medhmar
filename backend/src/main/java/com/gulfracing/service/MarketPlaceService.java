@@ -8,6 +8,10 @@ import com.gulfracing.repository.MarketPlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.Clock;
 import java.util.Date;
@@ -58,6 +62,50 @@ public class MarketPlaceService {
     @Transactional(readOnly = true)
     public List<MarketPlace> getAllMarketPlaces() {
         return marketPlaces.getAllMarketPlaces();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MarketPlace> searchMarketPlaces(
+            int page,
+            int size,
+            String search,
+            MarketPlaceStatus status,
+            Long camelId,
+            Double minPrice,
+            Double maxPrice
+    ) {
+        if (camelId != null && camelId <= 0) {
+            throw ApiException.badRequest("Camel ID must be positive.");
+        }
+
+        if (minPrice != null && minPrice < 0) {
+            throw ApiException.badRequest("Minimum price cannot be negative.");
+        }
+
+        if (maxPrice != null && maxPrice < 0) {
+            throw ApiException.badRequest("Maximum price cannot be negative.");
+        }
+
+        if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+            throw ApiException.badRequest("Minimum price cannot be greater than maximum price.");
+        }
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "listingId")
+        );
+
+        search = normalize(search);
+
+        return marketPlaces.searchMarketPlaces(
+                search,
+                status,
+                camelId,
+                minPrice,
+                maxPrice,
+                pageable
+        );
     }
 
     @Transactional(readOnly = true)
@@ -167,5 +215,12 @@ public class MarketPlaceService {
                         MarketPlaceStatus.CANCELLED
                 )
         );
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }
