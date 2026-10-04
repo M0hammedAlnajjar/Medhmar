@@ -20,4 +20,19 @@ public interface TrainingAgreementRepository extends JpaRepository<TrainingAgree
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM TrainingAgreement a WHERE a.agreementId = :id")
     Optional<TrainingAgreement> findLockedById(@Param("id") Long id);
+
+    @Query("""
+        SELECT a
+        FROM TrainingAgreement a
+        WHERE a.camel.camelId = :camelId
+          AND a.status = :status
+          AND a.startsAt <= :at
+          AND a.endsAt > :at
+        ORDER BY a.agreementId DESC
+        """)
+    List<TrainingAgreement> findEffectiveForCamel(
+            @Param("camelId") Long camelId,
+            @Param("status") AgreementStatus status,
+            @Param("at") java.time.Instant at
+    );
 }
