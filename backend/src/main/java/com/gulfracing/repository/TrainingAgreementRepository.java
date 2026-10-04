@@ -35,4 +35,29 @@ public interface TrainingAgreementRepository extends JpaRepository<TrainingAgree
             @Param("status") AgreementStatus status,
             @Param("at") java.time.Instant at
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT a
+    FROM TrainingAgreement a
+    WHERE a.camel.camelId = :camelId
+      AND a.status IN :statuses
+    """)
+    List<TrainingAgreement> findActiveForCamelForUpdate(
+            @Param("camelId") Long camelId,
+            @Param("statuses") Collection<AgreementStatus> statuses
+    );
+    
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT a
+    FROM TrainingAgreement a
+    WHERE a.camel.camelId = :camelId
+      AND a.status = :status
+    ORDER BY a.agreementId DESC
+    """)
+    List<TrainingAgreement> findByCamelAndStatusForUpdate(
+            @Param("camelId") Long camelId,
+            @Param("status") AgreementStatus status
+    );
 }
