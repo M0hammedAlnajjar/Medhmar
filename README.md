@@ -97,7 +97,7 @@ AI Response
 
 | Layer | Technology |
 |---|---|
-| Frontend | Reset / ready for fresh implementation |
+| Frontend | HTML, CSS, JavaScript ES modules; Arabic/English |
 | Backend | Java, Spring Boot |
 | API | REST API |
 | AI | Spring AI |
@@ -130,7 +130,10 @@ Gulf-Racing/
 │   └── pom.xml
 │
 ├── frontend/
-│   └── .gitkeep   # intentionally empty; ready for a fresh frontend
+│   ├── index.html
+│   ├── assets/      # shared style and imagery
+│   ├── js/          # routing, API client and feature views
+│   └── tests/       # API-client and browser checks
 │
 ├── database/
 │   ├── schema.sql
@@ -218,8 +221,16 @@ The Spring Boot application will start locally.
 
 ### 5. Frontend
 
-The `frontend/` directory has been intentionally reset and is currently empty except for `.gitkeep`.
-A new frontend can be built from scratch without carrying over the previous MVP.
+The frontend follows the Gulf Racing visual reference and connects to the Spring Boot APIs.
+
+```bash
+cd frontend
+npm start
+```
+
+Open `http://localhost:5500/` with the backend running on `http://localhost:8080`.
+Use the same hostname for both. See [frontend/README.md](frontend/README.md) for
+page coverage, roles, optional Google/email/AI configuration and verification.
 
 ## 🧪 Testing
 
@@ -280,7 +291,7 @@ Commit Message Check
         ↓
 Backend Validate + Test + Build
         ↓
-Frontend Structure Check
+Frontend Syntax + API Client + Browser Tests
         ↓
 PASS ✅ / FAIL ❌
 ```
@@ -353,4 +364,4 @@ Workflow files:
 
 ## Frontend Status
 
-The previous desktop MVP was removed intentionally. The `frontend/` folder is currently a clean placeholder for a new implementation.
+The reference-based HTML/CSS/JavaScript frontend includes the 25 concept screens and supporting create/edit flows. It uses real backend requests, with explicit loading, empty, unavailable and permission states. See [the frontend guide](frontend/README.md) for current API limitations; browser test data is isolated from the application.
