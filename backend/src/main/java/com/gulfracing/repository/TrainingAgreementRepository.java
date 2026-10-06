@@ -17,6 +17,10 @@ public interface TrainingAgreementRepository extends JpaRepository<TrainingAgree
             Long ownerId, Long trainerUserId
     );
 
+    List<TrainingAgreement> findByTrainer_UserIdAndStatusOrderByAgreementIdDesc(
+            Long trainerUserId, AgreementStatus status
+    );
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM TrainingAgreement a WHERE a.agreementId = :id")
     Optional<TrainingAgreement> findLockedById(@Param("id") Long id);
