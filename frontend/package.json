@@ -1,0 +1,20 @@
+{
+  "name": "medhmar-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/routes.test.mjs",
+    "test:browser": "node --test tests/routes.test.mjs",
+    "check": "node scripts/check.mjs",
+    "format": "prettier --write \"js/**/*.js\" \"assets/*.css\" \"tests/*.mjs\" \"scripts/*.mjs\" \"*.html\" \"*.mjs\" \"*.json\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "prettier": "3.6.2"
+  }
+}
