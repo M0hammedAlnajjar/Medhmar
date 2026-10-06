@@ -1,974 +1,722 @@
 import { raceApi } from "./race-api.js";
 
-const raceState = {
+const HERO_IMAGE = "/assets/racing-hero.webp";
+
+const state = {
     search: "",
     status: "",
     page: 0,
-    size: 10,
-    totalPages: 0,
-    totalElements: 0,
-    races: [],
-    loading: false,
-    error: null
+    size: 6
 };
 
-const raceStatusLabels = {
-    SCHEDULED: "UPCOMING",
-    OPEN: "OPEN",
-    CLOSED: "CLOSED",
-    COMPLETED: "COMPLETED",
-    CANCELLED: "CANCELLED"
-};
-
-function escapeHtml(value = "") {
-    return String(value).replace(
-        /[&<>"']/g,
-        character => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "\"": "&quot;",
-            "'": "&#039;"
-        })[character]
-    );
-}
-
-function formatRaceDate(value) {
-    if (!value) {
-        return "-";
+const getRaces = (...args) => {
+    if (typeof raceApi.getRaces === "function") {
+        return raceApi.getRaces(...args);
     }
 
-    const date = new Date(value);
+    if (typeof raceApi.list === "function") {
+        return raceApi.list(...args);
+    }
 
+    throw new Error("Race list API method is not available.");
+};
+
+const getRaceById = (id) => {
+    if (typeof raceApi.getRaceById === "function") {
+        return raceApi.getRaceById(id);
+    }
+
+    if (typeof raceApi.one === "function") {
+        return raceApi.one(id);
+    }
+
+    throw new Error("Race details API method is not available.");
+};
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatDate(value) {
     return new Intl.DateTimeFormat("en-GB", {
         day: "2-digit",
         month: "short",
         year: "numeric"
-    }).format(date);
+    }).format(new Date(value));
 }
 
-function formatRaceTime(value) {
-    if (!value) {
-        return "-";
-    }
-
-    const date = new Date(value);
-
+function formatTime(value) {
     return new Intl.DateTimeFormat("en-US", {
         hour: "2-digit",
         minute: "2-digit"
-    }).format(date);
+    }).format(new Date(value));
 }
 
-function statusBadge(status) {
-    const label =
-        raceStatusLabels[status] ||
-        status;
+function badgeClass(status) {
+    const value = String(status || "").toUpperCase();
 
-    return `
-        <span class="race-status-badge race-status-${status.toLowerCase()}">
-            ${escapeHtml(label)}
-        </span>
-    `;
+    if (value === "OPEN" || value === "COMPLETED") {
+        return "race-status success";
+    }
+
+    if (value === "SCHEDULED" || value === "CLOSED") {
+        return "race-status warning";
+    }
+
+    if (value === "CANCELLED") {
+        return "race-status danger";
+    }
+
+    return "race-status neutral";
 }
 
 function raceCard(race) {
     return `
-        <article class="sulaiman-race-card">
+    <article class="race-card-final">
 
-            <div class="sulaiman-race-image">
-                <img
-                    src="/assets/racing-hero.webp"
-                    alt="${escapeHtml(race.name)}"
-                >
+      <div class="race-card-final-image">
 
-                <div class="sulaiman-race-card-status">
-                    ${statusBadge(race.status)}
-                </div>
-            </div>
-
-            <div class="sulaiman-race-content">
-
-                <h3 class="sulaiman-race-title">
-                    ${escapeHtml(race.name)}
-                </h3>
-
-                <div class="sulaiman-race-information">
-
-                    <div class="sulaiman-race-info-item">
-                        <span class="sulaiman-race-info-icon">
-                            ◷
-                        </span>
-
-                        <div>
-                            <span class="sulaiman-race-info-label">
-                                Date
-                            </span>
-
-                            <strong>
-                                ${formatRaceDate(race.startsAt)}
-                            </strong>
-                        </div>
-                    </div>
-
-                    <div class="sulaiman-race-info-item">
-                        <span class="sulaiman-race-info-icon">
-                            ⏱
-                        </span>
-
-                        <div>
-                            <span class="sulaiman-race-info-label">
-                                Time
-                            </span>
-
-                            <strong>
-                                ${formatRaceTime(race.startsAt)}
-                            </strong>
-                        </div>
-                    </div>
-
-                    <div class="sulaiman-race-info-item">
-                        <span class="sulaiman-race-info-icon">
-                            ⌖
-                        </span>
-
-                        <div>
-                            <span class="sulaiman-race-info-label">
-                                Location
-                            </span>
-
-                            <strong>
-                                ${escapeHtml(race.location)}
-                            </strong>
-                        </div>
-                    </div>
-
-                    <div class="sulaiman-race-info-item">
-                        <span class="sulaiman-race-info-icon">
-                            ↔
-                        </span>
-
-                        <div>
-                            <span class="sulaiman-race-info-label">
-                                Distance
-                            </span>
-
-                            <strong>
-                                ${escapeHtml(race.distanceKm)} KM
-                            </strong>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="sulaiman-race-footer">
-
-                    <span class="sulaiman-race-organizer">
-                        Race #${escapeHtml(race.raceId)}
-                    </span>
-
-                    <a
-                        class="sulaiman-race-view-button"
-                        href="/races/${race.raceId}"
-                        data-race-link
-                    >
-                        View Race
-                    </a>
-
-                </div>
-
-            </div>
-
-        </article>
-    `;
-}
-
-function loadingCards() {
-    return Array
-        .from({ length: 6 })
-        .map(
-            () => `
-                <article class="sulaiman-race-card sulaiman-race-skeleton">
-
-                    <div class="sulaiman-skeleton-image"></div>
-
-                    <div class="sulaiman-race-content">
-
-                        <div class="sulaiman-skeleton-line sulaiman-skeleton-title"></div>
-
-                        <div class="sulaiman-skeleton-line"></div>
-
-                        <div class="sulaiman-skeleton-line"></div>
-
-                        <div class="sulaiman-skeleton-line sulaiman-skeleton-short"></div>
-
-                    </div>
-
-                </article>
-            `
-        )
-        .join("");
-}
-
-function emptyState() {
-    return `
-        <section class="sulaiman-race-state">
-
-            <div class="sulaiman-race-state-icon">
-                ◌
-            </div>
-
-            <h2>
-                No Races Found
-            </h2>
-
-            <p>
-                No races match your current search or status filter.
-            </p>
-
-            <button
-                type="button"
-                class="sulaiman-race-primary-button"
-                id="race-clear-empty"
-            >
-                Clear Filters
-            </button>
-
-        </section>
-    `;
-}
-
-function errorState() {
-    return `
-        <section class="sulaiman-race-state">
-
-            <div class="sulaiman-race-state-icon">
-                !
-            </div>
-
-            <h2>
-                Unable to Load Races
-            </h2>
-
-            <p>
-                ${
-        escapeHtml(
-            raceState.error?.message ||
-            "Race information could not be loaded."
-        )
-    }
-            </p>
-
-            <button
-                type="button"
-                class="sulaiman-race-primary-button"
-                id="race-retry"
-            >
-                Try Again
-            </button>
-
-        </section>
-    `;
-}
-
-function racesContent() {
-    if (raceState.loading) {
-        return `
-            <div class="sulaiman-race-grid">
-                ${loadingCards()}
-            </div>
-        `;
-    }
-
-    if (raceState.error) {
-        return errorState();
-    }
-
-    if (raceState.races.length === 0) {
-        return emptyState();
-    }
-
-    return `
-        <div class="sulaiman-race-results-header">
-
-            <div>
-                <h2>
-                    Available Races
-                </h2>
-
-                <p>
-                    ${raceState.totalElements}
-                    ${
-        raceState.totalElements === 1
-            ? "race"
-            : "races"
-    }
-                </p>
-            </div>
-
-        </div>
-
-        <div class="sulaiman-race-grid">
-            ${raceState.races.map(raceCard).join("")}
-        </div>
-
-        ${pagination()}
-    `;
-}
-
-function pagination() {
-    if (raceState.totalPages <= 1) {
-        return "";
-    }
-
-    const pageButtons = [];
-
-    for (
-        let page = 0;
-        page < raceState.totalPages;
-        page++
-    ) {
-        pageButtons.push(`
-            <button
-                type="button"
-                class="
-                    sulaiman-page-button
-                    ${
-            raceState.page === page
-                ? "active"
-                : ""
-        }
-                "
-                data-race-page="${page}"
-            >
-                ${page + 1}
-            </button>
-        `);
-    }
-
-    return `
-        <nav
-            class="sulaiman-race-pagination"
-            aria-label="Race pagination"
+        <img
+          src="${escapeHtml(race.resultsImageUrl || HERO_IMAGE)}"
+          alt="${escapeHtml(race.name)}"
         >
 
-            <button
-                type="button"
-                class="sulaiman-page-button sulaiman-page-navigation"
-                data-race-page="${raceState.page - 1}"
-                ${
-        raceState.page === 0
-            ? "disabled"
-            : ""
-    }
-            >
-                Previous
-            </button>
+        <span class="${badgeClass(race.status)}">
+          ${escapeHtml(race.status)}
+        </span>
 
-            ${pageButtons.join("")}
-
-            <button
-                type="button"
-                class="sulaiman-page-button sulaiman-page-navigation"
-                data-race-page="${raceState.page + 1}"
-                ${
-        raceState.page >= raceState.totalPages - 1
-            ? "disabled"
-            : ""
-    }
-            >
-                Next
-            </button>
-
-        </nav>
-    `;
-}
-
-function racesListingTemplate() {
-    return `
-        <section class="sulaiman-races-page">
-
-            <div class="sulaiman-race-page-header">
-
-                <div>
-
-                    <div class="sulaiman-race-breadcrumb">
-                        Home
-                        <span>/</span>
-                        Races
-                    </div>
-
-                    <h1>
-                        Races
-                    </h1>
-
-                    <p>
-                        Discover upcoming and completed camel races
-                        across MEDHMAR.
-                    </p>
-
-                </div>
-
-            </div>
-
-            <section class="sulaiman-race-toolbar">
-
-                <div class="sulaiman-race-search">
-
-                    <span class="sulaiman-race-search-icon">
-                        ⌕
-                    </span>
-
-                    <input
-                        id="race-search-input"
-                        type="search"
-                        value="${escapeHtml(raceState.search)}"
-                        placeholder="Search races..."
-                        aria-label="Search races"
-                    >
-
-                </div>
-
-                <select
-                    id="race-status-filter"
-                    class="sulaiman-race-filter"
-                    aria-label="Filter by status"
-                >
-
-                    <option value="">
-                        Status
-                    </option>
-
-                    <option
-                        value="SCHEDULED"
-                        ${
-        raceState.status === "SCHEDULED"
-            ? "selected"
-            : ""
-    }
-                    >
-                        Upcoming
-                    </option>
-
-                    <option
-                        value="OPEN"
-                        ${
-        raceState.status === "OPEN"
-            ? "selected"
-            : ""
-    }
-                    >
-                        Open
-                    </option>
-
-                    <option
-                        value="CLOSED"
-                        ${
-        raceState.status === "CLOSED"
-            ? "selected"
-            : ""
-    }
-                    >
-                        Closed
-                    </option>
-
-                    <option
-                        value="COMPLETED"
-                        ${
-        raceState.status === "COMPLETED"
-            ? "selected"
-            : ""
-    }
-                    >
-                        Completed
-                    </option>
-
-                    <option
-                        value="CANCELLED"
-                        ${
-        raceState.status === "CANCELLED"
-            ? "selected"
-            : ""
-    }
-                    >
-                        Cancelled
-                    </option>
-
-                </select>
-
-                <button
-                    type="button"
-                    class="sulaiman-race-clear-button"
-                    id="race-clear-filters"
-                >
-                    Clear Filters
-                </button>
-
-            </section>
-
-            <div class="sulaiman-race-tabs">
-
-                <button
-                    type="button"
-                    class="
-                        sulaiman-race-tab
-                        ${
-        raceState.status === ""
-            ? "active"
-            : ""
-    }
-                    "
-                    data-race-status=""
-                >
-                    All
-                </button>
-
-                <button
-                    type="button"
-                    class="
-                        sulaiman-race-tab
-                        ${
-        raceState.status === "SCHEDULED"
-            ? "active"
-            : ""
-    }
-                    "
-                    data-race-status="SCHEDULED"
-                >
-                    Upcoming
-                </button>
-
-                <button
-                    type="button"
-                    class="
-                        sulaiman-race-tab
-                        ${
-        raceState.status === "OPEN"
-            ? "active"
-            : ""
-    }
-                    "
-                    data-race-status="OPEN"
-                >
-                    Open
-                </button>
-
-                <button
-                    type="button"
-                    class="
-                        sulaiman-race-tab
-                        ${
-        raceState.status === "COMPLETED"
-            ? "active"
-            : ""
-    }
-                    "
-                    data-race-status="COMPLETED"
-                >
-                    Completed
-                </button>
-
-            </div>
-
-            <div id="sulaiman-races-content">
-                ${racesContent()}
-            </div>
-
-        </section>
-    `;
-}
-
-function updateContent() {
-    const content =
-        document.querySelector(
-            "#sulaiman-races-content"
-        );
-
-    if (!content) {
-        return;
-    }
-
-    content.innerHTML =
-        racesContent();
-
-    bindDynamicEvents();
-}
-
-async function loadRaces() {
-    raceState.loading = true;
-    raceState.error = null;
-
-    updateContent();
-
-    try {
-        const response =
-            await raceApi.getRaces(
-                raceState.search,
-                raceState.status,
-                raceState.page,
-                raceState.size
-            );
-
-        raceState.races =
-            response.content || [];
-
-        raceState.totalPages =
-            response.totalPages || 0;
-
-        raceState.totalElements =
-            response.totalElements || 0;
-    } catch (error) {
-        raceState.error = error;
-        raceState.races = [];
-        raceState.totalPages = 0;
-        raceState.totalElements = 0;
-    } finally {
-        raceState.loading = false;
-
-        updateContent();
-    }
-}
-
-function clearRaceFilters() {
-    raceState.search = "";
-    raceState.status = "";
-    raceState.page = 0;
-
-    const searchInput =
-        document.querySelector(
-            "#race-search-input"
-        );
-
-    const statusFilter =
-        document.querySelector(
-            "#race-status-filter"
-        );
-
-    if (searchInput) {
-        searchInput.value = "";
-    }
-
-    if (statusFilter) {
-        statusFilter.value = "";
-    }
-
-    refreshRaceTabs();
-    loadRaces();
-}
-
-function refreshRaceTabs() {
-    document
-        .querySelectorAll(
-            "[data-race-status]"
-        )
-        .forEach(button => {
-            button.classList.toggle(
-                "active",
-                button.dataset.raceStatus ===
-                raceState.status
-            );
-        });
-}
-
-function bindDynamicEvents() {
-    document
-        .querySelectorAll(
-            "[data-race-page]"
-        )
-        .forEach(button => {
-            button.addEventListener(
-                "click",
-                () => {
-                    if (button.disabled) {
-                        return;
-                    }
-
-                    raceState.page =
-                        Number(
-                            button.dataset.racePage
-                        );
-
-                    loadRaces();
-
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-                }
-            );
-        });
-
-    document
-        .querySelector(
-            "#race-retry"
-        )
-        ?.addEventListener(
-            "click",
-            loadRaces
-        );
-
-    document
-        .querySelector(
-            "#race-clear-empty"
-        )
-        ?.addEventListener(
-            "click",
-            clearRaceFilters
-        );
-}
-
-function bindRaceListingEvents() {
-    let searchTimeout;
-
-    document
-        .querySelector(
-            "#race-search-input"
-        )
-        ?.addEventListener(
-            "input",
-            event => {
-                clearTimeout(
-                    searchTimeout
-                );
-
-                searchTimeout =
-                    setTimeout(
-                        () => {
-                            raceState.search =
-                                event.target.value;
-
-                            raceState.page = 0;
-
-                            loadRaces();
-                        },
-                        400
-                    );
-            }
-        );
-
-    document
-        .querySelector(
-            "#race-status-filter"
-        )
-        ?.addEventListener(
-            "change",
-            event => {
-                raceState.status =
-                    event.target.value;
-
-                raceState.page = 0;
-
-                refreshRaceTabs();
-                loadRaces();
-            }
-        );
-
-    document
-        .querySelector(
-            "#race-clear-filters"
-        )
-        ?.addEventListener(
-            "click",
-            clearRaceFilters
-        );
-
-    document
-        .querySelectorAll(
-            "[data-race-status]"
-        )
-        .forEach(button => {
-            button.addEventListener(
-                "click",
-                () => {
-                    raceState.status =
-                        button.dataset.raceStatus;
-
-                    raceState.page = 0;
-
-                    const statusFilter =
-                        document.querySelector(
-                            "#race-status-filter"
-                        );
-
-                    if (statusFilter) {
-                        statusFilter.value =
-                            raceState.status;
-                    }
-
-                    refreshRaceTabs();
-                    loadRaces();
-                }
-            );
-        });
-
-    bindDynamicEvents();
-}
-
-export function renderRacesListing(
-    container
-) {
-    if (!container) {
-        throw new Error(
-            "Race listing container is required."
-        );
-    }
-
-    container.innerHTML =
-        racesListingTemplate();
-
-    bindRaceListingEvents();
-
-    loadRaces();
-}
-
-export function resetRaceListing() {
-    raceState.search = "";
-    raceState.status = "";
-    raceState.page = 0;
-    raceState.totalPages = 0;
-    raceState.totalElements = 0;
-    raceState.races = [];
-    raceState.loading = false;
-    raceState.error = null;
-}
-
-
-
-
-export async function renderRaceDetails(container, raceId) {
-    container.innerHTML = `
-    <section class="sulaiman-race-details">
-      <div class="sulaiman-race-details-loading">
-        Loading race details...
       </div>
+
+      <div class="race-card-final-body">
+
+        <h3>${escapeHtml(race.name)}</h3>
+
+        <div class="race-card-final-meta">
+
+          <div>
+            <span>Date</span>
+            <strong>${formatDate(race.startsAt)}</strong>
+          </div>
+
+          <div>
+            <span>Time</span>
+            <strong>${formatTime(race.startsAt)}</strong>
+          </div>
+
+          <div>
+            <span>Location</span>
+            <strong>${escapeHtml(race.location)}</strong>
+          </div>
+
+          <div>
+            <span>Distance</span>
+            <strong>${escapeHtml(race.distanceKm)} KM</strong>
+          </div>
+
+        </div>
+
+        <div class="race-card-final-footer">
+
+          <span>
+            Race #${escapeHtml(race.raceId)}
+          </span>
+
+          <button
+            class="race-primary-btn"
+            type="button"
+            data-view-race="${race.raceId}"
+          >
+            View Race
+          </button>
+
+        </div>
+
+      </div>
+
+    </article>
+  `;
+}
+
+function loading(container) {
+    container.innerHTML = `
+    <section class="race-page-final">
+
+      <div class="race-state-final">
+
+        <div class="race-loader"></div>
+
+        <h2>Loading...</h2>
+
+      </div>
+
+    </section>
+  `;
+}
+
+function errorState(container, message) {
+    container.innerHTML = `
+    <section class="race-page-final">
+
+      <div class="race-state-final">
+
+        <div class="race-state-icon">!</div>
+
+        <h2>Unable to load race data</h2>
+
+        <p>${escapeHtml(message)}</p>
+
+        <button
+          class="race-primary-btn"
+          type="button"
+          data-back-races
+        >
+          Back to Races
+        </button>
+
+      </div>
+
     </section>
   `;
 
+    container
+        .querySelector("[data-back-races]")
+        ?.addEventListener("click", () => {
+            renderRacesListing(container);
+        });
+}
+
+export function resetRaceListing() {
+    state.search = "";
+    state.status = "";
+    state.page = 0;
+    state.size = 6;
+}
+
+export async function renderRacesListing(container) {
+    loading(container);
+
     try {
-        const race = await raceApi.getRaceById(raceId);
-
-        const raceDate = new Date(race.startsAt);
-
-        const formattedDate = raceDate.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
+        const response = await getRaces({
+            search: state.search || undefined,
+            status: state.status || undefined,
+            page: state.page,
+            size: state.size
         });
 
-        const formattedTime = raceDate.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+        const races = response?.content || [];
 
         container.innerHTML = `
-      <section class="sulaiman-race-details">
+      <section class="race-page-final">
 
-        <div class="sulaiman-race-details-breadcrumb">
-          <a href="/races" data-race-link>Races</a>
+        <div class="race-breadcrumb-final">
+          <span>Home</span>
           <span>/</span>
-          <span>${race.name}</span>
+          <strong>Races</strong>
         </div>
 
-        <div class="sulaiman-race-details-header">
-          <div>
-            <span class="sulaiman-race-details-status">
-              ${race.status}
-            </span>
+        <div class="race-heading-final">
 
-            <h1>${race.name}</h1>
+          <div>
+            <h1>Races</h1>
 
             <p>
-              Race #${race.raceId}
+              Discover upcoming and completed camel races across MEDHMAR.
             </p>
           </div>
+
         </div>
 
-        <div class="sulaiman-race-details-grid">
+        <form
+          class="race-filter-final"
+          id="race-filter-final"
+        >
 
-          <div class="sulaiman-race-details-main">
+          <div class="race-search-final">
 
-            <div class="sulaiman-race-details-image">
-              <img
-                src="/assets/images/camel-race.jpg"
-                alt="${race.name}"
-              />
-            </div>
+            <span>⌕</span>
 
-            <div class="sulaiman-race-details-info">
+            <input
+              type="search"
+              name="search"
+              placeholder="Search races..."
+              value="${escapeHtml(state.search)}"
+            >
 
-              <h2>Race Information</h2>
+          </div>
 
-              <div class="sulaiman-race-details-info-grid">
+          <select name="status">
 
-                <div class="sulaiman-race-details-info-item">
-                  <span>Date</span>
-                  <strong>${formattedDate}</strong>
+            <option value="">
+              Status
+            </option>
+
+            ${[
+            "SCHEDULED",
+            "OPEN",
+            "CLOSED",
+            "COMPLETED",
+            "CANCELLED"
+        ]
+            .map(
+                status => `
+                  <option
+                    value="${status}"
+                    ${state.status === status ? "selected" : ""}
+                  >
+                    ${status}
+                  </option>
+                `
+            )
+            .join("")}
+
+          </select>
+
+          <button
+            type="button"
+            class="race-secondary-btn"
+            data-clear-races
+          >
+            Clear Filters
+          </button>
+
+        </form>
+
+        <div class="race-tabs-final">
+
+          <button
+            type="button"
+            data-race-status=""
+            class="${state.status === "" ? "active" : ""}"
+          >
+            All
+          </button>
+
+          <button
+            type="button"
+            data-race-status="SCHEDULED"
+            class="${state.status === "SCHEDULED" ? "active" : ""}"
+          >
+            Upcoming
+          </button>
+
+          <button
+            type="button"
+            data-race-status="OPEN"
+            class="${state.status === "OPEN" ? "active" : ""}"
+          >
+            Open
+          </button>
+
+          <button
+            type="button"
+            data-race-status="COMPLETED"
+            class="${state.status === "COMPLETED" ? "active" : ""}"
+          >
+            Completed
+          </button>
+
+        </div>
+
+        <div class="race-section-title-final">
+
+          <h2>Available Races</h2>
+
+          <span>
+            ${response?.totalElements ?? races.length}
+            race${(response?.totalElements ?? races.length) === 1 ? "" : "s"}
+          </span>
+
+        </div>
+
+        ${
+            races.length
+                ? `
+              <div class="race-grid-final">
+                ${races.map(raceCard).join("")}
+              </div>
+            `
+                : `
+              <div class="race-state-final">
+
+                <div class="race-state-icon">
+                  🏁
                 </div>
 
-                <div class="sulaiman-race-details-info-item">
-                  <span>Time</span>
-                  <strong>${formattedTime}</strong>
-                </div>
+                <h2>No Races Found</h2>
 
-                <div class="sulaiman-race-details-info-item">
-                  <span>Location</span>
-                  <strong>${race.location}</strong>
-                </div>
-
-                <div class="sulaiman-race-details-info-item">
-                  <span>Distance</span>
-                  <strong>${race.distanceKm} KM</strong>
-                </div>
-
-                <div class="sulaiman-race-details-info-item">
-                  <span>Status</span>
-                  <strong>${race.status}</strong>
-                </div>
-
-                <div class="sulaiman-race-details-info-item">
-                  <span>Organizer ID</span>
-                  <strong>${race.organizerId}</strong>
-                </div>
+                <p>
+                  Try changing the search or status filter.
+                </p>
 
               </div>
+            `
+        }
+
+        ${
+            (response?.totalPages || 0) > 1
+                ? `
+              <div class="race-pagination-final">
+
+                <button
+                  type="button"
+                  class="race-secondary-btn"
+                  data-race-prev
+                  ${response.first ? "disabled" : ""}
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page ${response.number + 1}
+                  of ${response.totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  class="race-secondary-btn"
+                  data-race-next
+                  ${response.last ? "disabled" : ""}
+                >
+                  Next
+                </button>
+
+              </div>
+            `
+                : ""
+        }
+
+      </section>
+    `;
+
+        const form =
+            container.querySelector("#race-filter-final");
+
+        let searchTimer;
+
+        form
+            .querySelector('input[name="search"]')
+            .addEventListener("input", event => {
+                clearTimeout(searchTimer);
+
+                searchTimer = setTimeout(() => {
+                    state.search = event.target.value.trim();
+                    state.page = 0;
+
+                    renderRacesListing(container);
+                }, 350);
+            });
+
+        form
+            .querySelector('select[name="status"]')
+            .addEventListener("change", event => {
+                state.status = event.target.value;
+                state.page = 0;
+
+                renderRacesListing(container);
+            });
+
+        container
+            .querySelector("[data-clear-races]")
+            ?.addEventListener("click", () => {
+                resetRaceListing();
+
+                renderRacesListing(container);
+            });
+
+        container
+            .querySelectorAll("[data-race-status]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    state.status =
+                        button.dataset.raceStatus;
+
+                    state.page = 0;
+
+                    renderRacesListing(container);
+                });
+            });
+
+        container
+            .querySelector("[data-race-prev]")
+            ?.addEventListener("click", () => {
+                state.page =
+                    Math.max(0, state.page - 1);
+
+                renderRacesListing(container);
+            });
+
+        container
+            .querySelector("[data-race-next]")
+            ?.addEventListener("click", () => {
+                state.page += 1;
+
+                renderRacesListing(container);
+            });
+
+        container
+            .querySelectorAll("[data-view-race]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    renderRaceDetails(
+                        container,
+                        Number(button.dataset.viewRace)
+                    );
+                });
+            });
+
+    } catch (error) {
+        errorState(
+            container,
+            error?.message || "Unable to load races."
+        );
+    }
+}
+
+export async function renderRaceDetails(
+    container,
+    raceId
+) {
+    loading(container);
+
+    try {
+        const race =
+            await getRaceById(raceId);
+
+        container.innerHTML = `
+      <section class="race-page-final">
+
+        <button
+          type="button"
+          class="race-back-final"
+          data-back-races
+        >
+          ← Back to Races
+        </button>
+
+        <div class="race-detail-heading-final">
+
+          <div>
+
+            <div class="race-detail-title-line">
+
+              <h1>
+                ${escapeHtml(race.name)}
+              </h1>
+
+              <span class="${badgeClass(race.status)}">
+                ${escapeHtml(race.status)}
+              </span>
+
+            </div>
+
+            <p>
+              Race #${escapeHtml(race.raceId)}
+            </p>
+
+          </div>
+
+          ${
+            race.status === "OPEN"
+                ? `
+                <button
+                  class="race-primary-btn"
+                  type="button"
+                  data-register-race="${race.raceId}"
+                >
+                  Register Camel
+                </button>
+              `
+                : ""
+        }
+
+        </div>
+
+        <div class="race-detail-hero-final">
+
+          <img
+            src="${escapeHtml(
+            race.resultsImageUrl || HERO_IMAGE
+        )}"
+            alt="${escapeHtml(race.name)}"
+          >
+
+          <div class="race-detail-hero-meta-final">
+
+            <div>
+              <span>Date</span>
+              <strong>
+                ${formatDate(race.startsAt)}
+              </strong>
+            </div>
+
+            <div>
+              <span>Time</span>
+              <strong>
+                ${formatTime(race.startsAt)}
+              </strong>
+            </div>
+
+            <div>
+              <span>Location</span>
+              <strong>
+                ${escapeHtml(race.location)}
+              </strong>
+            </div>
+
+            <div>
+              <span>Distance</span>
+              <strong>
+                ${escapeHtml(race.distanceKm)} KM
+              </strong>
             </div>
 
           </div>
 
-          <aside class="sulaiman-race-details-sidebar">
+        </div>
 
-            <div class="sulaiman-race-details-card">
-              <h3>Race Actions</h3>
+        <div class="race-detail-tabs-final">
 
-              <a
-                href="/races/${race.raceId}/participants"
-                data-race-link
-                class="sulaiman-race-details-action"
-              >
-                View Participants
-              </a>
+          <button
+            type="button"
+            class="active"
+          >
+            Overview
+          </button>
 
-              <a
-                href="/races/${race.raceId}/results"
-                data-race-link
-                class="sulaiman-race-details-action"
-              >
-                View Results
-              </a>
+          <button
+            type="button"
+            data-detail-participants
+          >
+            Participants
+          </button>
 
-              ${
-            race.status === "OPEN"
-                ? `
-                    <a
-                      href="/races/${race.raceId}/register"
-                      data-race-link
-                      class="sulaiman-race-details-action sulaiman-race-details-action-primary"
-                    >
-                      Register for Race
-                    </a>
-                  `
-                : ""
+          <button
+            type="button"
+            data-detail-results
+          >
+            Results
+          </button>
+
+        </div>
+
+        <div class="race-detail-layout-final">
+
+          <div class="race-detail-main-final">
+
+            <div class="race-detail-card-final">
+
+              <h2>About the Race</h2>
+
+              <p>
+                ${escapeHtml(race.name)}
+                is a MEDHMAR camel race taking place at
+                ${escapeHtml(race.location)}
+                over a distance of
+                ${escapeHtml(race.distanceKm)} KM.
+              </p>
+
+            </div>
+
+            <div class="race-detail-info-grid-final">
+
+              <div class="race-detail-card-final">
+
+                <span>Start Date</span>
+
+                <strong>
+                  ${formatDate(race.startsAt)}
+                </strong>
+
+              </div>
+
+              <div class="race-detail-card-final">
+
+                <span>Start Time</span>
+
+                <strong>
+                  ${formatTime(race.startsAt)}
+                </strong>
+
+              </div>
+
+              <div class="race-detail-card-final">
+
+                <span>Distance</span>
+
+                <strong>
+                  ${escapeHtml(race.distanceKm)} KM
+                </strong>
+
+              </div>
+
+              <div class="race-detail-card-final">
+
+                <span>Status</span>
+
+                <strong>
+                  ${escapeHtml(race.status)}
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <aside
+            class="race-detail-card-final race-detail-side-final"
+          >
+
+            <h3>Race Information</h3>
+
+            <div>
+
+              <span>Race ID</span>
+
+              <strong>
+                #${escapeHtml(race.raceId)}
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>Organizer ID</span>
+
+              <strong>
+                #${escapeHtml(race.organizerId)}
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>Organization</span>
+
+              <strong>
+                ${
+            race.organizationId
+                ? `#${escapeHtml(
+                    race.organizationId
+                )}`
+                : "Independent"
         }
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>Location</span>
+
+              <strong>
+                ${escapeHtml(race.location)}
+              </strong>
 
             </div>
 
@@ -978,14 +726,48 @@ export async function renderRaceDetails(container, raceId) {
 
       </section>
     `;
+
+        container
+            .querySelector("[data-back-races]")
+            ?.addEventListener("click", () => {
+                renderRacesListing(container);
+            });
+
+        container
+            .querySelector("[data-detail-participants]")
+            ?.addEventListener("click", () => {
+                window.history.pushState(
+                    {},
+                    "",
+                    `/races/${race.raceId}/participants`
+                );
+            });
+
+        container
+            .querySelector("[data-detail-results]")
+            ?.addEventListener("click", () => {
+                window.history.pushState(
+                    {},
+                    "",
+                    `/races/${race.raceId}/results`
+                );
+            });
+
+        container
+            .querySelector("[data-register-race]")
+            ?.addEventListener("click", () => {
+                window.history.pushState(
+                    {},
+                    "",
+                    `/races/${race.raceId}/register`
+                );
+            });
+
     } catch (error) {
-        container.innerHTML = `
-      <section class="sulaiman-race-details">
-        <div class="sulaiman-race-details-error">
-          <h2>Unable to load race</h2>
-          <p>Please try again.</p>
-        </div>
-      </section>
-    `;
+        errorState(
+            container,
+            error?.message ||
+            "Unable to load race details."
+        );
     }
 }
