@@ -3,7 +3,8 @@ import { access, readFile } from "node:fs/promises";
 const required = [
   "index.html", "server.mjs", "package.json",
   "assets/styles.css", "assets/mark.svg", "assets/racing-hero.webp",
-  "js/app.js", "js/api.js", "js/data.js", "js/routes.js"
+  "js/app.js", "js/api.js", "js/data.js", "js/routes.js",
+  "js/auth-view.js", "assets/auth-reference.png"
 ];
 
 for (const path of required) await access(path);
@@ -29,3 +30,4 @@ for (const route of forbiddenStandalone) {
 }
 
 console.log("Frontend scope check passed: Mohammed interfaces only.");
+

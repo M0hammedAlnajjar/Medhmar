@@ -70,3 +70,22 @@ The UI follows one consistent Medhmar visual system:
 - desktop-first responsive layout
 - EN / AR direction toggle
 - no permanent main sidebar
+
+
+## Account screens
+
+`/signin`, `/signup`, `/forgot-password` and `/reset-password` follow the supplied
+Medhmar account-screen board. The artwork is rendered from the original
+`assets/auth-reference.png` using SVG viewports; its source resolution limits
+sharpness on large displays. Forms and buttons remain native HTML.
+
+- Registration explicitly requires Fan / Spectator, Camel Owner or Trainer,
+  plus matching passwords. Roles are still validated by the backend.
+- “Remember me” remembers only the email on this device; session lifetime is
+  controlled by Spring Security. No passwords or tokens are stored locally.
+- Google buttons use the existing `/oauth2/authorization/google` endpoint,
+  which requires backend Google OAuth configuration. Google registration is
+  limited to the selected Fan / Spectator role; Owner/Trainer registration
+  uses the email/password form.
+- Password reset reads the token from the emailed URL's fragment (or query),
+  and displays an error if it is missing.

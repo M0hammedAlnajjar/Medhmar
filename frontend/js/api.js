@@ -48,6 +48,7 @@ export async function api(path, options = {}) {
 }
 
 export const authApi = {
+  googleUrl: () => `${API_BASE}/oauth2/authorization/google`,
   login: (payload) => api("/api/auth/login", { method: "POST", body: JSON.stringify(payload) }),
   register: (payload) => api("/api/auth/register", { method: "POST", body: JSON.stringify(payload) }),
   forgot: (email) => api("/api/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
@@ -98,3 +99,4 @@ export const trainingApi = {
 export const pedigreeApi = {
   tree: (camelId) => api(`/camel/${camelId}/pedigree/tree`),
 };
+

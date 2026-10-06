@@ -1,3 +1,4 @@
+import { authView } from './auth-view.js';
 import { matchRoute, normalizePath } from './routes.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi } from './api.js';
@@ -34,15 +35,7 @@ function landing(){
  return `<div class="app-shell">${topbar()}<section class="hero"><div class="hero-inner"><div class="hero-kicker">Omani camel racing • digital platform</div><h1>Experience the Heritage of Camel Racing.</h1><p>Secure access, challenges, training records, organizations, cultural content and official digital race cards in one premium platform.</p><div class="actions"><a class="btn btn-primary" href="/home" data-link>Explore Medhmar</a><a class="btn btn-secondary" href="/signup" data-link>Create account</a></div></div></section><main class="main"><div class="section-title"><h2>Mohammed's Platform Modules</h2><span>Focused implementation only</span></div><div class="grid grid-4">${[['Secure accounts','Authentication, registration and password recovery.'],['Challenges & voting','Published camel challenges with protected voting.'],['Training records','Chronological trainer session logs.'],['Platform operations','Admin, organizations, tourism and race cards.']].map(([t,d])=>`<article class="card card-pad"><h3>${t}</h3><p class="form-help">${d}</p></article>`).join('')}</div></main></div>`;
 }
 
-function auth(kind){
- const cfg = {
-  signin:['Welcome Back','Sign in to your Medhmar account.',`<div class="field"><label>Email</label><input class="input" name="email" type="email" value="mohammed@medhmar.om" required></div><div class="field"><label>Password</label><input class="input" name="password" type="password" value="MedhmarDemo2026!" required></div><div class="auth-links"><a href="/forgot-password" data-link>Forgot password?</a></div><button class="btn btn-primary" type="submit">Sign In</button>`],
-  signup:['Create Your Account','Join Medhmar and be part of the camel racing community.',`<div class="field"><label>Full Name</label><input class="input" name="fullName" value="Mohammed Al Najjar" required></div><div class="field"><label>Email</label><input class="input" name="email" type="email" value="mohammed@example.com" required></div><div class="field"><label>Password</label><input class="input" name="password" type="password" value="StrongPass2026!" required></div><div class="field"><label>Account Type</label><select class="select" name="role" required><option value="VIEWER">Fan / Spectator</option><option value="OWNER">Camel Owner</option><option value="TRAINER">Trainer (Mudammer)</option></select><div class="form-help">Choose your account type. Organizer and Admin roles are assigned only by an administrator.</div></div><div class="field"><label>Language</label><select class="select" name="preferredLanguage"><option value="en">English</option><option value="ar">العربية</option></select></div><button class="btn btn-primary" type="submit">Create Account</button>`],
-  forgot:['Forgot Your Password?','Enter your email to receive a reset link.',`<div class="field"><label>Email</label><input class="input" name="email" type="email" value="mohammed@example.com" required></div><button class="btn btn-primary" type="submit">Send Reset Link</button>`],
-  reset:['Create New Password','Enter a secure password to continue.',`<div class="field"><label>New Password</label><input class="input" name="password" type="password" value="StrongPass2026!" required></div><div class="field"><label>Confirm Password</label><input class="input" name="confirmPassword" type="password" value="StrongPass2026!" required></div><button class="btn btn-primary" type="submit">Reset Password</button>`]
- }[kind];
- return `<div class="app-shell">${topbar()}<div class="auth-layout"><div class="auth-visual"></div><div class="auth-panel"><div class="auth-box"><h1>${cfg[0]}</h1><p>${cfg[1]}</p><form class="form" id="auth-form" data-kind="${kind}">${cfg[2]}</form><div class="divider">or</div><a class="btn btn-secondary" href="/" data-link>Back to Medhmar</a></div></div></div></div>`;
-}
+const auth = authView;
 
 function home(){ const firstName=state.user?.fullName?.trim().split(/\s+/)[0]||'Guest'; return shell(`${head(`Good morning, ${esc(firstName)} 👋`,'Welcome back to Medhmar. Your integration overview keeps your platform modules in one place.')}${demoNote()}<div class="stats">${[['Challenges','2','1 open'],['Training Logs','18','this month'],['Organizations','3','active'],['Race Cards','3','versions']].map(([a,b,c])=>`<div class="card stat"><div class="stat-label">${a}</div><div class="stat-value">${b}</div><div class="stat-note">${c}</div></div>`).join('')}</div><div class="grid grid-2"><section class="card card-pad"><div class="section-title"><h2>Quick access</h2></div><div class="grid grid-2">${navItems.slice(1,7).map(([p,l])=>`<a class="card card-pad" href="${p}" data-link><strong>${l}</strong><p class="form-help">Open module →</p></a>`).join('')}</div></section><section class="card card-pad"><div class="section-title"><h2>Platform activity</h2></div><div class="timeline"><div class="timeline-item"><h3>Challenge opened</h3><p>Desert Champions Challenge is accepting votes.</p></div><div class="timeline-item"><h3>Race card published</h3><p>Al Bashayer Camel Race v3 is now public.</p></div><div class="timeline-item"><h3>Profile secured</h3><p>Role-aware access is active for this session.</p></div></div></section></div>`,'/home'); }
 
@@ -97,13 +90,77 @@ function screen(match){ const {name}=match.route, p=match.params; return {
 
 function render(){ const path=normalizePath(); const match=matchRoute(path); root.innerHTML = match ? screen(match)() : notFound(); document.documentElement.lang=state.lang; document.documentElement.dir=state.lang==='ar'?'rtl':'ltr'; bind(); }
 function bind(){
+ bindAuth();
  document.querySelectorAll('[data-link]').forEach(a=>a.addEventListener('click',e=>{ if(!e.ctrlKey&&!e.metaKey){e.preventDefault();go(a.getAttribute('href'));} }));
  $('#lang-toggle')?.addEventListener('click',()=>{state.lang=state.lang==='en'?'ar':'en';localStorage.setItem('medhmar-lang',state.lang);render();});
  $('#auth-form')?.addEventListener('submit',handleAuth); $('#settings-form')?.addEventListener('submit',handleSettings); $('#logout-btn')?.addEventListener('click',handleLogout);
  document.querySelectorAll('.vote-btn').forEach(b=>b.addEventListener('click',handleVote)); $('#add-training-btn')?.addEventListener('click',showTrainingModal);
  $('#publish-race-card')?.addEventListener('click',handlePublish); document.querySelectorAll('.manage-user').forEach(b=>b.addEventListener('click',()=>showUserModal(b.dataset.user)));
 }
-async function handleAuth(e){ e.preventDefault(); const kind=e.currentTarget.dataset.kind, f=Object.fromEntries(new FormData(e.currentTarget)); try{ if(kind==='signin'){state.user=await authApi.login({email:f.email,password:f.password}); toast('Signed in successfully.','success');go('/home');} else if(kind==='signup'){await authApi.register(f);toast('Account created.','success');go('/signin');} else if(kind==='forgot'){await authApi.forgot(f.email);toast('If the account exists, a reset link will be sent.','success');} else {if(f.password!==f.confirmPassword) throw new Error('Passwords do not match.'); const token=new URLSearchParams(location.hash.slice(1)).get('token')||'preview-token'; await authApi.reset(token,f.password);toast('Password reset successfully.','success');go('/signin');}}catch(err){toast(err.message,'error');} }
+async function handleAuth(e) {
+ e.preventDefault();
+ const form=e.currentTarget, kind=form.dataset.kind;
+ const f=Object.fromEntries(new FormData(form));
+ const submit=form.querySelector('[type="submit"]'), feedback=$('#auth-feedback');
+ if(submit.disabled) return;
+ feedback.hidden=true;
+ try {
+  if((kind==='signup'||kind==='reset') && f.password!==f.confirmPassword) {
+   $('#auth-confirmPassword').focus();
+   throw new Error('Passwords do not match.');
+  }
+  submit.disabled=true;
+  form.setAttribute('aria-busy','true');
+  if(kind==='signin') {
+   state.user=await authApi.login({email:f.email,password:f.password});
+   if(f.rememberMe) localStorage.setItem('medhmar-remembered-email',f.email);
+   else localStorage.removeItem('medhmar-remembered-email');
+   toast('Signed in successfully.','success');go('/home');
+  } else if(kind==='signup') {
+   await authApi.register({fullName:f.fullName,email:f.email,password:f.password,role:f.role,preferredLanguage:state.lang});
+   toast('Account created. Sign in to continue.','success');go('/signin');
+  } else if(kind==='forgot') {
+   await authApi.forgot(f.email);
+   feedback.textContent='If the account exists, a reset link will be sent.';
+   feedback.className='auth-feedback success';feedback.hidden=false;
+  } else {
+   const token=new URLSearchParams(location.hash.slice(1)).get('token') || new URLSearchParams(location.search).get('token');
+   if(!token) throw new Error('Open the reset link sent to your email before setting a new password.');
+   await authApi.reset(token,f.password);
+   toast('Password reset successfully.','success');go('/signin');
+  }
+ } catch(err) {
+  feedback.textContent=err.message || 'Unable to complete this request. Please try again.';
+  feedback.className='auth-feedback error';feedback.hidden=false;
+ } finally {
+  submit.disabled=false;form.removeAttribute('aria-busy');
+ }
+}
+function bindAuth() {
+ const form=$('#auth-form');
+ if(!form) return;
+ if(form.dataset.kind==='signin') {
+  const remembered=localStorage.getItem('medhmar-remembered-email');
+  if(remembered) { form.elements.email.value=remembered;form.elements.rememberMe.checked=true; }
+ }
+ document.querySelectorAll('[data-password-target]').forEach(button=>button.addEventListener('click',()=>{
+  const input=document.getElementById(button.dataset.passwordTarget);
+  const visible=input.type==='password';input.type=visible?'text':'password';
+  button.setAttribute('aria-pressed',String(visible));
+  const label=document.querySelector(`label[for="${input.id}"]`).textContent.toLowerCase();
+  button.setAttribute('aria-label',`${visible?'Hide':'Show'} ${label}`);
+ }));
+ $('#google-signin')?.addEventListener('click',()=>{
+  if(form.dataset.kind==='signup' && form.elements.role.value!=='VIEWER') {
+   const feedback=$('#auth-feedback');
+   feedback.textContent='Select Fan / Spectator for Google registration. To register as an Owner or Trainer, use Create Account above.';
+   feedback.className='auth-feedback error';feedback.hidden=false;
+   form.elements.role.focus();return;
+  }
+  if(form.dataset.kind==='signup' && !form.elements.terms.reportValidity()) return;
+  window.location.assign(authApi.googleUrl());
+ });
+}
 async function handleLogout(){ try{await authApi.logout();}catch{} state.user={...guestUser}; toast('Signed out.','success'); go('/signin'); }
 async function handleSettings(e){ e.preventDefault(); const f=Object.fromEntries(new FormData(e.currentTarget)); try{state.user=await authApi.updateMe(f)||{...state.user,...f};toast('Profile updated.','success');}catch{state.user={...state.user,...f};toast('Backend unavailable; preview updated locally.','error');} render(); }
 async function handleVote(e){ const b=e.currentTarget; if(!state.user?.userId){toast('Sign in before voting.','error');go('/signin');return;} b.disabled=true; try{await challengeApi.vote(b.dataset.challenge,Number(b.dataset.camel)); const updated=await challengeApi.one(b.dataset.challenge); state.challengeDetail=updated; state.challenges=state.challenges.map(c=>String(c.challengeId)===String(updated.challengeId)?updated:c); toast('Vote recorded successfully.','success'); render();}catch(err){toast(err.message,'error');b.disabled=false;} }
@@ -134,3 +191,4 @@ async function init(){
  render();
 }
 window.addEventListener('popstate',render); init();
+
