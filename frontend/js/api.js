@@ -1,4 +1,4 @@
-const API_BASE = window.MEDHMAR_API_URL || "http://localhost:8080";
+const API_BASE = window.MEDHMAR_API_URL || `http://${window.location.hostname}:8080`;
 let csrf = null;
 
 async function parse(response) {
