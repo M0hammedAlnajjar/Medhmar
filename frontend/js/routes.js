@@ -10,7 +10,7 @@ export const MOHAMMED_ROUTES = [
   { path: "/challenges", name: "Challenges", owner: "Mohammed" },
   { path: "/challenges/:id", name: "Challenge Detail + Voting", owner: "Mohammed" },
   { path: "/training", name: "Training Log", owner: "Mohammed" },
-  { path: "/admin", name: "Admin Dashboard", owner: "Mohammed" },
+  { path: "/admin", name: "Admin Dashboard", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/camels/:id", name: "Pedigree Section", owner: "Mohammed" },
   { path: "/organizer/races/:id/race-card", name: "Race Card Publish Control", owner: "Mohammed" },
   { path: "/organizations", name: "Organizations UI", owner: "Mohammed" },
@@ -55,4 +55,13 @@ export function matchRoute(path) {
     if (match) return { route, params: match.groups || {} };
   }
   return null;
+}
+
+
+// Navigation visibility and route rendering use the same deny-by-default policy.
+// The backend remains the authority for every protected API operation.
+export function canAccessRoute(route, user) {
+  if (!route?.roles) return true;
+  return Boolean(user?.userId) && Array.isArray(user.roles)
+    && route.roles.some(role => user.roles.includes(role));
 }

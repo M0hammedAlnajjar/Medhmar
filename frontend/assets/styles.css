@@ -58,6 +58,29 @@ img{display:block;max-width:100%}
 .hero .actions{margin-top:28px}
 .hero .btn-primary{background:#fff;color:var(--primary)}
 .hero .btn-secondary{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25)}
+/* Reference hero: panoramic artwork, complete camels, left-aligned three-line title. */
+.landing-hero{position:relative;isolation:isolate;display:grid;aspect-ratio:2116/743;overflow:hidden;background:#8c6949;color:#fff;font-family:Arial,"Segoe UI",sans-serif;direction:ltr;text-align:left}
+.landing-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:-2}
+.landing-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(43,28,17,.52),rgba(43,28,17,.23) 36%,transparent 63%)}
+.landing-hero-content{align-self:center;padding:3% 3%;width:49%;min-width:0}
+.landing-hero h1{margin:0;font-size:clamp(30px,4.25vw,82px);line-height:1.07;letter-spacing:-.025em;font-weight:700;text-shadow:0 2px 3px #20140c55}
+.landing-hero h1 span{display:block;white-space:nowrap}
+.landing-hero p{margin:1.3vw 0 2.2vw;font-size:clamp(14px,1.82vw,35px);line-height:1.35;font-weight:500;color:#fff7e8;text-shadow:0 1px 3px #20140c88}
+.landing-hero-actions{display:flex;gap:1.4vw;align-items:center}
+.landing-hero-actions .btn{min-width:0;flex:1;min-height:clamp(44px,5.5vw,105px);padding:1vw .8vw;border-radius:7px;font-size:clamp(13px,1.75vw,32px);font-weight:700;white-space:nowrap;box-shadow:inset 0 0 0 2px #d6b88b55,0 2px 4px #2d1c1155}
+.landing-hero-actions .btn-primary{background:#fffaf1;color:#65442c;border:2px solid #ddc9a9}
+.landing-hero-actions .btn-primary:hover{background:#f0e3cc}
+.landing-hero-actions .btn-secondary{background:#4b2b16b3;color:#fff6e9;border:2px solid #bea17a}
+.landing-hero-actions .btn-secondary:hover{background:#4b2b16}
+@media(max-width:700px){
+ .landing-hero{aspect-ratio:auto;min-height:320px}
+ .landing-hero-photo{object-position:65% center}
+ .landing-hero-content{width:70%;padding:28px 20px}
+ .landing-hero h1{font-size:clamp(27px,5.3vw,37px)}
+ .landing-hero p{font-size:14px;margin:14px 0 22px}
+ .landing-hero-actions{gap:10px}
+ .landing-hero-actions .btn{min-height:44px;font-size:13px;padding:10px}
+}
 .section{margin-top:28px}
 .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-title h2{font-size:22px;margin:0}
@@ -158,6 +181,79 @@ tr:last-child td{border-bottom:0}
 .kicker{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:.12em;text-transform:uppercase}
 .two-pane{display:grid;grid-template-columns:1.35fr .65fr;gap:18px}
 footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(--muted);font-size:12px}
+/* Account screens follow the supplied Medhmar board, independently of the app navigation. */
+.auth-page{background:#fdfbf8;color:#242321;font-family:Arial,"Segoe UI",sans-serif}
+.auth-header{height:64px;padding:0 5%;display:flex;align-items:center;background:linear-gradient(100deg,#49321f,#38251a);border-bottom:2px solid #b49a77;color:#f7ebd6}
+.auth-header .brand{font-size:19px;font-weight:700;gap:9px;letter-spacing:.02em}
+.auth-header .brand img{width:30px;height:29px}
+.auth-page .auth-layout{min-height:calc(100svh - 64px);grid-template-columns:45.5% 54.5%;background:#fdfbf8}
+.auth-signup .auth-layout{grid-template-columns:35% 65%}
+.auth-forgot .auth-layout{grid-template-columns:33% 67%}
+.auth-reset .auth-layout{grid-template-columns:31% 69%}
+.auth-page .auth-visual{display:block;position:relative;min-height:100%;overflow:hidden;background:#dbc4a9}
+.auth-page .auth-photo{position:absolute;width:100%;height:100%;inset:0;display:block;object-fit:cover;object-position:76% center}
+.auth-signup .auth-photo{object-position:83% center}
+.auth-forgot .auth-photo{object-position:66% center}
+.auth-reset .auth-photo{object-position:90% center}
+.auth-page .auth-panel{display:flex;justify-content:center;align-items:flex-start;padding:40px clamp(28px,4vw,76px) 48px;min-width:0}
+.auth-page .auth-box{width:100%;max-width:520px}
+.auth-page .auth-box h1{font-size:30px;line-height:1.2;letter-spacing:-.025em;margin:0 0 7px;font-weight:700}
+.auth-page .auth-box>p{font-size:15px;line-height:1.5;color:#77746e;margin:0 0 26px}
+.auth-page .form{gap:16px}
+.auth-page .field{gap:7px}
+.auth-page .field label{font-size:13px;font-weight:600;color:#54514d}
+.auth-page .input,.auth-page .select{height:43px;border-radius:6px;padding:10px 12px;border:1px solid #e6e2db;background:#fdfcfa;font-size:14px;color:#383630;box-shadow:0 1px 2px #38251a04}
+.auth-page .input::placeholder{color:#92908a;opacity:1}
+.auth-page .input:focus,.auth-page .select:focus{border-color:#a6845d;box-shadow:0 0 0 3px #b9925e20}
+.auth-page .btn{width:100%;min-height:44px;padding:10px 16px;border-radius:5px;font-size:14px;font-weight:600}
+.auth-page .btn-primary{background:linear-gradient(#694024,#503019);border:1px solid #422a1b;box-shadow:inset 0 0 0 1px #ffffff22;color:#fffaf4}
+.auth-page .btn-primary:hover{background:#49301e}
+.password-control{position:relative}
+.auth-page .password-control .input{padding-right:45px}
+.password-toggle{position:absolute;right:0;top:0;width:43px;height:43px;display:grid;place-items:center;border:0;background:transparent;color:#8a8780;cursor:pointer;border-radius:5px}
+.password-toggle svg{width:18px;height:18px}
+.password-toggle .eye-slash{display:none}
+.password-toggle[aria-pressed="true"] .eye-slash{display:block}
+.auth-page :is(button,a,input,select):focus-visible{outline:2px solid #aa804b;outline-offset:3px}
+.auth-options{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;color:#777168}
+.auth-check{display:flex;align-items:center;gap:8px;font-size:12px;line-height:1.5;color:#6c645b;cursor:pointer}
+.auth-check input{margin:0;width:14px;height:14px;accent-color:#705034;flex-shrink:0}
+.auth-terms{color:#7b5739}
+.auth-page .divider{font-size:13px;gap:12px;margin:18px 0;color:#655d52}
+.auth-page .divider:before,.auth-page .divider:after{background:#e5dfd6}
+.auth-google{background:#fff;color:#383631;border:1px solid #e3dfd8;box-shadow:0 1px 2px #38251a05}
+.auth-google:hover{background:#f5f1eb}
+.auth-google svg{width:19px;height:19px;margin-right:4px}
+.auth-page .auth-box>.auth-switch{text-align:center;font-size:12px;color:#69665f;margin:25px 0 0}
+.auth-switch a,.auth-back{color:#885f40}
+.auth-page a:hover{text-decoration:underline}
+.auth-page .brand:hover{text-decoration:none}
+.auth-back{display:block;text-align:center;font-size:13px;margin-top:30px}
+.auth-forgot .auth-panel,.auth-reset .auth-panel{padding-top:64px}
+.auth-forgot .auth-box>p,.auth-reset .auth-box>p{margin-bottom:36px}
+.auth-forgot .form>.btn,.auth-reset .form>.btn{margin-top:14px}
+.auth-signup .auth-panel{padding-top:28px}
+.auth-signup .auth-box>p{font-size:13px;margin-bottom:19px}
+.auth-signup .form{gap:12px}
+.auth-signup .divider{margin:13px 0}
+.auth-signup .auth-box>.auth-switch{margin-top:19px}
+.auth-page .auth-feedback{padding:12px;border-radius:5px;text-align:left;line-height:1.5;font-size:13px;margin:0;max-width:none}
+.auth-feedback.error{background:#fae9e7;color:#973a32;border:1px solid #ebc9c5}
+.auth-feedback.success{background:#e7f4eb;color:#316b45;border:1px solid #c4dfcb}
+.auth-feedback[hidden]{display:none}
+@media(max-width:760px){
+ .auth-page .auth-layout{grid-template-columns:32% 68%}
+ .auth-page .auth-panel{padding:32px 24px}
+ .auth-page .auth-box h1{font-size:25px}
+ .auth-header{padding:0 24px}
+}
+@media(max-width:540px){
+ .auth-page .auth-layout{display:block;min-height:calc(100svh - 58px)}
+ .auth-page .auth-visual{display:none}
+ .auth-header{height:58px}
+ .auth-page .auth-panel{padding:32px 22px 40px}
+ .auth-page .auth-box{max-width:400px}
+}
 @media(max-width:1080px){
   .nav{display:none}.grid-4,.stats{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}
   .two-pane{grid-template-columns:1fr}.auth-layout{grid-template-columns:1fr}.auth-visual{display:none}.profile-hero{grid-template-columns:120px 1fr}.profile-avatar{width:110px;height:110px}.profile-hero>.actions{grid-column:1/-1}
