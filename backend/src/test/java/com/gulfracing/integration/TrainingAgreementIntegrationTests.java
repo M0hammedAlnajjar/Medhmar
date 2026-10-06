@@ -146,4 +146,182 @@ class TrainingAgreementIntegrationTests extends IntegrationSupport {
                         "startsAt", NOW.plusSeconds(86400).toString(),
                         "endsAt", NOW.plusSeconds(3600).toString())))).andExpect(status().isBadRequest());
     }
+
+    @Test
+    void ownerCanEditPendingAgreementAndTrainerSeesAssignedTerms() throws Exception {
+        var owner = register("agreement-edit-owner@example.com");
+        var trainer = register("agreement-edit-trainer@example.com");
+        users.updateRoles(owner.userId(), Set.of("OWNER"));
+        users.updateRoles(trainer.userId(), Set.of("TRAINER"));
+        trainerProfile(trainer.userId());
+
+        Long camelId = ownedCamel(owner.userId());
+        var ownerSession = login(owner.email());
+        var trainerSession = login(trainer.email());
+
+        var created = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of(
+                                "camelId", camelId,
+                                "trainerUserId", trainer.userId(),
+                                "feeOmr", 25.5,
+                                "prizeSharePct", 10,
+                                "saleSharePct", 5,
+                                "startsAt", NOW.plusSeconds(3600).toString(),
+                                "endsAt", NOW.plusSeconds(86400).toString(),
+                                "terms", "Initial terms"
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.terms").value("Initial terms"))
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = json.readTree(created).get("agreementId").asLong();
+
+        mvc.perform(put("/api/agreements/" + id).session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of(
+                                "feeOmr", 50.000,
+                                "prizeSharePct", 12,
+                                "saleSharePct", 7,
+                                "startsAt", NOW.plusSeconds(7200).toString(),
+                                "endsAt", NOW.plusSeconds(172800).toString(),
+                                "terms", " Updated conditioning terms "
+                        ))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.feeOmr").value(50.0))
+                .andExpect(jsonPath("$.prizeSharePct").value(12.0))
+                .andExpect(jsonPath("$.saleSharePct").value(7.0))
+                .andExpect(jsonPath("$.terms").value("Updated conditioning terms"));
+
+        mvc.perform(post("/api/agreements/" + id + "/accept")
+                        .session(trainerSession).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+
+        mvc.perform(get("/api/agreements/assigned").session(trainerSession))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].agreementId").value(id))
+                .andExpect(jsonPath("$[0].camelId").value(camelId))
+                .andExpect(jsonPath("$[0].terms").value("Updated conditioning terms"));
+
+        mvc.perform(get("/api/agreements/assigned").session(ownerSession))
+                .andExpect(status().isForbidden());
+
+        mvc.perform(put("/api/agreements/" + id).session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of(
+                                "feeOmr", 60,
+                                "prizeSharePct", 15,
+                                "saleSharePct", 8,
+                                "startsAt", NOW.plusSeconds(7200).toString(),
+                                "endsAt", NOW.plusSeconds(172800).toString()
+                        ))))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void rejectionAndTerminationReasonsAreRecorded() throws Exception {
+        var owner = register("agreement-reason-owner@example.com");
+        var trainer = register("agreement-reason-trainer@example.com");
+        users.updateRoles(owner.userId(), Set.of("OWNER"));
+        users.updateRoles(trainer.userId(), Set.of("TRAINER"));
+        trainerProfile(trainer.userId());
+
+        Long camelId = ownedCamel(owner.userId());
+        var ownerSession = login(owner.email());
+        var trainerSession = login(trainer.email());
+
+        var rejectedBody = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
+                        .contentType("application/json").content(proposal(camelId, trainer.userId())))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Long rejectedId = json.readTree(rejectedBody).get("agreementId").asLong();
+
+        mvc.perform(post("/api/agreements/" + rejectedId + "/reject")
+                        .session(trainerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of("reason", "Schedule conflict"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("REJECTED"))
+                .andExpect(jsonPath("$.rejectionReason").value("Schedule conflict"))
+                .andExpect(jsonPath("$.rejectedByUserId").value(trainer.userId()));
+
+        var activeBody = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
+                        .contentType("application/json").content(proposal(camelId, trainer.userId())))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Long activeId = json.readTree(activeBody).get("agreementId").asLong();
+
+        mvc.perform(post("/api/agreements/" + activeId + "/accept")
+                        .session(trainerSession).with(csrf()))
+                .andExpect(status().isOk());
+
+        mvc.perform(post("/api/agreements/" + activeId + "/terminate")
+                        .session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of("reason", "Owner requested termination"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("TERMINATED"))
+                .andExpect(jsonPath("$.terminationReason").value("Owner requested termination"))
+                .andExpect(jsonPath("$.terminatedByUserId").value(owner.userId()));
+    }
+
+    @Test
+    void staleAgreementsAutomaticallyExpireOrComplete() throws Exception {
+        var owner = register("agreement-lifecycle-owner@example.com");
+        var trainer = register("agreement-lifecycle-trainer@example.com");
+        users.updateRoles(owner.userId(), Set.of("OWNER"));
+        users.updateRoles(trainer.userId(), Set.of("TRAINER"));
+        trainerProfile(trainer.userId());
+
+        Long camelId = ownedCamel(owner.userId());
+        var ownerSession = login(owner.email());
+        var trainerSession = login(trainer.email());
+
+        var pendingBody = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
+                        .contentType("application/json").content(proposal(camelId, trainer.userId())))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Long pendingId = json.readTree(pendingBody).get("agreementId").asLong();
+
+        var afterPendingEnd = NOW.plusSeconds(90000);
+        org.mockito.Mockito.when(clock.instant()).thenReturn(afterPendingEnd);
+
+        mvc.perform(get("/api/agreements/" + pendingId).session(ownerSession))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("EXPIRED"))
+                .andExpect(jsonPath("$.expiredAt").exists());
+
+        var secondBody = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of(
+                                "camelId", camelId,
+                                "trainerUserId", trainer.userId(),
+                                "feeOmr", 30,
+                                "prizeSharePct", 10,
+                                "saleSharePct", 5,
+                                "startsAt", afterPendingEnd.plusSeconds(3600).toString(),
+                                "endsAt", afterPendingEnd.plusSeconds(86400).toString()
+                        ))))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long activeId = json.readTree(secondBody).get("agreementId").asLong();
+        mvc.perform(post("/api/agreements/" + activeId + "/accept")
+                        .session(trainerSession).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+
+        org.mockito.Mockito.when(clock.instant()).thenReturn(afterPendingEnd.plusSeconds(90000));
+
+        mvc.perform(get("/api/agreements/" + activeId).session(ownerSession))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.completedAt").exists());
+
+        mvc.perform(get("/api/agreements/assigned").session(trainerSession))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
 }

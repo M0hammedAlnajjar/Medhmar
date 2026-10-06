@@ -348,33 +348,49 @@ requires an ACCEPTED entry. For a race organiser, update the race's status throu
 ## Camel partnership agreements
 
 Authenticated OWNER accounts propose agreements for camels of which they currently own the full 100%
-share. The intended TRAINER must have an active account and an existing trainer profile. The platform
-records fees in OMR (3 decimal places), prize share percentage, sale share percentage, start and end dates,
-and owner/trainer/camel references. Ownership is rechecked on acceptance.
+share. The designated TRAINER must have an active account and trainer profile. Agreements record the
+training fee in OMR, prize share, marketplace sale share, effective dates and optional written terms.
 
 | Method | Route | Allowed actor |
 | --- | --- | --- |
-| POST | /api/agreements | OWNER (or ADMIN who is the actual full owner); request: camelId, trainerUserId, feeOmr, prizeSharePct, saleSharePct, startsAt, endsAt |
-| GET | /api/agreements/mine | Signed-in owner/trainer sees own agreements |
-| GET | /api/agreements/{id} | Owner, trainer or ADMIN |
+| POST | /api/agreements | OWNER (or ADMIN who is the actual full owner); create proposal |
+| PUT | /api/agreements/{id} | Agreement owner or ADMIN; edit a PENDING_APPROVAL proposal only |
+| GET | /api/agreements/mine | Signed-in owner/trainer sees their agreements |
+| GET | /api/agreements/assigned | TRAINER; own ACTIVE assignments only |
+| GET | /api/agreements/{id} | Agreement owner, designated trainer or ADMIN |
 | GET | /api/agreements | ADMIN only |
-| POST | /api/agreements/{id}/accept | Designated trainer, if PENDING_APPROVAL |
-| POST | /api/agreements/{id}/reject | Designated trainer, if PENDING_APPROVAL |
-| POST | /api/agreements/{id}/terminate | Owner may withdraw pending proposal; owner or trainer may terminate ACTIVE agreement |
+| POST | /api/agreements/{id}/accept | Designated TRAINER; PENDING_APPROVAL only |
+| POST | /api/agreements/{id}/reject | Designated TRAINER; optional `{"reason":"..."}` |
+| POST | /api/agreements/{id}/terminate | Owner/ADMIN may withdraw pending; either participant may terminate ACTIVE; optional reason |
 
-New proposals start `PENDING_APPROVAL`; acceptance sets `ACTIVE`; rejection sets `REJECTED`;
-cancellation/termination sets `TERMINATED`. A camel may have at most one PENDING_APPROVAL or ACTIVE
-agreement, enforced by a camel-row lock while proposing. Historical agreements are never deleted.
-Prize-share and sale-share percentages are independent, each 0–100.
-Agreements do not yet transfer money, prevent marketplace sales, or synchronize termination when
-ownership changes. Those integrations belong to later changes.
+Create requests contain `camelId`, `trainerUserId`, `feeOmr`, `prizeSharePct`,
+`saleSharePct`, `startsAt`, `endsAt` and optional `terms` (maximum 5000 characters).
+A pending update can change the financial terms, effective dates and written terms, but cannot replace
+the camel, owner or trainer.
 
+Lifecycle rules:
 
-## Assigned camels and training log
+- New proposals are `PENDING_APPROVAL`.
+- Trainer acceptance changes the agreement to `ACTIVE`.
+- Trainer rejection changes it to `REJECTED` and records the optional reason and rejecting user.
+- Owner withdrawal or participant termination changes it to `TERMINATED` and records the actor/reason.
+- A pending proposal whose end time passes becomes `EXPIRED`.
+- An active agreement whose end time passes becomes `COMPLETED`.
+- Historical agreements are retained; they are not physically deleted.
+- A camel can have only one pending or active agreement at a time. Stale expired/completed agreements
+  are normalized before a new proposal is checked, so they do not block a replacement agreement.
 
-`GET /api/agreements/assigned` returns the signed-in TRAINER's ACCEPTED/ACTIVE agreements,
-including camelId, ownerUserId and agreed terms. A pending or rejected assignment does not appear.
-An ACTIVE status alone is not permission to record a training session outside the agreement's date window.
+Prize-share and sale-share percentages are independent, each 0–100. Marketplace sale-share applies
+while an accepted agreement remains ACTIVE. Acceptance activates the commercial agreement immediately;
+the date window separately controls when training logs may be recorded. An accepted sale records the
+trainer share and seller net amount in the sale transaction, then terminates the agreement because
+ownership changes. Loss of full ownership also terminates an open agreement.
+
+### Assigned camels and training log
+
+`GET /api/agreements/assigned` returns the signed-in TRAINER's ACTIVE agreements, including
+`camelId`, `ownerUserId`, financial terms and written `terms`. Future-start ACTIVE assignments may
+be visible, but training logs cannot be appended until the effective start time.
 
 | Method | Route | Authorization |
 | --- | --- | --- |
@@ -382,9 +398,8 @@ An ACTIVE status alone is not permission to record a training session outside th
 | POST | /api/training-logs | Designated TRAINER only; agreementId, sessionAt, durationMinutes (1–720), notes (1–2000 characters) |
 | GET | /api/training-logs/agreement/{agreementId} | Agreement owner, designated trainer, or ADMIN |
 
-Training logs are append-only, preserving the historical record. Session timestamps must fall within
-the agreed interval and cannot be in the future; an agreement must be ACTIVE and currently within
-its effective date interval. Pending, rejected and terminated agreements cannot receive new logs.
+Training logs are append-only. Session timestamps must be inside the agreement interval and cannot be
+in the future. Pending, rejected, terminated, expired and completed agreements cannot receive new logs.
 
 
 ## Organizations

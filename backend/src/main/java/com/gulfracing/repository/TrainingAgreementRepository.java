@@ -17,6 +17,10 @@ public interface TrainingAgreementRepository extends JpaRepository<TrainingAgree
             Long ownerId, Long trainerUserId
     );
 
+    List<TrainingAgreement> findByTrainer_UserIdAndStatusOrderByAgreementIdDesc(
+            Long trainerUserId, AgreementStatus status
+    );
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM TrainingAgreement a WHERE a.agreementId = :id")
     Optional<TrainingAgreement> findLockedById(@Param("id") Long id);
@@ -25,14 +29,17 @@ public interface TrainingAgreementRepository extends JpaRepository<TrainingAgree
         SELECT a
         FROM TrainingAgreement a
         WHERE a.camel.camelId = :camelId
-          AND a.status = :status
+          AND a.status IN :statuses
+          AND a.acceptedAt IS NOT NULL
+          AND a.acceptedAt <= :at
           AND a.startsAt <= :at
           AND a.endsAt > :at
+          AND (a.terminatedAt IS NULL OR a.terminatedAt > :at)
         ORDER BY a.agreementId DESC
         """)
     List<TrainingAgreement> findEffectiveForCamel(
             @Param("camelId") Long camelId,
-            @Param("status") AgreementStatus status,
+            @Param("statuses") Collection<AgreementStatus> statuses,
             @Param("at") java.time.Instant at
     );
 
