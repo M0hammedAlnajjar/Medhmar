@@ -1,0 +1,662 @@
+.sulaiman-races-page {
+    --race-bg: #f7f3ec;
+    --race-surface: #fffdfa;
+    --race-surface-soft: #f2ebe2;
+    --race-primary: #3b281d;
+    --race-primary-hover: #2f2018;
+    --race-accent: #b9925e;
+    --race-accent-soft: #eadcc9;
+    --race-text: #241b15;
+    --race-muted: #756a61;
+    --race-border: #e7ddd2;
+    --race-success: #3f8a5b;
+    --race-success-soft: #e7f4eb;
+    --race-warning: #a56e16;
+    --race-warning-soft: #fff1d8;
+    --race-danger: #b94f46;
+    --race-danger-soft: #fae9e7;
+
+    width: 100%;
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 32px 28px 56px;
+    color: var(--race-text);
+}
+
+.sulaiman-race-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.sulaiman-race-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--race-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sulaiman-race-breadcrumb span {
+    color: var(--race-accent);
+}
+
+.sulaiman-race-page-header h1 {
+    margin: 0;
+    color: var(--race-text);
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+.sulaiman-race-page-header p {
+    margin: 7px 0 0;
+    color: var(--race-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.sulaiman-race-toolbar {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) 190px auto;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 18px;
+    background: var(--race-surface);
+    border: 1px solid var(--race-border);
+    border-radius: 16px;
+}
+
+.sulaiman-race-search {
+    position: relative;
+    width: 100%;
+}
+
+.sulaiman-race-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    color: var(--race-muted);
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.sulaiman-race-search input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px 0 42px;
+    color: var(--race-text);
+    background: #ffffff;
+    border: 1px solid var(--race-border);
+    border-radius: 11px;
+    outline: none;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.sulaiman-race-search input::placeholder {
+    color: #9b9188;
+}
+
+.sulaiman-race-search input:focus {
+    border-color: var(--race-accent);
+    box-shadow: 0 0 0 3px rgba(185, 146, 94, 0.14);
+}
+
+.sulaiman-race-filter {
+    width: 100%;
+    height: 44px;
+    padding: 0 36px 0 13px;
+    color: var(--race-text);
+    background: #ffffff;
+    border: 1px solid var(--race-border);
+    border-radius: 11px;
+    outline: none;
+    cursor: pointer;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.sulaiman-race-filter:focus {
+    border-color: var(--race-accent);
+    box-shadow: 0 0 0 3px rgba(185, 146, 94, 0.14);
+}
+
+.sulaiman-race-clear-button {
+    height: 44px;
+    padding: 0 16px;
+    color: var(--race-primary);
+    background: var(--race-surface-soft);
+    border: 1px solid var(--race-border);
+    border-radius: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease;
+}
+
+.sulaiman-race-clear-button:hover {
+    background: var(--race-accent-soft);
+    border-color: #d9c4aa;
+}
+
+.sulaiman-race-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 22px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--race-border);
+}
+
+.sulaiman-race-tab {
+    padding: 8px 14px;
+    color: var(--race-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+            color 0.2s ease,
+            background-color 0.2s ease;
+}
+
+.sulaiman-race-tab:hover {
+    color: var(--race-primary);
+    background: var(--race-surface-soft);
+}
+
+.sulaiman-race-tab.active {
+    color: #ffffff;
+    background: var(--race-primary);
+}
+
+.sulaiman-race-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 14px;
+}
+
+.sulaiman-race-results-header h2 {
+    margin: 0;
+    color: var(--race-text);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.sulaiman-race-results-header p {
+    margin: 4px 0 0;
+    color: var(--race-muted);
+    font-size: 12px;
+}
+
+.sulaiman-race-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.sulaiman-race-card {
+    overflow: hidden;
+    background: var(--race-surface);
+    border: 1px solid var(--race-border);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(59, 40, 29, 0.035);
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
+}
+
+.sulaiman-race-card:hover {
+    transform: translateY(-3px);
+    border-color: #dcc8b1;
+    box-shadow: 0 12px 26px rgba(59, 40, 29, 0.08);
+}
+
+.sulaiman-race-image {
+    position: relative;
+    width: 100%;
+    height: 170px;
+    overflow: hidden;
+    background: #d9c2a3;
+}
+
+.sulaiman-race-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.sulaiman-race-card:hover .sulaiman-race-image img {
+    transform: scale(1.025);
+}
+
+.sulaiman-race-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+            to bottom,
+            rgba(59, 40, 29, 0.02),
+            rgba(59, 40, 29, 0.16)
+    );
+    pointer-events: none;
+}
+
+.sulaiman-race-card-status {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+    z-index: 2;
+}
+
+.race-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 25px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+}
+
+.race-status-open {
+    color: var(--race-success);
+    background: var(--race-success-soft);
+}
+
+.race-status-scheduled {
+    color: #326d9c;
+    background: #e8f3fb;
+}
+
+.race-status-closed {
+    color: #715d50;
+    background: #eee8e1;
+}
+
+.race-status-completed {
+    color: #6b5b4e;
+    background: #ede7df;
+}
+
+.race-status-cancelled {
+    color: var(--race-danger);
+    background: var(--race-danger-soft);
+}
+
+.sulaiman-race-content {
+    padding: 17px;
+}
+
+.sulaiman-race-title {
+    margin: 0;
+    color: var(--race-text);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.sulaiman-race-information {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px 16px;
+    margin: 17px 0;
+}
+
+.sulaiman-race-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    min-width: 0;
+}
+
+.sulaiman-race-info-icon {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    color: var(--race-primary);
+    background: var(--race-surface-soft);
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sulaiman-race-info-item div {
+    min-width: 0;
+}
+
+.sulaiman-race-info-label {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--race-muted);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.sulaiman-race-info-item strong {
+    display: block;
+    overflow: hidden;
+    color: var(--race-text);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sulaiman-race-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--race-border);
+}
+
+.sulaiman-race-organizer {
+    color: var(--race-muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.sulaiman-race-view-button {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 13px;
+    color: #ffffff;
+    background: var(--race-primary);
+    border: 1px solid var(--race-primary);
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+            background-color 0.2s ease,
+            transform 0.2s ease;
+}
+
+.sulaiman-race-view-button:hover {
+    background: var(--race-primary-hover);
+}
+
+.sulaiman-race-view-button:active {
+    transform: translateY(1px);
+}
+
+.sulaiman-race-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 28px;
+}
+
+.sulaiman-page-button {
+    min-width: 39px;
+    height: 39px;
+    padding: 0 11px;
+    color: var(--race-primary);
+    background: var(--race-surface);
+    border: 1px solid var(--race-border);
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+            background-color 0.2s ease,
+            color 0.2s ease,
+            border-color 0.2s ease;
+}
+
+.sulaiman-page-button:hover:not(:disabled):not(.active) {
+    border-color: var(--race-accent);
+    background: var(--race-surface-soft);
+}
+
+.sulaiman-page-button.active {
+    color: #ffffff;
+    background: var(--race-primary);
+    border-color: var(--race-primary);
+}
+
+.sulaiman-page-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.sulaiman-page-navigation {
+    padding: 0 14px;
+}
+
+.sulaiman-race-state {
+    padding: 62px 24px;
+    text-align: center;
+    background: var(--race-surface);
+    border: 1px solid var(--race-border);
+    border-radius: 16px;
+}
+
+.sulaiman-race-state-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 17px;
+    color: var(--race-primary);
+    background: var(--race-surface-soft);
+    border-radius: 18px;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.sulaiman-race-state h2 {
+    margin: 0 0 7px;
+    color: var(--race-text);
+    font-size: 21px;
+}
+
+.sulaiman-race-state p {
+    max-width: 500px;
+    margin: 0 auto 18px;
+    color: var(--race-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.sulaiman-race-primary-button {
+    min-height: 40px;
+    padding: 0 16px;
+    color: #ffffff;
+    background: var(--race-primary);
+    border: 0;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sulaiman-race-primary-button:hover {
+    background: var(--race-primary-hover);
+}
+
+.sulaiman-race-skeleton {
+    pointer-events: none;
+}
+
+.sulaiman-skeleton-image,
+.sulaiman-skeleton-line {
+    background: linear-gradient(
+            90deg,
+            #eee5da 25%,
+            #faf6f0 50%,
+            #eee5da 75%
+    );
+    background-size: 200% 100%;
+    animation: sulaiman-race-loading 1.4s infinite;
+}
+
+.sulaiman-skeleton-image {
+    width: 100%;
+    height: 170px;
+}
+
+.sulaiman-skeleton-line {
+    width: 100%;
+    height: 13px;
+    margin-bottom: 12px;
+    border-radius: 7px;
+}
+
+.sulaiman-skeleton-title {
+    width: 72%;
+    height: 18px;
+    margin-bottom: 18px;
+}
+
+.sulaiman-skeleton-short {
+    width: 48%;
+}
+
+@keyframes sulaiman-race-loading {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+html[dir="rtl"] .sulaiman-race-search-icon {
+    right: 14px;
+    left: auto;
+}
+
+html[dir="rtl"] .sulaiman-race-search input {
+    padding-right: 42px;
+    padding-left: 14px;
+}
+
+html[dir="rtl"] .sulaiman-race-card-status {
+    right: auto;
+    left: 13px;
+}
+
+html[dir="rtl"] .sulaiman-race-information,
+html[dir="rtl"] .sulaiman-race-page-header,
+html[dir="rtl"] .sulaiman-race-results-header {
+    text-align: right;
+}
+
+.sulaiman-race-search input:focus-visible,
+.sulaiman-race-filter:focus-visible,
+.sulaiman-race-clear-button:focus-visible,
+.sulaiman-race-tab:focus-visible,
+.sulaiman-page-button:focus-visible,
+.sulaiman-race-primary-button:focus-visible,
+.sulaiman-race-view-button:focus-visible {
+    outline: 3px solid rgba(185, 146, 94, 0.35);
+    outline-offset: 2px;
+}
+
+@media (max-width: 1080px) {
+    .sulaiman-race-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sulaiman-race-toolbar {
+        grid-template-columns: 1fr 180px;
+    }
+
+    .sulaiman-race-clear-button {
+        grid-column: 1 / -1;
+        width: max-content;
+    }
+}
+
+@media (max-width: 720px) {
+    .sulaiman-races-page {
+        padding: 22px 16px 44px;
+    }
+
+    .sulaiman-race-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sulaiman-race-page-header h1 {
+        font-size: 29px;
+    }
+
+    .sulaiman-race-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .sulaiman-race-clear-button {
+        width: 100%;
+    }
+
+    .sulaiman-race-tabs {
+        overflow-x: auto;
+        padding-bottom: 12px;
+    }
+
+    .sulaiman-race-tab {
+        flex: 0 0 auto;
+    }
+
+    .sulaiman-race-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sulaiman-race-information {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .sulaiman-race-results-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 430px) {
+    .sulaiman-race-information {
+        grid-template-columns: 1fr;
+    }
+
+    .sulaiman-race-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .sulaiman-race-view-button {
+        width: 100%;
+    }
+}
