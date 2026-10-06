@@ -831,3 +831,161 @@ export function resetRaceListing() {
     raceState.loading = false;
     raceState.error = null;
 }
+
+
+
+
+export async function renderRaceDetails(container, raceId) {
+    container.innerHTML = `
+    <section class="sulaiman-race-details">
+      <div class="sulaiman-race-details-loading">
+        Loading race details...
+      </div>
+    </section>
+  `;
+
+    try {
+        const race = await raceApi.getRaceById(raceId);
+
+        const raceDate = new Date(race.startsAt);
+
+        const formattedDate = raceDate.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+
+        const formattedTime = raceDate.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        container.innerHTML = `
+      <section class="sulaiman-race-details">
+
+        <div class="sulaiman-race-details-breadcrumb">
+          <a href="/races" data-race-link>Races</a>
+          <span>/</span>
+          <span>${race.name}</span>
+        </div>
+
+        <div class="sulaiman-race-details-header">
+          <div>
+            <span class="sulaiman-race-details-status">
+              ${race.status}
+            </span>
+
+            <h1>${race.name}</h1>
+
+            <p>
+              Race #${race.raceId}
+            </p>
+          </div>
+        </div>
+
+        <div class="sulaiman-race-details-grid">
+
+          <div class="sulaiman-race-details-main">
+
+            <div class="sulaiman-race-details-image">
+              <img
+                src="/assets/images/camel-race.jpg"
+                alt="${race.name}"
+              />
+            </div>
+
+            <div class="sulaiman-race-details-info">
+
+              <h2>Race Information</h2>
+
+              <div class="sulaiman-race-details-info-grid">
+
+                <div class="sulaiman-race-details-info-item">
+                  <span>Date</span>
+                  <strong>${formattedDate}</strong>
+                </div>
+
+                <div class="sulaiman-race-details-info-item">
+                  <span>Time</span>
+                  <strong>${formattedTime}</strong>
+                </div>
+
+                <div class="sulaiman-race-details-info-item">
+                  <span>Location</span>
+                  <strong>${race.location}</strong>
+                </div>
+
+                <div class="sulaiman-race-details-info-item">
+                  <span>Distance</span>
+                  <strong>${race.distanceKm} KM</strong>
+                </div>
+
+                <div class="sulaiman-race-details-info-item">
+                  <span>Status</span>
+                  <strong>${race.status}</strong>
+                </div>
+
+                <div class="sulaiman-race-details-info-item">
+                  <span>Organizer ID</span>
+                  <strong>${race.organizerId}</strong>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <aside class="sulaiman-race-details-sidebar">
+
+            <div class="sulaiman-race-details-card">
+              <h3>Race Actions</h3>
+
+              <a
+                href="/races/${race.raceId}/participants"
+                data-race-link
+                class="sulaiman-race-details-action"
+              >
+                View Participants
+              </a>
+
+              <a
+                href="/races/${race.raceId}/results"
+                data-race-link
+                class="sulaiman-race-details-action"
+              >
+                View Results
+              </a>
+
+              ${
+            race.status === "OPEN"
+                ? `
+                    <a
+                      href="/races/${race.raceId}/register"
+                      data-race-link
+                      class="sulaiman-race-details-action sulaiman-race-details-action-primary"
+                    >
+                      Register for Race
+                    </a>
+                  `
+                : ""
+        }
+
+            </div>
+
+          </aside>
+
+        </div>
+
+      </section>
+    `;
+    } catch (error) {
+        container.innerHTML = `
+      <section class="sulaiman-race-details">
+        <div class="sulaiman-race-details-error">
+          <h2>Unable to load race</h2>
+          <p>Please try again.</p>
+        </div>
+      </section>
+    `;
+    }
+}
