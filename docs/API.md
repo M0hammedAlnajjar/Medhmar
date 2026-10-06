@@ -380,10 +380,11 @@ Lifecycle rules:
 - A camel can have only one pending or active agreement at a time. Stale expired/completed agreements
   are normalized before a new proposal is checked, so they do not block a replacement agreement.
 
-Prize-share and sale-share percentages are independent, each 0–100. Marketplace sale-share is applied
-only when the agreement is ACTIVE **and** the sale occurs inside its effective date window. An accepted
-sale records the trainer share and seller net amount in the sale transaction, then terminates the
-agreement because ownership changes. Loss of full ownership also terminates an open agreement.
+Prize-share and sale-share percentages are independent, each 0–100. Marketplace sale-share applies
+while an accepted agreement remains ACTIVE. Acceptance activates the commercial agreement immediately;
+the date window separately controls when training logs may be recorded. An accepted sale records the
+trainer share and seller net amount in the sale transaction, then terminates the agreement because
+ownership changes. Loss of full ownership also terminates an open agreement.
 
 ### Assigned camels and training log
 
