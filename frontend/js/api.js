@@ -1,3 +1,5 @@
+import { buildQuery } from "./format.js";
+
 const API_BASE = window.MEDHMAR_API_URL || `http://${window.location.hostname}:8080`;
 let csrf = null;
 
@@ -97,4 +99,39 @@ export const trainingApi = {
 
 export const pedigreeApi = {
   tree: (camelId) => api(`/camel/${camelId}/pedigree/tree`),
+};
+
+// Camel / Ownership / Marketplace / Offer endpoints (verified against CamelController, MarketPlaceController, OfferController).
+// Ownership has no public write endpoint (/ownershipRecord/** is ADMIN-only); history is read through the camel API.
+// SaleTransaction has no REST endpoint: it is created server-side by POST /offer/{id}/accept.
+export const camelApi = {
+  list: (params) => api(`/camel/getAll${buildQuery(params)}`),
+  one: (id) => api(`/camel/getById?id=${encodeURIComponent(id)}`),
+  profile: (id) => api(`/camel/profile?id=${encodeURIComponent(id)}`),
+  mine: () => api("/camel/my-camels"),
+  ownership: (id) => api(`/camel/ownership-history?id=${encodeURIComponent(id)}`),
+  add: (payload) => api("/camel/add", { method: "POST", body: JSON.stringify(payload) }),
+  update: (payload) => api("/camel/update", { method: "PUT", body: JSON.stringify(payload) }),
+  remove: (id) => api(`/camel/deleteById?id=${encodeURIComponent(id)}`, { method: "DELETE" }),
+};
+
+export const marketplaceApi = {
+  list: (params) => api(`/marketplace/getAll${buildQuery(params)}`),
+  one: (id) => api(`/marketplace/getById?id=${encodeURIComponent(id)}`),
+  mine: () => api("/marketplace/my-listings"),
+  history: () => api("/marketplace/history"),
+  add: (payload) => api("/marketplace/add", { method: "POST", body: JSON.stringify(payload) }),
+  update: (payload) => api("/marketplace/update", { method: "PUT", body: JSON.stringify(payload) }),
+  cancel: (id) => api(`/marketplace/deleteById?id=${encodeURIComponent(id)}`, { method: "DELETE" }),
+};
+
+export const offerApi = {
+  mine: () => api("/offer/getAll"),
+  one: (id) => api(`/offer/getById?id=${encodeURIComponent(id)}`),
+  forListing: (listingId) => api(`/offer/listing/${encodeURIComponent(listingId)}`),
+  add: (payload) => api("/offer/add", { method: "POST", body: JSON.stringify(payload) }),
+  update: (payload) => api("/offer/update", { method: "PUT", body: JSON.stringify(payload) }),
+  accept: (id) => api(`/offer/${encodeURIComponent(id)}/accept`, { method: "POST" }),
+  decline: (id) => api(`/offer/${encodeURIComponent(id)}/decline`, { method: "POST" }),
+  withdraw: (id) => api(`/offer/deleteById?id=${encodeURIComponent(id)}`, { method: "DELETE" }),
 };
