@@ -6,7 +6,7 @@ const $ = (s, el=document) => el.querySelector(s);
 const root = $('#app');
 const toastRoot = $('#toast-root');
 const guestUser = { fullName: 'Guest', email: '', roles: [] };
-const state = { user: guestUser, lang: localStorage.getItem('medhmar-lang') || 'en' };
+const state = { user: guestUser, challenges: [], challengeDetail: null, challengeError: '', lang: localStorage.getItem('medhmar-lang') || 'en' };
 const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const badge = s => `<span class="badge ${['ACTIVE','OPEN','APPROVED','OFFICIAL'].includes(s)?'success':['PENDING','UPCOMING'].includes(s)?'warning':['SUSPENDED','REJECTED','CLOSED'].includes(s)?'danger':'neutral'}">${esc(s)}</span>`;
 const go = p => { history.pushState({},'',p); render(); };
@@ -45,9 +45,26 @@ function settings(){ return shell(`${head('Profile & Settings','Update your prof
 
 function trainer(){ const t=demo.trainer; return shell(`${head('Trainer Profile','Professional profile integrated with the current platform.')}${demoNote()}<section class="card profile-hero"><div class="profile-avatar">S</div><div><h1>${t.name}</h1><p>Professional Camel Trainer • ${t.location}</p><div class="actions">${badge('ACTIVE')}<span class="badge neutral">★ ${t.rating}</span></div></div><div class="stats"><div class="stat"><div class="stat-value">${t.assigned}</div><div class="stat-label">Assigned Camels</div></div><div class="stat"><div class="stat-value">${t.years}</div><div class="stat-label">Years Experience</div></div></div></section><section class="card card-pad section"><h2>About</h2><p>${t.bio}</p></section>`,'/trainer-profile'); }
 
-const challengeCard = c => `<article class="card challenge-card"><div class="section-title"><div><div class="kicker">Camel Challenge</div><h2>${esc(c.title)}</h2></div>${badge(c.status)}</div><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h3>${esc(x.name)}</h3><strong>${x.votePercent}%</strong><div class="vote-bar"><span style="width:${x.votePercent}%"></span></div></div>`).join('')}</div><a class="btn btn-primary" href="/challenges/${c.challengeId}" data-link>View Challenge</a></article>`;
-function challenges(){ return shell(`${head('Camel Challenges','Vote in published challenges and follow the result percentages.')}${demoNote()}<div class="grid grid-2" id="challenges-grid">${demo.challenges.map(challengeCard).join('')}</div>`,'/challenges'); }
-function challenge(id){ const c=demo.challenges.find(x=>String(x.challengeId)===String(id))||demo.challenges[0]; return shell(`${head(c.title,'One vote per account. Votes cannot be switched after they are recorded.',badge(c.status))}${demoNote()}<article class="card challenge-card"><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h2>${x.name}</h2><div class="stat-value">${x.votePercent}%</div><p>${x.voteCount} votes</p><div class="vote-bar"><span style="width:${x.votePercent}%"></span></div><button class="btn btn-primary vote-btn" data-challenge="${c.challengeId}" data-camel="${x.camelId}">Vote ${x.name}</button></div>`).join('')}</div></article>`,'/challenges'); }
+const challengeCard = c => `<article class="card challenge-card"><div class="section-title"><div><div class="kicker">Camel Challenge</div><h2>${esc(c.title)}</h2></div>${badge(c.status)}</div><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h3>${esc(x.name)}</h3><strong>${x.votePercent}%</strong><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div></div>`).join('')}</div><a class="btn btn-primary" href="/challenges/${c.challengeId}" data-link>View Challenge</a></article>`;
+const votingOpen = c => c?.status === 'OPEN' && Date.now() >= new Date(c.opensAt).getTime() && Date.now() < new Date(c.closesAt).getTime();
+function challenges(){
+ const body = state.challengeError
+   ? `<section class="card error"><h2>Unable to load live challenges</h2><p>${esc(state.challengeError)}</p></section>`
+   : state.challenges.length
+     ? `<div class="grid grid-2" id="challenges-grid">${state.challenges.map(challengeCard).join('')}</div>`
+     : '<section class="card card-pad"><h2>No live challenges yet</h2><p>Create and open a challenge in the backend before voting.</p></section>';
+ return shell(`${head('Camel Challenges','Live challenge data from the Spring Boot API.')}${body}`,'/challenges');
+}
+function challenge(id){
+ const c = (state.challengeDetail && String(state.challengeDetail.challengeId)===String(id))
+   ? state.challengeDetail
+   : state.challenges.find(x=>String(x.challengeId)===String(id));
+ if(!c) return shell(`${head('Challenge unavailable','This challenge could not be loaded from the backend.')}<section class="card error"><p>${esc(state.challengeError || 'No matching live challenge was found.')}</p><a class="btn btn-primary" href="/challenges" data-link>Back to Challenges</a></section>`,'/challenges');
+ const signedIn = Boolean(state.user?.userId);
+ const open = votingOpen(c);
+ const voteMessage = !signedIn ? 'Sign in before voting.' : !open ? 'Voting is not open for this challenge.' : 'One vote per account. Votes cannot be switched after they are recorded.';
+ return shell(`${head(esc(c.title),voteMessage,badge(c.status))}<article class="card challenge-card"><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h2>${esc(x.name)}</h2><div class="stat-value">${x.votePercent}%</div><p>${x.voteCount} votes</p><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div>${signedIn && open ? `<button class="btn btn-primary vote-btn" data-challenge="${c.challengeId}" data-camel="${x.camelId}">Vote ${esc(x.name)}</button>` : `<button class="btn btn-primary" disabled>${signedIn ? 'Voting unavailable' : 'Sign in to vote'}</button>`}</div>`).join('')}</div></article>`,'/challenges');
+}
 
 function training(){ return shell(`${head('Training Log','Chronological training history for an active assignment.','<button class="btn btn-primary" id="add-training-btn">+ Add Training Session</button>')}${demoNote()}<div class="two-pane"><section class="card card-pad"><h2>Barq — Training Log</h2><p class="form-help">Agreement #15 • Active training period</p><div class="timeline">${demo.logs.map(l=>`<div class="timeline-item"><h3>${l.type}</h3><p><strong>${l.date}</strong> • ${l.duration} minutes</p><p>${l.notes}</p></div>`).join('')}</div></section><aside class="card card-pad"><h2>Session rules</h2><div class="info-list"><div class="info-row"><span>Agreement</span><strong>ACTIVE</strong></div><div class="info-row"><span>Max duration</span><strong>720 min</strong></div><div class="info-row"><span>History</span><strong>Append-only</strong></div></div></aside></div>`,'/training'); }
 
@@ -84,10 +101,31 @@ function bind(){
 async function handleAuth(e){ e.preventDefault(); const kind=e.currentTarget.dataset.kind, f=Object.fromEntries(new FormData(e.currentTarget)); try{ if(kind==='signin'){state.user=await authApi.login({email:f.email,password:f.password}); toast('Signed in successfully.','success');go('/home');} else if(kind==='signup'){await authApi.register(f);toast('Account created.','success');go('/signin');} else if(kind==='forgot'){await authApi.forgot(f.email);toast('If the account exists, a reset link will be sent.','success');} else {if(f.password!==f.confirmPassword) throw new Error('Passwords do not match.'); const token=new URLSearchParams(location.hash.slice(1)).get('token')||'preview-token'; await authApi.reset(token,f.password);toast('Password reset successfully.','success');go('/signin');}}catch(err){toast(err.message,'error');} }
 async function handleLogout(){ try{await authApi.logout();}catch{} state.user={...guestUser}; toast('Signed out.','success'); go('/signin'); }
 async function handleSettings(e){ e.preventDefault(); const f=Object.fromEntries(new FormData(e.currentTarget)); try{state.user=await authApi.updateMe(f)||{...state.user,...f};toast('Profile updated.','success');}catch{state.user={...state.user,...f};toast('Backend unavailable; preview updated locally.','error');} render(); }
-async function handleVote(e){ const b=e.currentTarget; b.disabled=true; try{await challengeApi.vote(b.dataset.challenge,Number(b.dataset.camel));toast('Vote recorded.','success');}catch(err){toast(`${err.message}. Preview will not fake a saved vote.`,'error');b.disabled=false;} }
+async function handleVote(e){ const b=e.currentTarget; if(!state.user?.userId){toast('Sign in before voting.','error');go('/signin');return;} b.disabled=true; try{await challengeApi.vote(b.dataset.challenge,Number(b.dataset.camel)); const updated=await challengeApi.one(b.dataset.challenge); state.challengeDetail=updated; state.challenges=state.challenges.map(c=>String(c.challengeId)===String(updated.challengeId)?updated:c); toast('Vote recorded successfully.','success'); render();}catch(err){toast(err.message,'error');b.disabled=false;} }
 async function handlePublish(e){ const b=e.currentTarget;b.disabled=true;try{await raceCardApi.publish(b.dataset.race);toast('New immutable race-card version published.','success');}catch(err){toast(`${err.message}. Preview data unchanged.`,'error');b.disabled=false;} }
 function showTrainingModal(){ document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="modal"><div class="modal"><h2>Add Training Session</h2><p>Submit only against an active agreement.</p><form id="training-form" class="form"><div class="field"><label>Agreement ID</label><input class="input" name="agreementId" type="number" value="15" required></div><div class="field"><label>Duration</label><input class="input" name="durationMinutes" type="number" value="45" min="1" max="720" required></div><div class="field"><label>Notes</label><textarea class="textarea" name="notes" required>Endurance training session.</textarea></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-modal">Cancel</button><button class="btn btn-primary">Save</button></div></form></div></div>`); $('#close-modal').onclick=()=>$('#modal').remove(); $('#training-form').onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget));f.agreementId=Number(f.agreementId);f.durationMinutes=Number(f.durationMinutes);f.sessionAt=new Date().toISOString();try{await trainingApi.add(f);toast('Training session saved.','success');$('#modal').remove();}catch(err){toast(err.message,'error');}}; }
 function showUserModal(id){ const u=demo.users.find(x=>String(x.userId)===String(id))||demo.users[0]; document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="modal"><div class="modal"><h2>Manage ${esc(u.fullName)}</h2><p>Role and account status changes are security-sensitive.</p><form id="user-form" class="form"><div class="field"><label>Role</label><select class="select" name="role">${['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(r=>`<option ${u.roles.includes(r)?'selected':''}>${r}</option>`).join('')}</select></div><div class="field"><label>Status</label><select class="select" name="status">${['ACTIVE','INACTIVE','SUSPENDED'].map(s=>`<option ${u.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-modal">Cancel</button><button class="btn btn-primary">Save</button></div></form></div></div>`); $('#close-modal').onclick=()=>$('#modal').remove(); $('#user-form').onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget));try{await adminApi.roles(u.userId,[f.role]);await adminApi.status(u.userId,f.status);toast('User access updated.','success');$('#modal').remove();}catch(err){toast(err.message,'error');}}; }
 
-async function init(){ try{state.user=await authApi.me();}catch{state.user={...guestUser};} render(); }
+async function init(){
+ try{state.user=await authApi.me();}catch{state.user={...guestUser};}
+ try{
+   const page=await challengeApi.list();
+   state.challenges=page?.content||[];
+   state.challengeError='';
+ }catch(err){
+   state.challenges=[];
+   state.challengeError=err.message||'Unable to connect to the challenge API.';
+ }
+ const match=matchRoute(normalizePath());
+ if(match?.route?.name==='Challenge Detail + Voting'){
+   try{
+     state.challengeDetail=await challengeApi.one(match.params.id);
+     state.challengeError='';
+   }catch(err){
+     state.challengeDetail=null;
+     state.challengeError=err.message||'Unable to load this challenge.';
+   }
+ }
+ render();
+}
 window.addEventListener('popstate',render); init();
