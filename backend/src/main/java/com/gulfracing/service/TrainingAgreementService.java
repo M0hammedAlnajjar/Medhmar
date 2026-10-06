@@ -220,7 +220,6 @@ public class TrainingAgreementService {
     @Transactional
     public TrainingAgreement findActiveAgreementForSale(Long camelId) {
         validateId(camelId);
-        var now = clock.instant();
         var candidates = agreements.findActiveForCamelForUpdate(
                 camelId,
                 List.of(AgreementStatus.ACTIVE)
@@ -229,7 +228,6 @@ public class TrainingAgreementService {
 
         return candidates.stream()
                 .filter(a -> a.getStatus() == AgreementStatus.ACTIVE)
-                .filter(a -> !now.isBefore(a.getStartsAt()) && now.isBefore(a.getEndsAt()))
                 .findFirst()
                 .orElse(null);
     }
