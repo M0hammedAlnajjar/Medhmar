@@ -75,9 +75,10 @@ The UI follows one consistent Medhmar visual system:
 ## Account screens
 
 `/signin`, `/signup`, `/forgot-password` and `/reset-password` follow the supplied
-Medhmar account-screen board. The artwork is rendered from the original
-`assets/auth-reference.png` using SVG viewports; its source resolution limits
-sharpness on large displays. Forms and buttons remain native HTML.
+Medhmar account-screen board. Account artwork uses the full 1672 × 941
+`assets/racing-hero.webp` source with `object-fit: cover` and a per-page focal
+point. This replaces the blurred thumbnail crops from the reference board.
+Forms and buttons remain native HTML.
 
 - Registration explicitly requires Fan / Spectator, Camel Owner or Trainer,
   plus matching passwords. Roles are still validated by the backend.

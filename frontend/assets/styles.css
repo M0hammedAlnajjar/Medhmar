@@ -168,7 +168,10 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .auth-forgot .auth-layout{grid-template-columns:33% 67%}
 .auth-reset .auth-layout{grid-template-columns:31% 69%}
 .auth-page .auth-visual{display:block;position:relative;min-height:100%;overflow:hidden;background:#dbc4a9}
-.auth-visual>svg{position:absolute;width:100%;height:100%;inset:0;display:block}
+.auth-page .auth-photo{position:absolute;width:100%;height:100%;inset:0;display:block;object-fit:cover;object-position:76% center}
+.auth-signup .auth-photo{object-position:83% center}
+.auth-forgot .auth-photo{object-position:66% center}
+.auth-reset .auth-photo{object-position:90% center}
 .auth-page .auth-panel{display:flex;justify-content:center;align-items:flex-start;padding:40px clamp(28px,4vw,76px) 48px;min-width:0}
 .auth-page .auth-box{width:100%;max-width:520px}
 .auth-page .auth-box h1{font-size:30px;line-height:1.2;letter-spacing:-.025em;margin:0 0 7px;font-weight:700}

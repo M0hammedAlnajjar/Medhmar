@@ -4,7 +4,7 @@ const required = [
   "index.html", "server.mjs", "package.json",
   "assets/styles.css", "assets/mark.svg", "assets/racing-hero.webp",
   "js/app.js", "js/api.js", "js/data.js", "js/routes.js",
-  "js/auth-view.js", "assets/auth-reference.png"
+  "js/auth-view.js"
 ];
 
 for (const path of required) await access(path);
