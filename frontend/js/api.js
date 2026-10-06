@@ -3,6 +3,18 @@ import { buildQuery } from "./format.js";
 const API_BASE = window.MEDHMAR_API_URL || `http://${window.location.hostname}:8080`;
 let csrf = null;
 
+async function fetchBackend(path, options = {}) {
+  try {
+    return await fetch(`${API_BASE}${path}`, options);
+  } catch (cause) {
+    const error = new Error(`Backend is not reachable at ${API_BASE}. Start the Spring Boot backend and verify MySQL is running.`);
+    error.status = 0;
+    error.code = "BACKEND_UNREACHABLE";
+    error.cause = cause;
+    throw error;
+  }
+}
+
 async function parse(response) {
   if (response.status === 204) return null;
   const type = response.headers.get("content-type") || "";
@@ -10,7 +22,7 @@ async function parse(response) {
 }
 
 export async function refreshCsrf() {
-  const response = await fetch(`${API_BASE}/api/auth/csrf`, {
+  const response = await fetchBackend("/api/auth/csrf", {
     credentials: "include",
   });
   if (!response.ok) throw new Error("Unable to obtain CSRF token.");
@@ -29,7 +41,7 @@ export async function api(path, options = {}) {
       headers.set("Content-Type", "application/json");
     }
   }
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetchBackend(path, {
     ...options,
     method,
     headers,
