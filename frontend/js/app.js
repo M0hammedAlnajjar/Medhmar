@@ -17,9 +17,14 @@ const navItems = [
   ['/tourism','Heritage'],['/race-cards','Race Cards'],['/trainer-profile','Trainer'],['/admin','Admin']
 ];
 function topbar(active=''){
+  const signedIn = Boolean(state.user?.userId);
+  const accountActions = signedIn
+    ? `<a class="profile-btn" href="/settings" data-link><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span>${esc(state.user.fullName?.split(' ')[0]||'User')}</span></a>`
+    : `<a class="profile-btn" href="/signin" data-link><span>Sign In</span></a><a class="profile-btn" href="/signup" data-link><span>Create Account</span></a>`;
+
   return `<header class="topbar"><div class="topbar-inner"><a class="brand" href="/" data-link><img src="/assets/mark.svg" alt=""><span>MEDHMAR</span></a>
   <nav class="nav">${navItems.map(([p,l])=>`<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`).join('')}</nav>
-  <div class="nav-actions"><button class="lang-btn" id="lang-toggle">${state.lang==='en'?'EN | AR':'AR | EN'}</button><a class="profile-btn" href="/settings" data-link><span class="avatar">${esc(state.user.fullName?.[0]||'G')}</span><span>${esc(state.user.fullName?.split(' ')[0]||'Guest')}</span></a></div></div></header>`;
+  <div class="nav-actions"><button class="lang-btn" id="lang-toggle">${state.lang==='en'?'EN | AR':'AR | EN'}</button>${accountActions}</div></div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
 const shell = (body,active='') => `<div class="app-shell">${topbar(active)}<main class="main">${body}</main><footer>MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform</footer></div>`;
