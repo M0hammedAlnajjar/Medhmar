@@ -18,6 +18,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private static final Set<String> SELF_REGISTRATION_ROLES = Set.of("VIEWER", "OWNER", "TRAINER");
+
     private final UserRepository users;
     private final RoleRepository roles;
     private final AuthAccountRepository accounts;
@@ -39,7 +41,15 @@ public class UserService {
         user.setFullName(request.fullName().strip());
         user.setEmail(email);
         user.setPreferredLanguage(request.preferredLanguage() == null ? "ar" : request.preferredLanguage());
-        user.getRoles().add(viewerRole());
+
+        String roleName = request.role() == null ? "" : request.role().strip().toUpperCase(Locale.ROOT);
+        if (!SELF_REGISTRATION_ROLES.contains(roleName))
+            throw ApiException.badRequest("Role must be VIEWER, OWNER or TRAINER.");
+
+        var selectedRole = roles.findByRoleName(roleName)
+            .orElseThrow(() -> new IllegalStateException("The selected registration role is missing. Apply the database migrations."));
+        user.getRoles().add(selectedRole);
+
         users.saveAndFlush(user);
         var account = new AuthAccount();
         account.setUser(user);

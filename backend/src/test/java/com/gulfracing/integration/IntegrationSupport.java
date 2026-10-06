@@ -57,7 +57,10 @@ abstract class IntegrationSupport {
         when(clock.instant()).thenReturn(NOW);
     }
     UserResponse register(String email) {
-        return users.register(new RegisterRequest("Test User", email, PASSWORD, "en"));
+        return register(email, "VIEWER");
+    }
+    UserResponse register(String email, String role) {
+        return users.register(new RegisterRequest("Test User", email, PASSWORD, "en", role));
     }
     MockHttpSession login(String email) throws Exception {
         var result = mvc.perform(post("/api/auth/login").with(csrf())

@@ -8,7 +8,11 @@ public final class AuthDtos {
         @NotBlank @Size(max = 150) String fullName,
         @NotBlank @Email @Size(max = 254) String email,
         @NotBlank @Size(min = 12, max = 72) String password,
-        @Pattern(regexp = "ar|en") String preferredLanguage
+        @Pattern(regexp = "ar|en") String preferredLanguage,
+        @NotBlank @Pattern(
+            regexp = "VIEWER|OWNER|TRAINER",
+            message = "Role must be VIEWER, OWNER or TRAINER."
+        ) String role
     ) {}
     public record LoginRequest(
         @NotBlank @Email @Size(max = 254) String email,

@@ -76,7 +76,7 @@ comma-separated list of exact origins. Production requires HTTPS and
 | Method | Endpoint | Access | Request / behavior |
 | --- | --- | --- | --- |
 | GET | /api/auth/csrf | Public | Returns headerName and token |
-| POST | /api/auth/register | Public + CSRF | fullName, email, password, optional preferredLanguage |
+| POST | /api/auth/register | Public + CSRF | fullName, email, password, role (`VIEWER`, `OWNER` or `TRAINER`), optional preferredLanguage |
 | POST | /api/auth/login | Public + CSRF | email, password; starts a session |
 | POST | /api/auth/logout | Session + CSRF | Invalidates session; returns 204 |
 | POST | /api/auth/forgot-password | Public + CSRF | email; always the same account-neutral response |
@@ -88,9 +88,12 @@ comma-separated list of exact origins. Production requires HTTPS and
 | PUT | /api/admin/users/{id}/status | ADMIN + CSRF | status: ACTIVE, INACTIVE or SUSPENDED |
 
 Passwords require at least 12 characters and at most 72 UTF-8 bytes, and are
-stored with BCrypt. Registration normalizes email case and grants only VIEWER.
-The other supported roles are OWNER, TRAINER, ORGANIZER and ADMIN. Client-supplied
-role, user ID or account-status fields cannot grant privileges.
+stored with BCrypt. Local registration normalizes email case and requires the
+user to choose exactly one self-service role: VIEWER (fan/spectator), OWNER or
+TRAINER. ORGANIZER and ADMIN cannot be self-assigned during public registration
+and remain administrator-controlled. A user can later have multiple roles through
+the admin role-management API. Client-supplied user ID or account-status fields
+cannot grant privileges.
 
 Role/status changes and successful password resets invalidate existing sessions
 on their next request. Profile updates cannot change email, roles or status.

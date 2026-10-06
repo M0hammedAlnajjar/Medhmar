@@ -1,8 +1,9 @@
 Medhmar / Gulf Racing is a camel-racing management platform.
 
 Accounts and roles:
-- Local registration creates a VIEWER account. OWNER, TRAINER, ORGANIZER and ADMIN are
-  assigned through the administrator's role-management workflow. A user can have several roles.
+- Local registration requires the user to choose one account type: VIEWER (fan/spectator),
+  OWNER or TRAINER. ORGANIZER and ADMIN cannot be self-assigned and are granted only through
+  the administrator's role-management workflow. A user can later have several roles.
 - A signed-in user can update their display name, avatar link and preferred language.
 - Google login and password-reset email require their optional server integrations to be enabled.
   Passwords and reset links must never be shared with the assistant.
