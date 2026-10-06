@@ -90,3 +90,15 @@ Forms and buttons remain native HTML.
   uses the email/password form.
 - Password reset reads the token from the emailed URL's fragment (or query),
   and displays an error if it is missing.
+
+## Administrator access
+
+The Admin link and `/admin` route require an authenticated `ADMIN` role. Guests
+are sent to sign in; signed-in users without that role see an access-denied page.
+Each admin page load rechecks `/api/users/me` before requesting the protected
+user list. Admin data is cleared on navigation, failed authorization, or session
+expiry. There is no demo-data fallback for the admin dashboard or user editor.
+Spring Security and `AdminUserController` enforce the same role on the API.
+
+`npm test` includes navigation, direct-route, revoked-role, expired-session,
+failed-request and stale-response regression checks using mocked API responses.

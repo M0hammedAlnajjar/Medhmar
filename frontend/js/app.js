@@ -1,5 +1,5 @@
 import { authView } from './auth-view.js';
-import { matchRoute, normalizePath } from './routes.js';
+import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi } from './api.js';
 
@@ -7,7 +7,8 @@ const $ = (s, el=document) => el.querySelector(s);
 const root = $('#app');
 const toastRoot = $('#toast-root');
 const guestUser = { fullName: 'Guest', email: '', roles: [] };
-const state = { user: guestUser, challenges: [], challengeDetail: null, challengeError: '', lang: localStorage.getItem('medhmar-lang') || 'en' };
+let renderEpoch = 0;
+const state = { adminUsers: null, adminPage: 0, user: guestUser, challenges: [], challengeDetail: null, challengeError: '', lang: localStorage.getItem('medhmar-lang') || 'en' };
 const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const badge = s => `<span class="badge ${['ACTIVE','OPEN','APPROVED','OFFICIAL'].includes(s)?'success':['PENDING','UPCOMING'].includes(s)?'warning':['SUSPENDED','REJECTED','CLOSED'].includes(s)?'danger':'neutral'}">${esc(s)}</span>`;
 const go = p => { history.pushState({},'',p); render(); };
@@ -17,6 +18,7 @@ const navItems = [
   ['/home','Home'],['/challenges','Challenges'],['/training','Training'],['/organizations','Organizations'],
   ['/tourism','Heritage'],['/race-cards','Race Cards'],['/trainer-profile','Trainer'],['/admin','Admin']
 ];
+const visibleNavItems = () => navItems.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
 function topbar(active=''){
   const signedIn = Boolean(state.user?.userId);
   const accountActions = signedIn
@@ -24,7 +26,7 @@ function topbar(active=''){
     : `<a class="profile-btn" href="/signin" data-link><span>Sign In</span></a><a class="profile-btn" href="/signup" data-link><span>Create Account</span></a>`;
 
   return `<header class="topbar"><div class="topbar-inner"><a class="brand" href="/" data-link><img src="/assets/mark.svg" alt=""><span>MEDHMAR</span></a>
-  <nav class="nav">${navItems.map(([p,l])=>`<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`).join('')}</nav>
+  <nav class="nav">${visibleNavItems().map(([p,l])=>`<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`).join('')}</nav>
   <div class="nav-actions"><button class="lang-btn" id="lang-toggle">${state.lang==='en'?'EN | AR':'AR | EN'}</button>${accountActions}</div></div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
@@ -37,7 +39,7 @@ function landing(){
 
 const auth = authView;
 
-function home(){ const firstName=state.user?.fullName?.trim().split(/\s+/)[0]||'Guest'; return shell(`${head(`Good morning, ${esc(firstName)} 👋`,'Welcome back to Medhmar. Your integration overview keeps your platform modules in one place.')}${demoNote()}<div class="stats">${[['Challenges','2','1 open'],['Training Logs','18','this month'],['Organizations','3','active'],['Race Cards','3','versions']].map(([a,b,c])=>`<div class="card stat"><div class="stat-label">${a}</div><div class="stat-value">${b}</div><div class="stat-note">${c}</div></div>`).join('')}</div><div class="grid grid-2"><section class="card card-pad"><div class="section-title"><h2>Quick access</h2></div><div class="grid grid-2">${navItems.slice(1,7).map(([p,l])=>`<a class="card card-pad" href="${p}" data-link><strong>${l}</strong><p class="form-help">Open module →</p></a>`).join('')}</div></section><section class="card card-pad"><div class="section-title"><h2>Platform activity</h2></div><div class="timeline"><div class="timeline-item"><h3>Challenge opened</h3><p>Desert Champions Challenge is accepting votes.</p></div><div class="timeline-item"><h3>Race card published</h3><p>Al Bashayer Camel Race v3 is now public.</p></div><div class="timeline-item"><h3>Profile secured</h3><p>Role-aware access is active for this session.</p></div></div></section></div>`,'/home'); }
+function home(){ const firstName=state.user?.fullName?.trim().split(/\s+/)[0]||'Guest'; return shell(`${head(`Good morning, ${esc(firstName)} 👋`,'Welcome back to Medhmar. Your integration overview keeps your platform modules in one place.')}${demoNote()}<div class="stats">${[['Challenges','2','1 open'],['Training Logs','18','this month'],['Organizations','3','active'],['Race Cards','3','versions']].map(([a,b,c])=>`<div class="card stat"><div class="stat-label">${a}</div><div class="stat-value">${b}</div><div class="stat-note">${c}</div></div>`).join('')}</div><div class="grid grid-2"><section class="card card-pad"><div class="section-title"><h2>Quick access</h2></div><div class="grid grid-2">${visibleNavItems().filter(([path])=>path!=='/home').map(([p,l])=>`<a class="card card-pad" href="${p}" data-link><strong>${l}</strong><p class="form-help">Open module →</p></a>`).join('')}</div></section><section class="card card-pad"><div class="section-title"><h2>Platform activity</h2></div><div class="timeline"><div class="timeline-item"><h3>Challenge opened</h3><p>Desert Champions Challenge is accepting votes.</p></div><div class="timeline-item"><h3>Race card published</h3><p>Al Bashayer Camel Race v3 is now public.</p></div><div class="timeline-item"><h3>Profile secured</h3><p>Role-aware access is active for this session.</p></div></div></section></div>`,'/home'); }
 
 function settings(){ return shell(`${head('Profile & Settings','Update your profile and preferred language.')}${demoNote()}<div class="two-pane"><section class="card profile-hero"><div class="profile-avatar">M</div><div><h1>${esc(state.user.fullName)}</h1><p>${esc(state.user.email)}</p><div class="actions">${state.user.roles.map(badge).join('')}</div></div></section><section class="card card-pad"><form id="settings-form" class="form"><div class="field"><label>Full Name</label><input class="input" name="fullName" value="${esc(state.user.fullName)}"></div><div class="field"><label>Preferred Language</label><select class="select" name="preferredLanguage"><option value="en">English</option><option value="ar">العربية</option></select></div><button class="btn btn-primary">Save Changes</button><button class="btn btn-secondary" type="button" id="logout-btn">Sign Out</button></form></section></div>`,'/settings'); }
 
@@ -66,7 +68,20 @@ function challenge(id){
 
 function training(){ return shell(`${head('Training Log','Chronological training history for an active assignment.','<button class="btn btn-primary" id="add-training-btn">+ Add Training Session</button>')}${demoNote()}<div class="two-pane"><section class="card card-pad"><h2>Barq — Training Log</h2><p class="form-help">Agreement #15 • Active training period</p><div class="timeline">${demo.logs.map(l=>`<div class="timeline-item"><h3>${l.type}</h3><p><strong>${l.date}</strong> • ${l.duration} minutes</p><p>${l.notes}</p></div>`).join('')}</div></section><aside class="card card-pad"><h2>Session rules</h2><div class="info-list"><div class="info-row"><span>Agreement</span><strong>ACTIVE</strong></div><div class="info-row"><span>Max duration</span><strong>720 min</strong></div><div class="info-row"><span>History</span><strong>Append-only</strong></div></div></aside></div>`,'/training'); }
 
-function admin(){ return shell(`${head('Admin Dashboard','Manage users, roles and account status without exposing teammate-owned business modules.')}${demoNote()}<div class="stats">${[['Users','2,100','total'],['Active','1,934','accounts'],['Suspended','16','review'],['Roles','5','system']].map(([a,b,c])=>`<div class="card stat"><div class="stat-label">${a}</div><div class="stat-value">${b}</div><div class="stat-note">${c}</div></div>`).join('')}</div><div class="toolbar"><input class="input" placeholder="Search users..."></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>${demo.users.map(u=>`<tr><td><strong>${u.fullName}</strong></td><td>${u.email}</td><td>${u.roles.map(badge).join(' ')}</td><td>${badge(u.status)}</td><td><button class="small-btn manage-user" data-user="${u.userId}">Manage</button></td></tr>`).join('')}</tbody></table></div>`,'/admin'); }
+function admin(page) {
+ if(!canAccessRoute(matchRoute('/admin').route,state.user) || !Array.isArray(state.adminUsers)) return adminDenied();
+ const rows=state.adminUsers.map(u=>`<tr><td><strong>${esc(u.fullName)}</strong></td><td>${esc(u.email)}</td><td>${(u.roles||[]).map(badge).join(' ')}</td><td>${badge(u.accountStatus)}</td><td><button class="small-btn manage-user" data-user="${esc(u.userId)}">Manage</button></td></tr>`).join('');
+ return shell(`${head('Admin Dashboard','Manage registered users and account access.')}<p>${Number(page.totalElements)||0} registered users · Page ${Number(page.page)+1} of ${Math.max(1,Number(page.totalPages)||0)}</p><div class="table-wrap"><table><thead><tr><th>User</th><th>Email</th><th>Roles</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No registered users found.</td></tr>'}</tbody></table></div><div class="actions section"><button class="btn btn-secondary admin-page" data-page="${Math.max(0,page.page-1)}" ${page.page<=0?'disabled':''}>Previous</button><button class="btn btn-secondary admin-page" data-page="${Number(page.page)+1}" ${page.page+1>=page.totalPages?'disabled':''}>Next</button></div>`,'/admin');
+}
+function adminDenied() {
+ return shell('<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available only to administrators.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>');
+}
+function denyAdminAccess() {
+ state.adminUsers=null;
+ if(!state.user?.userId) {
+  history.replaceState({},'', '/signin');root.innerHTML=auth('signin');
+ } else root.innerHTML=adminDenied();
+}
 
 function pedigree(id){ const p=demo.pedigree; return shell(`${head('Pedigree','Camel profile pedigree section only — the core Camel CRUD remains outside Mohammed’s scope.')}<div class="card pedigree-wrap"><div class="pedigree"><div class="pedigree-row"><div class="pedigree-node"><div class="pedigree-label">Camel</div><div class="pedigree-name">${p.camel}</div></div></div><div class="pedigree-row parents"><div class="pedigree-node"><div class="pedigree-label">Sire</div><div class="pedigree-name">${p.sire}</div></div><div class="pedigree-node"><div class="pedigree-label">Dam</div><div class="pedigree-name">${p.dam}</div></div></div><div class="pedigree-row grands">${p.grands.map((x,i)=>`<div class="pedigree-node"><div class="pedigree-label">Grand ${i<2?'Sire/Dam':'Parent'}</div><div class="pedigree-name">${x}</div></div>`).join('')}</div></div></div>`,''); }
 
@@ -88,8 +103,42 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Race Card Public / History UI':raceCards
  }[name] || notFound; }
 
-function render(){ const path=normalizePath(); const match=matchRoute(path); root.innerHTML = match ? screen(match)() : notFound(); document.documentElement.lang=state.lang; document.documentElement.dir=state.lang==='ar'?'rtl':'ltr'; bind(); }
+async function render() {
+ const epoch=++renderEpoch, match=matchRoute(normalizePath());
+ state.adminUsers=null;
+ $('#modal')?.remove();
+ document.documentElement.lang=state.lang;
+ document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
+ if(match && !canAccessRoute(match.route,state.user)) {
+  denyAdminAccess();bind();return;
+ }
+ if(match?.route?.path==='/admin') {
+  root.innerHTML=shell('<section class="card card-pad" role="status">Checking administrator access…</section>');bind();
+  try {
+   const user=await authApi.me();
+   if(epoch!==renderEpoch) return;
+   state.user=user;
+   if(!canAccessRoute(match.route,user)) {denyAdminAccess();bind();return;}
+   const page=await adminApi.users(state.adminPage);
+   if(epoch!==renderEpoch) return;
+   if(!Array.isArray(page?.content)) throw new Error('Unable to load the user list.');
+   state.adminUsers=page.content;
+   root.innerHTML=admin(page);
+  } catch(err) {
+   if(epoch!==renderEpoch) return;
+   state.adminUsers=null;
+   if(err.status===401) {state.user={...guestUser};denyAdminAccess();}
+   else if(err.status===403) {
+    state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN')};
+    denyAdminAccess();
+   } else root.innerHTML=shell('<section class="card error"><h1>Administrator access unavailable</h1><p>Could not verify your access or load users. Please try again.</p><button class="btn btn-primary" id="admin-retry">Retry</button></section>');
+  }
+ } else root.innerHTML=match?screen(match)():notFound();
+ bind();
+}
 function bind(){
+ $('#admin-retry')?.addEventListener('click',()=>render());
+ document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
  document.querySelectorAll('[data-link]').forEach(a=>a.addEventListener('click',e=>{ if(!e.ctrlKey&&!e.metaKey){e.preventDefault();go(a.getAttribute('href'));} }));
  $('#lang-toggle')?.addEventListener('click',()=>{state.lang=state.lang==='en'?'ar':'en';localStorage.setItem('medhmar-lang',state.lang);render();});
@@ -166,7 +215,40 @@ async function handleSettings(e){ e.preventDefault(); const f=Object.fromEntries
 async function handleVote(e){ const b=e.currentTarget; if(!state.user?.userId){toast('Sign in before voting.','error');go('/signin');return;} b.disabled=true; try{await challengeApi.vote(b.dataset.challenge,Number(b.dataset.camel)); const updated=await challengeApi.one(b.dataset.challenge); state.challengeDetail=updated; state.challenges=state.challenges.map(c=>String(c.challengeId)===String(updated.challengeId)?updated:c); toast('Vote recorded successfully.','success'); render();}catch(err){toast(err.message,'error');b.disabled=false;} }
 async function handlePublish(e){ const b=e.currentTarget;b.disabled=true;try{await raceCardApi.publish(b.dataset.race);toast('New immutable race-card version published.','success');}catch(err){toast(`${err.message}. Preview data unchanged.`,'error');b.disabled=false;} }
 function showTrainingModal(){ document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="modal"><div class="modal"><h2>Add Training Session</h2><p>Submit only against an active agreement.</p><form id="training-form" class="form"><div class="field"><label>Agreement ID</label><input class="input" name="agreementId" type="number" value="15" required></div><div class="field"><label>Duration</label><input class="input" name="durationMinutes" type="number" value="45" min="1" max="720" required></div><div class="field"><label>Notes</label><textarea class="textarea" name="notes" required>Endurance training session.</textarea></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-modal">Cancel</button><button class="btn btn-primary">Save</button></div></form></div></div>`); $('#close-modal').onclick=()=>$('#modal').remove(); $('#training-form').onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget));f.agreementId=Number(f.agreementId);f.durationMinutes=Number(f.durationMinutes);f.sessionAt=new Date().toISOString();try{await trainingApi.add(f);toast('Training session saved.','success');$('#modal').remove();}catch(err){toast(err.message,'error');}}; }
-function showUserModal(id){ const u=demo.users.find(x=>String(x.userId)===String(id))||demo.users[0]; document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="modal"><div class="modal"><h2>Manage ${esc(u.fullName)}</h2><p>Role and account status changes are security-sensitive.</p><form id="user-form" class="form"><div class="field"><label>Role</label><select class="select" name="role">${['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(r=>`<option ${u.roles.includes(r)?'selected':''}>${r}</option>`).join('')}</select></div><div class="field"><label>Status</label><select class="select" name="status">${['ACTIVE','INACTIVE','SUSPENDED'].map(s=>`<option ${u.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-modal">Cancel</button><button class="btn btn-primary">Save</button></div></form></div></div>`); $('#close-modal').onclick=()=>$('#modal').remove(); $('#user-form').onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget));try{await adminApi.roles(u.userId,[f.role]);await adminApi.status(u.userId,f.status);toast('User access updated.','success');$('#modal').remove();}catch(err){toast(err.message,'error');}}; }
+function showUserModal(id) {
+ if(!canAccessRoute(matchRoute('/admin').route,state.user) || !Array.isArray(state.adminUsers)) return;
+ const u=state.adminUsers.find(x=>String(x.userId)===String(id));
+ if(!u) return;
+ document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="modal"><div class="modal"><h2>Manage ${esc(u.fullName)}</h2><form id="user-form" class="form"><fieldset class="field"><legend>Roles</legend>${['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(role=>`<label><input type="checkbox" name="roles" value="${role}" ${(u.roles||[]).includes(role)?'checked':''}> ${role}</label>`).join('')}</fieldset><div class="field"><label for="user-status">Status</label><select id="user-status" class="select" name="status">${['ACTIVE','INACTIVE','SUSPENDED'].map(status=>`<option ${u.accountStatus===status?'selected':''}>${status}</option>`).join('')}</select></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-modal">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div></form></div></div>`);
+ $('#close-modal').onclick=()=>$('#modal')?.remove();
+ $('#user-form').onsubmit=async e=>{
+  e.preventDefault();
+  const form=e.currentTarget, data=new FormData(form), roles=data.getAll('roles'), status=data.get('status');
+  const submit=form.querySelector('[type="submit"]'), epoch=renderEpoch;
+  if(submit.disabled) return;
+  if(!roles.length) {toast('Select at least one role.','error');return;}
+  submit.disabled=true;
+  try {
+   const user=await authApi.me();
+   if(epoch!==renderEpoch || !form.isConnected) return;
+   state.user=user;
+   if(!canAccessRoute(matchRoute('/admin').route,user)) {await render();return;}
+   const rolesChanged=JSON.stringify([...roles].sort())!==JSON.stringify([...(u.roles||[])].sort());
+   // Update roles last: changing an account's access revokes its old sessions.
+   if(status!==u.accountStatus) await adminApi.status(u.userId,status);
+   if(rolesChanged) await adminApi.roles(u.userId,roles);
+   toast('User access updated.','success');
+   if(epoch===renderEpoch) {$('#modal')?.remove();await render();}
+  } catch(err) {
+   toast(err.message,'error');
+   if(epoch===renderEpoch && (err.status===401||err.status===403)) {
+    if(err.status===401) state.user={...guestUser};
+    else state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN')};
+    await render();
+   }
+  } finally {submit.disabled=false;}
+ };
+}
 
 async function init(){
  try{state.user=await authApi.me();}catch{state.user={...guestUser};}

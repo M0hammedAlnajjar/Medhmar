@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node --test tests/routes.test.mjs",
-    "test:browser": "node --test tests/routes.test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node --test tests/*.test.mjs",
     "check": "node scripts/check.mjs",
     "format": "prettier --write \"js/**/*.js\" \"assets/*.css\" \"tests/*.mjs\" \"scripts/*.mjs\" \"*.html\" \"*.mjs\" \"*.json\""
   },
@@ -18,3 +18,4 @@
     "prettier": "3.6.2"
   }
 }
+

@@ -54,7 +54,7 @@ export const authApi = {
   forgot: (email) => api("/api/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
   reset: (token, password) => api("/api/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
   logout: () => api("/api/auth/logout", { method: "POST" }),
-  me: () => api("/api/users/me"),
+  me: () => api("/api/users/me", { cache: "no-store" }),
   updateMe: (payload) => api("/api/users/me", { method: "PUT", body: JSON.stringify(payload) }),
 };
 
@@ -66,7 +66,7 @@ export const challengeApi = {
 };
 
 export const adminApi = {
-  users: () => api("/api/admin/users?page=0&size=20"),
+  users: (page = 0) => api(`/api/admin/users?page=${page}&size=20`, { cache: "no-store" }),
   roles: (id, roles) => api(`/api/admin/users/${id}/roles`, { method: "PUT", body: JSON.stringify({ roles }) }),
   status: (id, status) => api(`/api/admin/users/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
 };
