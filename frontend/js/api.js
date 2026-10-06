@@ -57,6 +57,7 @@ export const authApi = {
   logout: () => api("/api/auth/logout", { method: "POST" }),
   me: () => api("/api/users/me"),
   updateMe: (payload) => api("/api/users/me", { method: "PUT", body: JSON.stringify(payload) }),
+  googleUrl: () => `${API_BASE}/oauth2/authorization/google`,
 };
 
 export const challengeApi = {

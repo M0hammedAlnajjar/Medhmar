@@ -488,7 +488,11 @@ function showUserModal(id) {
 }
 
 async function init(){
- try{state.user=await authApi.me();}catch{state.user={...guestUser};}
+ const publicAuthPaths=new Set(['/signin','/signup','/forgot-password','/reset-password']);
+ if(publicAuthPaths.has(normalizePath())) state.user={...guestUser};
+ else {
+  try{state.user=await authApi.me();}catch{state.user={...guestUser};}
+ }
  try{
    const page=await challengeApi.list();
    state.challenges=page?.content||[];
