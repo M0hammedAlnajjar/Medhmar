@@ -443,13 +443,7 @@ function bindAuth() {
   button.setAttribute('aria-label',`${visible?'Hide':'Show'} ${label}`);
  }));
  $('#google-signin')?.addEventListener('click',()=>{
-  if(form.dataset.kind==='signup' && form.elements.role.value!=='VIEWER') {
-   const feedback=$('#auth-feedback');
-   feedback.textContent='Select Fan / Spectator for Google registration. To register as an Owner or Trainer, use Create Account above.';
-   feedback.className='auth-feedback error';feedback.hidden=false;
-   form.elements.role.focus();return;
-  }
-  if(form.dataset.kind==='signup' && !form.elements.terms.reportValidity()) return;
+  // New Google accounts are provisioned as VIEWER (Fan / Spectator) by the backend.
   window.location.assign(authApi.googleUrl());
  });
 }

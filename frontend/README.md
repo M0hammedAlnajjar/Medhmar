@@ -85,9 +85,9 @@ Forms and buttons remain native HTML.
 - “Remember me” remembers only the email on this device; session lifetime is
   controlled by Spring Security. No passwords or tokens are stored locally.
 - Google buttons use the existing `/oauth2/authorization/google` endpoint,
-  which requires backend Google OAuth configuration. Google registration is
-  limited to the selected Fan / Spectator role; Owner/Trainer registration
-  uses the email/password form.
+  which requires backend Google OAuth configuration. New Google accounts are
+  created automatically as Fan / Spectator (VIEWER); Owner/Trainer registration
+  continues to use the email/password form.
 - Password reset reads the token from the emailed URL's fragment (or query),
   and displays an error if it is missing.
 
