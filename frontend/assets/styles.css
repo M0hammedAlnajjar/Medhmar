@@ -264,3 +264,12 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .grid-2,.grid-3,.grid-4,.stats,.form-row{grid-template-columns:1fr}.challenge-vs{grid-template-columns:1fr}.vs{margin:auto}
   .profile-hero{grid-template-columns:1fr;text-align:center}.profile-avatar{margin:auto}.main{padding-top:20px}.tourism-hero{padding:24px}.tourism-hero h1{font-size:30px}
 }
+
+/* Camel & Marketplace scope */
+.subnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subnav a{padding:8px 14px;border:1px solid var(--border);border-radius:999px;font-size:13px;background:var(--surface)}
+.subnav a.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.camel-thumb{display:block;width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:12px;background:var(--surface-2)}
+.pager{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:20px;font-size:13px}
+.pager .small-btn:disabled{opacity:.45;cursor:not-allowed}
+.price{font-size:22px;font-weight:800;color:var(--primary);margin:4px 0 8px}

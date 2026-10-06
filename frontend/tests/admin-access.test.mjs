@@ -6,11 +6,11 @@ import { matchRoute, canAccessRoute } from '../js/routes.js';
 import { demo } from '../js/data.js';
 
 const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8'))
-  .replace(/^import .*;\n/gm, '')
+  .replace(/^import .*;\r?\n/gm, '')
   .replace("window.addEventListener('popstate',render); init();", '');
 
 function harness(user, { me = async () => user, users } = {}) {
-  const root = { innerHTML: '' };
+  const root = { innerHTML: '', addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
@@ -101,3 +101,5 @@ test('late admin responses cannot restore the dashboard after navigation', async
   assert.doesNotMatch(app.root.innerHTML, /Late user|Admin Dashboard/);
   assert.equal(vm.runInContext('state.adminUsers', app.context), null);
 });
+
+
