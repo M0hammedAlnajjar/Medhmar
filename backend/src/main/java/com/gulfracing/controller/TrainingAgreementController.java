@@ -19,8 +19,20 @@ public class TrainingAgreementController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AgreementDtos.View propose(@Valid @RequestBody AgreementDtos.Create request, Authentication auth) {
+    public AgreementDtos.View propose(
+            @Valid @RequestBody AgreementDtos.Create request,
+            Authentication auth
+    ) {
         return agreements.propose(request, AccountAccess.requiredId(auth));
+    }
+
+    @PutMapping("/{id}")
+    public AgreementDtos.View update(
+            @PathVariable Long id,
+            @Valid @RequestBody AgreementDtos.Update request,
+            Authentication auth
+    ) {
+        return agreements.update(id, request, AccountAccess.requiredId(auth));
     }
 
     @GetMapping
@@ -31,6 +43,11 @@ public class TrainingAgreementController {
     @GetMapping("/mine")
     public List<AgreementDtos.View> mine(Authentication auth) {
         return agreements.mine(AccountAccess.requiredId(auth));
+    }
+
+    @GetMapping("/assigned")
+    public List<AgreementDtos.View> assigned(Authentication auth) {
+        return agreements.assigned(AccountAccess.requiredId(auth));
     }
 
     @GetMapping("/{id}")
@@ -44,12 +61,20 @@ public class TrainingAgreementController {
     }
 
     @PostMapping("/{id}/reject")
-    public AgreementDtos.View reject(@PathVariable Long id, Authentication auth) {
-        return agreements.reject(id, AccountAccess.requiredId(auth));
+    public AgreementDtos.View reject(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) AgreementDtos.Reason request,
+            Authentication auth
+    ) {
+        return agreements.reject(id, request, AccountAccess.requiredId(auth));
     }
 
     @PostMapping("/{id}/terminate")
-    public AgreementDtos.View terminate(@PathVariable Long id, Authentication auth) {
-        return agreements.terminate(id, AccountAccess.requiredId(auth));
+    public AgreementDtos.View terminate(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) AgreementDtos.Reason request,
+            Authentication auth
+    ) {
+        return agreements.terminate(id, request, AccountAccess.requiredId(auth));
     }
 }
