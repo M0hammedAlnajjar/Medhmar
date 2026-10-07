@@ -2,8 +2,8 @@ import { access, readFile } from "node:fs/promises";
 
 const required = [
   "index.html", "server.mjs", "package.json",
-  "assets/styles.css", "assets/mark.svg", "assets/racing-hero.webp",
-  "js/app.js", "js/api.js", "js/data.js", "js/routes.js"
+  "assets/styles.css", "assets/race-styles.css", "assets/mark.svg", "assets/racing-hero.webp",
+  "js/app.js", "js/api.js", "js/data.js", "js/routes.js", "js/race-routes.js", "js/race-extra-app.js"
 ];
 
 for (const path of required) await access(path);
@@ -22,7 +22,7 @@ for (const name of requiredNames) {
 }
 
 const forbiddenStandalone = [
-  'path: "/archive"', 'path: "/my-camels"',
+  'path: "/my-camels"',
   'path: "/assigned"'
 ];
 for (const route of forbiddenStandalone) {
@@ -31,6 +31,13 @@ for (const route of forbiddenStandalone) {
 
 for (const name of ["Camels","My Camels","Marketplace","My Listings","Listing History","My Offers","Offer Detail"]) {
   if (!routes.includes(name)) throw new Error(`Missing Camel & Marketplace route: ${name}`);
+}
+
+for (const name of [
+  "Races Listing","Race Archive","Race Details","Race Participants","Race Results",
+  "Race Registration","My Registrations","Organizer Race Dashboard","Add Race","Manage Race"
+]) {
+  if (!routes.includes(name)) throw new Error(`Missing race route: ${name}`);
 }
 await access("js/format.js");
 
