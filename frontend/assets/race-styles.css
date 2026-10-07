@@ -614,3 +614,119 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Final races card layout */
+
+.medhmar-race-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding-top: 14px;
+}
+
+.medhmar-race-row {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 100%;
+    padding: 0;
+    overflow: hidden;
+    background: #fffdfa;
+    border: 1px solid #e7dbcf;
+    border-radius: 12px;
+    box-shadow: 0 2px 9px rgba(58, 39, 27, 0.05);
+}
+
+.medhmar-race-image {
+    width: 100%;
+    height: 160px;
+    border-radius: 0;
+    overflow: hidden;
+    background: #d8c0a4;
+}
+
+.medhmar-race-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.medhmar-race-content {
+    flex: 1;
+    padding: 14px 14px 8px;
+}
+
+.medhmar-race-name-line {
+    display: block;
+    margin-bottom: 9px;
+}
+
+.medhmar-race-name-line h3 {
+    margin: 0;
+    padding-right: 70px;
+    color: #20140d;
+    font-size: 17px;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.medhmar-race-status {
+    position: absolute;
+    top: 136px;
+    right: 12px;
+    z-index: 2;
+    min-height: 23px;
+    padding: 4px 9px;
+    border-radius: 5px;
+}
+
+.medhmar-race-primary-meta,
+.medhmar-race-secondary-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px 13px;
+}
+
+.medhmar-race-primary-meta {
+    margin-bottom: 7px;
+    font-size: 11px;
+}
+
+.medhmar-race-secondary-meta {
+    font-size: 10px;
+}
+
+.medhmar-race-action {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 14px 14px;
+}
+
+.medhmar-view-race {
+    min-height: 35px;
+    padding: 8px 13px;
+    font-size: 11px;
+}
+
+@media (max-width: 1050px) {
+    .medhmar-race-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .medhmar-race-list {
+        grid-template-columns: 1fr;
+    }
+
+    .medhmar-race-image {
+        height: 190px;
+    }
+
+    .medhmar-race-status {
+        top: 166px;
+    }
+}
+
