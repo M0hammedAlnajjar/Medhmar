@@ -57,10 +57,10 @@ const demoNote = () => `<div class="demo-note">Connected screens use the Spring 
 
 function landing(){
  const modules = [
-  ['Secure accounts','Authentication, registration and password recovery.','/signin'],
-  ['Challenges & voting','Published camel challenges with protected voting.','/challenges'],
-  ['Training records','Chronological trainer session logs.','/training'],
-  ['Platform operations','Race cards, organizations, heritage and marketplace.','/race-cards']
+  ['ACCOUNT & ACCESS','Secure accounts','Authentication, registration and password recovery.','/signin','/assets/auth-reference.png','Secure'],
+  ['COMMUNITY','Challenges & voting','Published camel challenges with protected voting.','/challenges','/assets/racing-hero.webp','Live'],
+  ['TRAINER TOOLS','Training records','Chronological trainer session logs.','/training','/assets/landing-hero-wide.png','Training'],
+  ['PLATFORM','Platform operations','Race cards, organizations, heritage and marketplace.','/race-cards','/assets/oman-line.svg','Explore']
  ];
  return '<div class="app-shell landing-page">' + topbar() +
  '<main class="landing-hero" aria-labelledby="landing-title">' +
@@ -78,9 +78,9 @@ function landing(){
  '</section>' +
  '</main>' +
  '<section class="landing-below main" aria-labelledby="landing-modules-title">' +
- '<div class="section-title landing-section-title"><div><div class="kicker">EXPLORE MEDHMAR</div><h2 id="landing-modules-title">Platform Modules</h2></div><span>Everything you need in one place</span></div>' +
- '<div class="grid grid-4 landing-module-grid">' +
- modules.map(([t,d,p],i)=>'<a class="card card-pad landing-module-card" href="'+p+'" data-link><span class="landing-module-number">0'+(i+1)+'</span><h3>'+t+'</h3><p class="form-help">'+d+'</p><span class="landing-module-link">Explore <b>→</b></span></a>').join('') +
+ '<div class="landing-section-head"><div><h2 id="landing-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div><a class="landing-view-all" href="/home" data-link>View all modules <span>→</span></a></div>' +
+ '<div class="landing-module-grid">' +
+ modules.map(([k,t,d,p,img,b],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div><span class="landing-module-arrow" aria-hidden="true">→</span></a>').join('') +
  '</div>' +
  '</section>' +
  '</div>';
