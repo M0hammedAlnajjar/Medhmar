@@ -57,10 +57,10 @@ const demoNote = () => `<div class="demo-note">Connected screens use the Spring 
 
 function landing(){
  const modules = [
-  ['ACCOUNT & ACCESS','Secure accounts','Authentication, registration and password recovery.','/signin','/assets/auth-reference.png','Secure'],
-  ['COMMUNITY','Challenges & voting','Published camel challenges with protected voting.','/challenges','/assets/racing-hero.webp','Live'],
-  ['TRAINER TOOLS','Training records','Chronological trainer session logs.','/training','/assets/landing-hero-wide.png','Training'],
-  ['PLATFORM','Platform operations','Race cards, organizations, heritage and marketplace.','/race-cards','/assets/oman-line.svg','Explore']
+  ['ACCOUNT','Secure accounts','Authentication, registration and passwords for a safe and personalized experience.','/signin','/assets/auth-reference.png','Secure'],
+  ['COMMUNITY','Challenges & voting','Published camel challenges, community voting and leaderboards.','/challenges','/assets/racing-hero.webp','Live'],
+  ['TRAINER TOOLS','Training records','Chronological trainer session logs, performance notes and progress tracking.','/training','/assets/landing-hero-wide.png','Training'],
+  ['PLATFORM','Platform operations','Race cards, organizations, heritage and more to keep Medhmar running smoothly.','/race-cards','/assets/landing-hero-wide.png','Explore']
  ];
  return '<div class="app-shell landing-page">' + topbar() +
  '<main class="landing-hero" aria-labelledby="landing-title">' +
