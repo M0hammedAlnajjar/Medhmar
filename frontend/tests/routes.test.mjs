@@ -43,37 +43,50 @@ test("agreement routes allow trainers to read and accept, while audit routes are
 });
 
 test("does not expose unimplemented teammate-owned standalone modules", () => {
-  for (const path of ["/archive","/my-camels","/assigned"]) {
+  for (const path of ["/my-camels","/assigned"]) {
     assert.equal(matchRoute(path), null);
   }
 });
 
 
 test("race screens are integrated", () => {
-  assert.equal(
-      matchRoute("/races")?.route.name,
-      "Races Listing"
-  );
+  const expected = {
+    "/races": "Races Listing",
+    "/archive": "Race Archive",
+    "/races/1": "Race Details",
+    "/races/1/participants": "Race Participants",
+    "/races/1/results": "Race Results",
+    "/races/1/register": "Race Registration",
+    "/registrations": "My Registrations",
+    "/organizer": "Organizer Race Dashboard",
+    "/organizer/races/new": "Add Race",
+    "/organizer/races/1": "Manage Race",
+  };
 
-  assert.equal(
-      matchRoute("/races/1")?.route.name,
-      "Race Details"
-  );
+  for (const [path, name] of Object.entries(expected)) {
+    assert.equal(matchRoute(path)?.route.name, name, path);
+  }
 
-  assert.equal(
-      matchRoute("/races/1")?.params.id,
-      "1"
-  );
+  assert.equal(matchRoute("/races/1")?.params.id, "1");
+  assert.equal(matchRoute("/races/1/participants")?.params.id, "1");
+  assert.equal(matchRoute("/races/1/results")?.params.id, "1");
+  assert.equal(matchRoute("/races/1/register")?.params.id, "1");
+  assert.equal(matchRoute("/organizer/races/1")?.params.id, "1");
+});
 
-  assert.equal(
-      matchRoute("/races/1/participants")?.route.name,
-      "Race Participants"
-  );
+test("race workflow access follows backend roles", () => {
+  const owner = { userId: 1, roles: ["OWNER"] };
+  const organizer = { userId: 2, roles: ["ORGANIZER"] };
+  const viewer = { userId: 3, roles: ["VIEWER"] };
+  const admin = { userId: 4, roles: ["ADMIN"] };
 
-  assert.equal(
-      matchRoute("/races/1/participants")?.params.id,
-      "1"
-  );
+  assert.equal(canAccessRoute(matchRoute("/races/1/register").route, owner), true);
+  assert.equal(canAccessRoute(matchRoute("/races/1/register").route, viewer), false);
+  assert.equal(canAccessRoute(matchRoute("/registrations").route, owner), true);
+  assert.equal(canAccessRoute(matchRoute("/organizer").route, organizer), true);
+  assert.equal(canAccessRoute(matchRoute("/organizer/races/new").route, organizer), true);
+  assert.equal(canAccessRoute(matchRoute("/organizer/races/1").route, owner), false);
+  assert.equal(canAccessRoute(matchRoute("/organizer/races/1").route, admin), true);
 });
 
 test("Camel & Marketplace routes are registered and owned separately", () => {

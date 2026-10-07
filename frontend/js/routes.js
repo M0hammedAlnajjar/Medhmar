@@ -48,12 +48,7 @@ export const CAMEL_MARKET_ROUTES = [
   { path: "/offers/:id", name: "Offer Detail", owner: "Camel & Marketplace" },
 ];
 
-const INTEGRATED_RACE_ROUTES = SULAIMAN_RACE_ROUTES.filter(
-    route =>
-        route.path === "/races" ||
-        route.path === "/races/:id" ||
-        route.path === "/races/:id/participants"
-);
+const INTEGRATED_RACE_ROUTES = SULAIMAN_RACE_ROUTES;
 
 
 export const ALL_ROUTES = [
