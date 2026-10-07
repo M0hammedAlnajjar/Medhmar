@@ -1,4 +1,7 @@
-import { raceApi } from "./race-api.js";
+import {
+    raceApi,
+    raceEntryApi
+} from "./race-api.js";
 
 const HERO_IMAGE = "/assets/racing-hero.webp";
 
@@ -65,6 +68,86 @@ const DEMO_RACES = [
     }
 ];
 
+
+const DEMO_PARTICIPANTS = {
+    "demo-nizwa": [
+        {
+            entryId: "demo-entry-1",
+            participantNumber: 1,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-nizwa",
+            registrantId: "demo-owner-1",
+            camelId: "demo-camel-1",
+            camelName: "Al Barq",
+            registrantName: "Ahmed Al Hinai",
+            registeredAt: "2026-10-05T08:30:00Z"
+        },
+        {
+            entryId: "demo-entry-2",
+            participantNumber: 2,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-nizwa",
+            registrantId: "demo-owner-2",
+            camelId: "demo-camel-2",
+            camelName: "Shaheen",
+            registrantName: "Khalid Al Balushi",
+            registeredAt: "2026-10-05T09:15:00Z"
+        },
+        {
+            entryId: "demo-entry-3",
+            participantNumber: 3,
+            entryStatus: "PENDING",
+            raceId: "demo-nizwa",
+            registrantId: "demo-owner-3",
+            camelId: "demo-camel-3",
+            camelName: "Al Sahab",
+            registrantName: "Salim Al Busaidi",
+            registeredAt: "2026-10-06T07:45:00Z"
+        }
+    ],
+
+    "demo-salalah": [
+        {
+            entryId: "demo-entry-4",
+            participantNumber: 1,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-salalah",
+            registrantId: "demo-owner-4",
+            camelId: "demo-camel-4",
+            camelName: "Najm",
+            registrantName: "Mohammed Al Rashdi",
+            registeredAt: "2026-10-06T10:00:00Z"
+        },
+        {
+            entryId: "demo-entry-5",
+            participantNumber: 2,
+            entryStatus: "PENDING",
+            raceId: "demo-salalah",
+            registrantId: "demo-owner-5",
+            camelId: "demo-camel-5",
+            camelName: "Al Wathba",
+            registrantName: "Saeed Al Amri",
+            registeredAt: "2026-10-06T11:20:00Z"
+        }
+    ],
+
+    "demo-alwusta": [
+        {
+            entryId: "demo-entry-6",
+            participantNumber: 1,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-alwusta",
+            registrantId: "demo-owner-6",
+            camelId: "demo-camel-6",
+            camelName: "Rimal",
+            registrantName: "Ali Al Kindi",
+            registeredAt: "2026-10-07T06:30:00Z"
+        }
+    ]
+};
+
+
+
 const state = {
     search: "",
     date: "",
@@ -119,6 +202,13 @@ function isDemoRace(raceId) {
 function findDemoRace(raceId) {
     return DEMO_RACES.find(
         race => String(race.raceId) === String(raceId)
+    );
+}
+
+function navigateRacePath(path) {
+    history.pushState({}, "", path);
+    window.dispatchEvent(
+        new PopStateEvent("popstate")
     );
 }
 
@@ -469,7 +559,7 @@ function errorState(container, message) {
         ?.addEventListener(
             "click",
             () => {
-                renderRacesListing(container);
+                navigateRacePath("/races");
             }
         );
 }
@@ -835,9 +925,10 @@ export async function renderRacesListing(container) {
             button.addEventListener(
                 "click",
                 () => {
-                    renderRaceDetails(
-                        container,
-                        button.dataset.viewRace
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(
+                            button.dataset.viewRace
+                        )}`
                     );
                 }
             );
@@ -1215,7 +1306,20 @@ export async function renderRaceDetails(
             ?.addEventListener(
                 "click",
                 () => {
-                    renderRacesListing(container);
+                    navigateRacePath("/races");
+                }
+            );
+
+        container
+            .querySelector("[data-participants]")
+            ?.addEventListener(
+                "click",
+                () => {
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(
+                            raceId
+                        )}/participants`
+                    );
                 }
             );
 
@@ -1224,6 +1328,389 @@ export async function renderRaceDetails(
             container,
             error?.message ||
             "Unable to load race details."
+        );
+    }
+}
+
+
+function participantStatusClass(status) {
+    const value = String(status || "").toUpperCase();
+
+    if (value === "ACCEPTED") {
+        return "accepted";
+    }
+
+    if (value === "PENDING") {
+        return "pending";
+    }
+
+    if (value === "REJECTED") {
+        return "rejected";
+    }
+
+    if (value === "WITHDRAWN") {
+        return "withdrawn";
+    }
+
+    return "neutral";
+}
+
+function participantStatusLabel(status) {
+    return String(status || "UNKNOWN").toUpperCase();
+}
+
+async function getParticipantsForRace(raceId) {
+    if (isDemoRace(raceId)) {
+        return DEMO_PARTICIPANTS[raceId] || [];
+    }
+
+    return raceEntryApi.getForRace(raceId);
+}
+
+export async function renderRaceParticipants(
+    container,
+    raceId
+) {
+    loading(container);
+
+    try {
+        const race = await getRaceById(raceId);
+        const participants =
+            await getParticipantsForRace(raceId);
+
+        const demo = isDemoRace(raceId);
+
+        container.innerHTML = `
+          <section class="medhmar-participants-page">
+
+            <button
+              type="button"
+              class="medhmar-back-races"
+              data-back-race
+            >
+              ← Back to Race
+            </button>
+
+            <div class="medhmar-participants-heading">
+
+              <div>
+
+                <div class="medhmar-detail-title">
+
+                  <h1>
+                    Participants
+                  </h1>
+
+                  <span
+                    class="
+                      medhmar-race-status
+                      ${statusClass(race.status)}
+                    "
+                  >
+                    ${escapeHtml(
+            statusLabel(race.status)
+        )}
+                  </span>
+
+                </div>
+
+                <p>
+                  ${escapeHtml(race.name)}
+                </p>
+
+              </div>
+
+              <div class="medhmar-participant-count">
+                ${participants.length}
+                ${
+            participants.length === 1
+                ? "Participant"
+                : "Participants"
+        }
+              </div>
+
+            </div>
+
+            <div class="medhmar-participants-race-info">
+
+              <div>
+                <span>Date</span>
+                <strong>
+                  ${formatDate(race.startsAt)}
+                </strong>
+              </div>
+
+              <div>
+                <span>Time</span>
+                <strong>
+                  ${formatTime(race.startsAt)}
+                </strong>
+              </div>
+
+              <div>
+                <span>Location</span>
+                <strong>
+                  ${escapeHtml(race.location)}
+                </strong>
+              </div>
+
+              <div>
+                <span>Distance</span>
+                <strong>
+                  ${escapeHtml(race.distanceKm)}
+                  KM
+                </strong>
+              </div>
+
+            </div>
+
+            <div class="medhmar-detail-tabs">
+
+              <button
+                type="button"
+                data-overview
+              >
+                Overview
+              </button>
+
+              <button
+                type="button"
+                class="active"
+              >
+                Participants
+              </button>
+
+              <button
+                type="button"
+                data-results
+              >
+                Results
+              </button>
+
+            </div>
+
+            <section class="medhmar-participants-card">
+
+              <div class="medhmar-participants-card-head">
+
+                <div>
+
+                  <h2>
+                    Race Participants
+                  </h2>
+
+                  <p>
+                    Registered camels and their
+                    participation status.
+                  </p>
+
+                </div>
+
+              </div>
+
+              ${
+            participants.length
+                ? `
+                      <div class="medhmar-participants-table-wrap">
+
+                        <table class="medhmar-participants-table">
+
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Camel</th>
+                              <th>Registrant</th>
+                              <th>Registered</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+
+                            ${participants
+                    .map(
+                        participant => `
+                                      <tr>
+
+                                        <td>
+                                          <strong>
+                                            #${escapeHtml(
+                            participant.participantNumber
+                        )}
+                                          </strong>
+                                        </td>
+
+                                        <td>
+                                          <div class="medhmar-participant-camel">
+
+                                            <div class="medhmar-participant-avatar">
+                                              🐪
+                                            </div>
+
+                                            <div>
+                                              <strong>
+                                                ${escapeHtml(
+                            demo
+                                ? participant.camelName
+                                : `Camel #${participant.camelId}`
+                        )}
+                                              </strong>
+
+                                              <span>
+                                                ID:
+                                                ${escapeHtml(
+                            participant.camelId
+                        )}
+                                              </span>
+                                            </div>
+
+                                          </div>
+                                        </td>
+
+                                        <td>
+                                          <strong>
+                                            ${escapeHtml(
+                            demo
+                                ? participant.registrantName
+                                : `Registrant #${participant.registrantId}`
+                        )}
+                                          </strong>
+                                        </td>
+
+                                        <td>
+                                          ${formatDate(
+                            participant.registeredAt
+                        )}
+                                        </td>
+
+                                        <td>
+                                          <span
+                                            class="
+                                              medhmar-entry-status
+                                              ${participantStatusClass(
+                            participant.entryStatus
+                        )}
+                                            "
+                                          >
+                                            ${escapeHtml(
+                            participantStatusLabel(
+                                participant.entryStatus
+                            )
+                        )}
+                                          </span>
+                                        </td>
+
+                                      </tr>
+                                    `
+                    )
+                    .join("")}
+
+                          </tbody>
+
+                        </table>
+
+                      </div>
+                    `
+                : `
+                      <div class="medhmar-participants-empty">
+
+                        <div class="medhmar-state-icon">
+                          🐪
+                        </div>
+
+                        <h3>
+                          No Participants Yet
+                        </h3>
+
+                        <p>
+                          No camels have been registered
+                          for this race yet.
+                        </p>
+
+                      </div>
+                    `
+        }
+
+            </section>
+
+          </section>
+        `;
+
+        container
+            .querySelector("[data-back-race]")
+            ?.addEventListener(
+                "click",
+                () => {
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(raceId)}`
+                    );
+                }
+            );
+
+        container
+            .querySelector("[data-overview]")
+            ?.addEventListener(
+                "click",
+                () => {
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(raceId)}`
+                    );
+                }
+            );
+
+    } catch (error) {
+        const status = error?.status;
+
+        if (status === 401 || status === 403) {
+            container.innerHTML = `
+              <section class="medhmar-participants-page">
+
+                <button
+                  type="button"
+                  class="medhmar-back-races"
+                  data-back-race
+                >
+                  ← Back to Race
+                </button>
+
+                <div class="medhmar-race-state">
+
+                  <div class="medhmar-state-icon">
+                    !
+                  </div>
+
+                  <h2>
+                    Participants Unavailable
+                  </h2>
+
+                  <p>
+                    You need permission to view
+                    the participants for this race.
+                  </p>
+
+                </div>
+
+              </section>
+            `;
+
+            container
+                .querySelector("[data-back-race]")
+                ?.addEventListener(
+                    "click",
+                    () => {
+                        navigateRacePath(
+                            `/races/${encodeURIComponent(raceId)}`
+                        );
+                    }
+                );
+
+            return;
+        }
+
+        errorState(
+            container,
+            error?.message ||
+            "Unable to load participants."
         );
     }
 }
