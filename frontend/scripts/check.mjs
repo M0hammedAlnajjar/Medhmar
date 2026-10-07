@@ -1,4 +1,11 @@
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+
+// Parse the original modules before checking routes. VM tests strip imports,
+// so invalid syntax on an import line can otherwise pass those tests.
+for (const file of (await readdir("js")).filter(name => name.endsWith(".js"))) {
+  execFileSync(process.execPath, ["--check", `js/${file}`], { stdio: "inherit" });
+}
 
 const required = [
   "index.html", "server.mjs", "package.json",
