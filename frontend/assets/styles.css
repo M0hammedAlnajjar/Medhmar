@@ -16,7 +16,8 @@ img{display:block;max-width:100%}
 .topbar{height:72px;background:var(--primary);color:#fff;position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(255,255,255,.08)}
 .topbar-inner{height:100%;max-width:var(--max);margin:auto;padding:0 24px;display:flex;align-items:center;gap:18px}
 .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;font-weight:800;letter-spacing:.04em}
-.brand img{width:32px;height:26px}
+.brand img{display:block}
+.brand-wordmark img{width:188px;height:44px;object-fit:contain;object-position:left center}
 .nav{display:flex;align-items:center;justify-content:center;gap:2px;flex:1;min-width:0;white-space:nowrap}
 .nav a{color:#e9dfd6;padding:9px 9px;border-radius:9px;font-size:13px}
 .nav a:hover,.nav a.active{background:rgba(255,255,255,.1);color:#fff}
@@ -388,8 +389,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 @media(max-width:640px){
   .topbar{height:64px}
   .topbar-inner{height:64px;flex-wrap:nowrap;padding:0 14px;gap:9px}
-  .brand span{font-size:13px}
-  .brand img{width:27px;height:23px}
+  .brand-wordmark img{width:150px;height:38px}
   .nav-actions{width:auto;justify-content:flex-end;gap:7px}
   .nav-actions .profile-btn{min-height:40px;padding-right:6px}
   .nav-language{min-height:40px}
