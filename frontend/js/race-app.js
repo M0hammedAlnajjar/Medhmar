@@ -10,12 +10,10 @@ const DEMO_RACES = [
         location: "Nizwa, Oman",
         distanceKm: 6,
         status: "SCHEDULED",
-        resultsImageUrl: HERO_IMAGE,
-        organizerId: null,
-        organizationId: null,
         organizerName: "Nizwa Racing Club",
+        category: "Heritage Race",
         trackType: "Sand Track",
-        category: "Heritage Race"
+        coverImage: HERO_IMAGE
     },
     {
         raceId: "demo-salalah",
@@ -24,12 +22,22 @@ const DEMO_RACES = [
         location: "Salalah, Oman",
         distanceKm: 8,
         status: "SCHEDULED",
-        resultsImageUrl: HERO_IMAGE,
-        organizerId: null,
-        organizationId: null,
         organizerName: "Dhofar Racing",
+        category: "Open Race",
         trackType: "Sand Track",
-        category: "Open Race"
+        coverImage: HERO_IMAGE
+    },
+    {
+        raceId: "demo-alwusta",
+        name: "Al Wusta Desert Challenge",
+        startsAt: "2026-11-02T03:00:00Z",
+        location: "Haima, Oman",
+        distanceKm: 7,
+        status: "SCHEDULED",
+        organizerName: "Al Wusta Racing Club",
+        category: "Desert Race",
+        trackType: "Sand Track",
+        coverImage: HERO_IMAGE
     },
     {
         raceId: "demo-muscat",
@@ -38,12 +46,10 @@ const DEMO_RACES = [
         location: "Muscat, Oman",
         distanceKm: 5,
         status: "OPEN",
-        resultsImageUrl: HERO_IMAGE,
-        organizerId: null,
-        organizationId: null,
         organizerName: "Muscat Camel Racing",
+        category: "Sprint Race",
         trackType: "Sand Track",
-        category: "Sprint Race"
+        coverImage: HERO_IMAGE
     },
     {
         raceId: "demo-sohar",
@@ -52,12 +58,10 @@ const DEMO_RACES = [
         location: "Sohar, Oman",
         distanceKm: 7,
         status: "COMPLETED",
-        resultsImageUrl: HERO_IMAGE,
-        organizerId: null,
-        organizationId: null,
         organizerName: "Al Batinah Racing",
+        category: "Heritage Cup",
         trackType: "Sand Track",
-        category: "Heritage Cup"
+        coverImage: HERO_IMAGE
     }
 ];
 
@@ -108,6 +112,16 @@ function dateKey(value) {
     ].join("-");
 }
 
+function isDemoRace(raceId) {
+    return String(raceId).startsWith("demo-");
+}
+
+function findDemoRace(raceId) {
+    return DEMO_RACES.find(
+        race => String(race.raceId) === String(raceId)
+    );
+}
+
 function statusLabel(status) {
     const value = String(status || "").toUpperCase();
 
@@ -144,22 +158,34 @@ function statusClass(status) {
     return "neutral";
 }
 
-function isDemoRace(id) {
-    return String(id).startsWith("demo-");
+function backendOrganizerLabel(race) {
+    if (race.organizerId) {
+        return `Organizer #${race.organizerId}`;
+    }
+
+    return "Organizer";
 }
 
-function findDemoRace(id) {
-    return DEMO_RACES.find(
-        race => String(race.raceId) === String(id)
-    );
+function normalizeBackendRace(race) {
+    return {
+        raceId: race.raceId,
+        name: race.name,
+        startsAt: race.startsAt,
+        location: race.location,
+        distanceKm: race.distanceKm,
+        status: race.status,
+        resultsImageUrl: race.resultsImageUrl,
+        organizerId: race.organizerId,
+        organizationId: race.organizationId,
+        organizerName: backendOrganizerLabel(race),
+        coverImage: HERO_IMAGE
+    };
 }
 
 async function fetchBackendRaces() {
     if (backendLoaded) {
         return backendCache;
     }
-
-    backendLoaded = true;
 
     try {
         let response;
@@ -189,50 +215,47 @@ async function fetchBackendRaces() {
             );
         }
 
-        backendCache = Array.isArray(response)
+        const races = Array.isArray(response)
             ? response
             : response?.content || [];
+
+        backendCache = races.map(normalizeBackendRace);
+        backendLoaded = true;
+
+        return backendCache;
     } catch {
         backendCache = [];
+        return [];
     }
-
-    return backendCache;
 }
 
-async function getRaceById(id) {
-    const demoRace = findDemoRace(id);
+async function getRaceById(raceId) {
+    const demoRace = findDemoRace(raceId);
 
     if (demoRace) {
         return demoRace;
     }
 
+    let race;
+
     if (typeof raceApi.getRaceById === "function") {
-        return raceApi.getRaceById(id);
+        race = await raceApi.getRaceById(raceId);
+    } else if (typeof raceApi.one === "function") {
+        race = await raceApi.one(raceId);
+    } else {
+        throw new Error(
+            "Race details API method is not available."
+        );
     }
 
-    if (typeof raceApi.one === "function") {
-        return raceApi.one(id);
-    }
-
-    throw new Error(
-        "Race details API method is not available."
-    );
+    return normalizeBackendRace(race);
 }
 
 async function getAllRaces() {
     const backendRaces = await fetchBackendRaces();
 
     return [
-        ...backendRaces.map(race => ({
-            ...race,
-            organizerName:
-                race.organizerName ||
-                (
-                    race.organizerId
-                        ? `Organizer #${race.organizerId}`
-                        : "MEDHMAR Organizer"
-                )
-        })),
+        ...backendRaces,
         ...DEMO_RACES
     ];
 }
@@ -249,10 +272,7 @@ function matchesTab(race, tab) {
     }
 
     if (tab === "completed") {
-        return (
-            status === "COMPLETED" ||
-            status === "CLOSED"
-        );
+        return status === "COMPLETED";
     }
 
     return true;
@@ -293,10 +313,13 @@ function filterRaces(races) {
 
         if (
             state.status &&
-            String(race.status).toUpperCase() !==
-            state.status
+            String(race.status).toUpperCase() !== state.status
         ) {
             return false;
+        }
+
+        if (state.status) {
+            return true;
         }
 
         return matchesTab(race, state.tab);
@@ -314,14 +337,10 @@ function raceRow(race, index) {
     <article class="medhmar-race-row">
 
       <div class="medhmar-race-image image-${index % 4}">
-
         <img
-          src="${escapeHtml(
-        race.resultsImageUrl || HERO_IMAGE
-    )}"
+          src="${escapeHtml(race.coverImage || HERO_IMAGE)}"
           alt="${escapeHtml(race.name)}"
         >
-
       </div>
 
       <div class="medhmar-race-content">
@@ -338,9 +357,7 @@ function raceRow(race, index) {
               ${statusClass(race.status)}
             "
           >
-            ${escapeHtml(
-        statusLabel(race.status)
-    )}
+            ${escapeHtml(statusLabel(race.status))}
           </span>
 
         </div>
@@ -374,9 +391,7 @@ function raceRow(race, index) {
           <span>
             <span class="meta-icon">◇</span>
             Organized by
-            ${escapeHtml(
-        race.organizerName
-    )}
+            ${escapeHtml(race.organizerName)}
           </span>
 
         </div>
@@ -388,9 +403,7 @@ function raceRow(race, index) {
         <button
           type="button"
           class="medhmar-view-race"
-          data-view-race="${escapeHtml(
-        race.raceId
-    )}"
+          data-view-race="${escapeHtml(race.raceId)}"
         >
           View Race
           <span>→</span>
@@ -410,7 +423,9 @@ function loading(container) {
 
         <div class="medhmar-race-loader"></div>
 
-        <h2>Loading races...</h2>
+        <h2>
+          Loading races...
+        </h2>
 
       </div>
 
@@ -418,10 +433,7 @@ function loading(container) {
   `;
 }
 
-function errorState(
-    container,
-    message
-) {
+function errorState(container, message) {
     container.innerHTML = `
     <section class="medhmar-races-page">
 
@@ -453,15 +465,11 @@ function errorState(
   `;
 
     container
-        .querySelector(
-            "[data-back-races]"
-        )
+        .querySelector("[data-back-races]")
         ?.addEventListener(
             "click",
             () => {
-                renderRacesListing(
-                    container
-                );
+                renderRacesListing(container);
             }
         );
 }
@@ -475,9 +483,7 @@ export function resetRaceListing() {
     state.page = 0;
 }
 
-export async function renderRacesListing(
-    container
-) {
+export async function renderRacesListing(container) {
     loading(container);
 
     const races = await getAllRaces();
@@ -493,57 +499,41 @@ export async function renderRacesListing(
     const dates = [
         ...new Set(
             races
-                .map(race =>
-                    dateKey(race.startsAt)
-                )
+                .map(race => dateKey(race.startsAt))
                 .filter(Boolean)
         )
     ].sort();
 
-    const filtered =
-        filterRaces(races);
+    const filtered = filterRaces(races);
 
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                filtered.length /
-                state.size
-            )
-        );
+    const totalPages = Math.max(
+        1,
+        Math.ceil(filtered.length / state.size)
+    );
 
-    if (
-        state.page >= totalPages
-    ) {
+    if (state.page >= totalPages) {
         state.page = 0;
     }
 
-    const pageStart =
-        state.page * state.size;
+    const pageStart = state.page * state.size;
 
-    const pageItems =
-        filtered.slice(
-            pageStart,
-            pageStart +
-            state.size
-        );
+    const pageItems = filtered.slice(
+        pageStart,
+        pageStart + state.size
+    );
 
     container.innerHTML = `
     <section class="medhmar-races-page">
 
       <div class="medhmar-races-heading">
-
-        <h1>Races</h1>
-
+        <h1>
+          Races
+        </h1>
       </div>
 
       <div class="medhmar-race-filters">
 
-        <label
-          class="
-            medhmar-race-search
-          "
-        >
+        <label class="medhmar-race-search">
 
           <span>⌕</span>
 
@@ -551,9 +541,7 @@ export async function renderRacesListing(
             type="search"
             id="race-search"
             placeholder="Search races..."
-            value="${escapeHtml(
-        state.search
-    )}"
+            value="${escapeHtml(state.search)}"
           >
 
         </label>
@@ -570,8 +558,7 @@ export async function renderRacesListing(
                 <option
                   value="${value}"
                   ${
-                state.date ===
-                value
+                state.date === value
                     ? "selected"
                     : ""
             }
@@ -586,9 +573,7 @@ export async function renderRacesListing(
 
         </select>
 
-        <select
-          id="race-location"
-        >
+        <select id="race-location">
 
           <option value="">
             Location
@@ -598,19 +583,14 @@ export async function renderRacesListing(
         .map(
             location => `
                 <option
-                  value="${escapeHtml(
-                location
-            )}"
+                  value="${escapeHtml(location)}"
                   ${
-                state.location ===
-                location
+                state.location === location
                     ? "selected"
                     : ""
             }
                 >
-                  ${escapeHtml(
-                location
-            )}
+                  ${escapeHtml(location)}
                 </option>
               `
         )
@@ -636,15 +616,12 @@ export async function renderRacesListing(
                 <option
                   value="${status}"
                   ${
-                state.status ===
-                status
+                state.status === status
                     ? "selected"
                     : ""
             }
                 >
-                  ${statusLabel(
-                status
-            )}
+                  ${statusLabel(status)}
                 </option>
               `
         )
@@ -660,18 +637,14 @@ export async function renderRacesListing(
           type="button"
           data-tab="upcoming"
           class="${
-        state.tab ===
-        "upcoming"
+        state.tab === "upcoming"
             ? "active"
             : ""
     }"
         >
           Upcoming
           <span>
-            ${tabCount(
-        races,
-        "upcoming"
-    )}
+            ${tabCount(races, "upcoming")}
           </span>
         </button>
 
@@ -686,10 +659,7 @@ export async function renderRacesListing(
         >
           Live
           <span>
-            ${tabCount(
-        races,
-        "live"
-    )}
+            ${tabCount(races, "live")}
           </span>
         </button>
 
@@ -697,18 +667,14 @@ export async function renderRacesListing(
           type="button"
           data-tab="completed"
           class="${
-        state.tab ===
-        "completed"
+        state.tab === "completed"
             ? "active"
             : ""
     }"
         >
           Completed
           <span>
-            ${tabCount(
-        races,
-        "completed"
-    )}
+            ${tabCount(races, "completed")}
           </span>
         </button>
 
@@ -721,24 +687,13 @@ export async function renderRacesListing(
             ? pageItems
                 .map(
                     (race, index) =>
-                        raceRow(
-                            race,
-                            index
-                        )
+                        raceRow(race, index)
                 )
                 .join("")
             : `
-              <div
-                class="
-                  medhmar-race-state
-                "
-              >
+              <div class="medhmar-race-state">
 
-                <div
-                  class="
-                    medhmar-state-icon
-                  "
-                >
+                <div class="medhmar-state-icon">
                   🏁
                 </div>
 
@@ -747,8 +702,8 @@ export async function renderRacesListing(
                 </h2>
 
                 <p>
-                  Try changing your
-                  search or filters.
+                  Try changing your search
+                  or filters.
                 </p>
 
               </div>
@@ -760,11 +715,7 @@ export async function renderRacesListing(
       ${
         totalPages > 1
             ? `
-            <div
-              class="
-                medhmar-race-pagination
-              "
-            >
+            <div class="medhmar-race-pagination">
 
               <button
                 type="button"
@@ -788,8 +739,7 @@ export async function renderRacesListing(
                 type="button"
                 data-page-next
                 ${
-                state.page + 1 >=
-                totalPages
+                state.page + 1 >= totalPages
                     ? "disabled"
                     : ""
             }
@@ -808,156 +758,113 @@ export async function renderRacesListing(
     let searchTimer;
 
     container
-        .querySelector(
-            "#race-search"
-        )
+        .querySelector("#race-search")
         ?.addEventListener(
             "input",
             event => {
-                clearTimeout(
-                    searchTimer
+                clearTimeout(searchTimer);
+
+                searchTimer = setTimeout(
+                    () => {
+                        state.search =
+                            event.target.value.trim();
+
+                        state.page = 0;
+
+                        renderRacesListing(container);
+                    },
+                    250
                 );
-
-                searchTimer =
-                    setTimeout(
-                        () => {
-                            state.search =
-                                event.target.value
-                                    .trim();
-
-                            state.page = 0;
-
-                            renderRacesListing(
-                                container
-                            );
-                        },
-                        250
-                    );
             }
         );
 
     container
-        .querySelector(
-            "#race-date"
-        )
+        .querySelector("#race-date")
         ?.addEventListener(
             "change",
             event => {
-                state.date =
-                    event.target.value;
-
+                state.date = event.target.value;
                 state.page = 0;
 
-                renderRacesListing(
-                    container
-                );
+                renderRacesListing(container);
             }
         );
 
     container
-        .querySelector(
-            "#race-location"
-        )
+        .querySelector("#race-location")
         ?.addEventListener(
             "change",
             event => {
-                state.location =
-                    event.target.value;
-
+                state.location = event.target.value;
                 state.page = 0;
 
-                renderRacesListing(
-                    container
-                );
+                renderRacesListing(container);
             }
         );
 
     container
-        .querySelector(
-            "#race-status"
-        )
+        .querySelector("#race-status")
         ?.addEventListener(
             "change",
             event => {
-                state.status =
-                    event.target.value;
-
+                state.status = event.target.value;
                 state.page = 0;
 
-                renderRacesListing(
-                    container
-                );
+                renderRacesListing(container);
             }
         );
 
     container
-        .querySelectorAll(
-            "[data-tab]"
-        )
+        .querySelectorAll("[data-tab]")
         .forEach(button => {
             button.addEventListener(
                 "click",
                 () => {
-                    state.tab =
-                        button.dataset.tab;
-
+                    state.tab = button.dataset.tab;
+                    state.status = "";
                     state.page = 0;
 
-                    renderRacesListing(
-                        container
-                    );
+                    renderRacesListing(container);
                 }
             );
         });
 
     container
-        .querySelectorAll(
-            "[data-view-race]"
-        )
+        .querySelectorAll("[data-view-race]")
         .forEach(button => {
             button.addEventListener(
                 "click",
                 () => {
                     renderRaceDetails(
                         container,
-                        button.dataset
-                            .viewRace
+                        button.dataset.viewRace
                     );
                 }
             );
         });
 
     container
-        .querySelector(
-            "[data-page-prev]"
-        )
+        .querySelector("[data-page-prev]")
         ?.addEventListener(
             "click",
             () => {
-                state.page =
-                    Math.max(
-                        0,
-                        state.page - 1
-                    );
-
-                renderRacesListing(
-                    container
+                state.page = Math.max(
+                    0,
+                    state.page - 1
                 );
+
+                renderRacesListing(container);
             }
         );
 
     container
-        .querySelector(
-            "[data-page-next]"
-        )
+        .querySelector("[data-page-next]")
         ?.addEventListener(
             "click",
             () => {
                 state.page += 1;
 
-                renderRacesListing(
-                    container
-                );
+                renderRacesListing(container);
             }
         );
 }
@@ -969,60 +876,126 @@ export async function renderRaceDetails(
     loading(container);
 
     try {
-        const race =
-            await getRaceById(
-                raceId
-            );
+        const race = await getRaceById(raceId);
+        const demo = isDemoRace(race.raceId);
+
+        const information = demo
+            ? `
+        <div>
+          <span>
+            Category
+          </span>
+
+          <strong>
+            ${escapeHtml(race.category)}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Track Type
+          </span>
+
+          <strong>
+            ${escapeHtml(race.trackType)}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Organizer
+          </span>
+
+          <strong>
+            ${escapeHtml(race.organizerName)}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Location
+          </span>
+
+          <strong>
+            ${escapeHtml(race.location)}
+          </strong>
+        </div>
+      `
+            : `
+        <div>
+          <span>
+            Race ID
+          </span>
+
+          <strong>
+            #${escapeHtml(race.raceId)}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Organizer ID
+          </span>
+
+          <strong>
+            #${escapeHtml(race.organizerId)}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Organization
+          </span>
+
+          <strong>
+            ${
+                race.organizationId
+                    ? `#${escapeHtml(race.organizationId)}`
+                    : "Independent"
+            }
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Location
+          </span>
+
+          <strong>
+            ${escapeHtml(race.location)}
+          </strong>
+        </div>
+      `;
 
         container.innerHTML = `
-      <section
-        class="
-          medhmar-race-details
-        "
-      >
+      <section class="medhmar-race-details">
 
         <button
           type="button"
-          class="
-            medhmar-back-races
-          "
+          class="medhmar-back-races"
           data-back-races
         >
           ← Back to Races
         </button>
 
-        <div
-          class="
-            medhmar-detail-heading
-          "
-        >
+        <div class="medhmar-detail-heading">
 
           <div>
 
-            <div
-              class="
-                medhmar-detail-title
-              "
-            >
+            <div class="medhmar-detail-title">
 
               <h1>
-                ${escapeHtml(
-            race.name
-        )}
+                ${escapeHtml(race.name)}
               </h1>
 
               <span
                 class="
                   medhmar-race-status
-                  ${statusClass(
-            race.status
-        )}
+                  ${statusClass(race.status)}
                 "
               >
                 ${escapeHtml(
-            statusLabel(
-                race.status
-            )
+            statusLabel(race.status)
         )}
               </span>
 
@@ -1030,10 +1003,8 @@ export async function renderRaceDetails(
 
             <p>
               ${
-            isDemoRace(
-                race.raceId
-            )
-                ? "Demo Race"
+            demo
+                ? "Sample Race"
                 : `Race #${escapeHtml(
                     race.raceId
                 )}`
@@ -1043,14 +1014,13 @@ export async function renderRaceDetails(
           </div>
 
           ${
-            race.status ===
-            "OPEN"
+            !demo &&
+            race.status === "OPEN"
                 ? `
                 <button
                   type="button"
-                  class="
-                    medhmar-view-race
-                  "
+                  class="medhmar-view-race"
+                  data-register-race
                 >
                   Register Camel
                 </button>
@@ -1060,61 +1030,54 @@ export async function renderRaceDetails(
 
         </div>
 
-        <div
-          class="
-            medhmar-detail-hero
-          "
-        >
+        <div class="medhmar-detail-hero">
 
           <img
             src="${escapeHtml(
-            race.resultsImageUrl ||
-            HERO_IMAGE
+            race.coverImage || HERO_IMAGE
         )}"
-            alt="${escapeHtml(
-            race.name
-        )}"
+            alt="${escapeHtml(race.name)}"
           >
 
-          <div
-            class="
-              medhmar-detail-hero-meta
-            "
-          >
+          <div class="medhmar-detail-hero-meta">
 
             <div>
-              <span>Date</span>
+              <span>
+                Date
+              </span>
+
               <strong>
-                ${formatDate(
-            race.startsAt
-        )}
+                ${formatDate(race.startsAt)}
               </strong>
             </div>
 
             <div>
-              <span>Time</span>
+              <span>
+                Time
+              </span>
+
               <strong>
-                ${formatTime(
-            race.startsAt
-        )}
+                ${formatTime(race.startsAt)}
               </strong>
             </div>
 
             <div>
-              <span>Location</span>
+              <span>
+                Location
+              </span>
+
               <strong>
-                ${escapeHtml(
-            race.location
-        )}
+                ${escapeHtml(race.location)}
               </strong>
             </div>
 
             <div>
-              <span>Distance</span>
+              <span>
+                Distance
+              </span>
+
               <strong>
-                ${escapeHtml(
-            race.distanceKm
-        )}
+                ${escapeHtml(race.distanceKm)}
                 KM
               </strong>
             </div>
@@ -1123,11 +1086,7 @@ export async function renderRaceDetails(
 
         </div>
 
-        <div
-          class="
-            medhmar-detail-tabs
-          "
-        >
+        <div class="medhmar-detail-tabs">
 
           <button
             type="button"
@@ -1136,123 +1095,95 @@ export async function renderRaceDetails(
             Overview
           </button>
 
-          <button type="button">
+          <button
+            type="button"
+            data-participants
+          >
             Participants
           </button>
 
-          <button type="button">
+          <button
+            type="button"
+            data-results
+          >
             Results
           </button>
 
         </div>
 
-        <div
-          class="
-            medhmar-detail-layout
-          "
-        >
+        <div class="medhmar-detail-layout">
 
-          <div
-            class="
-              medhmar-detail-main
-            "
-          >
+          <div class="medhmar-detail-main">
 
-            <article
-              class="
-                medhmar-detail-card
-              "
-            >
+            <article class="medhmar-detail-card">
 
               <h2>
                 About the Race
               </h2>
 
               <p>
-                ${escapeHtml(
-            race.name
-        )}
-                is a MEDHMAR camel
-                race taking place at
-                ${escapeHtml(
-            race.location
-        )}
+                ${escapeHtml(race.name)}
+                is a MEDHMAR camel race
+                taking place at
+                ${escapeHtml(race.location)}
                 over a distance of
-                ${escapeHtml(
-            race.distanceKm
-        )}
+                ${escapeHtml(race.distanceKm)}
                 KM.
               </p>
 
             </article>
 
-            <div
-              class="
-                medhmar-detail-grid
-              "
-            >
+            <div class="medhmar-detail-grid">
 
-              <article
-                class="
-                  medhmar-detail-card
-                "
-              >
+              <article class="medhmar-detail-card">
+
                 <span>
                   Start Date
                 </span>
+
                 <strong>
-                  ${formatDate(
-            race.startsAt
-        )}
+                  ${formatDate(race.startsAt)}
                 </strong>
+
               </article>
 
-              <article
-                class="
-                  medhmar-detail-card
-                "
-              >
+              <article class="medhmar-detail-card">
+
                 <span>
                   Start Time
                 </span>
+
                 <strong>
-                  ${formatTime(
-            race.startsAt
-        )}
+                  ${formatTime(race.startsAt)}
                 </strong>
+
               </article>
 
-              <article
-                class="
-                  medhmar-detail-card
-                "
-              >
+              <article class="medhmar-detail-card">
+
                 <span>
                   Distance
                 </span>
+
                 <strong>
-                  ${escapeHtml(
-            race.distanceKm
-        )}
+                  ${escapeHtml(race.distanceKm)}
                   KM
                 </strong>
+
               </article>
 
-              <article
-                class="
-                  medhmar-detail-card
-                "
-              >
+              <article class="medhmar-detail-card">
+
                 <span>
                   Status
                 </span>
+
                 <strong>
                   ${escapeHtml(
-            statusLabel(
-                race.status
-            )
+            statusLabel(race.status)
         )}
                 </strong>
+
               </article>
 
             </div>
@@ -1270,48 +1201,7 @@ export async function renderRaceDetails(
               Race Information
             </h3>
 
-            <div>
-              <span>Category</span>
-              <strong>
-                ${escapeHtml(
-            race.category ||
-            "Camel Race"
-        )}
-              </strong>
-            </div>
-
-            <div>
-              <span>Track Type</span>
-              <strong>
-                ${escapeHtml(
-            race.trackType ||
-            "Sand Track"
-        )}
-              </strong>
-            </div>
-
-            <div>
-              <span>Organizer</span>
-              <strong>
-                ${escapeHtml(
-            race.organizerName ||
-            (
-                race.organizerId
-                    ? `Organizer #${race.organizerId}`
-                    : "MEDHMAR"
-            )
-        )}
-              </strong>
-            </div>
-
-            <div>
-              <span>Location</span>
-              <strong>
-                ${escapeHtml(
-            race.location
-        )}
-              </strong>
-            </div>
+            ${information}
 
           </aside>
 
@@ -1321,15 +1211,11 @@ export async function renderRaceDetails(
     `;
 
         container
-            .querySelector(
-                "[data-back-races]"
-            )
+            .querySelector("[data-back-races]")
             ?.addEventListener(
                 "click",
                 () => {
-                    renderRacesListing(
-                        container
-                    );
+                    renderRacesListing(container);
                 }
             );
 
