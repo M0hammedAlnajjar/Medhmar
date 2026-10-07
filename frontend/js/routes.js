@@ -1,3 +1,5 @@
+import { SULAIMAN_RACE_ROUTES } from "./race-routes.js";
+
 export const MOHAMMED_ROUTES = [
   { path: "/", name: "Landing / Entry Page", owner: "Mohammed" },
   { path: "/signin", name: "Sign In", owner: "Mohammed" },
@@ -38,7 +40,19 @@ export const CAMEL_MARKET_ROUTES = [
   { path: "/offers/:id", name: "Offer Detail", owner: "Camel & Marketplace" },
 ];
 
-export const ALL_ROUTES = [...CAMEL_MARKET_ROUTES, ...MOHAMMED_ROUTES];
+const INTEGRATED_RACE_ROUTES = SULAIMAN_RACE_ROUTES.filter(
+    route =>
+        route.path === "/races" ||
+        route.path === "/races/:id"
+);
+
+
+export const ALL_ROUTES = [
+  ...CAMEL_MARKET_ROUTES,
+  ...INTEGRATED_RACE_ROUTES,
+  ...MOHAMMED_ROUTES
+];
+
 
 export function normalizePath() {
   if (location.hash?.startsWith("#/")) return location.hash.slice(1);

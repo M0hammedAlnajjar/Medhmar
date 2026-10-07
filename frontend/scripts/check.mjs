@@ -21,7 +21,7 @@ for (const name of requiredNames) {
 }
 
 const forbiddenStandalone = [
-  'path: "/races"', 'path: "/archive"', 'path: "/my-camels"',
+  'path: "/archive"', 'path: "/my-camels"',
   'path: "/agreements"', 'path: "/assigned"'
 ];
 for (const route of forbiddenStandalone) {
