@@ -61,9 +61,9 @@ function landing(){
  '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span><img class="landing-landscape" src="/assets/oman-line.svg" alt="" aria-hidden="true"></div>' +
  '</section>' +
  '<section class="landing-visual" aria-label="Camel race in Oman">' +
- '<img class="landing-race-photo" src="/assets/racing-hero.webp" alt="Racing camels on an Omani track at golden hour" fetchpriority="high" decoding="async">' +
+ '<img class="landing-race-photo" src="/assets/landing-hero-wide.png" alt="Racing camels on an Omani track at golden hour" fetchpriority="high" decoding="async">' +
  '<div class="landing-photo-wash" aria-hidden="true"></div>' +
- '<aside class="landing-track-card"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2026&nbsp; · &nbsp;Al Seeb, Oman</span></div><a href="/race-cards" data-link class="landing-track-arrow" aria-label="Open race cards">→</a></aside>' +
+ '<aside class="landing-track-card"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2024&nbsp; · &nbsp;Al Seeb, Oman</span></div><a href="/race-cards" data-link class="landing-track-arrow" aria-label="Open race cards">→</a></aside>' +
  '</section>' +
  '</main>' +
  '<section class="landing-below main" aria-labelledby="landing-modules-title">' +
