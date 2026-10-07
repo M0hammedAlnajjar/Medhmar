@@ -61,7 +61,7 @@ function topbar(active=''){
   const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu">${items.map(navLink).join('')}</div></details>`;
 
   return `<header class="topbar"><div class="topbar-inner">
-    <a class="brand" href="/" data-link><img src="/assets/mark.svg" alt=""><span>MEDHMAR</span></a>
+    <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
     <nav class="nav nav-desktop" aria-label="Primary navigation">${primaryItems.map(navLink).join('')}${moreMenu}</nav>
     <div class="nav-actions" dir="ltr">${accountActions}<div class="nav-language" role="group" aria-label="Language"><button class="nav-language-option" type="button" data-language="ar" aria-label="العربية" aria-pressed="${state.lang==='ar'}" lang="ar">AR</button><button class="nav-language-option" type="button" data-language="en" aria-label="English" aria-pressed="${state.lang==='en'}" lang="en">EN</button></div></div>
     ${mobileMenu}
