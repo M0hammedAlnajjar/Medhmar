@@ -72,39 +72,39 @@ img{display:block;max-width:100%}
 /* Premium Medhmar landing page: editorial heritage panel + cinematic racing panel. */
 .landing-page{background:#f5efe6}
 .landing-page .topbar{box-shadow:none;border-bottom:0}
-.landing-hero{height:min(68svh,680px);min-height:560px;max-height:680px;display:grid;grid-template-columns:minmax(430px,39%) minmax(0,61%);overflow:hidden;background:#f5efe6;color:#2e2119;direction:ltr;text-align:left;border-top:8px solid #f5efe6}
-.landing-editorial{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(28px,3vw,48px) clamp(28px,3.5vw,58px) clamp(24px,2.8vw,42px);background:linear-gradient(145deg,#fbf8f2 0%,#f5eee3 100%);box-shadow:20px 0 44px rgba(45,29,18,.08)}
+.landing-hero{height:min(72svh,720px);min-height:610px;max-height:720px;display:grid;grid-template-columns:minmax(500px,38.5%) minmax(0,61.5%);overflow:hidden;background:#f8f3eb;color:#2e2119;direction:ltr;text-align:left;border-top:6px solid #f8f3eb}
+.landing-editorial{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(36px,3.2vw,58px) clamp(38px,3.6vw,64px) clamp(28px,2.5vw,42px);background:linear-gradient(145deg,#fffdf9 0%,#f7f0e6 100%);box-shadow:18px 0 38px rgba(45,29,18,.055)}
 .landing-brandline{display:flex;align-items:flex-start;gap:18px;color:#8e5d38}
 .landing-rule{width:42px;height:1px;background:#a96b3d;margin-top:17px;flex:0 0 auto}
 .landing-wordmark{font-family:Georgia,"Times New Roman",serif;font-size:clamp(16px,1.35vw,23px);font-weight:700;letter-spacing:.34em;color:#4a3020}
 .landing-eyebrow{margin-top:6px;font-size:clamp(8px,.62vw,11px);font-weight:800;letter-spacing:.27em;color:#a06a43}
-.landing-copy{max-width:650px;margin:auto 0}
-.landing-copy h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(44px,4.15vw,72px);font-weight:500;line-height:.94;letter-spacing:-.052em;color:#2d211a}
+.landing-copy{max-width:610px;margin:auto 0}
+.landing-copy h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(52px,4.65vw,82px);font-weight:500;line-height:.95;letter-spacing:-.055em;color:#2d211a}
 .landing-copy h1 em{display:inline-block;color:#a96935;font-weight:500}
-.landing-copy p{margin:clamp(16px,1.5vw,24px) 0 0;max-width:520px;color:#716861;font-size:clamp(13px,.92vw,17px);line-height:1.5}
-.landing-hero-actions{display:flex;gap:14px;margin-top:clamp(18px,1.8vw,28px);max-width:560px}
-.landing-primary,.landing-secondary{min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-radius:7px;padding:0 20px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(14px,.9vw,16px);font-weight:700}
+.landing-copy p{margin:clamp(18px,1.6vw,26px) 0 0;max-width:520px;color:#6f6862;font-size:clamp(14px,.95vw,18px);line-height:1.5}
+.landing-hero-actions{display:flex;gap:16px;margin-top:clamp(22px,2vw,32px);max-width:575px}
+.landing-primary,.landing-secondary{min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-radius:7px;padding:0 24px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(15px,.98vw,18px);font-weight:700}
 .landing-primary{flex:1;background:#3b271b;color:#fffaf3;border:1px solid #3b271b;box-shadow:0 9px 22px rgba(59,39,27,.14)}
 .landing-primary:hover{background:#281b13;transform:translateY(-1px)}
 .landing-secondary{flex:1.12;background:rgba(255,255,255,.28);color:#38271d;border:1px solid #cda77f}
 .landing-secondary:hover{background:#fff9ef;border-color:#b77c48}
-.landing-circle-arrow{width:38px;height:38px;border:1px solid #b77c48;border-radius:50%;display:grid;place-items:center;color:#a76636;font-family:Arial,sans-serif;font-size:20px;flex:0 0 auto}
-.landing-signature{display:flex;align-items:center;gap:8px;color:#8a7666;font-size:clamp(6px,.42vw,8px);font-weight:800;letter-spacing:.18em;white-space:nowrap}
+.landing-circle-arrow{width:44px;height:44px;border:1px solid #b77c48;border-radius:50%;display:grid;place-items:center;color:#a76636;font-family:Arial,sans-serif;font-size:21px;flex:0 0 auto}
+.landing-signature{display:flex;align-items:center;gap:9px;color:#877468;font-size:clamp(6px,.43vw,8px);font-weight:800;letter-spacing:.19em;white-space:nowrap}
 .landing-signature b{color:#a98465;font-weight:500}
 .landing-signature-line{width:32px;height:1px;background:#a96b3d;margin-right:3px;flex:0 0 auto}
-.landing-landscape{margin-left:auto;width:170px;height:38px;object-fit:contain;object-position:right center;opacity:.78;flex:0 0 auto}
-.landing-visual{position:relative;min-width:0;overflow:hidden;border-radius:90px 0 0 90px;background:#b47a47;box-shadow:-18px 0 38px rgba(56,35,21,.11)}
-.landing-race-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%;transform:scale(1.015)}
+.landing-landscape{margin-left:auto;width:185px;height:42px;object-fit:contain;object-position:right center;opacity:.82;flex:0 0 auto}
+.landing-visual{position:relative;min-width:0;overflow:hidden;border-radius:112px 0 0 112px;background:#c18a57;box-shadow:-14px 0 34px rgba(56,35,21,.08)}
+.landing-race-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:scale(1.005)}
 .landing-photo-wash{position:absolute;inset:0;background:linear-gradient(90deg,rgba(76,45,25,.13),transparent 24%,transparent 70%,rgba(119,67,31,.05)),linear-gradient(180deg,transparent 62%,rgba(60,34,20,.18))}
-.landing-track-card{position:absolute;right:clamp(16px,2vw,32px);bottom:clamp(16px,2vw,30px);width:min(350px,43%);min-width:285px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 15px 16px 20px;background:rgba(255,250,242,.96);border:1px solid rgba(207,169,130,.72);border-radius:10px;box-shadow:0 18px 45px rgba(54,32,19,.16);backdrop-filter:blur(10px)}
+.landing-track-card{position:absolute;right:clamp(20px,2.1vw,38px);bottom:clamp(20px,2.1vw,34px);width:min(385px,44%);min-width:315px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:19px 17px 19px 24px;background:rgba(255,250,242,.97);border:1px solid rgba(207,169,130,.7);border-radius:9px;box-shadow:0 16px 38px rgba(54,32,19,.14);backdrop-filter:blur(8px)}
 .landing-track-card>div{min-width:0}
 .landing-track-kicker{font-size:9px;letter-spacing:.22em;font-weight:900;color:#b47a4c;margin-bottom:8px}
 .landing-track-card strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:clamp(18px,1.4vw,24px);color:#35251b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .landing-track-card span{display:block;margin-top:6px;color:#7a7068;font-size:12px}
-.landing-track-arrow{width:42px;height:42px;border:1px solid #b87842;border-radius:50%;display:grid;place-items:center;color:#a96632;font-size:20px;flex:0 0 auto}
+.landing-track-arrow{width:48px;height:48px;border:1px solid #b87842;border-radius:50%;display:grid;place-items:center;color:#a96632;font-size:22px;flex:0 0 auto}
 .landing-track-arrow:hover{background:#3b271b;color:#fff;border-color:#3b271b}
 @media(max-width:1100px){
- .landing-hero{grid-template-columns:minmax(360px,44%) minmax(0,56%);min-height:540px}
+ .landing-hero{grid-template-columns:minmax(400px,43%) minmax(0,57%);min-height:560px}
  .landing-editorial{padding:34px 32px 30px}
  .landing-copy h1{font-size:clamp(48px,6vw,68px)}
  .landing-signature span:nth-of-type(n+3),.landing-signature b:nth-of-type(n+2){display:none}
