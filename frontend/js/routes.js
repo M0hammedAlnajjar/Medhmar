@@ -51,7 +51,8 @@ export const CAMEL_MARKET_ROUTES = [
 const INTEGRATED_RACE_ROUTES = SULAIMAN_RACE_ROUTES.filter(
     route =>
         route.path === "/races" ||
-        route.path === "/races/:id"
+        route.path === "/races/:id" ||
+        route.path === "/races/:id/participants"
 );
 
 

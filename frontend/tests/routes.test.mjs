@@ -64,6 +64,16 @@ test("race screens are integrated", () => {
       matchRoute("/races/1")?.params.id,
       "1"
   );
+
+  assert.equal(
+      matchRoute("/races/1/participants")?.route.name,
+      "Race Participants"
+  );
+
+  assert.equal(
+      matchRoute("/races/1/participants")?.params.id,
+      "1"
+  );
 });
 
 test("Camel & Marketplace routes are registered and owned separately", () => {

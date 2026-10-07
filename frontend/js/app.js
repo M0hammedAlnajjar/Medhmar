@@ -1,4 +1,4 @@
-import { renderRacesListing, renderRaceDetails } from "./race-app.js";
+import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { authView } from './auth-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
@@ -468,7 +468,8 @@ async function render() {
 
     if (
         match?.route?.name === "Races Listing" ||
-        match?.route?.name === "Race Details"
+        match?.route?.name === "Race Details" ||
+        match?.route?.name === "Race Participants"
     ) {
         root.innerHTML = shell(
             '<div id="race-view"></div>',
@@ -479,8 +480,13 @@ async function render() {
 
         if (match.route.name === "Races Listing") {
             await renderRacesListing(raceView);
-        } else {
+        } else if (match.route.name === "Race Details") {
             await renderRaceDetails(
+                raceView,
+                match.params.id
+            );
+        } else {
+            await renderRaceParticipants(
                 raceView,
                 match.params.id
             );
