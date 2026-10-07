@@ -71,8 +71,8 @@ img{display:block;max-width:100%}
 .hero .btn-secondary{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25)}
 /* Premium Medhmar landing page: editorial heritage panel + cinematic racing panel. */
 .landing-page{background:#f5efe6}
-.landing-page .topbar{box-shadow:none}
-.landing-hero{height:min(68svh,680px);min-height:560px;max-height:680px;display:grid;grid-template-columns:minmax(430px,39%) minmax(0,61%);overflow:hidden;background:#f5efe6;color:#2e2119;direction:ltr;text-align:left}
+.landing-page .topbar{box-shadow:none;border-bottom:0}
+.landing-hero{height:min(68svh,680px);min-height:560px;max-height:680px;display:grid;grid-template-columns:minmax(430px,39%) minmax(0,61%);overflow:hidden;background:#f5efe6;color:#2e2119;direction:ltr;text-align:left;border-top:8px solid #f5efe6}
 .landing-editorial{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(28px,3vw,48px) clamp(28px,3.5vw,58px) clamp(24px,2.8vw,42px);background:linear-gradient(145deg,#fbf8f2 0%,#f5eee3 100%);box-shadow:20px 0 44px rgba(45,29,18,.08)}
 .landing-brandline{display:flex;align-items:flex-start;gap:18px;color:#8e5d38}
 .landing-rule{width:42px;height:1px;background:#a96b3d;margin-top:17px;flex:0 0 auto}
