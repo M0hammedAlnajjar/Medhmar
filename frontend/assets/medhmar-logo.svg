@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 52" role="img" aria-labelledby="title desc">
+  <title id="title">MEDHMAR</title>
+  <desc id="desc">Medhmar Oman camel racing logo</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E0B46D"/>
+      <stop offset="1" stop-color="#B67A3F"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(2 4)">
+    <path d="M2 33C11 29 18 28 26 28C32 20 37 13 44 9C49 6 54 8 58 12L62 16C65 18 69 17 73 13L77 8L75 5L79 6L83 5L87 8L91 9L89 13L83 14C80 21 76 26 72 30C66 36 57 38 49 37C42 36 36 33 30 31C22 29 14 31 2 36Z" fill="url(#gold)"/>
+    <path d="M2 38C13 35 21 35 30 35C39 36 46 40 55 41C63 42 70 40 78 35" fill="none" stroke="url(#gold)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M8 42C20 40 28 40 37 41C45 42 51 44 59 44C66 44 72 42 79 39" fill="none" stroke="#D4A373" stroke-width="1.7" stroke-linecap="round" opacity=".8"/>
+  </g>
+  <g transform="translate(99 9)">
+    <text x="0" y="20" fill="#FFF8EE" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="700" letter-spacing="1.8">MEDHMAR</text>
+    <line x1="0" y1="27" x2="17" y2="27" stroke="#C99152" stroke-width="1"/>
+    <text x="23" y="30" fill="#D5AE7A" font-family="Arial, sans-serif" font-size="5.8" font-weight="700" letter-spacing="2.1">OMAN CAMEL RACING</text>
+  </g>
+</svg>
