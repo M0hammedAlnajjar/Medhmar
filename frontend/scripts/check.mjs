@@ -20,7 +20,7 @@ const raceRoutes = await readFile("js/race-routes.js", "utf8");
 const requiredNames = [
   "Landing / Entry Page","Sign In","Create Account","Forgot Password","Reset Password",
   "Home / Overview","Settings / User Profile","Trainer Profile","Challenges",
-  "Challenge Detail + Voting","Training Log","Admin Dashboard","Pedigree Section",
+  "Challenge Detail + Voting","Training Log","Admin Dashboard","Pedigree Section","Edit Pedigree",
   "Race Card Publish Control","Organizations UI","Tourism / Cultural Content UI",
   "Race Card Public / History UI", "Training Agreements", "Training Agreement Details",
   "Audit Logs", "Audit Log Details"
