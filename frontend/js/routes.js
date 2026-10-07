@@ -22,6 +22,7 @@ export const MOHAMMED_ROUTES = [
   { path: "/audit-logs/:id", name: "Audit Log Details", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/admin", name: "Admin Dashboard", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/camels/:id", name: "Pedigree Section", owner: "Mohammed" },
+  { path: "/camels/:id/pedigree/edit", name: "Edit Pedigree", owner: "Mohammed", roles: ["OWNER", "ADMIN"] },
   { path: "/organizer/races/:id/race-card", name: "Race Card Publish Control", owner: "Mohammed" },
   { path: "/organizations", name: "Organizations UI", owner: "Mohammed" },
   { path: "/tourism", name: "Tourism / Cultural Content UI", owner: "Mohammed" },
