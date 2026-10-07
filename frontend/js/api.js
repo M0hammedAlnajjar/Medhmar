@@ -110,6 +110,23 @@ export const trainingApi = {
   add: (payload) => api("/api/training-logs", { method: "POST", body: JSON.stringify(payload) }),
 };
 
+export const agreementApi = {
+  list: () => api("/api/agreements"),
+  mine: () => api("/api/agreements/mine"),
+  one: (id) => api(`/api/agreements/${encodeURIComponent(id)}`),
+  add: (payload) => api("/api/agreements", { method: "POST", body: JSON.stringify(payload) }),
+  update: (id, payload) => api(`/api/agreements/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(payload) }),
+  accept: (id) => api(`/api/agreements/${encodeURIComponent(id)}/accept`, { method: "POST" }),
+};
+
+export const auditLogApi = {
+  list: () => api("/audit-log/getAll"),
+  one: (id) => api(`/audit-log/getById?id=${encodeURIComponent(id)}`),
+  add: (payload) => api("/audit-log/add", { method: "POST", body: JSON.stringify(payload) }),
+  update: (payload) => api("/audit-log/update", { method: "PUT", body: JSON.stringify(payload) }),
+  remove: (id) => api(`/audit-log/deleteById?id=${encodeURIComponent(id)}`, { method: "DELETE" }),
+};
+
 export const pedigreeApi = {
   tree: (camelId) => api(`/camel/${camelId}/pedigree/tree`),
 };

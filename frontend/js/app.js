@@ -2,7 +2,7 @@ import { renderRacesListing, renderRaceDetails } from "./race-app.js";
 import { authView } from './auth-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi } from './api.js';
+import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 
 const $ = (s, el=document) => el.querySelector(s);
@@ -30,6 +30,8 @@ const navItems = [
     ['/home','Home'],
     ['/challenges','Challenges'],
     ['/training','Training'],
+    ['/agreements','Agreements'],
+    ['/audit-logs','Audit log'],
     ['/organizations','Organizations'],
     ['/tourism','Heritage'],
     ['/races','Races'],
@@ -131,6 +133,11 @@ function denyAdminAccess() {
   history.replaceState({},'', '/signin');root.innerHTML=auth('signin');
  } else root.innerHTML=adminDenied();
 }
+function denyRoleAccess(route) {
+ if(!state.user?.userId) { history.replaceState({},'', '/signin');root.innerHTML=auth('signin');return; }
+ const roles=(route?.roles||[]).map(role=>role.toLowerCase()).join(' or ');
+ root.innerHTML=shell(`<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available to ${esc(roles)} accounts.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>`);
+}
 
 function pedigree(id){ const p=demo.pedigree; return shell(`${head('Pedigree','Camel profile pedigree section only — the core Camel CRUD remains outside Mohammed’s scope.')}<div class="card pedigree-wrap"><div class="pedigree"><div class="pedigree-row"><div class="pedigree-node"><div class="pedigree-label">Camel</div><div class="pedigree-name">${p.camel}</div></div></div><div class="pedigree-row parents"><div class="pedigree-node"><div class="pedigree-label">Sire</div><div class="pedigree-name">${p.sire}</div></div><div class="pedigree-node"><div class="pedigree-label">Dam</div><div class="pedigree-name">${p.dam}</div></div></div><div class="pedigree-row grands">${p.grands.map((x,i)=>`<div class="pedigree-node"><div class="pedigree-label">Grand ${i<2?'Sire/Dam':'Parent'}</div><div class="pedigree-name">${x}</div></div>`).join('')}</div></div></div>`,''); }
 
@@ -147,6 +154,10 @@ const sb = s => `<span class="badge ${statusTone(s)}">${esc(s ?? '—')}</span>`
 const qparams = () => Object.fromEntries(new URLSearchParams(location.search));
 const signedIn = () => Boolean(state.user?.userId);
 const isAdmin = () => hasAnyRole(state.user, 'ADMIN');
+const canManageAgreements = () => isAdmin() || hasAnyRole(state.user, 'OWNER');
+const canAcceptAgreement = agreement => hasAnyRole(state.user, 'TRAINER')
+  && String(state.user?.userId) === String(agreement?.trainerUserId)
+  && agreement?.status === 'PENDING_APPROVAL';
 const blankView = () => ({ key: '', status: 'idle', data: null, error: null });
 const refresh = () => { state.view = blankView(); render(); };
 const needAuth = () => { if (!signedIn()) throw Object.assign(new Error('Sign in to continue.'), { status: 401 }); };
@@ -157,6 +168,14 @@ async function camelMap(ids) {
 }
 
 const loaders = {
+  'Training Agreements': async () => ({ agreements: isAdmin() ? await agreementApi.list() : await agreementApi.mine() }),
+  'Add Training Agreement': async () => ({}),
+  'Training Agreement Details': async p => ({ agreement: await agreementApi.one(p.id) }),
+  'Edit Training Agreement': async p => ({ agreement: await agreementApi.one(p.id) }),
+  'Audit Logs': async () => ({ logs: await auditLogApi.list() }),
+  'Add Audit Log': async () => ({}),
+  'Audit Log Details': async p => ({ log: await auditLogApi.one(p.id) }),
+  'Edit Audit Log': async p => ({ log: await auditLogApi.one(p.id) }),
   'Camels': async () => { const q = qparams(); return { q, page: await camelApi.list({ page: q.page || 0, size: 12, search: q.search, gender: q.gender, breed: q.breed, category: q.category, status: q.status }) }; },
   'My Camels': async () => { needAuth(); return { camels: await camelApi.mine() }; },
   'Add Camel': async () => { needAuth(); return {}; },
@@ -226,6 +245,19 @@ const camelPhoto = c => isHttpUrl(c?.photoUrl) ? `<img class="camel-thumb" src="
 const row = (l, v) => `<div class="info-row"><span>${l}</span><strong>${v}</strong></div>`;
 const pager = pg => pg.totalPages > 1 ? `<div class="pager"><button class="small-btn" data-act="page" data-page="${pg.page - 1}" ${pg.page <= 0 ? 'disabled' : ''}>← Previous</button><span>Page ${pg.page + 1} of ${pg.totalPages} • ${pg.totalElements} results</span><button class="small-btn" data-act="page" data-page="${pg.page + 1}" ${pg.page + 1 >= pg.totalPages ? 'disabled' : ''}>Next →</button></div>` : '';
 const opts = (list, cur, any) => `${any ? `<option value="">${any}</option>` : ''}${list.map(x => `<option ${x === cur ? 'selected' : ''}>${x}</option>`).join('')}`;
+
+// ---- TrainingAgreement and auditLog entity screens ----
+const agreementStatuses = ['DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','REJECTED','TERMINATED','COMPLETED','EXPIRED'];
+const isoInput = value => { if(!value) return ''; const d=new Date(value); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
+const agreementForm = (a = {}, edit = false) => `<form class="form card card-pad entity-form" data-form="agreement-${edit?'edit':'add'}" data-id="${esc(a.agreementId||'')}">
+<h2>Participants & schedule</h2>${!edit?`<div class="form-row"><div class="field"><label for="agreement-camel">Camel ID <span class="required">*</span></label><input id="agreement-camel" class="input" name="camelId" type="number" min="1" required placeholder="e.g. 204" value="${esc(a.camelId||'')}"></div><div class="field"><label for="agreement-trainer">Trainer user ID <span class="required">*</span></label><input id="agreement-trainer" class="input" name="trainerUserId" type="number" min="1" required placeholder="Trainer account ID" value="${esc(a.trainerUserId||'')}"></div></div>`:`<div class="form-row">${row('Camel',`#${esc(a.camelId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}</div>`}
+<div class="form-row"><div class="field"><label for="agreement-start">Start date <span class="required">*</span></label><input id="agreement-start" class="input" name="startsAt" type="datetime-local" required value="${isoInput(a.startsAt)}"></div><div class="field"><label for="agreement-end">End date <span class="required">*</span></label><input id="agreement-end" class="input" name="endsAt" type="datetime-local" required value="${isoInput(a.endsAt)}"></div></div>
+<h2>Compensation</h2><div class="form-row"><div class="field"><label for="agreement-fee">Training fee (OMR) <span class="required">*</span></label><input id="agreement-fee" class="input" name="feeOmr" type="number" min="0" step="0.001" required placeholder="0.000" value="${esc(a.feeOmr??'')}"></div><div class="field"><label for="agreement-prize">Prize share (%) <span class="required">*</span></label><input id="agreement-prize" class="input" name="prizeSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.prizeSharePct??'')}"></div></div><div class="field"><label for="agreement-sale">Sale share (%) <span class="required">*</span></label><input id="agreement-sale" class="input" name="saleSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.saleSharePct??'')}"></div><div class="field"><label for="agreement-terms">Terms</label><textarea id="agreement-terms" class="textarea" name="terms" maxlength="5000" placeholder="Describe the training arrangement and expectations">${esc(a.terms||'')}</textarea><span class="form-help">Optional · up to 5,000 characters</span></div><div class="form-feedback" aria-live="polite"></div><div class="modal-actions"><a class="btn btn-secondary" href="${edit?`/agreements/${esc(a.agreementId)}`:'/agreements'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${edit?'Save Changes':'Create Agreement'}</button></div></form>`;
+const auditForm = (a = {}, edit = false) => `<form class="form card card-pad entity-form" data-form="audit-${edit?'edit':'add'}" data-id="${esc(a.auditId||'')}"><h2>Audit event details</h2><div class="form-row"><div class="field"><label for="audit-action">Action type <span class="required">*</span></label><input id="audit-action" class="input" name="actionType" required maxlength="50" placeholder="e.g. CREATED" value="${esc(a.actionType||'')}"></div><div class="field"><label for="audit-type">Entity type <span class="required">*</span></label><input id="audit-type" class="input" name="entityType" required maxlength="50" placeholder="e.g. TrainingAgreement" value="${esc(a.entityType||'')}"></div></div><div class="form-row"><div class="field"><label for="audit-entity-id">Entity ID <span class="required">*</span></label><input id="audit-entity-id" class="input" name="entityId" type="number" min="1" required placeholder="Related record ID" value="${esc(a.entityId||'')}"></div><div class="field"><label for="audit-camel-id">Camel ID <span class="required">*</span></label><input id="audit-camel-id" class="input" name="camelId" type="number" min="1" required placeholder="Related camel ID" value="${esc(a.camelId||'')}"></div></div><div class="field"><label for="audit-description">Description</label><textarea id="audit-description" class="textarea" name="description" placeholder="Additional context for this event">${esc(a.description||'')}</textarea></div>${edit?`<p class="form-help">Recorded ${fmtDate(a.createdAt)} · audit timestamp is server managed</p>`:''}<div class="form-feedback" aria-live="polite"></div><div class="modal-actions"><a class="btn btn-secondary" href="${edit?`/audit-logs/${esc(a.auditId)}`:'/audit-logs'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${edit?'Save Changes':'Create Audit Entry'}</button></div></form>`;
+const agreementScreen = () => scr('/agreements', '', 'Training Agreements', d => { const q=qparams(), all=d.agreements||[], filtered=all.filter(a=>(!q.search||`${a.agreementId} ${a.camelId} ${a.trainerUserId} ${a.ownerUserId}`.toLowerCase().includes(q.search.toLowerCase()))&&(!q.status||a.status===q.status));filtered.sort((a,b)=>q.sort==='oldest'?Number(a.agreementId)-Number(b.agreementId):Number(b.agreementId)-Number(a.agreementId)); return {title:'Training Agreements',sub:'Manage camel training terms, participants and active periods.',actions:canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>+ Add Agreement</a>':'',body:`<form class="toolbar" data-form="agreement-filter"><input class="input" name="search" aria-label="Search agreements" placeholder="Search camel, trainer or agreement ID" value="${esc(q.search||'')}"><select class="select" name="status" aria-label="Filter by status">${opts(agreementStatuses,q.status,'All statuses')}</select><select class="select" name="sort" aria-label="Sort agreements"><option value="newest" ${q.sort!=='oldest'?'selected':''}>Newest first</option><option value="oldest" ${q.sort==='oldest'?'selected':''}>Oldest first</option></select><button type="submit" class="btn btn-primary">Filter</button></form>${filtered.length?`<div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Camel</th><th>Trainer</th><th>Period</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>${filtered.map(a=>`<tr><td><strong>#${esc(a.agreementId)}</strong></td><td>#${esc(a.camelId)}</td><td>#${esc(a.trainerUserId)}</td><td>${fmtDate(a.startsAt)} – ${fmtDate(a.endsAt)}</td><td>${fmtOmr(a.feeOmr)}</td><td>${sb(a.status)}</td><td class="table-actions"><a class="small-btn" href="/agreements/${a.agreementId}" data-link>View</a>${canAcceptAgreement(a)?`<button class="small-btn" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="small-btn" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyCard('No agreements found','No training agreements match this search or status.',canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>Add Agreement</a>':'')}`}; });
+const agreementDetailScreen = () => scr('/agreements','','Agreement details',d=>{const a=d.agreement;return {title:`Agreement #${esc(a.agreementId)}`,sub:'Training arrangement and lifecycle details.',actions:`${canAcceptAgreement(a)?`<button class="btn btn-primary" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept Agreement</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="btn btn-secondary" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}<a class="btn btn-ghost" href="/agreements" data-link>Back to Agreements</a>`,body:`<div class="grid grid-2"><section class="card card-pad"><h2>Participants & schedule</h2><div class="info-list">${row('Status',sb(a.status))}${row('Owner',`#${esc(a.ownerUserId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Starts',fmtDate(a.startsAt))}${row('Ends',fmtDate(a.endsAt))}${row('Proposed',fmtDate(a.proposedAt))}${row('Responded',fmtDate(a.respondedAt))}</div></section><section class="card card-pad"><h2>Compensation</h2><div class="info-list">${row('Training fee',fmtOmr(a.feeOmr))}${row('Prize share',`${esc(a.prizeSharePct)}%`)}${row('Sale share',`${esc(a.saleSharePct)}%`)}</div></section><section class="card card-pad"><h2>Terms</h2><p class="entity-copy">${esc(a.terms||'No additional terms recorded.')}</p></section><section class="card card-pad"><h2>Lifecycle</h2><div class="info-list">${row('Accepted',fmtDate(a.acceptedAt))}${row('Completed',fmtDate(a.completedAt))}${row('Expired',fmtDate(a.expiredAt))}${row('Terminated',fmtDate(a.terminatedAt))}${row('Rejection reason',esc(a.rejectionReason||'—'))}${row('Termination reason',esc(a.terminationReason||'—'))}</div></section></div>`};});
+const auditScreen = () => scr('/audit-logs','','Audit logs',d=>{const q=qparams(), all=d.logs||[], filtered=all.filter(a=>(!q.search||`${a.auditId} ${a.actionType} ${a.entityType} ${a.entityId} ${a.camelId} ${a.description||''}`.toLowerCase().includes(q.search.toLowerCase()))&&(!q.actionType||a.actionType===q.actionType));filtered.sort((a,b)=>q.sort==='oldest'?new Date(a.createdAt)-new Date(b.createdAt):new Date(b.createdAt)-new Date(a.createdAt));const actions=[...new Set(all.map(a=>a.actionType).filter(Boolean))];return {title:'Audit log',sub:'A traceable history of platform events and related camel records.',actions:'<a class="btn btn-primary" href="/audit-logs/new" data-link>+ Add Audit Entry</a>',body:`<form class="toolbar" data-form="audit-filter"><input class="input" name="search" aria-label="Search audit logs" placeholder="Search event, entity or description" value="${esc(q.search||'')}"><select class="select" name="actionType">${opts(actions,q.actionType,'All actions')}</select><select class="select" name="sort" aria-label="Sort audit entries"><option value="newest" ${q.sort!=='oldest'?'selected':''}>Newest first</option><option value="oldest" ${q.sort==='oldest'?'selected':''}>Oldest first</option></select><button class="btn btn-primary">Filter</button></form>${filtered.length?`<div class="table-wrap"><table><thead><tr><th>Event</th><th>Action</th><th>Entity</th><th>Camel</th><th>Recorded</th><th>Actions</th></tr></thead><tbody>${filtered.map(a=>`<tr><td><strong>#${esc(a.auditId)}</strong></td><td>${esc(a.actionType)}</td><td>${esc(a.entityType)} #${esc(a.entityId)}</td><td>#${esc(a.camelId)}</td><td>${fmtDate(a.createdAt)}</td><td class="table-actions"><a class="small-btn" href="/audit-logs/${a.auditId}" data-link>View</a><a class="small-btn" href="/audit-logs/${a.auditId}/edit" data-link>Edit</a><button class="small-btn" data-act="delete-audit" data-id="${esc(a.auditId)}">Delete</button></td></tr>`).join('')}</tbody></table></div>`:emptyCard('No audit entries','There are no audit entries matching the current filters.','<a class="btn btn-primary" href="/audit-logs/new" data-link>Add Audit Entry</a>')}`};});
+const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{const a=d.log;return {title:`Audit entry #${esc(a.auditId)}`,sub:`${esc(a.actionType)} · ${esc(a.entityType)} #${esc(a.entityId)}`,actions:`<a class="btn btn-secondary" href="/audit-logs/${a.auditId}/edit" data-link>Edit</a><a class="btn btn-ghost" href="/audit-logs" data-link>Back to Audit Log</a>`,body:`<section class="card card-pad"><h2>Event information</h2><div class="info-list">${row('Action type',esc(a.actionType))}${row('Entity type',esc(a.entityType))}${row('Entity ID',`#${esc(a.entityId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Recorded',fmtDate(a.createdAt))}</div><h2 class="entity-subhead">Description</h2><p class="entity-copy">${esc(a.description||'No description recorded.')}</p></section>`};});
 
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
@@ -324,6 +356,12 @@ const mineScreens = () => ({
   'Camels': camelsScreen, 'My Camels': myCamelsScreen, 'Add Camel': addCamelScreen, 'Camel Profile': camelProfileScreen, 'Edit Camel': editCamelScreen,
   'Camel Ownership History': ownershipScreen, 'Marketplace': marketScreen, 'Create Listing': createListingScreen, 'My Listings': myListingsScreen,
   'Listing History': historyScreen, 'Listing Detail': listingScreen, 'Edit Listing': editListingScreen, 'My Offers': myOffersScreen, 'Offer Detail': offerScreen,
+  'Training Agreements': agreementScreen, 'Add Training Agreement': () => scr('/agreements','','Add Training Agreement',()=>({title:'Create Training Agreement',sub:'Set the terms for a camel and trainer partnership.',body:agreementForm()})),
+  'Edit Training Agreement': () => scr('/agreements','','Edit Training Agreement',d=>({title:`Edit Agreement #${esc(d.agreement.agreementId)}`,sub:'Only pending agreements can be updated.',body:agreementForm(d.agreement,true)})),
+  'Training Agreement Details': agreementDetailScreen, 'Audit Logs': auditScreen,
+  'Add Audit Log': () => scr('/audit-logs','','Add Audit Entry',()=>({title:'Create Audit Entry',sub:'Record an event associated with a camel and platform entity.',body:auditForm()})),
+  'Edit Audit Log': () => scr('/audit-logs','','Edit Audit Entry',d=>({title:`Edit Audit Entry #${esc(d.log.auditId)}`,sub:'Update the recorded event details.',body:auditForm(d.log,true)})),
+  'Audit Log Details': auditDetailScreen,
 });
 
 // ---- Modals, forms and actions (delegated once on #app) ----
@@ -343,8 +381,15 @@ async function onMineSubmit(e) {
   const form = e.target.closest?.('form[data-form]'); if (!form) return;
   e.preventDefault();
   const kind = form.dataset.form, id = form.dataset.id, f = Object.fromEntries(new FormData(form)), btn = form.querySelector('[type=submit]');
-  if (kind === 'camel-filter') return go('/camels' + buildQuery(f));
-  if (kind === 'market-filter') return go('/marketplace' + buildQuery(f));
+    if (kind === 'agreement-add' || kind === 'agreement-edit') {
+    const start=form.elements.startsAt, end=form.elements.endsAt;
+    end.setCustomValidity(start.value && end.value && end.value <= start.value ? 'End date must be after the start date.' : '');
+    if (!form.reportValidity()) return;
+  }
+    if (kind === 'camel-filter') return go('/camels' + buildQuery(f));
+    if (kind === 'market-filter') return go('/marketplace' + buildQuery(f));
+    if (kind === 'agreement-filter') return go('/agreements' + buildQuery(f));
+    if (kind === 'audit-filter') return go('/audit-logs' + buildQuery(f));
   if (btn) btn.disabled = true;
   try {
     if (kind === 'camel-add') { const newId = await camelApi.add(toCamelPayload(f)); toast('Camel registered.', 'success'); go(`/camels/${newId}/profile`); }
@@ -353,6 +398,16 @@ async function onMineSubmit(e) {
     else if (kind === 'listing-edit') { await marketplaceApi.update(toListingPayload(f, id)); toast('Listing updated.', 'success'); go(`/marketplace/${id}`); }
     else if (kind === 'offer-add') { await offerApi.add(toOfferCreatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer submitted.', 'success'); go('/offers'); }
     else if (kind === 'offer-edit') { await offerApi.update(toOfferUpdatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer updated.', 'success'); refresh(); }
+    else if (kind === 'agreement-add' || kind === 'agreement-edit') {
+      const payload={feeOmr:Number(f.feeOmr),prizeSharePct:Number(f.prizeSharePct),saleSharePct:Number(f.saleSharePct),startsAt:new Date(f.startsAt).toISOString(),endsAt:new Date(f.endsAt).toISOString(),terms:f.terms||null};
+      if(kind==='agreement-add') { payload.camelId=Number(f.camelId);payload.trainerUserId=Number(f.trainerUserId);await agreementApi.add(payload);toast('Training agreement proposed.','success');go('/agreements'); }
+      else { await agreementApi.update(id,payload);toast('Training agreement updated.','success');go(`/agreements/${id}`); }
+    }
+    else if (kind === 'audit-add' || kind === 'audit-edit') {
+      const payload={actionType:f.actionType.trim(),entityType:f.entityType.trim(),entityId:Number(f.entityId),camelId:Number(f.camelId),description:f.description||null};
+      if(kind==='audit-add') { await auditLogApi.add(payload);toast('Audit entry created.','success');go('/audit-logs'); }
+      else { payload.auditId=Number(id);await auditLogApi.update(payload);toast('Audit entry updated.','success');go(`/audit-logs/${id}`); }
+    }
   } catch (err) { failure(err); if (btn) btn.disabled = false; }
 }
 function onMineClick(e) {
@@ -362,6 +417,8 @@ function onMineClick(e) {
   if (act === 'page') return go(withQuery({ page }));
   if (act === 'make-offer') return signedIn() ? offerModal('add', listing, price) : (toast('Sign in to make an offer.', 'error'), go('/signin'));
   if (act === 'edit-offer') return offerModal('edit', id, price);
+  if (act === 'accept-agreement') return confirmModal('Accept training agreement?', `Accept agreement #${esc(id)} and begin the training period?`, 'Accept agreement', false, async () => { await agreementApi.accept(id);toast('Training agreement accepted.','success');refresh(); });
+  if (act === 'delete-audit') return confirmModal('Delete audit entry?', `Audit entry #${esc(id)} will be permanently removed.`, 'Delete entry', true, async () => { await auditLogApi.remove(id);toast('Audit entry deleted.','success');refresh(); });
   if (act === 'delete-camel') return confirmModal('Delete camel?', `This removes ${esc(el.dataset.name)} from the registry. Only the full owner can do this.`, 'Delete', true, async () => { await camelApi.remove(id); toast('Camel deleted.', 'success'); go('/camels/my'); });
   if (act === 'cancel-listing') return confirmModal('Cancel listing?', 'The listing will be removed from the marketplace. A sold listing cannot be cancelled.', 'Cancel listing', true, async () => { await marketplaceApi.cancel(id); toast('Listing cancelled.', 'success'); el.dataset.back ? go('/marketplace/my-listings') : refresh(); });
   if (act === 'withdraw-offer') return confirmModal('Withdraw offer?', 'Only pending offers can be withdrawn.', 'Withdraw', true, async () => { await offerApi.withdraw(id); toast('Offer withdrawn.', 'success'); location.pathname.startsWith('/offers/') ? go('/offers') : refresh(); });
@@ -377,7 +434,9 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Landing / Entry Page':landing,
  'Sign In':()=>auth('signin'),'Create Account':()=>auth('signup'),'Forgot Password':()=>auth('forgot'),'Reset Password':()=>auth('reset'),
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
- 'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Admin Dashboard':admin,'Pedigree Section':()=>pedigree(p.id),
+ 'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
+ 'Audit Logs':auditScreen,'Add Audit Log':()=>mineScreens()[name](),'Edit Audit Log':()=>mineScreens()[name](),'Audit Log Details':auditDetailScreen,
+ 'Admin Dashboard':admin,'Pedigree Section':()=>pedigree(p.id),
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
@@ -391,7 +450,8 @@ async function render() {
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
  if(match && !canAccessRoute(match.route,state.user)) {
-  denyAdminAccess();bind();return;
+  if(match.route.path==='/admin') denyAdminAccess(); else denyRoleAccess(match.route);
+  bind();return;
  }
 
     if (
