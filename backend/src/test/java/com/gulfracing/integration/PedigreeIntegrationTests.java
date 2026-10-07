@@ -20,9 +20,17 @@ class PedigreeIntegrationTests extends IntegrationSupport {
         users.updateRoles(owner.userId(), Set.of("OWNER"));
         MockHttpSession session = login(owner.email());
 
-        long sire = createCamel(session, "Thunder", "MALE", "2010-01-01T00:00:00Z", Map.of());
+        long grandsire = createCamel(session, "Storm", "MALE", "2000-01-01T00:00:00Z",
+                Map.of("photoUrl", "https://example.com/storm.jpg"));
+        long sire = createCamel(session, "Thunder", "MALE", "2010-01-01T00:00:00Z",
+                Map.of("photoUrl", "https://example.com/thunder.jpg"));
         long dam = createCamel(session, "Dawn", "FEMALE", "2011-01-01T00:00:00Z", Map.of());
-        long child = createCamel(session, "Falcon", "MALE", "2020-01-01T00:00:00Z", Map.of());
+        long child = createCamel(session, "Falcon", "MALE", "2020-01-01T00:00:00Z",
+                Map.of("photoUrl", "https://example.com/falcon.jpg"));
+
+        mvc.perform(put("/camel/" + sire + "/pedigree").session(session).with(csrf())
+                        .contentType("application/json").content(payload(Map.of("sireCamelId", grandsire))))
+                .andExpect(status().isOk());
 
         var created = mvc.perform(put("/camel/" + child + "/pedigree")
                         .session(session).with(csrf()).contentType("application/json")
@@ -57,6 +65,10 @@ class PedigreeIntegrationTests extends IntegrationSupport {
         assertThat(tree.get("sire").get("camelId").asLong()).isEqualTo(sire);
         assertThat(tree.get("dam").get("camelId").asLong()).isEqualTo(dam);
         assertThat(tree.get("sire").get("name").asText()).isEqualTo("Thunder");
+        assertThat(tree.get("photoUrl").asText()).isEqualTo("https://example.com/falcon.jpg");
+        assertThat(tree.get("sire").get("photoUrl").asText()).isEqualTo("https://example.com/thunder.jpg");
+        assertThat(tree.get("sire").get("sire").get("photoUrl").asText()).isEqualTo("https://example.com/storm.jpg");
+        assertThat(tree.get("dam").get("photoUrl").isNull()).isTrue();
 
         mvc.perform(get("/camel/" + child + "/pedigree/tree").param("generations", "0"))
                 .andExpect(status().isBadRequest());

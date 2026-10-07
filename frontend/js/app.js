@@ -1,8 +1,9 @@
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { authView } from './auth-view.js';
+import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi } from './api.js';
+import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
@@ -46,10 +47,14 @@ const navAll = [...navItems.slice(0,7),['/camels','Camels'],['/marketplace','Mar
 const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
 const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/marketplace']);
 
-function topbar(active=''){
+function topbar(active='', compact=false){
   const signedIn = Boolean(state.user?.userId);
   const items = visibleNavItems();
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
+  const corePaths = ['/home', '/races', '/camels', '/marketplace'];
+  const desktopItems = compact ? corePaths.map(path => items.find(([p]) => p === path)).filter(Boolean) : items;
+  const extraItems = compact ? items.filter(([path]) => !corePaths.includes(path)) : [];
+  const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
 
   const accountActions = signedIn
     ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">⌄</span></a>`
@@ -62,12 +67,12 @@ function topbar(active=''){
   return `<header class="topbar"><div class="topbar-inner">
     ${mobileMenu}
     <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
-    <nav class="nav nav-desktop" aria-label="Primary navigation">${items.map(navLink).join('')}</nav>
+    <nav class="nav nav-desktop" aria-label="Primary navigation">${desktopItems.map(navLink).join('')}${moreMenu}</nav>
     <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
   </div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
-const shell = (body,active='') => `<div class="app-shell">${topbar(active)}<main class="main">${body}</main><footer>MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform</footer></div>`;
+const shell = (body,active='', compact=false) => `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main><footer>${compact ? 'MEDHMAR • Oman Camel Racing' : 'MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform'}</footer></div>`;
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 function landing(){
@@ -152,7 +157,7 @@ function denyRoleAccess(route) {
  root.innerHTML=shell(`<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available to ${esc(roles)} accounts.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>`);
 }
 
-function pedigree(id){ const p=demo.pedigree; return shell(`${head('Pedigree','Camel profile pedigree section only — the core Camel CRUD remains outside Mohammed’s scope.')}<div class="card pedigree-wrap"><div class="pedigree"><div class="pedigree-row"><div class="pedigree-node"><div class="pedigree-label">Camel</div><div class="pedigree-name">${p.camel}</div></div></div><div class="pedigree-row parents"><div class="pedigree-node"><div class="pedigree-label">Sire</div><div class="pedigree-name">${p.sire}</div></div><div class="pedigree-node"><div class="pedigree-label">Dam</div><div class="pedigree-name">${p.dam}</div></div></div><div class="pedigree-row grands">${p.grands.map((x,i)=>`<div class="pedigree-node"><div class="pedigree-label">Grand ${i<2?'Sire/Dam':'Parent'}</div><div class="pedigree-name">${x}</div></div>`).join('')}</div></div></div>`,''); }
+function pedigree(){ return shell(pedigreeView(state.view), '/camels', true); }
 
 function organizations(){ return shell(`${head('Racing Organizations','Regional organizer groups and membership visibility.')}${demoNote()}<div class="grid grid-3">${demo.organizations.map(o=>`<article class="card org-card"><div class="org-top"><div class="org-logo">M</div><div><h3>${o.name}</h3><p class="form-help">${o.region}</p></div></div><div class="org-stats"><div class="org-stat"><strong>${o.members}</strong><span>Members</span></div><div class="org-stat"><strong>${o.races}</strong><span>Races</span></div><div class="org-stat"><strong>${o.status}</strong><span>Status</span></div></div></article>`).join('')}</div>`,'/organizations'); }
 function tourism(){ return shell(`${head('Tourism & Cultural Content','Approved visitor and heritage content within the Medhmar platform.')}<section class="tourism-hero"><div><div class="hero-kicker">Experience the culture behind the race</div><h1>Discover Camel Racing Heritage</h1><p>Regional events, visitor information and approved cultural knowledge.</p></div></section><section class="section"><div class="grid grid-3">${demo.tourism.map(x=>`<article class="card card-pad"><div class="kicker">${x.type}</div><h3>${x.title}</h3><p>${x.location} • ${x.date}</p>${badge(x.status)}</article>`).join('')}</div></section>`,'/tourism'); }
@@ -181,6 +186,7 @@ async function camelMap(ids) {
 }
 
 const loaders = {
+  'Pedigree Section': async p => ({ tree: await pedigreeApi.tree(p.id) }),
   'Training Agreements': async () => ({ agreements: isAdmin() ? await agreementApi.list() : await agreementApi.mine() }),
   'Add Training Agreement': async () => ({}),
   'Training Agreement Details': async p => ({ agreement: await agreementApi.one(p.id) }),
@@ -228,7 +234,7 @@ const loaders = {
 function loadView(match) {
   const loader = match && loaders[match.route.name];
   if (!loader) { state.view = blankView(); return; }
-  const key = location.pathname + location.search;
+  const key = normalizePath() + location.search;
   if (state.view.key === key) return;
   const next = { ...blankView(), key, status: 'loading' };
   state.view = next;
@@ -302,7 +308,7 @@ const camelProfileScreen = () => scr('/camels', camelTabs(''), 'Camel Profile', 
   const sell = canManageCamels(state.user) && d.isOwner && !al && isFullOwner(p.owners) && p.status !== 'SOLD' ? `<a class="btn btn-primary" href="/marketplace/new?camelId=${p.camelId}" data-link>List for sale</a>` : '';
   return {
     title: esc(p.name), sub: `${esc(p.breed)} • ${esc(p.gender)} • ${esc(p.category || 'Uncategorised')}`,
-    actions: `${sell}<a class="btn btn-secondary" href="/camels/${p.camelId}/ownership" data-link>Ownership history</a><a class="btn btn-secondary" href="/camels/${p.camelId}" data-link>Pedigree section</a>${canEdit ? `<a class="btn btn-secondary" href="/camels/${p.camelId}/edit" data-link>Edit</a><button class="btn btn-danger" data-act="delete-camel" data-id="${p.camelId}" data-name="${esc(p.name)}">Delete</button>` : ''}`,
+    actions: `${sell}<a class="btn btn-secondary" href="/camels/${p.camelId}/ownership" data-link>Ownership history</a><a class="btn btn-secondary" href="/camels/${p.camelId}" data-link>View pedigree</a>${canEdit ? `<a class="btn btn-secondary" href="/camels/${p.camelId}/edit" data-link>Edit</a><button class="btn btn-danger" data-act="delete-camel" data-id="${p.camelId}" data-name="${esc(p.name)}">Delete</button>` : ''}`,
     body: `<div class="two-pane"><section class="card card-pad">${camelPhoto({...p, photoUrl: null})}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || '—'))}${row('Sire', parent(ped.sire, ped.sireCamelId))}${row('Dam', parent(ped.dam, ped.damCamelId))}${row('Pedigree recorded', fmtDate(ped.recordedAt))}</div></section>
 <aside><section class="card card-pad"><h2>Current owners</h2>${p.owners.length ? `<div class="info-list">${p.owners.map(o => row(esc(o.name || '—'), `${esc(o.sharePercent)}%`)).join('')}</div>` : '<p class="form-help">No current owner recorded.</p>'}<p class="form-help">Owner names only — contact details are never shown.</p></section>
 <section class="card card-pad section"><h2>Marketplace</h2>${al ? `<div class="price">${fmtOmr(al.askingPriceOmr)}</div><p>${esc(al.description)}</p>${sb(al.status)} <a class="btn btn-secondary" href="/marketplace/${al.listingId}" data-link>View listing</a>` : '<p class="form-help">Not currently listed for sale.</p>'}</section></aside></div>`,
@@ -523,6 +529,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindPedigreeImages(root);
  $('#admin-retry')?.addEventListener('click',()=>render());
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
@@ -663,7 +670,6 @@ async function init(){
  render();
 }
 window.addEventListener('popstate',render); init();
-
 
 
 

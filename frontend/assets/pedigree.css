@@ -1,0 +1,97 @@
+/* Scoped pedigree layout: keep the existing Medhmar navigation and palette. */
+.pedigree-shell { display: flex; flex-direction: column; }
+.pedigree-shell .main { width: 100%; padding-bottom: 20px; }
+.pedigree-shell footer { width: 100%; margin-top: auto; padding-top: 20px; }
+.pedigree-more { position: relative; display: flex; align-items: center; }
+.pedigree-more summary { display: flex; align-items: center; gap: 9px; height: 100%; padding: 0 14px; cursor: pointer; list-style: none; color: #f4e9dd; font-size: 13px; font-weight: 550; }
+.pedigree-more summary::-webkit-details-marker { display: none; }
+.pedigree-more summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -6px; }
+.pedigree-more-menu { position: absolute; top: calc(100% - 4px); left: 0; min-width: 210px; padding: 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+.pedigree-more-menu a { display: block; color: var(--primary); padding: 12px; border-radius: 7px; }
+.pedigree-more-menu a::after { display: none; }
+.pedigree-more-menu a:hover { background: var(--surface-2); color: var(--primary); }
+.pedigree-page { padding: 4px 0 24px; }
+.pedigree-back { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); font-size: 14px; min-height: 32px; margin-bottom: 15px; }
+.pedigree-back:hover { color: var(--primary); }
+.pedigree-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.pedigree-heading h1 { margin: 0 0 8px; font-size: clamp(28px, 2.6vw, 36px); font-weight: 750; letter-spacing: -.035em; line-height: 1.2; }
+.pedigree-heading p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.pedigree-profile-link { gap: 14px; flex-shrink: 0; }
+.pedigree-chart { --family-gap: 32px; --grand-gap: 22px; --line: #bfb4a7; margin: 38px 0 0; }
+.pedigree-tree { width: 100%; padding: 4px 0 24px; }
+.pedigree-chart ol { list-style: none; margin: 0; }
+.pedigree-subject { display: flex; justify-content: center; }
+.pedigree-node { position: relative; display: flex; align-items: center; gap: 16px; min-width: 0; width: 100%; padding: 12px; min-height: 116px; border: 1px solid #e2dcd4; border-radius: 13px; background: #fff; box-shadow: 0 3px 5px rgba(58, 39, 26, .04), 0 9px 24px rgba(58, 39, 26, .025); text-align: left; }
+a.pedigree-node:hover { border-color: var(--primary-2); box-shadow: 0 4px 14px rgba(58, 39, 26, .09); }
+.pedigree-page a:focus-visible, .pedigree-page button:focus-visible { outline: 3px solid var(--primary-2); outline-offset: 4px; }
+.pedigree-node-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 6px; }
+.pedigree-label { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.3; }
+.pedigree-name { color: var(--text); font-weight: 720; font-size: 19px; letter-spacing: -.02em; line-height: 1.35; overflow-wrap: anywhere; }
+.pedigree-photo { position: relative; flex: 0 0 84px; width: 84px; height: 88px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; overflow: hidden; border-radius: 8px; background: #f2eee7; color: #8a7c6d; }
+.pedigree-photo svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linejoin: round; }
+.pedigree-photo > span { font-size: 10px; }
+.pedigree-photo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.pedigree-node-arrow { position: absolute; top: 9px; right: 10px; color: #9a8d7f; font-size: 13px; }
+.pedigree-node-subject { width: min(100%, 340px); min-height: 130px; gap: 20px; border-color: #d5c5b2; }
+.pedigree-node-subject .pedigree-photo { flex-basis: 108px; width: 108px; height: 104px; }
+.pedigree-node-subject .pedigree-name { font-size: 25px; }
+.pedigree-node-empty { background: #fbf9f6; border-style: dashed; box-shadow: none; }
+.pedigree-node-empty .pedigree-name { font-size: 16px; color: var(--muted); font-weight: 500; }
+.pedigree-name-only { color: var(--muted); font-size: 11px; }
+.pedigree-parents { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--family-gap); padding: 64px 0 0; }
+.pedigree-parents::before, .pedigree-grandparents::before { content: ''; position: absolute; top: 0; left: 50%; height: 32px; border-left: 2px solid var(--line); }
+.pedigree-parents::after { content: ''; position: absolute; top: 32px; left: calc(25% - var(--family-gap) / 4); right: calc(25% - var(--family-gap) / 4); border-top: 2px solid var(--line); }
+.pedigree-branch { position: relative; min-width: 0; }
+.pedigree-branch > .pedigree-node { width: min(100%, 306px); margin: auto; }
+.pedigree-branch::before, .pedigree-grandparents > li::before { content: ''; position: absolute; left: 50%; top: -32px; height: 32px; border-left: 2px solid var(--line); }
+.pedigree-grandparents { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grand-gap); padding: 64px 0 0; }
+.pedigree-grandparents::after { content: ''; position: absolute; top: 32px; left: calc(25% - var(--grand-gap) / 4); right: calc(25% - var(--grand-gap) / 4); border-top: 2px solid var(--line); }
+.pedigree-grandparents > li { position: relative; min-width: 0; }
+.pedigree-grandparents .pedigree-node { gap: 12px; height: 100%; }
+.pedigree-grandparents .pedigree-photo { flex-basis: 74px; width: 74px; height: 80px; }
+.pedigree-grandparents .pedigree-name { font-size: 17px; }
+.pedigree-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 26px; border-top: 1px solid var(--border); margin-top: 18px; padding-top: 22px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+.pedigree-legend b { color: #554638; font-weight: 650; margin-right: 5px; }
+.pedigree-hint { padding-left: 26px; border-left: 1px solid var(--border); }
+.pedigree-feedback { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 90px 20px; margin-top: 30px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.pedigree-feedback h2 { font-size: 21px; margin: 16px 0 6px; }
+.pedigree-feedback p { font-size: 14px; color: var(--muted); margin: 0 0 24px; }
+.pedigree-loader { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--primary-2); border-radius: 50%; animation: pedigree-spin .8s linear infinite; }
+.pedigree-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@keyframes pedigree-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pedigree-loader { animation: none; } }
+@media (min-width: 701px) and (max-width: 1100px) {
+  .pedigree-chart { --family-gap: 24px; --grand-gap: 16px; }
+  .pedigree-grandparents .pedigree-node { flex-direction: column; align-items: stretch; }
+  .pedigree-grandparents .pedigree-photo { width: 100%; height: 100px; flex-basis: auto; }
+  .pedigree-grandparents .pedigree-node-copy { padding: 2px 3px 4px; }
+}
+@media (max-width: 700px) {
+  .pedigree-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .pedigree-heading p { font-size: 14px; }
+  .pedigree-profile-link { min-height: 42px; padding: 9px 14px; font-size: 13px; }
+  .pedigree-chart { --family-gap: 24px; margin-top: 28px; }
+  .pedigree-node { padding: 10px; gap: 10px; border-radius: 10px; }
+  .pedigree-node-subject { width: min(100%, 290px); min-height: 112px; gap: 18px; }
+  .pedigree-node-subject .pedigree-photo { width: 88px; flex-basis: 88px; height: 88px; }
+  .pedigree-node-subject .pedigree-name { font-size: 23px; }
+  .pedigree-parents { padding-top: 48px; }
+  .pedigree-parents::before { height: 24px; }
+  .pedigree-parents::after { top: 24px; }
+  .pedigree-branch::before { top: -24px; height: 24px; }
+  .pedigree-branch > .pedigree-node, .pedigree-grandparents .pedigree-node { flex-direction: column; align-items: stretch; }
+  .pedigree-branch .pedigree-photo, .pedigree-grandparents .pedigree-photo { flex-basis: auto; width: 100%; height: 110px; }
+  .pedigree-branch .pedigree-node-copy { padding: 2px; }
+  .pedigree-branch .pedigree-label { font-size: 12px; }
+  .pedigree-branch .pedigree-name { font-size: 16px; }
+  /* Each parent's two ancestors form a vertical branch on narrow screens. */
+  .pedigree-grandparents { display: flex; flex-direction: column; gap: 16px; padding: 28px 0 0 12px; }
+  .pedigree-grandparents::before { height: 12px; }
+  .pedigree-grandparents::after { top: 12px; left: 0; right: 50%; }
+  .pedigree-grandparents > li::before { top: 50%; left: -12px; width: 12px; height: 0; border-left: 0; border-top: 2px solid var(--line); }
+  .pedigree-grandparents > li::after { content: ''; position: absolute; left: -12px; top: -16px; bottom: -16px; border-left: 2px solid var(--line); }
+  .pedigree-grandparents > li:last-child::after { bottom: 50%; }
+  .pedigree-grandparents .pedigree-photo { height: 90px; }
+  .pedigree-legend { margin-top: 4px; gap: 10px 22px; }
+  .pedigree-hint { width: 100%; text-align: center; padding: 0; border: 0; }
+}

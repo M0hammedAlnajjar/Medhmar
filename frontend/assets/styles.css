@@ -294,14 +294,6 @@ tr:last-child td{border-bottom:0}
 .info-list{display:grid;gap:12px}
 .info-row{display:flex;justify-content:space-between;gap:20px;padding-bottom:12px;border-bottom:1px solid var(--border);font-size:13px}
 .info-row:last-child{border-bottom:0}
-.pedigree-wrap{padding:26px;overflow:auto}
-.pedigree{min-width:780px;display:grid;gap:24px;text-align:center}
-.pedigree-node{border:1px solid var(--border);background:#fff;border-radius:14px;padding:15px;min-width:160px;box-shadow:0 5px 20px rgba(59,40,29,.04)}
-.pedigree-row{display:flex;justify-content:center;gap:80px;position:relative}
-.pedigree-row.parents:before{content:"";position:absolute;top:-12px;left:50%;width:1px;height:12px;background:#baa995}
-.pedigree-row.grands{gap:22px}
-.pedigree-label{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}
-.pedigree-name{font-weight:800;margin-top:5px}
 .race-card-sheet{background:#fff;border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;overflow:hidden}
 .race-card-sheet:after{content:"";position:absolute;right:-40px;bottom:-80px;width:330px;height:260px;background:url('/assets/mark.svg') center/contain no-repeat;opacity:.04}
 .race-card-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:2px solid var(--primary);padding-bottom:18px;margin-bottom:18px}
