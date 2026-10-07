@@ -14,9 +14,27 @@ test("matches Mohammed dynamic routes", () => {
 });
 
 test("does not expose teammate-owned standalone modules", () => {
-  for (const path of ["/races","/archive","/my-camels","/agreements","/assigned"]) {
+  for (const path of ["/archive","/my-camels","/agreements","/assigned"]) {
     assert.equal(matchRoute(path), null);
   }
+});
+
+
+test("race screens are integrated", () => {
+  assert.equal(
+      matchRoute("/races")?.route.name,
+      "Races Listing"
+  );
+
+  assert.equal(
+      matchRoute("/races/1")?.route.name,
+      "Race Details"
+  );
+
+  assert.equal(
+      matchRoute("/races/1")?.params.id,
+      "1"
+  );
 });
 
 test("Camel & Marketplace routes are registered and owned separately", () => {
