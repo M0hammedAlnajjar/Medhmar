@@ -1,4 +1,5 @@
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
+import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView } from './auth-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
@@ -466,29 +467,49 @@ async function render() {
   bind();return;
  }
 
-    if (
-        match?.route?.name === "Races Listing" ||
-        match?.route?.name === "Race Details" ||
-        match?.route?.name === "Race Participants"
-    ) {
+    if ([
+        "Races Listing",
+        "Race Archive",
+        "Race Details",
+        "Race Participants",
+        "Race Results",
+        "Race Registration",
+        "My Registrations",
+        "Organizer Race Dashboard",
+        "Add Race",
+        "Manage Race"
+    ].includes(match?.route?.name)) {
         root.innerHTML = shell(
             '<div id="race-view"></div>',
             '/races'
         );
 
         const raceView = document.querySelector("#race-view");
+        const name = match.route.name;
 
-        if (match.route.name === "Races Listing") {
+        if (name === "Races Listing") {
             await renderRacesListing(raceView);
-        } else if (match.route.name === "Race Details") {
-            await renderRaceDetails(
+        } else if (name === "Race Archive") {
+            await renderRaceArchive(raceView);
+        } else if (name === "Race Details") {
+            await renderRaceDetails(raceView, match.params.id);
+        } else if (name === "Race Participants") {
+            await renderRaceParticipants(raceView, match.params.id);
+        } else if (name === "Race Results") {
+            await renderRaceResults(raceView, match.params.id);
+        } else if (name === "Race Registration") {
+            await renderRaceRegistration(raceView, match.params.id);
+        } else if (name === "My Registrations") {
+            await renderMyRegistrations(raceView);
+        } else if (name === "Organizer Race Dashboard") {
+            await renderOrganizerDashboard(raceView, state.user);
+        } else if (name === "Add Race") {
+            await renderCreateRace(raceView, state.user);
+        } else if (name === "Manage Race") {
+            await renderManageRace(
                 raceView,
-                match.params.id
-            );
-        } else {
-            await renderRaceParticipants(
-                raceView,
-                match.params.id
+                match.params.id,
+                state.user
             );
         }
 
