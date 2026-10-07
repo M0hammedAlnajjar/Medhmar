@@ -72,7 +72,7 @@ img{display:block;max-width:100%}
 /* Premium Medhmar landing page: editorial heritage panel + cinematic racing panel. */
 .landing-page{background:#f5efe6}
 .landing-page .topbar{box-shadow:none;border-bottom:0}
-.landing-hero{height:min(72svh,720px);min-height:610px;max-height:720px;display:grid;grid-template-columns:minmax(500px,38.5%) minmax(0,61.5%);overflow:hidden;background:#f8f3eb;color:#2e2119;direction:ltr;text-align:left;border-top:6px solid #f8f3eb}
+.landing-hero{height:min(72svh,720px);min-height:610px;max-height:720px;display:grid;grid-template-columns:minmax(500px,38.5%) minmax(0,61.5%);overflow:hidden;background:#f8f3eb;color:#2e2119;direction:ltr;text-align:left}
 .landing-editorial{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(36px,3.2vw,58px) clamp(38px,3.6vw,64px) clamp(28px,2.5vw,42px);background:linear-gradient(145deg,#fffdf9 0%,#f7f0e6 100%);box-shadow:18px 0 38px rgba(45,29,18,.055)}
 .landing-brandline{display:flex;align-items:flex-start;gap:18px;color:#8e5d38}
 .landing-rule{width:42px;height:1px;background:#a96b3d;margin-top:17px;flex:0 0 auto}
@@ -93,8 +93,8 @@ img{display:block;max-width:100%}
 .landing-signature b{color:#a98465;font-weight:500}
 .landing-signature-line{width:32px;height:1px;background:#a96b3d;margin-right:3px;flex:0 0 auto}
 .landing-landscape{margin-left:auto;width:185px;height:42px;object-fit:contain;object-position:right center;opacity:.82;flex:0 0 auto}
-.landing-visual{position:relative;min-width:0;overflow:hidden;border-radius:112px 0 0 112px;background:#c18a57;box-shadow:-14px 0 34px rgba(56,35,21,.08)}
-.landing-race-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:scale(1.005)}
+.landing-visual{position:relative;min-width:0;height:100%;overflow:hidden;border-radius:138px 0 0 138px;background:#c18a57;box-shadow:none;isolation:isolate}
+.landing-race-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:none}
 .landing-photo-wash{position:absolute;inset:0;background:transparent;pointer-events:none}
 .landing-track-card{position:absolute;right:clamp(20px,2.1vw,38px);bottom:clamp(20px,2.1vw,34px);width:min(385px,44%);min-width:315px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:19px 17px 19px 24px;background:rgba(255,250,242,.97);border:1px solid rgba(207,169,130,.7);border-radius:9px;box-shadow:0 16px 38px rgba(54,32,19,.14);backdrop-filter:blur(8px)}
 .landing-track-card>div{min-width:0}
@@ -121,7 +121,7 @@ img{display:block;max-width:100%}
  .landing-primary,.landing-secondary{width:100%;min-height:54px;flex:none}
  .landing-signature{gap:7px}
  .landing-landscape{display:none}
- .landing-visual{height:430px;border-radius:56px 56px 0 0}
+ .landing-visual{height:430px;border-radius:70px 70px 0 0}
  .landing-race-photo{object-position:60% center}
  .landing-track-card{width:calc(100% - 28px);right:14px;bottom:14px;padding:16px 14px 16px 18px}
  .landing-track-card strong{font-size:18px}
