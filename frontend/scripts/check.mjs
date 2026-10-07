@@ -9,6 +9,7 @@ const required = [
 for (const path of required) await access(path);
 
 const routes = await readFile("js/routes.js", "utf8");
+const raceRoutes = await readFile("js/race-routes.js", "utf8");
 const requiredNames = [
   "Landing / Entry Page","Sign In","Create Account","Forgot Password","Reset Password",
   "Home / Overview","Settings / User Profile","Trainer Profile","Challenges",
@@ -37,7 +38,7 @@ for (const name of [
   "Races Listing","Race Archive","Race Details","Race Participants","Race Results",
   "Race Registration","My Registrations","Organizer Race Dashboard","Add Race","Manage Race"
 ]) {
-  if (!routes.includes(name)) throw new Error(`Missing race route: ${name}`);
+  if (!raceRoutes.includes(name)) throw new Error(`Missing race route: ${name}`);
 }
 await access("js/format.js");
 
