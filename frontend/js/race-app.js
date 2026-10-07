@@ -278,32 +278,12 @@ async function fetchBackendRaces() {
     }
 
     try {
-        let response;
-
-        if (typeof raceApi.getRaces === "function") {
-            if (raceApi.getRaces.length >= 4) {
-                response = await raceApi.getRaces(
-                    "",
-                    "",
-                    0,
-                    100
-                );
-            } else {
-                response = await raceApi.getRaces({
-                    page: 0,
-                    size: 100
-                });
-            }
-        } else if (typeof raceApi.list === "function") {
-            response = await raceApi.list({
-                page: 0,
-                size: 100
-            });
-        } else {
-            throw new Error(
-                "Race list API method is not available."
-            );
-        }
+        const response = await raceApi.getRaces(
+            "",
+            "",
+            0,
+            100
+        );
 
         const races = Array.isArray(response)
             ? response
@@ -1105,7 +1085,6 @@ export async function renderRaceDetails(
           </div>
 
           ${
-            !demo &&
             race.status === "OPEN"
                 ? `
                 <button
@@ -1319,6 +1298,32 @@ export async function renderRaceDetails(
                         `/races/${encodeURIComponent(
                             raceId
                         )}/participants`
+                    );
+                }
+            );
+
+        container
+            .querySelector("[data-results]")
+            ?.addEventListener(
+                "click",
+                () => {
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(
+                            raceId
+                        )}/results`
+                    );
+                }
+            );
+
+        container
+            .querySelector("[data-register-race]")
+            ?.addEventListener(
+                "click",
+                () => {
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(
+                            raceId
+                        )}/register`
                     );
                 }
             );
@@ -1654,6 +1659,17 @@ export async function renderRaceParticipants(
                 () => {
                     navigateRacePath(
                         `/races/${encodeURIComponent(raceId)}`
+                    );
+                }
+            );
+
+        container
+            .querySelector("[data-results]")
+            ?.addEventListener(
+                "click",
+                () => {
+                    navigateRacePath(
+                        `/races/${encodeURIComponent(raceId)}/results`
                     );
                 }
             );
