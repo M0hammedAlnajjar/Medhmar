@@ -41,15 +41,31 @@ const navItems = [
 
 const navAll = [...navItems.slice(0,7),['/camels','Camels'],['/marketplace','Marketplace'],...navItems.slice(7)];
 const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
+const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/marketplace']);
+
 function topbar(active=''){
   const signedIn = Boolean(state.user?.userId);
+  const items = visibleNavItems();
+  const primaryItems = items.filter(([path]) => primaryNavPaths.has(path));
+  const secondaryItems = items.filter(([path]) => !primaryNavPaths.has(path));
+  const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
+
   const accountActions = signedIn
-    ? `<a class="profile-btn" href="/settings" data-link><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span>${esc(state.user.fullName?.split(' ')[0]||'User')}</span></a>`
+    ? `<a class="profile-btn" href="/settings" data-link><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span></a>`
     : `<a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a><a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a>`;
 
-  return `<header class="topbar"><div class="topbar-inner"><a class="brand" href="/" data-link><img src="/assets/mark.svg" alt=""><span>MEDHMAR</span></a>
-  <nav class="nav">${visibleNavItems().map(([p,l])=>`<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`).join('')}</nav>
-  <div class="nav-actions" dir="ltr">${accountActions}<div class="nav-language" role="group" aria-label="Language"><button class="nav-language-option" type="button" data-language="ar" aria-label="العربية" aria-pressed="${state.lang==='ar'}" lang="ar">AR</button><button class="nav-language-option" type="button" data-language="en" aria-label="English" aria-pressed="${state.lang==='en'}" lang="en">EN</button></div></div></div></header>`;
+  const moreMenu = secondaryItems.length
+    ? `<details class="nav-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="nav-more-menu">${secondaryItems.map(navLink).join('')}</div></details>`
+    : '';
+
+  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu">${items.map(navLink).join('')}</div></details>`;
+
+  return `<header class="topbar"><div class="topbar-inner">
+    <a class="brand" href="/" data-link><img src="/assets/mark.svg" alt=""><span>MEDHMAR</span></a>
+    <nav class="nav nav-desktop" aria-label="Primary navigation">${primaryItems.map(navLink).join('')}${moreMenu}</nav>
+    <div class="nav-actions" dir="ltr">${accountActions}<div class="nav-language" role="group" aria-label="Language"><button class="nav-language-option" type="button" data-language="ar" aria-label="العربية" aria-pressed="${state.lang==='ar'}" lang="ar">AR</button><button class="nav-language-option" type="button" data-language="en" aria-label="English" aria-pressed="${state.lang==='en'}" lang="en">EN</button></div></div>
+    ${mobileMenu}
+  </div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
 const shell = (body,active='') => `<div class="app-shell">${topbar(active)}<main class="main">${body}</main><footer>MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform</footer></div>`;
