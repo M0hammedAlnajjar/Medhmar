@@ -69,29 +69,79 @@ img{display:block;max-width:100%}
 .hero .actions{margin-top:28px}
 .hero .btn-primary{background:#fff;color:var(--primary)}
 .hero .btn-secondary{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25)}
-/* Reference hero: panoramic artwork, complete camels, left-aligned three-line title. */
-.landing-hero{position:relative;isolation:isolate;display:grid;aspect-ratio:2116/743;overflow:hidden;background:#8c6949;color:#fff;font-family:Arial,"Segoe UI",sans-serif;direction:ltr;text-align:left}
-.landing-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:-2}
-.landing-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(43,28,17,.52),rgba(43,28,17,.23) 36%,transparent 63%)}
-.landing-hero-content{align-self:center;padding:3% 3%;width:49%;min-width:0}
-.landing-hero h1{margin:0;font-size:clamp(30px,2.45vw,48px);line-height:1.08;letter-spacing:-.02em;font-weight:700;text-shadow:0 2px 3px #20140c55}
-.landing-hero h1 span{display:block;white-space:nowrap}
-.landing-hero p{margin:1vw 0 1.6vw;font-size:clamp(13px,1vw,18px);line-height:1.45;font-weight:500;color:#fff7e8;text-shadow:0 1px 3px #20140c88}
-.landing-hero-actions{display:flex;gap:1.4vw;align-items:center}
-.landing-hero-actions .btn{min-width:0;flex:1;min-height:clamp(42px,4.2vw,72px);padding:.75vw .7vw;border-radius:7px;font-size:clamp(12px,.82vw,16px);font-weight:700;white-space:nowrap;box-shadow:inset 0 0 0 2px #d6b88b55,0 2px 4px #2d1c1155}
-.landing-hero-actions .btn-primary{background:#fffaf1;color:#65442c;border:2px solid #ddc9a9}
-.landing-hero-actions .btn-primary:hover{background:#f0e3cc}
-.landing-hero-actions .btn-secondary{background:#4b2b16b3;color:#fff6e9;border:2px solid #bea17a}
-.landing-hero-actions .btn-secondary:hover{background:#4b2b16}
-@media(max-width:700px){
- .landing-hero{aspect-ratio:auto;min-height:320px}
- .landing-hero-photo{object-position:65% center}
- .landing-hero-content{width:70%;padding:28px 20px}
- .landing-hero h1{font-size:clamp(27px,5.3vw,37px)}
- .landing-hero p{font-size:14px;margin:14px 0 22px}
- .landing-hero-actions{gap:10px}
- .landing-hero-actions .btn{min-height:44px;font-size:13px;padding:10px}
+/* Premium Medhmar landing page: editorial heritage panel + cinematic racing panel. */
+.landing-page{background:#f5efe6}
+.landing-page .topbar{box-shadow:none}
+.landing-hero{height:calc(100svh - 72px);min-height:620px;max-height:860px;display:grid;grid-template-columns:minmax(470px,39%) minmax(0,61%);overflow:hidden;background:#f5efe6;color:#2e2119;direction:ltr;text-align:left}
+.landing-editorial{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:clamp(34px,4.1vw,76px) clamp(32px,4.1vw,74px) clamp(28px,3.3vw,54px);background:linear-gradient(145deg,#fbf8f2 0%,#f5eee3 100%);box-shadow:20px 0 44px rgba(45,29,18,.08)}
+.landing-brandline{display:flex;align-items:flex-start;gap:18px;color:#8e5d38}
+.landing-rule{width:42px;height:1px;background:#a96b3d;margin-top:17px;flex:0 0 auto}
+.landing-wordmark{font-family:Georgia,"Times New Roman",serif;font-size:clamp(16px,1.35vw,23px);font-weight:700;letter-spacing:.34em;color:#4a3020}
+.landing-eyebrow{margin-top:6px;font-size:clamp(8px,.62vw,11px);font-weight:800;letter-spacing:.27em;color:#a06a43}
+.landing-copy{max-width:650px;margin:auto 0}
+.landing-copy h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(52px,5vw,92px);font-weight:500;line-height:.92;letter-spacing:-.055em;color:#2d211a}
+.landing-copy h1 em{display:inline-block;color:#a96935;font-weight:500}
+.landing-copy p{margin:clamp(20px,2vw,34px) 0 0;max-width:540px;color:#716861;font-size:clamp(14px,1.05vw,20px);line-height:1.52}
+.landing-hero-actions{display:flex;gap:16px;margin-top:clamp(24px,2.4vw,40px);max-width:610px}
+.landing-primary,.landing-secondary{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:22px;border-radius:7px;padding:0 24px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(15px,1.02vw,18px);font-weight:700}
+.landing-primary{flex:1;background:#3b271b;color:#fffaf3;border:1px solid #3b271b;box-shadow:0 9px 22px rgba(59,39,27,.14)}
+.landing-primary:hover{background:#281b13;transform:translateY(-1px)}
+.landing-secondary{flex:1.12;background:rgba(255,255,255,.28);color:#38271d;border:1px solid #cda77f}
+.landing-secondary:hover{background:#fff9ef;border-color:#b77c48}
+.landing-circle-arrow{width:38px;height:38px;border:1px solid #b77c48;border-radius:50%;display:grid;place-items:center;color:#a76636;font-family:Arial,sans-serif;font-size:20px;flex:0 0 auto}
+.landing-signature{display:flex;align-items:center;gap:10px;color:#8a7666;font-size:clamp(7px,.5vw,9px);font-weight:800;letter-spacing:.2em;white-space:nowrap}
+.landing-signature b{color:#a98465;font-weight:500}
+.landing-signature-line{width:44px;height:1px;background:#a96b3d;margin-right:4px}
+.landing-landscape{margin-left:auto;width:130px;height:32px;opacity:.65;background:linear-gradient(155deg,transparent 46%,#aa754d 47% 49%,transparent 50%) 0 13px/32px 20px repeat-x;border-bottom:1px solid #c9a483;position:relative}
+.landing-landscape:after{content:"";position:absolute;right:8px;bottom:0;width:3px;height:25px;background:#aa754d;box-shadow:-9px 8px 0 -1px #aa754d,-18px 13px 0 -1px #aa754d}
+.landing-visual{position:relative;min-width:0;overflow:hidden;border-radius:90px 0 0 90px;background:#b47a47;box-shadow:-18px 0 38px rgba(56,35,21,.11)}
+.landing-race-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%;transform:scale(1.015)}
+.landing-photo-wash{position:absolute;inset:0;background:linear-gradient(90deg,rgba(76,45,25,.13),transparent 24%,transparent 70%,rgba(119,67,31,.05)),linear-gradient(180deg,transparent 62%,rgba(60,34,20,.18))}
+.landing-track-card{position:absolute;right:clamp(18px,2.3vw,40px);bottom:clamp(18px,2.3vw,40px);width:min(390px,43%);min-width:310px;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:20px 18px 20px 24px;background:rgba(255,250,242,.96);border:1px solid rgba(207,169,130,.72);border-radius:10px;box-shadow:0 18px 45px rgba(54,32,19,.16);backdrop-filter:blur(10px)}
+.landing-track-card>div{min-width:0}
+.landing-track-kicker{font-size:9px;letter-spacing:.22em;font-weight:900;color:#b47a4c;margin-bottom:8px}
+.landing-track-card strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:clamp(18px,1.4vw,24px);color:#35251b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.landing-track-card span{display:block;margin-top:6px;color:#7a7068;font-size:12px}
+.landing-track-arrow{width:48px;height:48px;border:1px solid #b87842;border-radius:50%;display:grid;place-items:center;color:#a96632;font-size:22px;flex:0 0 auto}
+.landing-track-arrow:hover{background:#3b271b;color:#fff;border-color:#3b271b}
+@media(max-width:1100px){
+ .landing-hero{grid-template-columns:minmax(390px,44%) minmax(0,56%);min-height:590px}
+ .landing-editorial{padding:34px 32px 30px}
+ .landing-copy h1{font-size:clamp(48px,6vw,68px)}
+ .landing-signature span:nth-of-type(n+3),.landing-signature b:nth-of-type(n+2){display:none}
+ .landing-landscape{width:90px}
+ .landing-track-card{width:calc(100% - 36px);min-width:0;right:18px;bottom:18px}
 }
+@media(max-width:760px){
+ .landing-hero{height:auto;max-height:none;min-height:0;display:flex;flex-direction:column}
+ .landing-editorial{min-height:560px;padding:34px 24px 28px}
+ .landing-copy{margin:52px 0 48px}
+ .landing-copy h1{font-size:clamp(46px,12.2vw,66px);line-height:.94}
+ .landing-copy p{font-size:15px}
+ .landing-hero-actions{flex-direction:column}
+ .landing-primary,.landing-secondary{width:100%;min-height:54px;flex:none}
+ .landing-signature{gap:8px}
+ .landing-landscape{display:none}
+ .landing-visual{height:430px;border-radius:56px 56px 0 0}
+ .landing-race-photo{object-position:60% center}
+ .landing-track-card{width:calc(100% - 28px);right:14px;bottom:14px;padding:16px 14px 16px 18px}
+ .landing-track-card strong{font-size:18px}
+ .landing-track-card span{font-size:11px}
+ .landing-track-arrow{width:42px;height:42px}
+}
+@media(max-width:440px){
+ .landing-editorial{min-height:535px}
+ .landing-brandline{gap:12px}
+ .landing-rule{width:28px}
+ .landing-wordmark{letter-spacing:.24em}
+ .landing-copy{margin:42px 0}
+ .landing-copy h1{font-size:44px}
+ .landing-signature-line{width:28px}
+ .landing-visual{height:370px}
+ .landing-track-card{align-items:flex-start}
+ .landing-track-card strong{white-space:normal}
+}
+
 .section{margin-top:28px}
 .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-title h2{font-size:22px;margin:0}
