@@ -66,7 +66,7 @@ function feedback(status, error) {
 export function pedigreeView(view) {
   const tree = view.data?.tree;
   const ready = view.status === 'ready' && tree && registered(tree);
-  const actions = ready ? `<a class="btn btn-secondary pedigree-profile-link" href="/camels/${encodeURIComponent(tree.camelId)}/profile" data-link>View camel profile <span aria-hidden="true">↗</span></a>` : '';
+  const actions = ready ? `<div class="actions"><a class="btn btn-secondary pedigree-profile-link" href="/camels/${encodeURIComponent(tree.camelId)}/profile" data-link>View camel profile <span aria-hidden="true">↗</span></a>${view.data?.canEdit ? `<a class="btn btn-primary" href="/camels/${encodeURIComponent(tree.camelId)}/pedigree/edit" data-link>Edit pedigree</a>` : ''}</div>` : '';
   const content = ready ? `<figure class="pedigree-chart" aria-labelledby="pedigree-caption">
       <figcaption id="pedigree-caption" class="pedigree-sr-only">Three-generation pedigree of ${escape(tree.name)}. Sire is the father; dam is the mother.</figcaption>
       <div class="pedigree-tree">
