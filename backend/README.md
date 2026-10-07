@@ -40,9 +40,11 @@ Spring AI BOM.
    CREATE DATABASE IF NOT EXISTS gulf_racing;
    ```
 
-2. Set environment variables in your terminal or IntelliJ run configuration.
-   For Windows Command Prompt, replace the sample credentials with your local
-   MySQL account:
+2. Configure the database credentials. The backend now automatically loads the
+   git-ignored `.env` file from the repository root (or from `backend/.env`), so
+   the simplest local setup is to copy `.env.example` to `.env` and fill in your
+   own MySQL credentials. You can still use terminal or IntelliJ environment
+   variables instead. For Windows Command Prompt:
 
    ```bat
    set "DB_URL=jdbc:mysql://localhost:3306/gulf_racing"
@@ -50,8 +52,9 @@ Spring AI BOM.
    set "DB_PASSWORD=your_mysql_password"
    ```
 
-   `.env.example` documents the variable names. Spring Boot does not load a plain
-   `.env` file automatically; configure the variables in your terminal or IDE.
+   `.env.example` documents the variable names. `.env` is ignored by Git, so do
+   not commit passwords or other secrets. Environment variables continue to work
+   and take precedence when supplied by the operating system or IDE.
    `AI_API_KEY` is used only when the optional `ai` profile is enabled.
 
 3. From the repository root, run:

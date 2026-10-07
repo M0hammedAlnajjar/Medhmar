@@ -13,12 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AccountsIntegrationTests extends IntegrationSupport {
     @Test
-    void registrationNormalizesEmailHashesPasswordAndDoesNotAcceptAdminRole() throws Exception {
+    void registrationUsesSelectedRoleNormalizesEmailAndHashesPassword() throws Exception {
         mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
-            .content(payload(Map.of("fullName","Mohammed","email","MOHAMMED@example.com","password",PASSWORD,"roles",List.of("ADMIN")))))
+            .content(payload(Map.of("fullName","Mohammed","email","MOHAMMED@example.com","password",PASSWORD,
+                "preferredLanguage","en","role","TRAINER","roles",List.of("ADMIN")))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.email").value("mohammed@example.com"))
-            .andExpect(jsonPath("$.roles", contains("VIEWER")))
+            .andExpect(jsonPath("$.roles", contains("TRAINER")))
             .andExpect(jsonPath("$.password").doesNotExist())
             .andExpect(jsonPath("$.passwordHash").doesNotExist());
         var account = accountRepository.findByProviderAndProviderSubject(Provider.LOCAL,"mohammed@example.com").orElseThrow();
@@ -26,13 +27,29 @@ class AccountsIntegrationTests extends IntegrationSupport {
         assertThat(new BCryptPasswordEncoder().matches(PASSWORD, account.getPasswordHash())).isTrue();
         assertThat(roleRepository.count()).isEqualTo(5);
         mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
-            .content(payload(Map.of("fullName","Other","email","mohammed@example.com","password",PASSWORD))))
+            .content(payload(Map.of("fullName","Other","email","mohammed@example.com","password",PASSWORD,"role","VIEWER"))))
             .andExpect(status().isConflict());
+    }
+    @Test
+    void registrationRejectsMissingOrPrivilegedSelfAssignedRoles() throws Exception {
+        mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
+            .content(payload(Map.of("fullName","No Role","email","norole@example.com","password",PASSWORD))))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors.role").exists());
+
+        for (String role : List.of("ADMIN", "ORGANIZER")) {
+            mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
+                .content(payload(Map.of("fullName","Blocked Role","email",role.toLowerCase(Locale.ROOT)+"@example.com",
+                    "password",PASSWORD,"role",role))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.role").exists());
+        }
+        assertThat(userRepository.count()).isZero();
     }
     @Test
     void invalidRegistrationReturnsFieldErrors() throws Exception {
         mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
-            .content(payload(Map.of("fullName","","email","invalid","password","short"))))
+            .content(payload(Map.of("fullName","","email","invalid","password","short","role","VIEWER"))))
             .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors.email").exists());
         assertThat(userRepository.count()).isZero();
     }

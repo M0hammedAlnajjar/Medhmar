@@ -62,7 +62,14 @@ public class RaceCardService {
             cardEntry.setOwnerNameSnapshot(entry.getRegistrant().getFullName());
 
             var trainers = agreements.findEffectiveForCamel(
-                    entry.getCamel().getCamelId(), AgreementStatus.ACTIVE, race.getStartsAt());
+                    entry.getCamel().getCamelId(),
+                    List.of(
+                            AgreementStatus.ACTIVE,
+                            AgreementStatus.COMPLETED,
+                            AgreementStatus.TERMINATED
+                    ),
+                    race.getStartsAt()
+            );
             if (!trainers.isEmpty()) {
                 cardEntry.setTrainerNameSnapshot(trainers.getFirst().getTrainer().getUser().getFullName());
             }

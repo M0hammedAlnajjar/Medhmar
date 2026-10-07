@@ -91,32 +91,17 @@ public interface OwnershipRecordRepository extends JpaRepository<OwnershipRecord
     );
 
     @Query("""
-    select distinct o
-    from OwnershipRecord o
-    join fetch o.camel
-    where o.owner.userId = :ownerId
-      and o.isActive = true
-      and o.sharePercent > 0
-      and (o.startAt is null or o.startAt <= :now)
-      and (o.endAt is null or o.endAt > :now)
-    order by o.camel.camelId desc
-    """)
-    List<OwnershipRecord> findCurrentOwnershipsByOwner(
-            @Param("ownerId") Long ownerId,
-            @Param("now") Date now
-    );
-
-    @Query("""
-    select distinct o.camel
-    from OwnershipRecord o
-    where o.owner.userId = :ownerId
-      and o.isActive = true
-      and o.sharePercent > 0
-      and o.camel.isActive = true
-      and (o.startAt is null or o.startAt <= :now)
-      and (o.endAt is null or o.endAt > :now)
-    order by o.camel.camelId
-    """)
+        select o.camel
+        from OwnershipRecord o
+        where o.owner.userId = :ownerId
+          and o.isActive = true
+          and o.sharePercent > 0
+          and o.camel.isActive = true
+          and (o.startAt is null or o.startAt <= :now)
+          and (o.endAt is null or o.endAt > :now)
+        group by o.camel
+        order by o.camel.camelId
+        """)
     List<Camel> findCurrentCamelsByOwnerId(
             @Param("ownerId") Long ownerId,
             @Param("now") Date now
