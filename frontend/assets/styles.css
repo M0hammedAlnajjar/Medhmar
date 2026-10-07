@@ -95,7 +95,7 @@ img{display:block;max-width:100%}
 .landing-landscape{margin-left:auto;width:185px;height:42px;object-fit:contain;object-position:right center;opacity:.82;flex:0 0 auto}
 .landing-visual{position:relative;min-width:0;overflow:hidden;border-radius:112px 0 0 112px;background:#c18a57;box-shadow:-14px 0 34px rgba(56,35,21,.08)}
 .landing-race-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:scale(1.005)}
-.landing-photo-wash{position:absolute;inset:0;background:linear-gradient(90deg,rgba(76,45,25,.13),transparent 24%,transparent 70%,rgba(119,67,31,.05)),linear-gradient(180deg,transparent 62%,rgba(60,34,20,.18))}
+.landing-photo-wash{position:absolute;inset:0;background:transparent;pointer-events:none}
 .landing-track-card{position:absolute;right:clamp(20px,2.1vw,38px);bottom:clamp(20px,2.1vw,34px);width:min(385px,44%);min-width:315px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:19px 17px 19px 24px;background:rgba(255,250,242,.97);border:1px solid rgba(207,169,130,.7);border-radius:9px;box-shadow:0 16px 38px rgba(54,32,19,.14);backdrop-filter:blur(8px)}
 .landing-track-card>div{min-width:0}
 .landing-track-kicker{font-size:9px;letter-spacing:.22em;font-weight:900;color:#b47a4c;margin-bottom:8px}
