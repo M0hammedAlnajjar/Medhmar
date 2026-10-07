@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { MOHAMMED_ROUTES, CAMEL_MARKET_ROUTES, matchRoute, canAccessRoute } from "../js/routes.js";
 
-test("preserves Mohammed's 17 interfaces and registers the two scoped entities", () => {
-  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 17);
+test("preserves Mohammed's assigned interfaces and registers the two scoped entities", () => {
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 18);
   assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "TrainingAgreement").length, 4);
   assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "auditLog").length, 4);
 });
@@ -11,6 +11,7 @@ test("preserves Mohammed's 17 interfaces and registers the two scoped entities",
 test("matches Mohammed dynamic routes", () => {
   assert.equal(matchRoute("/challenges/17").route.name, "Challenge Detail + Voting");
   assert.equal(matchRoute("/camels/11").route.name, "Pedigree Section");
+  assert.equal(matchRoute("/camels/11/pedigree/edit").route.name, "Edit Pedigree");
   assert.equal(matchRoute("/organizer/races/5/race-card").route.name, "Race Card Publish Control");
 });
 
@@ -108,4 +109,13 @@ test("specific camel routes win over Mohammed's /camels/:id, which stays the Ped
   assert.equal(matchRoute("/camels/new").route.name, "Add Camel");
   assert.equal(matchRoute("/camels/11").route.name, "Pedigree Section");
   assert.equal(matchRoute("/marketplace/my-listings").route.name, "My Listings");
+});
+
+
+test("pedigree editing is limited to owner and admin roles", () => {
+  const route = matchRoute("/camels/11/pedigree/edit").route;
+  assert.equal(canAccessRoute(route, { userId: 1, roles: ["OWNER"] }), true);
+  assert.equal(canAccessRoute(route, { userId: 2, roles: ["ADMIN"] }), true);
+  assert.equal(canAccessRoute(route, { userId: 3, roles: ["VIEWER"] }), false);
+  assert.equal(canAccessRoute(route, { userId: 4, roles: ["TRAINER"] }), false);
 });

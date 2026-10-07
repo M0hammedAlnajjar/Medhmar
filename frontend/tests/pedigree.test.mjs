@@ -29,6 +29,13 @@ test('renders the requested camel and keeps paternal and maternal ancestors on t
   assert.match(html, /https:\/\/example.com\/barq.jpg/);
 });
 
+test('shows the edit action only when the current user may manage this camel', () => {
+  const editable = pedigreeView({ status: 'ready', data: { tree: family, canEdit: true } });
+  const readOnly = pedigreeView({ status: 'ready', data: { tree: family, canEdit: false } });
+  assert.match(editable, /href="\/camels\/41\/pedigree\/edit"/);
+  assert.doesNotMatch(readOnly, /\/pedigree\/edit/);
+});
+
 test('unknown and name-only ancestors never invent names, IDs, photos or links', () => {
   const html = render({ camelId: 52, name: 'Najm', sireName: 'Unregistered sire' });
   assert.match(html, /Unregistered sire/);

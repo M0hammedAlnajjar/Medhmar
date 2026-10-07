@@ -128,7 +128,12 @@ export const auditLogApi = {
 };
 
 export const pedigreeApi = {
+  get: (camelId) => api(`/camel/${encodeURIComponent(camelId)}/pedigree`),
   tree: (camelId) => api(`/camel/${encodeURIComponent(camelId)}/pedigree/tree?generations=3`),
+  update: (camelId, payload) => api(`/camel/${encodeURIComponent(camelId)}/pedigree`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }),
 };
 
 // Camel / Ownership / Marketplace / Offer endpoints (verified against CamelController, MarketPlaceController, OfferController).

@@ -187,7 +187,34 @@ async function camelMap(ids) {
 }
 
 const loaders = {
-  'Pedigree Section': async p => ({ tree: await pedigreeApi.tree(p.id) }),
+  'Pedigree Section': async p => {
+    const tree = await pedigreeApi.tree(p.id);
+    let canEdit = false;
+    if (signedIn() && canManageCamels(state.user)) {
+      if (isAdmin()) canEdit = true;
+      else {
+        const mine = await camelApi.mine().catch(() => []);
+        canEdit = mine.some(c => String(c.camelId) === String(p.id));
+      }
+    }
+    return { tree, canEdit };
+  },
+  'Edit Pedigree': async p => {
+    needAuth();
+    const minePromise = isAdmin() ? Promise.resolve([]) : camelApi.mine().catch(() => []);
+    const [pedigree, camel, candidatesPage, mine] = await Promise.all([
+      pedigreeApi.get(p.id),
+      camelApi.one(p.id),
+      camelApi.list({ page: 0, size: 100 }),
+      minePromise,
+    ]);
+    return {
+      pedigree,
+      camel,
+      candidates: candidatesPage?.content || [],
+      canEdit: isAdmin() || mine.some(c => String(c.camelId) === String(p.id)),
+    };
+  },
   'Training Agreements': async () => ({ agreements: isAdmin() ? await agreementApi.list() : await agreementApi.mine() }),
   'Add Training Agreement': async () => ({}),
   'Training Agreement Details': async p => ({ agreement: await agreementApi.one(p.id) }),
@@ -266,6 +293,57 @@ const camelPhoto = c => { const fallback = "/assets/mock-camels/camel-" + ((((Nu
 const row = (l, v) => `<div class="info-row"><span>${l}</span><strong>${v}</strong></div>`;
 const pager = pg => pg.totalPages > 1 ? `<div class="pager"><button class="small-btn" data-act="page" data-page="${pg.page - 1}" ${pg.page <= 0 ? 'disabled' : ''}>← Previous</button><span>Page ${pg.page + 1} of ${pg.totalPages} • ${pg.totalElements} results</span><button class="small-btn" data-act="page" data-page="${pg.page + 1}" ${pg.page + 1 >= pg.totalPages ? 'disabled' : ''}>Next →</button></div>` : '';
 const opts = (list, cur, any) => `${any ? `<option value="">${any}</option>` : ''}${list.map(x => `<option ${x === cur ? 'selected' : ''}>${x}</option>`).join('')}`;
+
+const pedigreeParentOptions = (candidates, gender, selectedId, child) => {
+  const childBirth = child?.birthDate ? new Date(child.birthDate).getTime() : null;
+  const valid = (candidates || [])
+    .filter(c => String(c.camelId) !== String(child?.camelId))
+    .filter(c => c.gender === gender)
+    .filter(c => c.status === 'ACTIVE')
+    .filter(c => !childBirth || !c.birthDate || new Date(c.birthDate).getTime() < childBirth)
+    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  return `<option value="">Not linked to a registered camel</option>${valid.map(c => `<option value="${esc(c.camelId)}" ${String(c.camelId) === String(selectedId ?? '') ? 'selected' : ''}>${esc(c.name)} — #${esc(c.camelId)}${c.breed ? ` · ${esc(c.breed)}` : ''}</option>`).join('')}`;
+};
+
+const pedigreeEditScreen = () => scr('/camels', camelTabs(''), 'Edit Pedigree', d => {
+  const camel = d.camel || {};
+  const pedigree = d.pedigree || {};
+  if (!d.canEdit) {
+    return {
+      title: `Pedigree — ${esc(camel.name || `Camel #${camel.camelId || ''}`)}`,
+      sub: 'Registered parent links can only be changed by the camel owner or an administrator.',
+      body: errorCard({ status: 403, message: 'You do not own this camel.' }),
+    };
+  }
+  const sireOptions = pedigreeParentOptions(d.candidates, 'MALE', pedigree.sireCamelId, camel);
+  const damOptions = pedigreeParentOptions(d.candidates, 'FEMALE', pedigree.damCamelId, camel);
+  const legacySire = !pedigree.sireCamelId && pedigree.sire ? `<p class="form-help">Current unregistered sire name: <strong>${esc(pedigree.sire)}</strong></p>` : '';
+  const legacyDam = !pedigree.damCamelId && pedigree.dam ? `<p class="form-help">Current unregistered dam name: <strong>${esc(pedigree.dam)}</strong></p>` : '';
+  return {
+    title: `Edit pedigree — ${esc(camel.name || `Camel #${camel.camelId}`)}`,
+    sub: 'Link the camel to registered parents. The server validates gender, age, ownership and circular ancestry.',
+    actions: `<a class="btn btn-secondary" href="/camels/${esc(camel.camelId)}" data-link>Back to pedigree</a>`,
+    body: `<form class="form card card-pad" data-form="pedigree-edit" data-id="${esc(camel.camelId)}">
+      <div class="field">
+        <label for="pedigree-sire">Sire (father)</label>
+        <select id="pedigree-sire" class="select" name="sireCamelId">${sireOptions}</select>
+        ${legacySire}
+        <span class="form-help">Only active male camels born before this camel are shown.</span>
+      </div>
+      <div class="field">
+        <label for="pedigree-dam">Dam (mother)</label>
+        <select id="pedigree-dam" class="select" name="damCamelId">${damOptions}</select>
+        ${legacyDam}
+        <span class="form-help">Only active female camels born before this camel are shown.</span>
+      </div>
+      <div class="form-feedback" aria-live="polite"></div>
+      <div class="modal-actions">
+        <a class="btn btn-secondary" href="/camels/${esc(camel.camelId)}" data-link>Cancel</a>
+        <button class="btn btn-primary" type="submit">Save pedigree</button>
+      </div>
+    </form>`,
+  };
+});
 
 // ---- TrainingAgreement and auditLog entity screens ----
 const agreementStatuses = ['DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','REJECTED','TERMINATED','COMPLETED','EXPIRED'];
@@ -415,6 +493,16 @@ async function onMineSubmit(e) {
   try {
     if (kind === 'camel-add') { const newId = await camelApi.add(toCamelPayload(f)); toast('Camel registered.', 'success'); go(`/camels/${newId}/profile`); }
     else if (kind === 'camel-edit') { await camelApi.update(toCamelPayload(f, id)); toast('Camel updated.', 'success'); go(`/camels/${id}/profile`); }
+    else if (kind === 'pedigree-edit') {
+      const payload = {
+        sireCamelId: f.sireCamelId ? Number(f.sireCamelId) : null,
+        damCamelId: f.damCamelId ? Number(f.damCamelId) : null,
+      };
+      await pedigreeApi.update(id, payload);
+      state.view = blankView();
+      toast('Pedigree updated.', 'success');
+      go(`/camels/${id}`);
+    }
     else if (kind === 'listing-add') { const newId = await marketplaceApi.add(toListingPayload(f)); toast('Listing published.', 'success'); go(`/marketplace/${newId}`); }
     else if (kind === 'listing-edit') { await marketplaceApi.update(toListingPayload(f, id)); toast('Listing updated.', 'success'); go(`/marketplace/${id}`); }
     else if (kind === 'offer-add') { await offerApi.add(toOfferCreatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer submitted.', 'success'); go('/offers'); }
@@ -457,7 +545,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
  'Audit Logs':auditScreen,'Add Audit Log':()=>mineScreens()[name](),'Edit Audit Log':()=>mineScreens()[name](),'Audit Log Details':auditDetailScreen,
- 'Admin Dashboard':admin,'Pedigree Section':()=>pedigree(p.id),
+ 'Admin Dashboard':admin,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
