@@ -1,3 +1,4 @@
+import { renderRacesListing, renderRaceDetails } from "./race-app.js";
 import { authView } from './auth-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
@@ -24,10 +25,20 @@ const badge = s => `<span class="badge ${['ACTIVE','OPEN','APPROVED','OFFICIAL']
 const go = p => { history.pushState({},'',p); render(); };
 function toast(msg,type=''){ const el=document.createElement('div'); el.className=`toast ${type}`; el.textContent=msg; toastRoot.append(el); setTimeout(()=>el.remove(),3200); }
 
+
 const navItems = [
-  ['/home','Home'],['/challenges','Challenges'],['/training','Training'],['/organizations','Organizations'],
-  ['/tourism','Heritage'],['/race-cards','Race Cards'],['/trainer-profile','Trainer'],['/admin','Admin']
+    ['/home','Home'],
+    ['/challenges','Challenges'],
+    ['/training','Training'],
+    ['/organizations','Organizations'],
+    ['/tourism','Heritage'],
+    ['/races','Races'],
+    ['/race-cards','Race Cards'],
+    ['/trainer-profile','Trainer'],
+    ['/admin','Admin']
 ];
+
+
 const navAll = [...navItems.slice(0,7),['/camels','Camels'],['/marketplace','Marketplace'],...navItems.slice(7)];
 const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
 function topbar(active=''){
@@ -382,6 +393,31 @@ async function render() {
  if(match && !canAccessRoute(match.route,state.user)) {
   denyAdminAccess();bind();return;
  }
+
+    if (
+        match?.route?.name === "Races Listing" ||
+        match?.route?.name === "Race Details"
+    ) {
+        root.innerHTML = shell(
+            '<div id="race-view"></div>',
+            '/races'
+        );
+
+        const raceView = document.querySelector("#race-view");
+
+        if (match.route.name === "Races Listing") {
+            await renderRacesListing(raceView);
+        } else {
+            await renderRaceDetails(
+                raceView,
+                match.params.id
+            );
+        }
+
+        bind();
+        return;
+    }
+
  if(match?.route?.path==='/admin') {
   root.innerHTML=shell('<section class="card card-pad" role="status">Checking administrator access…</section>');bind();
   try {
