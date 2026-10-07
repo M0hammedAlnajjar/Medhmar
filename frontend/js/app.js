@@ -376,10 +376,40 @@ const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{c
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
 const pedigreeDirectoryCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><div><div class="kicker">PEDIGREE</div><h3>${esc(c.name)}</h3></div>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}" data-link>View pedigree</a><a class="btn btn-secondary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
+const pedigreeDirectoryVisual = () => `<section class="pedigree-directory-hero" aria-label="Pedigree family tree preview">
+  <div class="pedigree-directory-copy">
+    <div class="kicker">BLOODLINE VIEW</div>
+    <h2>Three generations.<br><em>One lineage.</em></h2>
+    <p>Trace sire and dam lines at a glance, then open any registered camel to explore its full family tree.</p>
+    <div class="pedigree-directory-key">
+      <span><i class="pedigree-key-dot sire"></i>Sire line</span>
+      <span><i class="pedigree-key-dot dam"></i>Dam line</span>
+      <span><i class="pedigree-key-dot camel"></i>Selected camel</span>
+    </div>
+  </div>
+  <div class="pedigree-directory-tree" aria-hidden="true">
+    <div class="pedigree-tree-glow"></div>
+    <div class="pedigree-mini-node pedigree-mini-subject">
+      <span class="pedigree-mini-mark"><img src="/assets/mark.svg" alt=""></span>
+      <small>Selected camel</small><strong>MEDHMAR</strong>
+    </div>
+    <div class="pedigree-mini-branch pedigree-mini-sire">
+      <div class="pedigree-mini-node"><small>Sire</small><strong>Father</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><small>Grand Sire</small><strong>Father's Sire</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><small>Grand Dam</small><strong>Father's Dam</strong></div>
+    </div>
+    <div class="pedigree-mini-branch pedigree-mini-dam">
+      <div class="pedigree-mini-node"><small>Dam</small><strong>Mother</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><small>Grand Sire</small><strong>Mother's Sire</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><small>Grand Dam</small><strong>Mother's Dam</strong></div>
+    </div>
+  </div>
+</section>`;
+
 const pedigreeDirectoryScreen = () => scr('/pedigree', '', 'Pedigree', d => ({
   title: 'Pedigree',
   sub: 'Explore registered camel bloodlines and open each family tree.',
-  body: `<form class="toolbar" data-form="pedigree-filter"><input class="input" name="search" placeholder="Search camel by name…" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(pedigreeDirectoryCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No registered camels match these pedigree filters.', '<a class="btn btn-secondary" href="/camels" data-link>Browse camels</a>')}`,
+  body: `${pedigreeDirectoryVisual()}<form class="toolbar pedigree-directory-toolbar" data-form="pedigree-filter"><input class="input" name="search" placeholder="Search camel by name…" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(pedigreeDirectoryCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No registered camels match these pedigree filters.', '<a class="btn btn-secondary" href="/camels" data-link>Browse camels</a>')}`,
 }));
 
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
