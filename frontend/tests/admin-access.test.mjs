@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { matchRoute, canAccessRoute } from '../js/routes.js';
 import { demo } from '../js/data.js';
+import { bindPedigreeImages } from '../js/pedigree-view.js';
 
 const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8'))
   .replace(/^import .*;\r?\n/gm, '')
@@ -14,7 +15,7 @@ function harness(user, { me = async () => user, users } = {}) {
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
-    session: user, demo, matchRoute, canAccessRoute,
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
@@ -101,5 +102,4 @@ test('late admin responses cannot restore the dashboard after navigation', async
   assert.doesNotMatch(app.root.innerHTML, /Late user|Admin Dashboard/);
   assert.equal(vm.runInContext('state.adminUsers', app.context), null);
 });
-
 

@@ -8,6 +8,7 @@ import java.util.Date;
 public record PedigreeTreeDTO(
         Long camelId,
         String name,
+        String photoUrl,
         Gender gender,
         Date birthDate,
         String sireName,

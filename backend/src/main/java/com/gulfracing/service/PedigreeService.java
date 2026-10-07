@@ -172,6 +172,7 @@ public class PedigreeService {
             return new PedigreeTreeDTO(
                     camel.getCamelId(),
                     camel.getName(),
+                    camel.getPhotoUrl(),
                     camel.getGender(),
                     camel.getBirthDate(),
                     direct.sire(),
