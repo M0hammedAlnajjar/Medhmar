@@ -142,27 +142,42 @@ img{display:block;max-width:100%}
 }
 
 
-.landing-below{padding-top:44px;padding-bottom:64px}
-.landing-section-title{align-items:flex-end;margin-bottom:20px}
-.landing-section-title h2{margin:4px 0 0;font-family:Georgia,"Times New Roman",serif;font-size:30px;font-weight:600;color:#302219}
-.landing-module-grid{gap:16px}
-.landing-module-card{position:relative;min-height:190px;display:flex;flex-direction:column;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
-.landing-module-card:hover{transform:translateY(-3px);border-color:#d5b892;box-shadow:0 14px 32px rgba(59,40,29,.08)}
-.landing-module-card h3{margin:22px 0 8px;font-family:Georgia,"Times New Roman",serif;font-size:20px}
-.landing-module-card p{font-size:13px;line-height:1.55;margin:0;max-width:240px}
-.landing-module-number{position:absolute;top:18px;right:18px;color:#c6a681;font-family:Georgia,"Times New Roman",serif;font-size:13px;letter-spacing:.12em}
-.landing-module-link{margin-top:auto;padding-top:18px;color:#6d4930;font-size:12px;font-weight:800;letter-spacing:.04em}
-.landing-module-link b{font-size:16px;margin-left:4px}
-@media(max-width:1080px){
- .landing-below{padding-top:36px}
+.landing-below{padding-top:34px;padding-bottom:54px}
+.landing-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:16px}
+.landing-section-head h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:30px;line-height:1;color:#2e2119}
+.landing-section-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.landing-view-all{display:inline-flex;align-items:center;gap:10px;color:#8f5f3d;font-size:12px;font-weight:800;border-bottom:1px solid #c99a72;padding-bottom:3px;white-space:nowrap}
+.landing-view-all:hover{color:#5d3d28}
+.landing-module-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.landing-module-card{position:relative;min-width:0;display:grid;grid-template-columns:34% minmax(0,1fr) 34px;align-items:center;gap:12px;min-height:118px;padding:8px;border:1px solid #e2d6c8;border-radius:10px;background:#fffaf4;box-shadow:0 4px 16px rgba(59,40,29,.035);overflow:hidden;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.landing-module-card:hover{transform:translateY(-2px);border-color:#cfa77d;box-shadow:0 10px 24px rgba(59,40,29,.07)}
+.landing-module-thumb{height:100%;min-height:96px;border-radius:7px;overflow:hidden;background:#eadfce;display:grid;place-items:center}
+.landing-module-thumb img{width:100%;height:100%;object-fit:cover}
+.landing-module-card:nth-child(1) .landing-module-thumb img{object-position:center}
+.landing-module-card:nth-child(2) .landing-module-thumb img{object-position:62% center}
+.landing-module-card:nth-child(3) .landing-module-thumb img{object-position:70% center}
+.landing-module-card:nth-child(4) .landing-module-thumb{background:#f4eadf;padding:10px}
+.landing-module-card:nth-child(4) .landing-module-thumb img{object-fit:contain}
+.landing-module-body{min-width:0}
+.landing-module-meta{display:flex;align-items:center;gap:7px;color:#a56c42;font-size:8px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.landing-module-index{font-family:Georgia,"Times New Roman",serif;font-size:9px;color:#bb8b64;letter-spacing:.06em}
+.landing-module-card h3{margin:6px 0 4px;font-family:Georgia,"Times New Roman",serif;font-size:16px;line-height:1.12;color:#2f221a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.landing-module-card p{margin:0;color:#71675f;font-size:10px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.landing-module-badge{display:inline-flex;margin-top:7px;padding:3px 7px;border-radius:4px;background:#edf3e8;color:#53724e;font-size:8px;font-weight:800}
+.landing-module-card:nth-child(2) .landing-module-badge,.landing-module-card:nth-child(3) .landing-module-badge{background:#eaf0f8;color:#5a7190}
+.landing-module-card:nth-child(4) .landing-module-badge{background:#f7eadb;color:#92633f}
+.landing-module-arrow{width:26px;height:26px;border:1px solid #c58d61;border-radius:50%;display:grid;place-items:center;color:#a9683a;font-size:14px;justify-self:end}
+.landing-module-card:hover .landing-module-arrow{background:#3b281d;border-color:#3b281d;color:#fff}
+@media(max-width:1180px){
+ .landing-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:640px){
- .landing-below{padding-top:30px;padding-bottom:46px}
- .landing-section-title{align-items:flex-start;gap:8px;flex-direction:column}
- .landing-section-title h2{font-size:26px}
- .landing-module-card{min-height:165px}
+ .landing-below{padding-top:28px;padding-bottom:44px}
+ .landing-section-head{align-items:flex-start;flex-direction:column;gap:12px}
+ .landing-section-head h2{font-size:27px}
+ .landing-module-grid{grid-template-columns:1fr}
+ .landing-module-card{grid-template-columns:120px minmax(0,1fr) 34px}
 }
-
 .section{margin-top:28px}
 .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-title h2{font-size:22px;margin:0}
