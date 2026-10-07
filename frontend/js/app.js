@@ -45,7 +45,21 @@ const shell = (body,active='') => `<div class="app-shell">${topbar(active)}<main
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 function landing(){
- return `<div class="app-shell">${topbar()}<section class="landing-hero" aria-labelledby="landing-title"><img class="landing-hero-photo" src="/assets/landing-hero-wide.png" width="2116" height="743" alt="Racing camels on an Omani desert track with mountains in the background" fetchpriority="high" decoding="async"><div class="landing-hero-content"><h1 id="landing-title"><span>Experience</span><span>the Heritage</span><span>of Camel Racing</span></h1><p>Discover races, camels, trainers and<br>the culture behind Gulf camel racing.</p><div class="landing-hero-actions"><a class="btn btn-primary" href="/home" data-link>Explore Races</a><a class="btn btn-secondary" href="/signup" data-link>Join Medhmar</a></div></div></section><main class="main"><div class="section-title"><h2>Mohammed's Platform Modules</h2><span>Focused implementation only</span></div><div class="grid grid-4">${[['Secure accounts','Authentication, registration and password recovery.'],['Challenges & voting','Published camel challenges with protected voting.'],['Training records','Chronological trainer session logs.'],['Platform operations','Admin, organizations, tourism and race cards.']].map(([t,d])=>`<article class="card card-pad"><h3>${t}</h3><p class="form-help">${d}</p></article>`).join('')}</div></main></div>`;
+ return '<div class="app-shell landing-page">' + topbar() +
+ '<main class="landing-hero" aria-labelledby="landing-title">' +
+ '<section class="landing-editorial">' +
+ '<div class="landing-brandline"><span class="landing-rule"></span><div><div class="landing-wordmark">MEDHMAR</div><div class="landing-eyebrow">OMAN\'S CAMEL RACING COMMUNITY</div></div></div>' +
+ '<div class="landing-copy"><h1 id="landing-title">Where tradition<br>races into<br><em>the future.</em></h1>' +
+ '<p>Races. Camels. Heritage. Community.<br>Experience Oman\'s living legacy and a new generation of racing excellence.</p>' +
+ '<div class="landing-hero-actions"><a class="landing-primary" href="/race-cards" data-link>Explore Races <span aria-hidden="true">→</span></a><a class="landing-secondary" href="/tourism" data-link>Discover Heritage <span class="landing-circle-arrow" aria-hidden="true">→</span></a></div></div>' +
+ '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span><span class="landing-landscape" aria-hidden="true"></span></div>' +
+ '</section>' +
+ '<section class="landing-visual" aria-label="Camel race in Oman">' +
+ '<img class="landing-race-photo" src="/assets/racing-hero.webp" alt="Racing camels on an Omani track at golden hour" fetchpriority="high" decoding="async">' +
+ '<div class="landing-photo-wash" aria-hidden="true"></div>' +
+ '<aside class="landing-track-card"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2026&nbsp; · &nbsp;Al Seeb, Oman</span></div><a href="/race-cards" data-link class="landing-track-arrow" aria-label="Open race cards">→</a></aside>' +
+ '</section>' +
+ '</main></div>';
 }
 
 const auth = authView;
