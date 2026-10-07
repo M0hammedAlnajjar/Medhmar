@@ -27,27 +27,32 @@ export const SULAIMAN_RACE_ROUTES = [
     {
         path: "/races/:id/register",
         name: "Race Registration",
-        owner: "Sulaiman"
+        owner: "Sulaiman",
+        roles: ["OWNER", "ADMIN"]
     },
     {
         path: "/registrations",
         name: "My Registrations",
-        owner: "Sulaiman"
+        owner: "Sulaiman",
+        roles: ["OWNER", "ADMIN"]
     },
     {
         path: "/organizer",
         name: "Organizer Race Dashboard",
-        owner: "Sulaiman"
+        owner: "Sulaiman",
+        roles: ["ORGANIZER", "ADMIN"]
     },
     {
         path: "/organizer/races/new",
         name: "Add Race",
-        owner: "Sulaiman"
+        owner: "Sulaiman",
+        roles: ["ORGANIZER", "ADMIN"]
     },
     {
         path: "/organizer/races/:id",
         name: "Manage Race",
-        owner: "Sulaiman"
+        owner: "Sulaiman",
+        roles: ["ORGANIZER", "ADMIN"]
     }
 ];
 
