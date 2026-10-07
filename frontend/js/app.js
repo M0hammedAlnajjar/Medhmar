@@ -4,6 +4,7 @@ import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
+import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
 const $ = (s, el=document) => el.querySelector(s);
 const root = $('#app');
@@ -197,11 +198,12 @@ const loaders = {
   },
   'Edit Camel': async p => { needAuth(); return { camel: await camelApi.one(p.id) }; },
   'Camel Ownership History': async p => { const [camel, history] = await Promise.all([camelApi.one(p.id), camelApi.ownership(p.id)]); return { camel, history }; },
-  'Marketplace': async () => { const q = qparams(); const page = await marketplaceApi.list({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: await camelMap(page.content.map(l => l.camelId)) }; },
+  'Marketplace': async () => { const q = qparams(); if (ENABLE_MOCK_MARKETPLACE) { const page = mockMarketplacePage({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: MOCK_CAMELS }; } const page = await marketplaceApi.list({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: await camelMap(page.content.map(l => l.camelId)) }; },
   'Create Listing': async () => { needAuth(); return { camels: await camelApi.mine(), camelId: qparams().camelId }; },
   'My Listings': async () => { needAuth(); const listings = await marketplaceApi.mine(); return { listings, camels: await camelMap(listings.map(l => l.camelId)) }; },
   'Listing History': async () => { needAuth(); const listings = await marketplaceApi.history(); return { listings, camels: await camelMap(listings.map(l => l.camelId)) }; },
   'Listing Detail': async p => {
+    if (isMockListingId(p.id)) { const listing = getMockListing(p.id); const camel = MOCK_CAMELS[listing.camelId]; return { listing, camel, seller: false, offers: null, myOffer: null, mock: true }; }
     const listing = await marketplaceApi.one(p.id);
     const seller = signedIn() && (String(listing.userId) === String(state.user.userId) || isAdmin());
     const [camel, offers, myOffers] = await Promise.all([
@@ -253,7 +255,7 @@ function scr(active, tabsHtml, fallback, builder) {
   const r = builder(v.data);
   return shell(`${head(r.title, r.sub || '', r.actions || '')}${tabsHtml}${r.body}`, active);
 }
-const camelPhoto = c => isHttpUrl(c?.photoUrl) ? `<img class="camel-thumb" src="${esc(c.photoUrl)}" alt="${esc(c.name)}" loading="lazy" referrerpolicy="no-referrer">` : '<div class="camel-art"></div>';
+const camelPhoto = c => { const fallback = "/assets/mock-camels/camel-" + ((((Number(c?.camelId) || 1) - 1) % 8) + 1) + ".jpg"; const src = isHttpUrl(c?.photoUrl) ? c.photoUrl : fallback; return '<img class="camel-thumb" src="' + esc(src) + '" alt="' + esc(c?.name || "Camel") + '" loading="lazy" referrerpolicy="no-referrer">'; };
 const row = (l, v) => `<div class="info-row"><span>${l}</span><strong>${v}</strong></div>`;
 const pager = pg => pg.totalPages > 1 ? `<div class="pager"><button class="small-btn" data-act="page" data-page="${pg.page - 1}" ${pg.page <= 0 ? 'disabled' : ''}>← Previous</button><span>Page ${pg.page + 1} of ${pg.totalPages} • ${pg.totalElements} results</span><button class="small-btn" data-act="page" data-page="${pg.page + 1}" ${pg.page + 1 >= pg.totalPages ? 'disabled' : ''}>Next →</button></div>` : '';
 const opts = (list, cur, any) => `${any ? `<option value="">${any}</option>` : ''}${list.map(x => `<option ${x === cur ? 'selected' : ''}>${x}</option>`).join('')}`;
@@ -272,7 +274,7 @@ const auditScreen = () => scr('/audit-logs','','Audit logs',d=>{const q=qparams(
 const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{const a=d.log;return {title:`Audit entry #${esc(a.auditId)}`,sub:`${esc(a.actionType)} · ${esc(a.entityType)} #${esc(a.entityId)}`,actions:`<a class="btn btn-secondary" href="/audit-logs/${a.auditId}/edit" data-link>Edit</a><a class="btn btn-ghost" href="/audit-logs" data-link>Back to Audit Log</a>`,body:`<section class="card card-pad"><h2>Event information</h2><div class="info-list">${row('Action type',esc(a.actionType))}${row('Entity type',esc(a.entityType))}${row('Entity ID',`#${esc(a.entityId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Recorded',fmtDate(a.createdAt))}</div><h2 class="entity-subhead">Description</h2><p class="entity-copy">${esc(a.description||'No description recorded.')}</p></section>`};});
 
 // ---- Camels ----
-const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
+const camelCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
   title: 'Camels', sub: 'Registered camels from the Medhmar registry.',
   actions: canManageCamels(state.user) ? '<a class="btn btn-primary" href="/camels/new" data-link>+ Add Camel</a>' : '',
@@ -301,7 +303,7 @@ const camelProfileScreen = () => scr('/camels', camelTabs(''), 'Camel Profile', 
   return {
     title: esc(p.name), sub: `${esc(p.breed)} • ${esc(p.gender)} • ${esc(p.category || 'Uncategorised')}`,
     actions: `${sell}<a class="btn btn-secondary" href="/camels/${p.camelId}/ownership" data-link>Ownership history</a><a class="btn btn-secondary" href="/camels/${p.camelId}" data-link>Pedigree section</a>${canEdit ? `<a class="btn btn-secondary" href="/camels/${p.camelId}/edit" data-link>Edit</a><button class="btn btn-danger" data-act="delete-camel" data-id="${p.camelId}" data-name="${esc(p.name)}">Delete</button>` : ''}`,
-    body: `<div class="two-pane"><section class="card card-pad">${camelPhoto(p)}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || '—'))}${row('Sire', parent(ped.sire, ped.sireCamelId))}${row('Dam', parent(ped.dam, ped.damCamelId))}${row('Pedigree recorded', fmtDate(ped.recordedAt))}</div></section>
+    body: `<div class="two-pane"><section class="card card-pad">${camelPhoto({...p, photoUrl: null})}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || '—'))}${row('Sire', parent(ped.sire, ped.sireCamelId))}${row('Dam', parent(ped.dam, ped.damCamelId))}${row('Pedigree recorded', fmtDate(ped.recordedAt))}</div></section>
 <aside><section class="card card-pad"><h2>Current owners</h2>${p.owners.length ? `<div class="info-list">${p.owners.map(o => row(esc(o.name || '—'), `${esc(o.sharePercent)}%`)).join('')}</div>` : '<p class="form-help">No current owner recorded.</p>'}<p class="form-help">Owner names only — contact details are never shown.</p></section>
 <section class="card card-pad section"><h2>Marketplace</h2>${al ? `<div class="price">${fmtOmr(al.askingPriceOmr)}</div><p>${esc(al.description)}</p>${sb(al.status)} <a class="btn btn-secondary" href="/marketplace/${al.listingId}" data-link>View listing</a>` : '<p class="form-help">Not currently listed for sale.</p>'}</section></aside></div>`,
   };

@@ -69,3 +69,23 @@ export const toOfferCreatePayload = (price, listingId) => ({ offeredPriceOmr: Nu
 export const toOfferUpdatePayload = (price, offerId) => ({ offerId: Number(offerId), offeredPriceOmr: Number(price) });
 
 export const isFullOwner = (owners = []) => owners.length === 1 && Number(owners[0].sharePercent) >= 99.999;
+
+// data:image/svg+xml is allowed so the temporary mock marketplace can use inline artwork (rendered via <img>, so no scripts run).
+export const isSafeImageSrc = (u) => isHttpUrl(u) || /^data:image\/svg\+xml/i.test(String(u || "")) || /^\/assets\/mock-camels\/camel-\d+\.jpg$/i.test(String(u || ""));
+
+// "3 yrs" / "1 yr" / "8 mo" from a birth date. Empty string when unknown or in the future.
+export function ageLabel(birthDate, now = Date.now()) {
+  const b = new Date(birthDate), n = new Date(now);
+  if (!birthDate || Number.isNaN(b.getTime())) return "";
+  let months = (n.getUTCFullYear() - b.getUTCFullYear()) * 12 + (n.getUTCMonth() - b.getUTCMonth());
+  if (n.getUTCDate() < b.getUTCDate()) months -= 1;
+  if (months < 0) return "";
+  const years = Math.floor(months / 12);
+  if (years < 1) return months < 1 ? "<1 mo" : `${months} mo`;
+  return `${years} ${years === 1 ? "yr" : "yrs"}`;
+}
+
+const titleCase = (v) => (v ? String(v).charAt(0).toUpperCase() + String(v).slice(1).toLowerCase() : "");
+// "Omani • Male • 3 yrs" from a CamelDTO (skips missing parts).
+export const camelMeta = (c, now) => (c ? [c.breed, titleCase(c.gender), ageLabel(c.birthDate, now)].filter(Boolean).join(" • ") : "");
+

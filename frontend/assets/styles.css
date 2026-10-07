@@ -606,7 +606,16 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .subnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .subnav a{padding:8px 14px;border:1px solid var(--border);border-radius:999px;font-size:13px;background:var(--surface)}
 .subnav a.active{background:var(--primary);border-color:var(--primary);color:#fff}
-.camel-thumb{display:block;width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:12px;background:var(--surface-2)}
+.camel-thumb{display:block;width:100%;height:350px;object-fit:cover;border-radius:12px;margin-bottom:12px;background:var(--surface-2)}
 .pager{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:20px;font-size:13px}
 .pager .small-btn:disabled{opacity:.45;cursor:not-allowed}
 .price{font-size:22px;font-weight:800;color:var(--primary);margin:4px 0 8px}
+.listing-card{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.listing-card .camel-thumb,.listing-card .camel-art{height:250px;width:100%;object-fit:cover;border-radius:0;margin:0}
+.listing-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.listing-body h3{margin:0}
+.listing-body .section-title{margin-bottom:0}
+.listing-meta{margin:0;color:var(--muted);font-size:13px}
+.listing-desc{margin:0;font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.listing-link{margin-top:auto;padding-top:8px;font-weight:700;color:var(--primary-2)}
+
