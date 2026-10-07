@@ -34,11 +34,11 @@ function topbar(active=''){
   const signedIn = Boolean(state.user?.userId);
   const accountActions = signedIn
     ? `<a class="profile-btn" href="/settings" data-link><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span>${esc(state.user.fullName?.split(' ')[0]||'User')}</span></a>`
-    : `<a class="profile-btn" href="/signin" data-link><span>Sign In</span></a><a class="profile-btn" href="/signup" data-link><span>Create Account</span></a>`;
+    : `<a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a><a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a>`;
 
   return `<header class="topbar"><div class="topbar-inner"><a class="brand" href="/" data-link><img src="/assets/mark.svg" alt=""><span>MEDHMAR</span></a>
   <nav class="nav">${visibleNavItems().map(([p,l])=>`<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`).join('')}</nav>
-  <div class="nav-actions"><button class="lang-btn" id="lang-toggle">${state.lang==='en'?'EN | AR':'AR | EN'}</button>${accountActions}</div></div></header>`;
+  <div class="nav-actions" dir="ltr">${accountActions}<div class="nav-language" role="group" aria-label="Language"><button class="nav-language-option" type="button" data-language="ar" aria-label="العربية" aria-pressed="${state.lang==='ar'}" lang="ar">AR</button><button class="nav-language-option" type="button" data-language="en" aria-label="English" aria-pressed="${state.lang==='en'}" lang="en">EN</button></div></div></div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
 const shell = (body,active='') => `<div class="app-shell">${topbar(active)}<main class="main">${body}</main><footer>MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform</footer></div>`;
@@ -384,7 +384,13 @@ function bind(){
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
  document.querySelectorAll('[data-link]').forEach(a=>a.addEventListener('click',e=>{ if(!e.ctrlKey&&!e.metaKey){e.preventDefault();go(a.getAttribute('href'));} }));
- $('#lang-toggle')?.addEventListener('click',()=>{state.lang=state.lang==='en'?'ar':'en';localStorage.setItem('medhmar-lang',state.lang);render();});
+ document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',async()=>{
+  const language=button.dataset.language;
+  if(state.lang===language) return;
+  state.lang=language;localStorage.setItem('medhmar-lang',language);
+  await render();
+  document.querySelector(`[data-language="${language}"]`)?.focus({preventScroll:true});
+ }));
  $('#auth-form')?.addEventListener('submit',handleAuth); $('#settings-form')?.addEventListener('submit',handleSettings); $('#logout-btn')?.addEventListener('click',handleLogout);
  document.querySelectorAll('.vote-btn').forEach(b=>b.addEventListener('click',handleVote)); $('#add-training-btn')?.addEventListener('click',showTrainingModal);
  $('#publish-race-card')?.addEventListener('click',handlePublish); document.querySelectorAll('.manage-user').forEach(b=>b.addEventListener('click',()=>showUserModal(b.dataset.user)));
@@ -514,7 +520,6 @@ async function init(){
  render();
 }
 window.addEventListener('popstate',render); init();
-
 
 
 
