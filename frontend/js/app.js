@@ -46,25 +46,21 @@ const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/ca
 function topbar(active=''){
   const signedIn = Boolean(state.user?.userId);
   const items = visibleNavItems();
-  const primaryItems = items.filter(([path]) => primaryNavPaths.has(path));
-  const secondaryItems = items.filter(([path]) => !primaryNavPaths.has(path));
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
 
   const accountActions = signedIn
-    ? `<a class="profile-btn" href="/settings" data-link><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span></a>`
-    : `<a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a><a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a>`;
+    ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">⌄</span></a>`
+    : `<a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a><a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a>`;
 
-  const moreMenu = secondaryItems.length
-    ? `<details class="nav-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="nav-more-menu">${secondaryItems.map(navLink).join('')}</div></details>`
-    : '';
-
+  const searchAction = `<a class="nav-search" href="/races" data-link aria-label="Search races" title="Search races"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg></a>`;
+  const language = '<span class="nav-language-single" aria-label="English language">EN</span>';
   const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu">${items.map(navLink).join('')}</div></details>`;
 
   return `<header class="topbar"><div class="topbar-inner">
-    <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
-    <nav class="nav nav-desktop" aria-label="Primary navigation">${primaryItems.map(navLink).join('')}${moreMenu}</nav>
-    <div class="nav-actions" dir="ltr">${accountActions}<div class="nav-language" role="group" aria-label="Language"><button class="nav-language-option" type="button" data-language="ar" aria-label="العربية" aria-pressed="${state.lang==='ar'}" lang="ar">AR</button><button class="nav-language-option" type="button" data-language="en" aria-label="English" aria-pressed="${state.lang==='en'}" lang="en">EN</button></div></div>
     ${mobileMenu}
+    <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
+    <nav class="nav nav-desktop" aria-label="Primary navigation">${items.map(navLink).join('')}</nav>
+    <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
   </div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
