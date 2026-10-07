@@ -309,7 +309,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .auth-page{background:#fdfbf8;color:#242321;font-family:Arial,"Segoe UI",sans-serif}
 .auth-header{height:64px;padding:0 5%;display:flex;align-items:center;background:linear-gradient(100deg,#49321f,#38251a);border-bottom:2px solid #b49a77;color:#f7ebd6}
 .auth-header .brand{font-size:19px;font-weight:700;gap:9px;letter-spacing:.02em}
-.auth-header .brand img{width:30px;height:29px}
+.auth-header .brand-wordmark img{width:188px;height:44px}
 .auth-page .auth-layout{min-height:calc(100svh - 64px);grid-template-columns:45.5% 54.5%;background:#fdfbf8}
 .auth-signup .auth-layout{grid-template-columns:35% 65%}
 .auth-forgot .auth-layout{grid-template-columns:33% 67%}
