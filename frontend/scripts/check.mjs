@@ -14,7 +14,8 @@ const requiredNames = [
   "Home / Overview","Settings / User Profile","Trainer Profile","Challenges",
   "Challenge Detail + Voting","Training Log","Admin Dashboard","Pedigree Section",
   "Race Card Publish Control","Organizations UI","Tourism / Cultural Content UI",
-  "Race Card Public / History UI"
+  "Race Card Public / History UI", "Training Agreements", "Training Agreement Details",
+  "Audit Logs", "Audit Log Details"
 ];
 for (const name of requiredNames) {
   if (!routes.includes(name)) throw new Error(`Missing Mohammed route: ${name}`);
@@ -22,7 +23,7 @@ for (const name of requiredNames) {
 
 const forbiddenStandalone = [
   'path: "/archive"', 'path: "/my-camels"',
-  'path: "/agreements"', 'path: "/assigned"'
+  'path: "/assigned"'
 ];
 for (const route of forbiddenStandalone) {
   if (routes.includes(route)) throw new Error(`Teammate-owned standalone route included: ${route}`);
@@ -33,4 +34,4 @@ for (const name of ["Camels","My Camels","Marketplace","My Listings","Listing Hi
 }
 await access("js/format.js");
 
-console.log("Frontend scope check passed: Mohammed interfaces + Camel & Marketplace interfaces.");
+console.log("Frontend scope check passed: assigned interfaces + Camel, Marketplace, TrainingAgreement and auditLog interfaces.");

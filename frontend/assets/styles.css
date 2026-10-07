@@ -333,6 +333,14 @@ tr:last-child td{border-bottom:0}
 .demo-note{padding:10px 12px;background:#fff7e8;color:#8a641f;border:1px solid #efdfbd;border-radius:10px;font-size:12px;margin-bottom:16px}
 .kicker{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:.12em;text-transform:uppercase}
 .two-pane{display:grid;grid-template-columns:1.35fr .65fr;gap:18px}
+.entity-form{max-width:900px;margin:0 auto;gap:18px}
+.entity-form h2{margin:4px 0 0;font-size:17px;color:var(--primary)}
+.entity-form .required{color:var(--danger)}
+.entity-copy{color:var(--muted);line-height:1.65;white-space:pre-wrap}
+.entity-subhead{margin-top:26px}
+.form-feedback{display:none;padding:11px 13px;border:1px solid #ebc9c5;border-radius:10px;background:var(--danger-soft);color:var(--danger);font-size:13px}
+.form-feedback:not(:empty){display:block}
+.entity-form :is(input,select,textarea):invalid:not(:focus):not(:placeholder-shown){border-color:var(--danger)}
 footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(--muted);font-size:12px}
 /* Premium Medhmar authentication experience — brown / gold Oman racing identity. */
 .auth-page{
@@ -584,6 +592,14 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .hero-inner{padding:70px 18px 50px}.hero h1{font-size:42px}.page-head{align-items:flex-start;flex-direction:column}
   .grid-2,.grid-3,.grid-4,.stats,.form-row{grid-template-columns:1fr}.challenge-vs{grid-template-columns:1fr}.vs{margin:auto}
   .profile-hero{grid-template-columns:1fr;text-align:center}.profile-avatar{margin:auto}.main{padding-top:20px}.tourism-hero{padding:24px}.tourism-hero h1{font-size:30px}
+}
+@media(max-width:640px){
+ .entity-form{padding:18px}
+ .entity-form .form-row{grid-template-columns:1fr}
+ .entity-form .modal-actions{flex-direction:column-reverse}
+ .entity-form .modal-actions .btn{width:100%}
+ .toolbar[data-form$="-filter"] .input,.toolbar[data-form$="-filter"] .select{max-width:none;flex:1 1 100%}
+ .toolbar[data-form$="-filter"] .btn{width:100%}
 }
 
 /* Camel & Marketplace scope */
