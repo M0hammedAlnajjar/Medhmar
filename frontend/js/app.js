@@ -45,6 +45,12 @@ const shell = (body,active='') => `<div class="app-shell">${topbar(active)}<main
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 function landing(){
+ const modules = [
+  ['Secure accounts','Authentication, registration and password recovery.','/signin'],
+  ['Challenges & voting','Published camel challenges with protected voting.','/challenges'],
+  ['Training records','Chronological trainer session logs.','/training'],
+  ['Platform operations','Race cards, organizations, heritage and marketplace.','/race-cards']
+ ];
  return '<div class="app-shell landing-page">' + topbar() +
  '<main class="landing-hero" aria-labelledby="landing-title">' +
  '<section class="landing-editorial">' +
@@ -59,7 +65,14 @@ function landing(){
  '<div class="landing-photo-wash" aria-hidden="true"></div>' +
  '<aside class="landing-track-card"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2026&nbsp; · &nbsp;Al Seeb, Oman</span></div><a href="/race-cards" data-link class="landing-track-arrow" aria-label="Open race cards">→</a></aside>' +
  '</section>' +
- '</main></div>';
+ '</main>' +
+ '<section class="landing-below main" aria-labelledby="landing-modules-title">' +
+ '<div class="section-title landing-section-title"><div><div class="kicker">EXPLORE MEDHMAR</div><h2 id="landing-modules-title">Platform Modules</h2></div><span>Everything you need in one place</span></div>' +
+ '<div class="grid grid-4 landing-module-grid">' +
+ modules.map(([t,d,p],i)=>'<a class="card card-pad landing-module-card" href="'+p+'" data-link><span class="landing-module-number">0'+(i+1)+'</span><h3>'+t+'</h3><p class="form-help">'+d+'</p><span class="landing-module-link">Explore <b>→</b></span></a>').join('') +
+ '</div>' +
+ '</section>' +
+ '</div>';
 }
 
 const auth = authView;
