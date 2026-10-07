@@ -44,15 +44,15 @@ const navItems = [
 ];
 
 
-const navAll = [...navItems.slice(0,7),['/camels','Camels'],['/marketplace','Marketplace'],...navItems.slice(7)];
+const navAll = [...navItems.slice(0,7),['/camels','Camels'],['/pedigree','Pedigree'],['/marketplace','Marketplace'],...navItems.slice(7)];
 const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
-const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/marketplace']);
+const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/pedigree','/marketplace']);
 
 function topbar(active='', compact=false){
   const signedIn = Boolean(state.user?.userId);
   const items = visibleNavItems();
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
-  const corePaths = ['/home', '/races', '/camels', '/marketplace'];
+  const corePaths = ['/home', '/races', '/camels', '/pedigree', '/marketplace'];
   const desktopItems = compact ? corePaths.map(path => items.find(([p]) => p === path)).filter(Boolean) : items;
   const extraItems = compact ? items.filter(([path]) => !corePaths.includes(path)) : [];
   const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
@@ -187,6 +187,21 @@ async function camelMap(ids) {
 }
 
 const loaders = {
+  'Pedigree Directory': async () => {
+    const q = qparams();
+    return {
+      q,
+      page: await camelApi.list({
+        page: q.page || 0,
+        size: 12,
+        search: q.search,
+        gender: q.gender,
+        breed: q.breed,
+        category: q.category,
+        status: q.status,
+      }),
+    };
+  },
   'Pedigree Section': async p => {
     const tree = await pedigreeApi.tree(p.id);
     let canEdit = false;
@@ -360,6 +375,13 @@ const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{c
 
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
+const pedigreeDirectoryCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><div><div class="kicker">PEDIGREE</div><h3>${esc(c.name)}</h3></div>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}" data-link>View pedigree</a><a class="btn btn-secondary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
+const pedigreeDirectoryScreen = () => scr('/pedigree', '', 'Pedigree', d => ({
+  title: 'Pedigree',
+  sub: 'Explore registered camel bloodlines and open each family tree.',
+  body: `<form class="toolbar" data-form="pedigree-filter"><input class="input" name="search" placeholder="Search camel by name…" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(pedigreeDirectoryCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No registered camels match these pedigree filters.', '<a class="btn btn-secondary" href="/camels" data-link>Browse camels</a>')}`,
+}));
+
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
   title: 'Camels', sub: 'Registered camels from the Medhmar registry.',
   actions: canManageCamels(state.user) ? '<a class="btn btn-primary" href="/camels/new" data-link>+ Add Camel</a>' : '',
@@ -487,6 +509,7 @@ async function onMineSubmit(e) {
     if (!form.reportValidity()) return;
   }
     if (kind === 'camel-filter') return go('/camels' + buildQuery(f));
+    if (kind === 'pedigree-filter') return go('/pedigree' + buildQuery(f));
     if (kind === 'market-filter') return go('/marketplace' + buildQuery(f));
     if (kind === 'agreement-filter') return go('/agreements' + buildQuery(f));
     if (kind === 'audit-filter') return go('/audit-logs' + buildQuery(f));
@@ -546,7 +569,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
  'Audit Logs':auditScreen,'Add Audit Log':()=>mineScreens()[name](),'Edit Audit Log':()=>mineScreens()[name](),'Audit Log Details':auditDetailScreen,
- 'Admin Dashboard':admin,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
+ 'Admin Dashboard':admin,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
