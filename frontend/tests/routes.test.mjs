@@ -1,10 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { MOHAMMED_ROUTES, CAMEL_MARKET_ROUTES, matchRoute } from "../js/routes.js";
+import { MOHAMMED_ROUTES, CAMEL_MARKET_ROUTES, matchRoute, canAccessRoute } from "../js/routes.js";
 
-test("contains exactly Mohammed's 17 assigned interface groups", () => {
-  assert.equal(MOHAMMED_ROUTES.length, 17);
-  assert.ok(MOHAMMED_ROUTES.every((r) => r.owner === "Mohammed"));
+test("preserves Mohammed's 17 interfaces and registers the two scoped entities", () => {
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 17);
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "TrainingAgreement").length, 4);
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "auditLog").length, 4);
 });
 
 test("matches Mohammed dynamic routes", () => {
@@ -13,8 +14,36 @@ test("matches Mohammed dynamic routes", () => {
   assert.equal(matchRoute("/organizer/races/5/race-card").route.name, "Race Card Publish Control");
 });
 
-test("does not expose teammate-owned standalone modules", () => {
-  for (const path of ["/archive","/my-camels","/agreements","/assigned"]) {
+test("registers CRUD-oriented TrainingAgreement and auditLog routes", () => {
+  const expected = {
+    "/agreements": "Training Agreements", "/agreements/new": "Add Training Agreement",
+    "/agreements/17": "Training Agreement Details", "/agreements/17/edit": "Edit Training Agreement",
+    "/audit-logs": "Audit Logs", "/audit-logs/new": "Add Audit Log",
+    "/audit-logs/21": "Audit Log Details", "/audit-logs/21/edit": "Edit Audit Log",
+  };
+  for (const [path, name] of Object.entries(expected)) assert.equal(matchRoute(path)?.route.name, name, path);
+});
+
+test("agreement routes allow trainers to read and accept, while audit routes are admin-only", () => {
+  const agreementList = matchRoute("/agreements").route;
+  const agreementDetail = matchRoute("/agreements/17").route;
+  const agreementCreate = matchRoute("/agreements/new").route;
+  const auditList = matchRoute("/audit-logs").route;
+  const trainer = { userId: 12, roles: ["TRAINER"] };
+  const owner = { userId: 13, roles: ["OWNER"] };
+  const admin = { userId: 14, roles: ["ADMIN"] };
+
+  assert.equal(canAccessRoute(agreementList, trainer), true);
+  assert.equal(canAccessRoute(agreementDetail, trainer), true);
+  assert.equal(canAccessRoute(agreementCreate, trainer), false);
+  assert.equal(canAccessRoute(agreementCreate, owner), true);
+  assert.equal(canAccessRoute(auditList, trainer), false);
+  assert.equal(canAccessRoute(auditList, owner), false);
+  assert.equal(canAccessRoute(auditList, admin), true);
+});
+
+test("does not expose unimplemented teammate-owned standalone modules", () => {
+  for (const path of ["/archive","/my-camels","/assigned"]) {
     assert.equal(matchRoute(path), null);
   }
 });

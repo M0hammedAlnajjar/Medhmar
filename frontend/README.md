@@ -15,6 +15,8 @@ This frontend intentionally implements **Mohammed's assigned interfaces only**, 
 - Challenges
 - Challenge Detail + Voting
 - Training Log
+- Training Agreements
+- Audit Log (administrators only)
 - Admin Dashboard / User access management
 - Pedigree section inside Camel Profile
 - Race Card publish control
@@ -24,7 +26,7 @@ This frontend intentionally implements **Mohammed's assigned interfaces only**, 
 
 ## Excluded teammate-owned standalone UI
 
-This implementation does **not** create the standalone Camel CRUD / Ownership / Marketplace / Offers screens, Race / Race Entry / Race Result screens, or Training Agreement / Assigned Camels / Audit Log screens assigned to other team members.
+This implementation does **not** create the standalone Camel CRUD / Ownership / Marketplace / Offers screens, Race / Race Entry / Race Result screens, or Assigned Camels screens assigned to other team members.
 
 The home page can summarize cross-module information because Home / Overview is an integration surface assigned to Mohammed.
 
@@ -102,3 +104,5 @@ Spring Security and `AdminUserController` enforce the same role on the API.
 
 `npm test` includes navigation, direct-route, revoked-role, expired-session,
 failed-request and stale-response regression checks using mocked API responses.
+
+Training Agreement list and detail routes are available to owners, trainers, and admins; trainers can accept their own pending agreements. Creation and editing are owner/admin routes. Audit Log routes and navigation are restricted to admins.
