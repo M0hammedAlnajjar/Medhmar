@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import { MOHAMMED_ROUTES, CAMEL_MARKET_ROUTES, matchRoute, canAccessRoute } from "../js/routes.js";
 
 test("preserves Mohammed's assigned interfaces and registers the two scoped entities", () => {
-  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 18);
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 19);
   assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "TrainingAgreement").length, 4);
   assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "auditLog").length, 4);
 });
 
 test("matches Mohammed dynamic routes", () => {
   assert.equal(matchRoute("/challenges/17").route.name, "Challenge Detail + Voting");
+  assert.equal(matchRoute("/pedigree").route.name, "Pedigree Directory");
   assert.equal(matchRoute("/camels/11").route.name, "Pedigree Section");
   assert.equal(matchRoute("/camels/11/pedigree/edit").route.name, "Edit Pedigree");
   assert.equal(matchRoute("/organizer/races/5/race-card").route.name, "Race Card Publish Control");
