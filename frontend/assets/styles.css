@@ -355,7 +355,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 }
 
 .auth-brandbar{
-  position:relative;z-index:2;width:min(1420px,calc(100% - 64px));height:112px;margin:0 auto;
+  position:relative;z-index:2;width:min(1420px,calc(100% - 64px));height:90px;margin:0 auto;
   display:flex;align-items:center;justify-content:space-between;gap:28px;
 }
 .auth-brandbar .brand-wordmark img{width:252px;height:58px}
@@ -366,16 +366,16 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .auth-brand-message span{display:block;width:64px;height:1px;background:#ddb37c;opacity:.9}
 
 .auth-stage{
-  position:relative;z-index:1;min-height:calc(100svh - 112px);
-  display:flex;align-items:center;justify-content:center;
-  padding:18px 32px 52px;
+  position:relative;z-index:1;min-height:calc(100svh - 90px);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:10px 32px 24px;
 }
 .auth-card{
   width:min(1180px,100%);min-height:700px;display:grid;grid-template-columns:49% 51%;
   overflow:hidden;border:1px solid rgba(223,180,121,.58);border-radius:28px;
   background:#fffdf9;box-shadow:0 30px 80px rgba(31,18,10,.36),0 8px 24px rgba(31,18,10,.18);
 }
-.auth-signup .auth-card{min-height:790px}
+.auth-signup .auth-card{min-height:0}
 
 .auth-page .auth-visual{
   display:block;position:relative;min-width:0;min-height:100%;overflow:hidden;background:#b77a43;
@@ -496,18 +496,22 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .auth-feedback[hidden]{display:none}
 .auth-page :is(button,a,input,select):focus-visible{outline:2px solid #d4a373;outline-offset:3px}
 
-.auth-signup .auth-panel{padding-top:30px;padding-bottom:30px}
-.auth-signup .auth-user-icon{width:68px;height:68px;margin-bottom:13px}
-.auth-signup .auth-user-icon svg{width:36px;height:36px}
-.auth-signup .auth-box h1{font-size:30px;text-transform:none}
-.auth-signup .auth-box>p{font-size:13px;margin:7px 0 18px}
-.auth-signup .form{gap:11px}
-.auth-signup .input,.auth-signup .select{height:46px}
-.auth-signup .password-toggle{height:40px}
-.auth-signup .divider{margin:13px 0}
-.auth-signup .btn{min-height:48px}
-.auth-signup .auth-switch{margin-top:16px}
-.auth-signup .auth-google-note{font-size:11px}
+.auth-signup .auth-panel{padding:18px clamp(38px,4vw,58px) 20px}
+.auth-signup .auth-user-icon{width:58px;height:58px;margin-bottom:9px}
+.auth-signup .auth-user-icon svg{width:30px;height:30px}
+.auth-signup .auth-box h1{font-size:28px;text-transform:none}
+.auth-signup .auth-box>p{font-size:12px;margin:5px 0 12px}
+.auth-signup .form{gap:8px}
+.auth-signup .input,.auth-signup .select{height:42px}
+.auth-signup .password-toggle{height:36px}
+.auth-signup .divider{margin:10px 0}
+.auth-signup .btn{min-height:44px}
+.auth-signup .auth-switch{margin-top:12px}
+.auth-signup .auth-google-note{font-size:10px;margin-top:7px}
+@media(min-width:821px) and (min-height:760px){
+  .auth-signup .auth-card{max-height:calc(100svh - 114px)}
+  .auth-signup .auth-visual,.auth-signup .auth-panel{min-height:0}
+}
 
 .auth-forgot .auth-box h1,.auth-reset .auth-box h1{text-transform:none}
 .auth-forgot .auth-user-icon,.auth-reset .auth-user-icon{width:74px;height:74px}
