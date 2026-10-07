@@ -1,4 +1,5 @@
-import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";\nimport { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
+import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
+import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView } from './auth-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
@@ -690,7 +691,6 @@ async function init(){
  render();
 }
 window.addEventListener('popstate',render); init();
-
 
 
 
