@@ -119,7 +119,7 @@ function landing(){
  '<div class="landing-copy"><h1 id="landing-title">Where tradition<br>races into<br><em>the future.</em></h1>' +
  '<p>Races. Camels. Heritage. Community.<br>Experience Oman\'s living legacy and a new generation of racing excellence.</p>' +
  '<div class="landing-hero-actions"><a class="landing-primary" href="/race-cards" data-link>Explore Races</a><a class="landing-secondary" href="/tourism" data-link>Discover Heritage</a></div></div>' +
- '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span><img class="landing-landscape" src="/assets/oman-line.svg" alt="" aria-hidden="true"></div>' +
+ '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span></div>' +
  '</section>' +
  '<section class="landing-visual" aria-label="Camel race in Oman">' +
  '<img class="landing-race-photo" src="'+photos.hero+'" alt="Actual photograph of racing camels with robotic jockeys" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" data-landing-fallback="/assets/landing-hero-wide.png">' +
