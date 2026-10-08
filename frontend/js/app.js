@@ -6,8 +6,8 @@ import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi, pedigreeApi } from './api.js';
-import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
-import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
+import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
+import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockCamelId, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
 const $ = (s, el=document) => el.querySelector(s);
 const root = $('#app');
@@ -423,11 +423,12 @@ const loaders = {
   'My Camels': async () => { needAuth(); return { camels: await camelApi.mine() }; },
   'Add Camel': async () => { needAuth(); return {}; },
   'Camel Profile': async p => {
+    if (ENABLE_MOCK_MARKETPLACE && isMockCamelId(p.id)) return { profile: { ...MOCK_CAMELS[p.id], owners: [], pedigree: {}, activeListing: null }, isOwner: false, mock: true };
     const [profile, mine] = await Promise.all([camelApi.profile(p.id), signedIn() ? camelApi.mine().catch(() => []) : []]);
     return { profile, isOwner: mine.some(c => String(c.camelId) === String(p.id)) };
   },
   'Edit Camel': async p => { needAuth(); return { camel: await camelApi.one(p.id) }; },
-  'Camel Ownership History': async p => { const [camel, history] = await Promise.all([camelApi.one(p.id), camelApi.ownership(p.id)]); return { camel, history }; },
+  'Camel Ownership History': async p => { if (ENABLE_MOCK_MARKETPLACE && isMockCamelId(p.id)) return { camel: MOCK_CAMELS[p.id], history: [] }; const [camel, history] = await Promise.all([camelApi.one(p.id), camelApi.ownership(p.id)]); return { camel, history }; },
   'Marketplace': async () => { const q = qparams(); if (ENABLE_MOCK_MARKETPLACE) { const page = mockMarketplacePage({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: MOCK_CAMELS }; } const page = await marketplaceApi.list({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: await camelMap(page.content.map(l => l.camelId)) }; },
   'Create Listing': async () => { needAuth(); return { camels: await camelApi.mine(), camelId: qparams().camelId }; },
   'My Listings': async () => { needAuth(); const listings = await marketplaceApi.mine(); return { listings, camels: await camelMap(listings.map(l => l.camelId)) }; },
@@ -443,16 +444,18 @@ const loaders = {
     ]);
     return { listing, camel, seller, offers, myOffer: (myOffers || []).find(o => String(o.listingId) === String(p.id) && o.status === 'PENDING') || null };
   },
-  'Edit Listing': async p => { needAuth(); const listing = await marketplaceApi.one(p.id); return { listing, camel: await camelApi.one(listing.camelId).catch(() => null) }; },
+  'Edit Listing': async p => { needAuth(); if (isMockListingId(p.id)) throw Object.assign(new Error('Demo listings cannot be edited.'), { status: 403 }); const listing = await marketplaceApi.one(p.id); if (!isAdmin() && String(listing.userId) !== String(state.user.userId)) throw Object.assign(new Error('Only the seller can edit this listing.'), { status: 403 }); return { listing, camel: await camelApi.one(listing.camelId).catch(() => null) }; },
   'My Offers': async () => { needAuth(); return { offers: await offerApi.mine() }; },
   'Offer Detail': async p => {
     needAuth();
     const offer = await offerApi.one(p.id);
+    const saleReceipt = offer.status === 'ACCEPTED' ? await offerApi.sale(p.id).catch(() => null) : null;
     let listing = await marketplaceApi.one(offer.listingId).catch(() => null); // sold/cancelled listings are inactive => 404
-    if (!listing && offer.status === 'ACCEPTED') listing = (await marketplaceApi.history().catch(() => [])).find(l => l.listingId === offer.listingId) || null;
-    const camel = listing ? await camelApi.one(listing.camelId).catch(() => null) : null;
+    if (!listing && offer.status === 'ACCEPTED') listing = (await marketplaceApi.history().catch(() => [])).find(l => String(l.listingId) === String(offer.listingId)) || null;
+    const camelId = listing?.camelId ?? saleReceipt?.camelId;
+    const camel = camelId ? await camelApi.one(camelId).catch(() => saleReceipt ? { camelId: saleReceipt.camelId, name: saleReceipt.camelName } : null) : null;
     const ownership = offer.status === 'ACCEPTED' && camel ? await camelApi.ownership(camel.camelId).catch(() => null) : null;
-    return { offer, listing, camel, ownership };
+    return { offer, listing, camel, ownership, saleReceipt };
   },
 };
 function loadView(match) {
@@ -485,7 +488,7 @@ function scr(active, tabsHtml, fallback, builder) {
   const r = builder(v.data);
   return shell(`${head(r.title, r.sub || '', r.actions || '')}${tabsHtml}${r.body}`, active);
 }
-const camelPhoto = c => { const fallback = "/assets/mock-camels/camel-" + ((((Number(c?.camelId) || 1) - 1) % 8) + 1) + ".jpg"; const src = isHttpUrl(c?.photoUrl) ? c.photoUrl : fallback; return '<img class="camel-thumb" src="' + esc(src) + '" alt="' + esc(c?.name || "Camel") + '" loading="lazy" referrerpolicy="no-referrer">'; };
+const camelPhoto = c => { const fallback = "/assets/mock-camels/camel-" + ((((Number(c?.camelId) || 1) - 1) % 8) + 1) + ".jpg"; const src = isSafeImageSrc(c?.photoUrl) ? c.photoUrl : fallback; return '<img class="camel-thumb" src="' + esc(src) + '" alt="' + esc(c?.name || "Camel") + '" loading="lazy" referrerpolicy="no-referrer">'; };
 const row = (l, v) => `<div class="info-row"><span>${l}</span><strong>${v}</strong></div>`;
 const pager = pg => pg.totalPages > 1 ? `<div class="pager"><button class="small-btn" data-act="page" data-page="${pg.page - 1}" ${pg.page <= 0 ? 'disabled' : ''}>← Previous</button><span>Page ${pg.page + 1} of ${pg.totalPages} • ${pg.totalElements} results</span><button class="small-btn" data-act="page" data-page="${pg.page + 1}" ${pg.page + 1 >= pg.totalPages ? 'disabled' : ''}>Next →</button></div>` : '';
 const opts = (list, cur, any) => `${any ? `<option value="">${any}</option>` : ''}${list.map(x => `<option ${x === cur ? 'selected' : ''}>${x}</option>`).join('')}`;
@@ -555,7 +558,7 @@ const auditScreen = () => scr('/audit-logs','','Audit logs',d=>{const q=qparams(
 const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{const a=d.log;return {title:`Audit entry #${esc(a.auditId)}`,sub:`${esc(a.actionType)} · ${esc(a.entityType)} #${esc(a.entityId)}`,actions:`<a class="btn btn-secondary" href="/audit-logs/${a.auditId}/edit" data-link>Edit</a><a class="btn btn-ghost" href="/audit-logs" data-link>Back to Audit Log</a>`,body:`<section class="card card-pad"><h2>Event information</h2><div class="info-list">${row('Action type',esc(a.actionType))}${row('Entity type',esc(a.entityType))}${row('Entity ID',`#${esc(a.entityId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Recorded',fmtDate(a.createdAt))}</div><h2 class="entity-subhead">Description</h2><p class="entity-copy">${esc(a.description||'No description recorded.')}</p></section>`};});
 
 // ---- Camels ----
-const camelCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
+const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
 const pedigreeDirectoryCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><div><div class="kicker">PEDIGREE</div><h3>${esc(c.name)}</h3></div>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}" data-link>View pedigree</a><a class="btn btn-secondary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
 // Static visual example only; live ancestor names and photos come from PedigreeTreeDTO
 // after a visitor opens a registered camel. Do not invent links to sample ancestors.
@@ -645,7 +648,7 @@ const camelProfileScreen = () => scr('/camels', camelTabs(''), 'Camel Profile', 
   return {
     title: esc(p.name), sub: `${esc(p.breed)} • ${esc(p.gender)} • ${esc(p.category || 'Uncategorised')}`,
     actions: `${sell}<a class="btn btn-secondary" href="/camels/${p.camelId}/ownership" data-link>Ownership history</a><a class="btn btn-secondary" href="/camels/${p.camelId}" data-link>View pedigree</a>${canEdit ? `<a class="btn btn-secondary" href="/camels/${p.camelId}/edit" data-link>Edit</a><button class="btn btn-danger" data-act="delete-camel" data-id="${p.camelId}" data-name="${esc(p.name)}">Delete</button>` : ''}`,
-    body: `<div class="two-pane"><section class="card card-pad">${camelPhoto({...p, photoUrl: null})}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || '—'))}</div></section>
+    body: `<div class="two-pane"><section class="card card-pad">${camelPhoto(p)}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || '—'))}</div></section>
 <aside><section class="card card-pad"><div class="section-title"><h2>Pedigree</h2><a class="small-btn" href="/camels/${p.camelId}" data-link>Open tree</a></div><div class="info-list">${row('Sire', parent(ped.sire, ped.sireCamelId))}${row('Dam', parent(ped.dam, ped.damCamelId))}${row('Recorded', fmtDate(ped.recordedAt))}</div>${canEdit ? `<div class="actions"><a class="btn btn-primary" href="/camels/${p.camelId}/pedigree/edit" data-link>Edit pedigree</a></div>` : ''}</section>
 <section class="card card-pad section"><h2>Current owners</h2>${p.owners.length ? `<div class="info-list">${p.owners.map(o => row(esc(o.name || '—'), `${esc(o.sharePercent)}%`)).join('')}</div>` : '<p class="form-help">No current owner recorded.</p>'}<p class="form-help">Owner names only — contact details are never shown.</p></section>
 <section class="card card-pad section"><h2>Marketplace</h2>${al ? `<div class="price">${fmtOmr(al.askingPriceOmr)}</div><p>${esc(al.description)}</p>${sb(al.status)} <a class="btn btn-secondary" href="/marketplace/${al.listingId}" data-link>View listing</a>` : '<p class="form-help">Not currently listed for sale.</p>'}</section></aside></div>`,
@@ -654,7 +657,7 @@ const camelProfileScreen = () => scr('/camels', camelTabs(''), 'Camel Profile', 
 const ownershipScreen = () => scr('/camels', camelTabs(''), 'Ownership History', d => ({
   title: `Ownership — ${esc(d.camel.name)}`, sub: 'Every ownership period, newest first. Transfers happen only when a seller accepts an offer.',
   actions: `<a class="btn btn-secondary" href="/camels/${d.camel.camelId}/profile" data-link>Back to profile</a>`,
-  body: d.history.length ? `<div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${d.history.map(h => `<tr><td><strong>${esc(h.ownerName || '—')}</strong></td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? sb('ACTIVE').replace('ACTIVE', 'CURRENT') : sb('PREVIOUS')}</td></tr>`).join('')}</tbody></table></div>` : emptyCard('No ownership records', 'This camel has no recorded ownership.'),
+  body: d.history.length ? `<div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${[...d.history].sort((a, b) => new Date(b.startAt || 0) - new Date(a.startAt || 0)).map(h => `<tr><td><strong>${esc(h.ownerName || '—')}</strong></td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? sb('ACTIVE').replace('ACTIVE', 'CURRENT') : sb('PREVIOUS')}</td></tr>`).join('')}</tbody></table></div>` : emptyCard('No ownership records', 'This camel has no recorded ownership.'),
 }));
 
 // ---- Marketplace ----
@@ -687,7 +690,7 @@ const listingScreen = () => scr('/marketplace', marketTabs(''), 'Listing', d => 
   const l = d.listing, c = d.camel, open = l.status === 'AVAILABLE';
   let side = '';
   if (d.seller) side = `<section class="card card-pad section"><h2>Offers received</h2>${Array.isArray(d.offers) ? (d.offers.length ? offerRows(d.offers, false) : '<p class="form-help">No offers yet.</p>') : errorCard({ message: d.offers?.error || 'Offers unavailable.' })}<p class="form-help">Accepting an offer sells the camel and transfers ownership to the buyer. Other pending offers are declined automatically.</p></section>`;
-  const buyer = !d.seller && open ? (!signedIn() ? '<a class="btn btn-primary" href="/signin" data-link>Sign in to make an offer</a>' : d.myOffer ? `<div class="info-list">${row('Your pending offer', fmtOmr(d.myOffer.offeredPriceOmr))}</div><div class="actions"><button class="btn btn-secondary" data-act="edit-offer" data-id="${d.myOffer.offerId}" data-price="${esc(d.myOffer.offeredPriceOmr)}">Edit offer</button><button class="btn btn-danger" data-act="withdraw-offer" data-id="${d.myOffer.offerId}">Withdraw</button></div>` : `<button class="btn btn-primary" data-act="make-offer" data-listing="${l.listingId}" data-price="${esc(l.askingPriceOmr)}">Make an offer</button>`) : '';
+  const buyer = !d.mock && !d.seller && open ? (!signedIn() ? '<a class="btn btn-primary" href="/signin" data-link>Sign in to make an offer</a>' : d.myOffer ? `<div class="info-list">${row('Your pending offer', fmtOmr(d.myOffer.offeredPriceOmr))}</div><div class="actions"><button class="btn btn-secondary" data-act="edit-offer" data-id="${d.myOffer.offerId}" data-price="${esc(d.myOffer.offeredPriceOmr)}">Edit offer</button><button class="btn btn-danger" data-act="withdraw-offer" data-id="${d.myOffer.offerId}">Withdraw</button></div>` : `<button class="btn btn-primary" data-act="make-offer" data-listing="${l.listingId}" data-price="${esc(l.askingPriceOmr)}">Make an offer</button>`) : '';
   return {
     title: esc(c?.name || `Listing #${l.listingId}`), sub: `Asking ${fmtOmr(l.askingPriceOmr)}`, actions: d.seller && open ? `<a class="btn btn-secondary" href="/marketplace/${l.listingId}/edit" data-link>Edit listing</a><button class="btn btn-danger" data-act="cancel-listing" data-id="${l.listingId}" data-back="1">Cancel listing</button>` : '',
     body: `<div class="two-pane"><section class="card card-pad">${camelPhoto(c)}<div class="section-title"><h2>${esc(c?.name || `Camel #${l.camelId}`)}</h2>${sb(l.status)}</div><p>${esc(l.description || '')}</p><div class="info-list">${c ? `${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}` : ''}${row('Listed', fmtDate(l.createdAt))}</div><div class="actions"><a class="btn btn-secondary" href="/camels/${l.camelId}/profile" data-link>Camel profile</a></div></section><aside class="card card-pad"><div class="price">${fmtOmr(l.askingPriceOmr)}</div>${d.seller ? '<p class="form-help">This is your listing.</p>' : buyer}</aside></div>${side}`,
@@ -703,7 +706,7 @@ const offerScreen = () => scr('/marketplace', marketTabs('/offers'), 'Offer', d 
   const o = d.offer, l = d.listing, c = d.camel, me = String(state.user.userId);
   const seller = (l && String(l.userId) === me) || isAdmin(), buyer = String(o.userId) === me || isAdmin(), pending = o.status === 'PENDING';
   const done = qparams().completed === '1';
-  const sale = o.status === 'ACCEPTED' ? `<section class="card card-pad section"><div class="section-title"><h2>${done ? 'Sale completed' : 'Completed sale'}</h2>${sb('ACCEPTED')}</div><div class="info-list">${row('Sale price', fmtOmr(o.offeredPriceOmr))}${row('Accepted on', fmtDate(o.respondedAt))}${c ? row('Camel', `<a href="/camels/${c.camelId}/profile" data-link>${esc(c.name)}</a>`) : ''}</div>${d.ownership ? `<h3>Ownership after sale</h3><div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${d.ownership.map(h => `<tr><td>${esc(h.ownerName || '—')}</td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? 'Current' : 'Previous'}</td></tr>`).join('')}</tbody></table></div>` : `<p class="form-help">${String(o.userId) === me ? 'The camel is now in your collection.' : 'Ownership was transferred to the buyer.'}</p>`}<div class="actions">${String(o.userId) === me ? '<a class="btn btn-primary" href="/camels/my" data-link>Go to My Camels</a>' : '<a class="btn btn-secondary" href="/marketplace/history" data-link>Listing history</a>'}</div><p class="form-help">The backend records the sale transaction itself; it has no public endpoint, so trainer-share and net-proceeds figures are not available here.</p></section>` : '';
+  const sale = o.status === 'ACCEPTED' ? `<section class="card card-pad section"><div class="section-title"><h2>${done ? 'Sale completed' : 'Completed sale'}</h2>${sb('ACCEPTED')}</div><div class="info-list">${row('Sale price', fmtOmr(o.offeredPriceOmr))}${row('Accepted on', fmtDate(o.respondedAt))}${c ? row('Camel', `<a href="/camels/${c.camelId}/profile" data-link>${esc(c.name)}</a>`) : ''}</div>${d.ownership ? `<h3>Ownership after sale</h3><div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${d.ownership.map(h => `<tr><td>${esc(h.ownerName || '—')}</td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? 'Current' : 'Previous'}</td></tr>`).join('')}</tbody></table></div>` : `<p class="form-help">${String(o.userId) === me ? 'The camel is now in your collection.' : 'Ownership was transferred to the buyer.'}</p>`}<div class="actions">${String(o.userId) === me ? '<a class="btn btn-primary" href="/camels/my" data-link>Go to My Camels</a>' : '<a class="btn btn-secondary" href="/marketplace/history" data-link>Listing history</a>'}</div><div class="info-list">${d.saleReceipt ? row('Sale receipt', '#' + esc(d.saleReceipt.saleTransactionId)) : '<p class=form-help>Sale receipt unavailable.</p>'}${d.saleReceipt && (seller || isAdmin()) ? row('Trainer share', fmtOmr(d.saleReceipt.trainerShareOmr)) + row('Seller net', fmtOmr(d.saleReceipt.sellerNetOmr)) : ''}</div></section>` : '';
   return {
     title: `Offer #${o.offerId}`, sub: c ? `On ${esc(c.name)}` : `On listing #${esc(o.listingId)}`, actions: sb(o.status),
     body: `<div class="two-pane"><section class="card card-pad"><h2>Details</h2><div class="info-list">${row('Offered price', fmtOmr(o.offeredPriceOmr))}${row('Status', esc(o.status))}${row('Made on', fmtDate(o.createdAt))}${row('Responded on', fmtDate(o.respondedAt))}${row('Listing', l ? `<a href="/marketplace/${l.listingId}" data-link>#${l.listingId}</a>` : `#${esc(o.listingId)} (closed)`)}${l ? row('Asking price', fmtOmr(l.askingPriceOmr)) : ''}</div></section><aside class="card card-pad"><h2>Actions</h2>${pending ? `<div class="actions">${seller ? `<button class="btn btn-primary" data-act="accept-offer" data-id="${o.offerId}" data-price="${esc(o.offeredPriceOmr)}">Accept offer</button><button class="btn btn-secondary" data-act="decline-offer" data-id="${o.offerId}">Decline</button>` : ''}${buyer ? `<button class="btn btn-secondary" data-act="edit-offer" data-id="${o.offerId}" data-price="${esc(o.offeredPriceOmr)}">Edit price</button><button class="btn btn-danger" data-act="withdraw-offer" data-id="${o.offerId}">Withdraw</button>` : ''}</div>` : '<p class="form-help">This offer has been answered and can no longer be changed.</p>'}</aside></div>${sale}`,
@@ -764,7 +767,7 @@ async function onMineSubmit(e) {
     }
     else if (kind === 'listing-add') { const newId = await marketplaceApi.add(toListingPayload(f)); toast('Listing published.', 'success'); go(`/marketplace/${newId}`); }
     else if (kind === 'listing-edit') { await marketplaceApi.update(toListingPayload(f, id)); toast('Listing updated.', 'success'); go(`/marketplace/${id}`); }
-    else if (kind === 'offer-add') { await offerApi.add(toOfferCreatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer submitted.', 'success'); go('/offers'); }
+    else if (kind === 'offer-add') { if (isMockListingId(id)) throw new Error('Demo listings do not accept offers.'); await offerApi.add(toOfferCreatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer submitted.', 'success'); go('/offers'); }
     else if (kind === 'offer-edit') { await offerApi.update(toOfferUpdatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer updated.', 'success'); refresh(); }
     else if (kind === 'agreement-add' || kind === 'agreement-edit') {
       const payload={feeOmr:Number(f.feeOmr),prizeSharePct:Number(f.prizeSharePct),saleSharePct:Number(f.saleSharePct),startsAt:new Date(f.startsAt).toISOString(),endsAt:new Date(f.endsAt).toISOString(),terms:f.terms||null};
@@ -783,6 +786,7 @@ function onMineClick(e) {
   const { act, id, price, listing, page } = el.dataset;
   if (act === 'retry') return refresh();
   if (act === 'page') return go(withQuery({ page }));
+  if (act === 'make-offer' && isMockListingId(listing)) return toast('Demo listings do not accept offers.', 'error');
   if (act === 'make-offer') return signedIn() ? offerModal('add', listing, price) : (toast('Sign in to make an offer.', 'error'), go('/signin'));
   if (act === 'edit-offer') return offerModal('edit', id, price);
   if (act === 'accept-agreement') return confirmModal('Accept training agreement?', `Accept agreement #${esc(id)} and begin the training period?`, 'Accept agreement', false, async () => { await agreementApi.accept(id);toast('Training agreement accepted.','success');refresh(); });

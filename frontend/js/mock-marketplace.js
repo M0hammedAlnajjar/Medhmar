@@ -1,9 +1,17 @@
 // TEMPORARY MOCK DATA for visually testing the Marketplace UI without the backend.
-// To DISABLE: set ENABLE_MOCK_MARKETPLACE = false below.
+// Opt in only for local visual demos: append ?mockMarketplace=1 to the URL.
 // To REMOVE entirely: delete this file and the lines in js/app.js marked "mock-marketplace".
 // While enabled, the Marketplace page shows ONLY these listings (real API listings are not requested),
 // and mock listing detail pages (ids 9001+) never call the backend.
-export const ENABLE_MOCK_MARKETPLACE = true;
+// Explicit, per-tab demo mode. Survives navigation to mock listing/profile routes.
+const demoRequested = typeof window !== 'undefined'
+  ? new URLSearchParams(window.location.search).get('mockMarketplace') : null;
+if (typeof window !== 'undefined' && demoRequested !== null) {
+  window.sessionStorage.setItem('medhmar-mock-marketplace', demoRequested === '1' ? '1' : '0');
+}
+export const ENABLE_MOCK_MARKETPLACE = typeof window !== 'undefined'
+  && window.sessionStorage.getItem('medhmar-mock-marketplace') === '1';
+export const isMockCamelId = id => Object.hasOwn(MOCK_CAMELS, String(id));
 
 export const MOCK_ID_START = 9001;
 
