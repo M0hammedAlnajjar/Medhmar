@@ -183,10 +183,6 @@ img{display:block;max-width:100%}
 }
 
 
-.landing-legal-footer{display:flex;align-items:center;justify-content:center;margin:24px auto 0;padding:0 0 6px}
-.landing-legal-footer a{font-size:11px;line-height:1.5;color:#877769;text-decoration:underline;text-underline-offset:3px}
-.landing-legal-footer a:hover{color:#5c3f2c}
-.landing-legal-footer a:focus-visible{outline:2px solid #ba8452;outline-offset:4px}
 
 .landing-below{padding-top:38px;padding-bottom:70px}
 .landing-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:20px}
