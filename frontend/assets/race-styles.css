@@ -5,6 +5,10 @@
 }
 
 .medhmar-races-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
     margin-bottom: 18px;
 }
 
@@ -575,6 +579,11 @@
 }
 
 @media (max-width: 760px) {
+    .medhmar-races-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .medhmar-race-filters {
         grid-template-columns: 1fr;
     }
