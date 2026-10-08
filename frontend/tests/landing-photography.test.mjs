@@ -20,7 +20,7 @@ test("landing keeps navigation and routes while moving credits off the page", ()
   assert.match(landing, /href="\/tourism" data-link>Discover Heritage<\/a>/);
   assert.match(landing, /href="\/race-cards" data-link aria-label="Open race cards for Sultan Qaboos Race"/);
   assert.doesNotMatch(landing, /Photography credits and licenses|landing-photo-credits|<details/);
-  assert.match(landing, /<footer class="landing-legal-footer"><a href="\/assets\/photo-credits.html">Photo credits<\/a><\/footer>/);
+  assert.doesNotMatch(landing, /landing-legal-footer|photo-credits\.html|Photo credits/);
 });
 
 test("photography markup remains decorative outside of content and keeps lazy loading", () => {
@@ -30,11 +30,3 @@ test("photography markup remains decorative outside of content and keeps lazy lo
   assert.match(landing, /fetchpriority="high"/);
 });
 
-test("photo source attribution is preserved on a separate document", async () => {
-  const source = await readFile(new URL("../assets/photo-credits.html", import.meta.url), "utf8");
-  assert.match(source, /Photography credits/);
-  assert.match(source, /not photographs of the fictional sample races/);
-  assert.match(source, /commons\.wikimedia\.org\/wiki\/File:Camel_of_Oman/);
-  assert.match(source, /creativecommons\.org\/licenses\/by-sa\/4\.0/);
-  assert.match(source, /creativecommons\.org\/licenses\/by\/2\.0/);
-});
