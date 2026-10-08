@@ -21,6 +21,7 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
     Optional<MarketPlace> findByListingIdAndIsActiveTrue(Long listingId);
 
     boolean existsByCamel_CamelIdAndIsActiveTrue(Long camelId);
+    boolean existsByCamel_CamelIdAndIsActiveTrueAndStatus(Long camelId, MarketPlaceStatus status);
 
     Optional<MarketPlace> findFirstByCamel_CamelIdAndIsActiveTrueAndStatusOrderByListingIdDesc(
             Long camelId, MarketPlaceStatus status);
