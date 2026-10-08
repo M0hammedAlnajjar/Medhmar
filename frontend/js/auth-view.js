@@ -44,7 +44,7 @@ export function authView(kind) {
   return `<div class="app-shell auth-page auth-${kind}" lang="en" dir="ltr">
     <div class="auth-bg" aria-hidden="true"></div>
     <header class="auth-brandbar">
-      <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
+      <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo-full.svg" alt="MEDHMAR — Oman Camel Racing" width="480" height="312" decoding="async"></a>
       <div class="auth-brand-message">A HOME FOR<br>CAMEL RACING ENTHUSIASTS <span></span></div>
     </header>
     <main class="auth-stage">
@@ -52,7 +52,6 @@ export function authView(kind) {
         <div class="auth-visual" aria-hidden="true">
           <img class="auth-photo" src="/assets/racing-hero.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
           <div class="auth-visual-overlay"></div>
-          <div class="auth-camel-watermark"></div>
         </div>
         <section class="auth-panel">
           <div class="auth-box">
