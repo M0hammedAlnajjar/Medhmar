@@ -132,7 +132,6 @@ function landing(){
  '<div class="landing-module-grid">' +
  modules.map(([k,t,d,p,img,b,fallback],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-landing-fallback="'+fallback+'"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div></a>').join('') +
  '</div>' +
- '<footer class="landing-legal-footer"><a href="/assets/photo-credits.html">Photo credits</a></footer>' +
  '</section>' +
  '</div>';
 }
