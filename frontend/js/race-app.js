@@ -2,6 +2,7 @@ import {
     raceApi,
     raceEntryApi
 } from "./race-api.js";
+import { authApi } from "./api.js";
 
 const HERO_IMAGE = "/assets/racing-hero.webp";
 
@@ -613,6 +614,12 @@ export async function renderRacesListing(container) {
     loading(container);
 
     const races = await getAllRaces();
+    const currentUser = await authApi.me().catch(() => null);
+    const roles = Array.isArray(currentUser?.roles)
+        ? currentUser.roles.map(role => String(role).toUpperCase())
+        : [];
+    const canOpenOrganizer =
+        roles.includes("ORGANIZER") || roles.includes("ADMIN");
 
     const locations = [
         ...new Set(
@@ -655,6 +662,16 @@ export async function renderRacesListing(container) {
         <h1>
           Races
         </h1>
+
+        ${canOpenOrganizer ? `
+          <button
+            type="button"
+            class="medhmar-view-race"
+            data-organizer-dashboard
+          >
+            Organizer Dashboard
+          </button>
+        ` : ""}
       </div>
 
       <div class="medhmar-race-filters">
@@ -880,6 +897,15 @@ export async function renderRacesListing(container) {
 
     </section>
   `;
+
+    container
+        .querySelector("[data-organizer-dashboard]")
+        ?.addEventListener(
+            "click",
+            () => {
+                navigateRacePath("/organizer");
+            }
+        );
 
     let searchTimer;
 
