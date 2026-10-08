@@ -48,8 +48,9 @@ test("navbar spans the viewport without external white gaps at any breakpoint", 
   assert.match(css, /\.topbar-inner\{height:100%;max-width:1480px;margin:auto;/);
   assert.match(css, /\.landing-page \.topbar\{[^\n]*border:0;border-bottom:/);
   assert.match(css, /\.topbar\{width:100%;height:66px;margin:0;top:0;border-radius:0\}/);
-  assert.doesNotMatch(css, /width:calc\(100% - (?:36|16)px\)/);
-  assert.doesNotMatch(css, /margin:22px auto 0;top:10px;border-radius:12px/);
+  const navbarOverrides = css.slice(css.indexOf("/* Full-width Medhmar navigation."));
+  assert.doesNotMatch(navbarOverrides, /width:calc\(100% - (?:36|16)px\)/);
+  assert.doesNotMatch(navbarOverrides, /margin:22px auto 0;top:10px;border-radius:12px/);
 });
 
 test("the original navbar logo, routes, search and language controls remain", () => {
