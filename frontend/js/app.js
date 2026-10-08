@@ -132,14 +132,7 @@ function landing(){
  '<div class="landing-module-grid">' +
  modules.map(([k,t,d,p,img,b,fallback],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-landing-fallback="'+fallback+'"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div></a>').join('') +
  '</div>' +
- '<details class="landing-photo-credits"><summary>Photography credits and licenses</summary>' +
- '<p>Real photographs from Oman and other camel-racing regions. Images are illustrative, not photographs of the sample races. They may be cropped to fit the design.</p>' +
- '<ul>' +
- '<li><a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer">Camel race with robotic jockeys</a> and <a href="https://commons.wikimedia.org/wiki/File:Camel_racing.jpg" target="_blank" rel="noopener noreferrer">racing camels</a> — Houssain tork, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</li>' +
- '<li><a href="https://commons.wikimedia.org/wiki/File:Camel_of_Oman.jpg" target="_blank" rel="noopener noreferrer">Camel in Oman</a> — Desertroad, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</li>' +
- '<li><a href="https://commons.wikimedia.org/wiki/File:Camel_Race_Training.jpg" target="_blank" rel="noopener noreferrer">Training camels</a> — Lintophilip, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</li>' +
- '<li><a href="https://commons.wikimedia.org/wiki/File:Camels_crossing_the_desert_Wahiba_Sands_Bidiya,_Oman_(53697960088).jpg" target="_blank" rel="noopener noreferrer">Camels in the Wahiba Sands, Oman</a> — dronepicr, <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a>.</li>' +
- '</ul></details>' +
+ '<footer class="landing-legal-footer"><a href="/assets/photo-credits.html">Photo credits</a></footer>' +
  '</section>' +
  '</div>';
 }
