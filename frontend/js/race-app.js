@@ -143,6 +143,42 @@ const DEMO_PARTICIPANTS = {
             registrantName: "Ali Al Kindi",
             registeredAt: "2026-10-07T06:30:00Z"
         }
+    ],
+
+    "demo-sohar": [
+        {
+            entryId: "demo-result-1",
+            participantNumber: 11,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-sohar",
+            registrantId: "demo-owner-7",
+            camelId: "demo-camel-7",
+            camelName: "Al Shamal",
+            registrantName: "Hamad Al Hinai",
+            registeredAt: "2026-09-20T07:20:00Z"
+        },
+        {
+            entryId: "demo-result-2",
+            participantNumber: 7,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-sohar",
+            registrantId: "demo-owner-8",
+            camelId: "demo-camel-8",
+            camelName: "Barq",
+            registrantName: "Yousef Al Balushi",
+            registeredAt: "2026-09-20T08:05:00Z"
+        },
+        {
+            entryId: "demo-result-3",
+            participantNumber: 3,
+            entryStatus: "ACCEPTED",
+            raceId: "demo-sohar",
+            registrantId: "demo-owner-9",
+            camelId: "demo-camel-9",
+            camelName: "Sahab",
+            registrantName: "Saeed Al Busaidi",
+            registeredAt: "2026-09-20T08:40:00Z"
+        }
     ]
 };
 
