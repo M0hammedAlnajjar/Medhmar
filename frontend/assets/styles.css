@@ -605,15 +605,15 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar .brand-wordmark{padding:3px 4px}
 }
 
-/* Floating desktop navigation based on the approved Medhmar reference.
-   Keep the authentic camel wordmark on brown: the transparent asset needs no cream tile. */
+/* Full-width navigation: no surrounding white gutters or floating-card spacing.
+   Keep the approved camel wordmark and brown visual treatment. */
 .topbar{
-  width:calc(100% - 36px);max-width:1600px;height:82px;
-  margin:18px auto 0;top:10px;border-radius:12px;
-  border:1px solid rgba(211,165,110,.20);
-  box-shadow:0 9px 22px rgba(44,27,17,.14);
+  width:100%;max-width:none;height:82px;
+  margin:0;top:0;border-radius:0;
+  border:0;
+  box-shadow:0 3px 14px rgba(44,27,17,.14);
 }
-.landing-page .topbar{box-shadow:0 9px 22px rgba(44,27,17,.14);border:1px solid rgba(211,165,110,.20)}
+.landing-page .topbar{box-shadow:0 3px 14px rgba(44,27,17,.14);border:0}
 .topbar-inner{padding:0 30px;gap:25px}
 .topbar .brand-wordmark{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
 .topbar .brand-wordmark img{width:224px;height:54px;object-fit:contain;object-position:left center}
@@ -635,7 +635,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar-inner{gap:14px}
 }
 @media(max-width:720px){
-  .topbar{width:calc(100% - 16px);height:66px;margin-top:8px;top:6px;border-radius:10px}
+  .topbar{height:66px}
   .topbar-inner{height:66px;padding:0 12px;gap:7px}
   .topbar .brand-wordmark img{width:144px;height:40px}
 }
