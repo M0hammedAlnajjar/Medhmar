@@ -43,9 +43,10 @@ test("navbar, auth pages, and favicon show approved brand variants", () => {
 
 test("desktop reference uses a floating rounded navbar with the original controls", () => {
   assert.match(css, /\.topbar\{[\s\S]*?width:calc\(100% - 36px\);max-width:1600px;height:82px/);
-  assert.match(css, /margin:18px auto 0;top:10px;border-radius:12px/);
+  assert.match(css, /margin:22px auto 0;top:10px;border-radius:12px/);
   assert.match(css, /\.topbar \.brand-wordmark\{padding:0;background:transparent;border:0/);
   assert.match(css, /@media\(max-width:720px\)\{[\s\S]*?width:calc\(100% - 16px\)/);
+  assert.match(css, /\.topbar \.nav\{gap:0;justify-content:flex-start;padding-left:18px\}/);
   assert.match(app, /const primaryDesktopPaths = \[/);
   assert.ok(app.includes("'/races', '/race-cards', '/camels', '/pedigree', '/marketplace'"));
   assert.match(app, /const extraItems = items.filter\(\(\[path\]\) => !visiblePaths.includes\(path\)\);/);
