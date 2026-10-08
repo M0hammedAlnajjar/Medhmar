@@ -17,7 +17,7 @@ img{display:block;max-width:100%}
 .topbar-inner{height:100%;max-width:1480px;margin:auto;padding:0 28px;display:flex;align-items:center;gap:24px}
 .brand{display:flex;align-items:center;flex-shrink:0}
 .brand img{display:block}
-.brand-wordmark img{width:214px;height:48px;object-fit:contain;object-position:left center}
+.brand-wordmark img{width:148px;height:48px;object-fit:contain;object-position:left center}
 
 .nav{display:flex;align-items:stretch;justify-content:center;gap:2px;flex:1;min-width:0;white-space:nowrap;height:100%}
 .nav a{position:relative;display:flex;align-items:center;color:#f4e9dd;padding:0 10px;font-size:13px;font-weight:550;line-height:1}
@@ -59,7 +59,7 @@ img{display:block;max-width:100%}
   .nav-desktop{display:none}
   .nav-mobile{display:block}
   .topbar-inner{gap:14px}
-  .brand-wordmark img{width:190px}
+  .brand-wordmark img{width:135px}
   .nav-actions{margin-inline-start:auto}
 }
 @media(max-width:720px){
@@ -68,7 +68,7 @@ img{display:block;max-width:100%}
   .nav-mobile{order:0}
   .brand{order:1}
   .nav-actions{order:2;margin-inline-start:auto;gap:5px}
-  .brand-wordmark img{width:164px;height:40px}
+  .brand-wordmark img{width:120px;height:40px}
   .profile-name,.profile-chevron{display:none}
   .profile-btn{padding:3px;min-height:38px}
   .avatar{width:32px;height:32px}
@@ -77,7 +77,7 @@ img{display:block;max-width:100%}
   .nav-actions::before{display:none}
 }
 @media(max-width:480px){
-  .brand-wordmark img{width:138px;height:36px}
+  .brand-wordmark img{width:108px;height:36px}
   .nav-search{display:none}
   .nav-mobile summary{width:38px;height:38px}
   .nav-language-single{min-width:36px;height:36px;font-size:11px}
@@ -351,7 +351,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   position:relative;z-index:2;width:min(1420px,calc(100% - 64px));height:90px;margin:0 auto;
   display:flex;align-items:center;justify-content:space-between;gap:28px;
 }
-.auth-brandbar .brand-wordmark img{width:252px;height:58px}
+.auth-brandbar .brand-wordmark img{width:176px;height:58px}
 .auth-brand-message{
   display:flex;align-items:center;gap:18px;color:#f6eee5;font-size:11px;font-weight:700;
   line-height:1.65;letter-spacing:.24em;text-transform:uppercase;text-align:left;
@@ -512,7 +512,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 
 @media(max-width:1050px){
   .auth-brandbar{width:min(94%,calc(100% - 36px));height:92px}
-  .auth-brandbar .brand-wordmark img{width:218px;height:52px}
+  .auth-brandbar .brand-wordmark img{width:156px;height:52px}
   .auth-brand-message{font-size:9px}
   .auth-card{grid-template-columns:44% 56%;min-height:660px}
   .auth-page .auth-panel{padding:38px}
@@ -539,7 +539,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
     url('/assets/racing-hero.webp') center/cover no-repeat;
   }
   .auth-brandbar{height:76px;width:calc(100% - 28px)}
-  .auth-brandbar .brand-wordmark img{width:188px;height:44px}
+  .auth-brandbar .brand-wordmark img{width:135px;height:44px}
   .auth-stage{min-height:calc(100svh - 76px);padding:8px 14px 28px}
   .auth-card{border-radius:20px}
   .auth-page .auth-visual{display:none}
@@ -563,7 +563,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 @media(max-width:640px){
   .topbar{height:64px}
   .topbar-inner{height:64px;flex-wrap:nowrap;padding:0 14px;gap:9px}
-  .brand-wordmark img{width:150px;height:38px}
+  .brand-wordmark img{width:114px;height:38px}
   .nav-actions{width:auto;justify-content:flex-end;gap:7px}
   .nav-actions .profile-btn{min-height:40px;padding-right:6px}
   .nav-mobile summary{width:40px;height:40px}
