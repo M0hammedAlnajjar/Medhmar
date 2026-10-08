@@ -1362,3 +1362,188 @@
         flex-wrap: wrap;
     }
 }
+
+
+/* Race Registration */
+
+.medhmar-registration-page {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.medhmar-registration-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.medhmar-registration-heading h1 {
+    margin: 0;
+    color: #18100b;
+    font-size: 31px;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+}
+
+.medhmar-registration-heading p {
+    margin: 7px 0 0;
+    color: #876e5c;
+    font-size: 13px;
+}
+
+.medhmar-registration-card {
+    overflow: visible;
+}
+
+.medhmar-registration-form {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+}
+
+.medhmar-camel-choice-list {
+    display: grid;
+    gap: 11px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.medhmar-camel-choice-list legend {
+    margin-bottom: 10px;
+    color: #2d1e15;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.medhmar-camel-choice {
+    display: grid;
+    grid-template-columns: 22px 82px minmax(0, 1fr);
+    align-items: center;
+    gap: 13px;
+    min-height: 86px;
+    padding: 10px 12px;
+    border: 1px solid #e1d4c8;
+    border-radius: 11px;
+    background: #fffdfa;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.medhmar-camel-choice:hover {
+    border-color: #bca18c;
+    background: #fffaf6;
+}
+
+.medhmar-camel-choice:has(input:checked) {
+    border-color: #8b6348;
+    background: #fff9f3;
+    box-shadow: 0 0 0 2px rgba(139, 99, 72, 0.08);
+}
+
+.medhmar-camel-choice input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.medhmar-camel-radio {
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border: 1.5px solid #a58c78;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.medhmar-camel-choice:has(input:checked) .medhmar-camel-radio::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #4a3020;
+}
+
+.medhmar-camel-choice img {
+    width: 82px;
+    height: 62px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #eadfd4;
+}
+
+.medhmar-camel-choice-copy {
+    min-width: 0;
+}
+
+.medhmar-camel-choice-copy strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #24170f;
+    font-size: 14px;
+}
+
+.medhmar-camel-choice-copy span {
+    display: block;
+    color: #866f5d;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.medhmar-registration-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.medhmar-registration-actions .medhmar-outline-action,
+.medhmar-registration-actions .medhmar-view-race {
+    width: 100%;
+    min-height: 42px;
+}
+
+.medhmar-registration-empty {
+    display: grid;
+    place-items: center;
+    min-height: 180px;
+    padding: 28px;
+    text-align: center;
+    border: 1px dashed #decfc2;
+    border-radius: 11px;
+    background: #fbf7f2;
+}
+
+.medhmar-registration-empty strong {
+    margin-top: 10px;
+    color: #2d1e15;
+    font-size: 14px;
+}
+
+.medhmar-registration-empty > span {
+    margin-top: 5px;
+    color: #866f5d;
+    font-size: 11px;
+}
+
+@media (max-width: 650px) {
+    .medhmar-registration-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .medhmar-camel-choice {
+        grid-template-columns: 22px 68px minmax(0, 1fr);
+    }
+
+    .medhmar-camel-choice img {
+        width: 68px;
+        height: 56px;
+    }
+
+    .medhmar-registration-actions {
+        grid-template-columns: 1fr;
+    }
+}
