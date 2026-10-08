@@ -15,7 +15,7 @@ test("landing uses verified authentic photographic links, one hero and four uniq
   assert.doesNotMatch(landing, /landing-race-photo" src="\/assets\/landing-hero-wide/);
 });
 
-test("landing keeps navigation and routes while moving credits off the page", () => {
+test("landing keeps navigation while removing photo credits UI entirely", () => {
   assert.match(landing, /href="\/race-cards" data-link>Explore Races<\/a>/);
   assert.match(landing, /href="\/tourism" data-link>Discover Heritage<\/a>/);
   assert.match(landing, /href="\/race-cards" data-link aria-label="Open race cards for Sultan Qaboos Race"/);
