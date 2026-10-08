@@ -158,7 +158,7 @@ function denyRoleAccess(route) {
  root.innerHTML=shell(`<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available to ${esc(roles)} accounts.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>`);
 }
 
-function pedigree(){ return shell(pedigreeView(state.view), '/pedigree', true); }
+function pedigree(){ return shell(pedigreeView(state.view), '/camels', true); }
 
 function organizations(){ return shell(`${head('Racing Organizations','Regional organizer groups and membership visibility.')}${demoNote()}<div class="grid grid-3">${demo.organizations.map(o=>`<article class="card org-card"><div class="org-top"><div class="org-logo">M</div><div><h3>${o.name}</h3><p class="form-help">${o.region}</p></div></div><div class="org-stats"><div class="org-stat"><strong>${o.members}</strong><span>Members</span></div><div class="org-stat"><strong>${o.races}</strong><span>Races</span></div><div class="org-stat"><strong>${o.status}</strong><span>Status</span></div></div></article>`).join('')}</div>`,'/organizations'); }
 function tourism(){ return shell(`${head('Tourism & Cultural Content','Approved visitor and heritage content within the Medhmar platform.')}<section class="tourism-hero"><div><div class="hero-kicker">Experience the culture behind the race</div><h1>Discover Camel Racing Heritage</h1><p>Regional events, visitor information and approved cultural knowledge.</p></div></section><section class="section"><div class="grid grid-3">${demo.tourism.map(x=>`<article class="card card-pad"><div class="kicker">${x.type}</div><h3>${x.title}</h3><p>${x.location} • ${x.date}</p>${badge(x.status)}</article>`).join('')}</div></section>`,'/tourism'); }
@@ -186,30 +186,34 @@ async function camelMap(ids) {
   return out;
 }
 
-async function loadPedigree(id) {
-  const tree = await pedigreeApi.tree(id);
-  let canEdit = false;
-  if (signedIn() && canManageCamels(state.user)) {
-    if (isAdmin()) canEdit = true;
-    else {
-      const mine = await camelApi.mine().catch(() => []);
-      canEdit = mine.some(c => String(c.camelId) === String(id));
-    }
-  }
-  return { tree, canEdit };
-}
-
 const loaders = {
   'Pedigree Directory': async () => {
     const q = qparams();
-    const page = await camelApi.list({ page: q.page || 0, size: 12, search: q.search });
-    const id = /^[1-9]\d*$/.test(q.camelId || '') ? q.camelId : page.content[0]?.camelId;
-    if (!id) return { q, page, tree: null };
-    // Keep the selector usable if a selected camel has been removed or its tree fails to load.
-    const family = await loadPedigree(id).catch(treeError => ({ tree: null, treeError }));
-    return { q, page, selectedId: id, ...family };
+    return {
+      q,
+      page: await camelApi.list({
+        page: q.page || 0,
+        size: 12,
+        search: q.search,
+        gender: q.gender,
+        breed: q.breed,
+        category: q.category,
+        status: q.status,
+      }),
+    };
   },
-  'Pedigree Section': p => loadPedigree(p.id),
+  'Pedigree Section': async p => {
+    const tree = await pedigreeApi.tree(p.id);
+    let canEdit = false;
+    if (signedIn() && canManageCamels(state.user)) {
+      if (isAdmin()) canEdit = true;
+      else {
+        const mine = await camelApi.mine().catch(() => []);
+        canEdit = mine.some(c => String(c.camelId) === String(p.id));
+      }
+    }
+    return { tree, canEdit };
+  },
   'Edit Pedigree': async p => {
     needAuth();
     const minePromise = isAdmin() ? Promise.resolve([]) : camelApi.mine().catch(() => []);
@@ -371,7 +375,42 @@ const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{c
 
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
-const pedigreeDirectoryScreen = () => shell(pedigreeView(state.view, { directory: true }), '/pedigree', true);
+const pedigreeDirectoryCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><div><div class="kicker">PEDIGREE</div><h3>${esc(c.name)}</h3></div>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}" data-link>View pedigree</a><a class="btn btn-secondary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
+const pedigreeDirectoryVisual = () => `<section class="pedigree-directory-hero" aria-label="Pedigree family tree preview">
+  <div class="pedigree-directory-copy">
+    <div class="kicker">BLOODLINE VIEW</div>
+    <h2>Three generations.<br><em>One lineage.</em></h2>
+    <p>Trace sire and dam lines at a glance, then open any registered camel to explore its full family tree.</p>
+    <div class="pedigree-directory-key">
+      <span><i class="pedigree-key-dot sire"></i>Sire line</span>
+      <span><i class="pedigree-key-dot dam"></i>Dam line</span>
+      <span><i class="pedigree-key-dot camel"></i>Selected camel</span>
+    </div>
+  </div>
+  <div class="pedigree-directory-tree" aria-hidden="true">
+    <div class="pedigree-tree-glow"></div>
+    <div class="pedigree-mini-node pedigree-mini-subject">
+      <span class="pedigree-mini-mark"><img src="/assets/mark.svg" alt=""></span>
+      <small>Selected camel</small><strong>MEDHMAR</strong>
+    </div>
+    <div class="pedigree-mini-branch pedigree-mini-sire">
+      <div class="pedigree-mini-node"><small>Sire</small><strong>Father</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><small>Grand Sire</small><strong>Father's Sire</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><small>Grand Dam</small><strong>Father's Dam</strong></div>
+    </div>
+    <div class="pedigree-mini-branch pedigree-mini-dam">
+      <div class="pedigree-mini-node"><small>Dam</small><strong>Mother</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><small>Grand Sire</small><strong>Mother's Sire</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><small>Grand Dam</small><strong>Mother's Dam</strong></div>
+    </div>
+  </div>
+</section>`;
+
+const pedigreeDirectoryScreen = () => scr('/pedigree', '', 'Pedigree', d => ({
+  title: 'Pedigree',
+  sub: 'Explore registered camel bloodlines and open each family tree.',
+  body: `${pedigreeDirectoryVisual()}<form class="toolbar pedigree-directory-toolbar" data-form="pedigree-filter"><input class="input" name="search" placeholder="Search camel by name…" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(pedigreeDirectoryCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No registered camels match these pedigree filters.', '<a class="btn btn-secondary" href="/camels" data-link>Browse camels</a>')}`,
+}));
 
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
   title: 'Camels', sub: 'Registered camels from the Medhmar registry.',
@@ -654,9 +693,6 @@ async function render() {
 }
 function bind(){
  bindPedigreeImages(root);
- $('#pedigree-camel')?.addEventListener('change', event => {
-  go('/pedigree' + buildQuery({ ...qparams(), camelId: event.target.value }));
- });
  $('#admin-retry')?.addEventListener('click',()=>render());
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
