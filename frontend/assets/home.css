@@ -136,14 +136,18 @@
 }
 
 
-/* Home-only camel racetrack scene: sand, track barriers and distant mountains.
-   Kept separate from the feature photographs and out of other app pages. */
+/* Photo-only home backdrop, shared with no other routes.
+   Local JPEG copied from our existing no-palm racing photo: no SVG, fake text,
+   or UI baked into the image. Use independent CSS gradients for legible type. */
 .app-shell:has(.home-experience){
   background-color:#f7f3ec;
-  background-image:url("/assets/home-racetrack.svg");
-  background-position:center 76px;
+  background-image:
+    linear-gradient(180deg,rgba(247,243,236,.46) 0%,rgba(247,243,236,.35) 32%,rgba(247,243,236,.73) 69%,#f7f3ec 97%),
+    linear-gradient(90deg,rgba(247,243,236,.96) 0%,rgba(247,243,236,.80) 34%,rgba(247,243,236,.2) 73%,rgba(247,243,236,.12) 100%),
+    url("/assets/home-racetrack.jpg");
+  background-position:center top,center top,56% 82px;
   background-repeat:no-repeat;
-  background-size:max(1500px,100vw) auto;
+  background-size:100% 1050px,100% 900px,max(1500px,100vw) auto;
 }
 .home-experience{gap:40px}
 .home-intro{padding-top:8px}
@@ -158,16 +162,19 @@
 }
 @media(max-width:880px){
   .app-shell:has(.home-experience){
-    background-position:53% 66px;
-    background-size:1500px auto;
+    background-position:center top,center top,55% 66px;
+    background-size:100% 950px,100% 850px,1500px auto;
   }
   .home-experience{gap:36px}
 }
 @media(max-width:600px){
   .app-shell:has(.home-experience){
-    background-image:linear-gradient(180deg,rgba(247,243,236,.2),rgba(247,243,236,.48) 650px,#f7f3ec 1060px),url("/assets/home-racetrack.svg");
-    background-position:center top,58% 66px;
-    background-size:100% 100%,1280px auto;
+    background-image:
+      linear-gradient(180deg,rgba(247,243,236,.7) 0%,rgba(247,243,236,.6) 36%,#f7f3ec 100%),
+      linear-gradient(90deg,rgba(247,243,236,.84),rgba(247,243,236,.44)),
+      url("/assets/home-racetrack.jpg");
+    background-position:center top,center top,52% 66px;
+    background-size:100% 980px,100% 840px,1250px auto;
   }
   .home-experience{gap:32px}
   .home-discovery-card{height:320px}
