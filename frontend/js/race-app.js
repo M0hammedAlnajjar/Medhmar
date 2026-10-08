@@ -5,6 +5,26 @@ import {
 
 const HERO_IMAGE = "/assets/racing-hero.webp";
 
+// Use locally hosted, distinct racing photographs instead of repeating one
+// image across the entire race directory. These are illustrative preview photos.
+const RACE_IMAGES = [
+    HERO_IMAGE,
+    "/assets/mock-camels/camel-1.jpg",
+    "/assets/mock-camels/camel-8.jpg",
+    "/assets/landing-hero-wide.png",
+    "/assets/mock-camels/camel-7.jpg"
+];
+
+function fallbackRaceImage(race) {
+    // Stable by ID/name: filtering or tab changes never swap a race's photo.
+    const key = String(race.raceId ?? race.name ?? "race");
+    let hash = 0;
+    for (const character of key) {
+        hash = (hash * 31 + character.charCodeAt(0)) % RACE_IMAGES.length;
+    }
+    return RACE_IMAGES[hash];
+}
+
 const DEMO_RACES = [
     {
         raceId: "demo-nizwa",
@@ -28,7 +48,7 @@ const DEMO_RACES = [
         organizerName: "Dhofar Racing",
         category: "Open Race",
         trackType: "Sand Track",
-        coverImage: HERO_IMAGE
+        coverImage: RACE_IMAGES[1]
     },
     {
         raceId: "demo-alwusta",
@@ -40,7 +60,7 @@ const DEMO_RACES = [
         organizerName: "Al Wusta Racing Club",
         category: "Desert Race",
         trackType: "Sand Track",
-        coverImage: HERO_IMAGE
+        coverImage: RACE_IMAGES[2]
     },
     {
         raceId: "demo-muscat",
@@ -52,7 +72,7 @@ const DEMO_RACES = [
         organizerName: "Muscat Camel Racing",
         category: "Sprint Race",
         trackType: "Sand Track",
-        coverImage: HERO_IMAGE
+        coverImage: RACE_IMAGES[3]
     },
     {
         raceId: "demo-sohar",
@@ -64,7 +84,7 @@ const DEMO_RACES = [
         organizerName: "Al Batinah Racing",
         category: "Heritage Cup",
         trackType: "Sand Track",
-        coverImage: HERO_IMAGE
+        coverImage: RACE_IMAGES[4]
     }
 ];
 
@@ -304,7 +324,7 @@ function normalizeBackendRace(race) {
         organizerId: race.organizerId,
         organizationId: race.organizationId,
         organizerName: backendOrganizerLabel(race),
-        coverImage: HERO_IMAGE
+        coverImage: race.coverImage || fallbackRaceImage(race)
     };
 }
 
