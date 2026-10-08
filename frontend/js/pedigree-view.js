@@ -63,10 +63,40 @@ function feedback(status, error) {
   return `<div class="pedigree-feedback" role="alert"><h2>${title}</h2><p>${message}</p>${action}</div>`;
 }
 
-export function pedigreeView(view) {
+function directoryControls(data) {
+  const { q = {}, page = {}, tree, selectedId } = data;
+  const camels = [...(page.content || [])];
+  if (tree && !camels.some(c => String(c.camelId) === String(tree.camelId))) camels.unshift(tree);
+  const selected = String(tree?.camelId ?? selectedId ?? '');
+  const options = camels.map(c => `<option value="${escape(c.camelId)}"${String(c.camelId) === selected ? ' selected' : ''}>${escape(c.name)} · #${escape(c.camelId)}</option>`).join('');
+  const pageLink = number => {
+    const params = new URLSearchParams({ page: String(number) });
+    if (q.search) params.set('search', q.search);
+    return escape(`/pedigree?${params}`);
+  };
+  return `<div class="pedigree-controls">
+    <div class="pedigree-picker"><label for="pedigree-camel">Selected camel</label><select id="pedigree-camel" class="select"${camels.length ? '' : ' disabled'}>
+      ${camels.some(c => String(c.camelId) === selected) ? '' : '<option value="" selected>Choose a camel</option>'}${options}
+    </select></div>
+    <form class="pedigree-search" data-form="pedigree-filter" role="search" aria-label="Find a camel">
+      <label class="pedigree-sr-only" for="pedigree-search">Search camel by name</label>
+      <input id="pedigree-search" class="input" type="search" name="search" placeholder="Search camel by name…" value="${escape(q.search || '')}">
+      <button class="btn btn-secondary" type="submit">Search</button>
+      ${q.search ? '<a class="pedigree-clear" href="/pedigree" data-link>Clear</a>' : ''}
+    </form>
+    ${page.totalPages > 1 ? `<nav class="pedigree-pagination" aria-label="Camel selection pages">
+      ${page.page > 0 ? `<a href="${pageLink(page.page - 1)}" data-link aria-label="Previous camels">←</a>` : '<span aria-hidden="true">←</span>'}
+      <small>${escape(page.page + 1)} / ${escape(page.totalPages)}</small>
+      ${page.page + 1 < page.totalPages ? `<a href="${pageLink(page.page + 1)}" data-link aria-label="Next camels">→</a>` : '<span aria-hidden="true">→</span>'}
+    </nav>` : ''}
+  </div>`;
+}
+
+export function pedigreeView(view, { directory = false } = {}) {
   const tree = view.data?.tree;
   const ready = view.status === 'ready' && tree && registered(tree);
   const actions = ready ? `<div class="actions"><a class="btn btn-secondary pedigree-profile-link" href="/camels/${encodeURIComponent(tree.camelId)}/profile" data-link>View camel profile <span aria-hidden="true">↗</span></a>${view.data?.canEdit ? `<a class="btn btn-primary" href="/camels/${encodeURIComponent(tree.camelId)}/pedigree/edit" data-link>Edit pedigree</a>` : ''}</div>` : '';
+  const empty = directory && view.status === 'ready' && !tree && !view.data?.treeError;
   const content = ready ? `<figure class="pedigree-chart" aria-labelledby="pedigree-caption">
       <figcaption id="pedigree-caption" class="pedigree-sr-only">Three-generation pedigree of ${escape(tree.name)}. Sire is the father; dam is the mother.</figcaption>
       <div class="pedigree-tree">
@@ -74,10 +104,12 @@ export function pedigreeView(view) {
         <ol class="pedigree-parents" aria-label="Parents and grandparents">${branch(tree, 'sire')}${branch(tree, 'dam')}</ol>
       </div>
       <div class="pedigree-legend"><span><b>Sire</b> Father</span><span><b>Dam</b> Mother</span><span class="pedigree-hint">Select a registered ancestor to explore its pedigree.</span></div>
-    </figure>` : feedback(view.status === 'ready' ? 'error' : view.status, view.error);
-  return `<section class="pedigree-page" lang="en" dir="ltr" aria-labelledby="pedigree-title">
-    <a class="pedigree-back" href="/camels" data-link><span aria-hidden="true">←</span> Camels</a>
+    </figure>` : empty ? `<div class="pedigree-feedback" role="status"><h2>No camels found</h2><p>${view.data?.q?.search ? 'Try another name to find a registered camel.' : 'Registered camels will appear here when they are added.'}</p><a class="btn btn-secondary" href="${view.data?.q?.search ? '/pedigree' : '/camels'}" data-link>${view.data?.q?.search ? 'Clear search' : 'Browse camels'}</a></div>`
+    : feedback(view.status === 'ready' ? 'error' : view.status, view.data?.treeError || view.error);
+  return `<section class="pedigree-page${directory ? ' pedigree-directory-page' : ''}" lang="en" dir="ltr" aria-labelledby="pedigree-title">
+    ${directory ? '' : '<a class="pedigree-back" href="/pedigree" data-link><span aria-hidden="true">←</span> All pedigrees</a>'}
     <div class="pedigree-heading"><div><h1 id="pedigree-title">Pedigree</h1><p>${ready ? `Explore ${escape(tree.name)}’s family across three generations.` : 'Explore the family behind every camel.'}</p></div>${actions}</div>
+    ${directory && view.data?.page ? directoryControls(view.data) : ''}
     ${content}
   </section>`;
 }
