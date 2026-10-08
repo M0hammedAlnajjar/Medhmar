@@ -41,11 +41,19 @@ test("navbar, auth pages, and favicon show approved brand variants", () => {
   assert.doesNotMatch(auth, /auth-camel-watermark/);
 });
 
-test("desktop reference uses a floating rounded navbar with the original controls", () => {
-  assert.match(css, /\.topbar\{[\s\S]*?width:calc\(100% - 36px\);max-width:1600px;height:82px/);
-  assert.match(css, /margin:22px auto 0;top:10px;border-radius:12px/);
+test("navbar spans the viewport without external white gaps at any breakpoint", () => {
+  // Only the content is max-width constrained; the dark background is full-bleed.
+  assert.match(css, /\.topbar\{\s*width:100%;max-width:none;height:82px;/);
+  assert.match(css, /margin:0;top:0;border-radius:0;/);
+  assert.match(css, /\.topbar-inner\{height:100%;max-width:1480px;margin:auto;/);
+  assert.match(css, /\.landing-page \.topbar\{[^\n]*border:0;border-bottom:/);
+  assert.match(css, /\.topbar\{width:100%;height:66px;margin:0;top:0;border-radius:0\}/);
+  assert.doesNotMatch(css, /width:calc\(100% - (?:36|16)px\)/);
+  assert.doesNotMatch(css, /margin:22px auto 0;top:10px;border-radius:12px/);
+});
+
+test("the original navbar logo, routes, search and language controls remain", () => {
   assert.match(css, /\.topbar \.brand-wordmark\{padding:0;background:transparent;border:0/);
-  assert.match(css, /@media\(max-width:720px\)\{[\s\S]*?width:calc\(100% - 16px\)/);
   assert.match(css, /\.topbar \.nav\{gap:0;justify-content:flex-start;padding-left:18px\}/);
   assert.match(app, /const primaryDesktopPaths = \[/);
   assert.ok(app.includes("'/races', '/race-cards', '/camels', '/pedigree', '/marketplace'"));
