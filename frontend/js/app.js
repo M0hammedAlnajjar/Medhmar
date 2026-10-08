@@ -78,11 +78,20 @@ const shell = (body,active='', compact=false) => `<div class="app-shell${compact
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 function landing(){
+ // Actual photographs served by Wikimedia Commons. Credits and licenses are
+ // linked under the module grid. They are illustrative, not event-specific.
+ const photos = {
+  hero: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Camel_race_using_robot_jockeys.jpg/1280px-Camel_race_using_robot_jockeys.jpg',
+  account: 'https://upload.wikimedia.org/wikipedia/commons/1/1c/Camel_of_Oman.jpg',
+  community: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Camel_racing.jpg/960px-Camel_racing.jpg',
+  training: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Camel_Race_Training.jpg/960px-Camel_Race_Training.jpg',
+  platform: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Camels_crossing_the_desert_Wahiba_Sands_Bidiya%2C_Oman_%2853697960088%29.jpg/1280px-Camels_crossing_the_desert_Wahiba_Sands_Bidiya%2C_Oman_%2853697960088%29.jpg'
+ };
  const modules = [
-  ['ACCOUNT','Secure accounts','Authentication, registration and passwords for a safe and personalized experience.','/signin','/assets/auth-reference.png','Secure'],
-  ['COMMUNITY','Challenges & voting','Published camel challenges, community voting and leaderboards.','/challenges','/assets/racing-hero.webp','Live'],
-  ['TRAINER TOOLS','Training records','Chronological trainer session logs, performance notes and progress tracking.','/training','/assets/landing-hero-wide.png','Training'],
-  ['PLATFORM','Platform operations','Race cards, organizations, heritage and more to keep Medhmar running smoothly.','/race-cards','/assets/landing-hero-wide.png','Explore']
+  ['ACCOUNT','Secure accounts','Authentication, registration and passwords for a safe and personalized experience.','/signin',photos.account,'Secure'],
+  ['COMMUNITY','Challenges & voting','Published camel challenges, community voting and leaderboards.','/challenges',photos.community,'Live'],
+  ['TRAINER TOOLS','Training records','Chronological trainer session logs, performance notes and progress tracking.','/training',photos.training,'Training'],
+  ['PLATFORM','Platform operations','Race cards, organizations, heritage and more to keep Medhmar running smoothly.','/race-cards',photos.platform,'Explore']
  ];
  return '<div class="app-shell landing-page">' + topbar() +
  '<main class="landing-hero" aria-labelledby="landing-title">' +
@@ -94,7 +103,7 @@ function landing(){
  '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span><img class="landing-landscape" src="/assets/oman-line.svg" alt="" aria-hidden="true"></div>' +
  '</section>' +
  '<section class="landing-visual" aria-label="Camel race in Oman">' +
- '<img class="landing-race-photo" src="/assets/landing-hero-wide.png" alt="Racing camels on an Omani track at golden hour" fetchpriority="high" decoding="async">' +
+ '<img class="landing-race-photo" src="'+photos.hero+'" alt="Actual photograph of racing camels with robotic jockeys" fetchpriority="high" decoding="async" referrerpolicy="no-referrer">' +
  '<div class="landing-photo-wash" aria-hidden="true"></div>' +
  '<a class="landing-track-card" href="/race-cards" data-link aria-label="Open race cards for Sultan Qaboos Race"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2024&nbsp; · &nbsp;Al Seeb, Oman</span></div></a>' +
  '</section>' +
@@ -102,8 +111,16 @@ function landing(){
  '<section class="landing-below main" aria-labelledby="landing-modules-title">' +
  '<div class="landing-section-head"><div><h2 id="landing-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div><a class="landing-view-all" href="/home" data-link>View all modules</a></div>' +
  '<div class="landing-module-grid">' +
- modules.map(([k,t,d,p,img,b],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div></a>').join('') +
+ modules.map(([k,t,d,p,img,b],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div></a>').join('') +
  '</div>' +
+ '<details class="landing-photo-credits"><summary>Photography credits and licenses</summary>' +
+ '<p>Real photographs from Oman and other camel-racing regions. Images are illustrative, not photographs of the sample races. They may be cropped to fit the design.</p>' +
+ '<ul>' +
+ '<li><a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer">Camel race with robotic jockeys</a> and <a href="https://commons.wikimedia.org/wiki/File:Camel_racing.jpg" target="_blank" rel="noopener noreferrer">racing camels</a> — Houssain tork, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</li>' +
+ '<li><a href="https://commons.wikimedia.org/wiki/File:Camel_of_Oman.jpg" target="_blank" rel="noopener noreferrer">Camel in Oman</a> — Desertroad, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</li>' +
+ '<li><a href="https://commons.wikimedia.org/wiki/File:Camel_Race_Training.jpg" target="_blank" rel="noopener noreferrer">Training camels</a> — Lintophilip, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</li>' +
+ '<li><a href="https://commons.wikimedia.org/wiki/File:Camels_crossing_the_desert_Wahiba_Sands_Bidiya,_Oman_(53697960088).jpg" target="_blank" rel="noopener noreferrer">Camels in the Wahiba Sands, Oman</a> — dronepicr, <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a>.</li>' +
+ '</ul></details>' +
  '</section>' +
  '</div>';
 }
