@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 960" role="img" aria-label="Warm Omani camel racetrack with dunes, rails and distant mountains">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#fbf7f1"/><stop offset=".48" stop-color="#faeddf"/><stop offset="1" stop-color="#e9c9a7"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#fff9ec" stop-opacity=".96"/><stop offset=".48" stop-color="#fff5e3" stop-opacity=".42"/><stop offset="1" stop-color="#fff3df" stop-opacity="0"/></radialGradient>
+    <linearGradient id="farMountain" x2="0" y2="1"><stop stop-color="#be9c89" stop-opacity=".43"/><stop offset="1" stop-color="#dfc1aa" stop-opacity=".12"/></linearGradient>
+    <linearGradient id="nearMountain" x2="0" y2="1"><stop stop-color="#b89079" stop-opacity=".42"/><stop offset="1" stop-color="#e5c8b0" stop-opacity=".08"/></linearGradient>
+    <linearGradient id="dunes" x2="0" y2="1"><stop stop-color="#f0d3b5"/><stop offset=".62" stop-color="#e6c09c"/><stop offset="1" stop-color="#d8a87e"/></linearGradient>
+    <linearGradient id="track" x2="0" y2="1"><stop stop-color="#efcfaa"/><stop offset=".7" stop-color="#dbad80"/><stop offset="1" stop-color="#e6bc96"/></linearGradient>
+    <linearGradient id="mist" x2="0" y2="1"><stop stop-color="#fff5e7" stop-opacity=".85"/><stop offset="1" stop-color="#fff5e7" stop-opacity="0"/></linearGradient>
+    <linearGradient id="leftFade"><stop stop-color="#f9f4ed" stop-opacity=".92"/><stop offset=".42" stop-color="#faf2e8" stop-opacity=".54"/><stop offset=".82" stop-color="#f9eee0" stop-opacity=".08"/><stop offset="1" stop-color="#f8f0e6" stop-opacity="0"/></linearGradient>
+    <linearGradient id="lowerFade" x2="0" y2="1"><stop stop-color="#f7f3ec" stop-opacity="0"/><stop offset="1" stop-color="#f7f3ec"/></linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+    <filter id="dust"><feTurbulence type="fractalNoise" baseFrequency=".022 .07" numOctaves="2" seed="8"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".055"/></feComponentTransfer></filter>
+  </defs>
+  <rect width="1920" height="960" fill="url(#sky)"/>
+  <ellipse cx="1500" cy="120" rx="560" ry="300" fill="url(#sun)"/>
+  <path d="M0 330 90 307 160 319 232 291 300 314 376 287 447 325 550 299 628 331 718 307 806 317 894 274 954 299 1038 246 1100 279 1192 215 1259 266 1341 218 1440 271 1512 233 1587 261 1671 230 1751 257 1840 215 1920 243V490H0Z" fill="url(#farMountain)"/>
+  <path d="M0 396 86 348 175 380 250 353 341 376 430 338 500 382 604 357 704 377 785 342 866 358 964 324 1032 361 1132 291 1224 352 1311 287 1408 332 1494 293 1601 320 1690 276 1788 323 1877 268 1920 286V480H0Z" fill="url(#nearMountain)"/>
+  <path d="M0 421C302 383 547 417 789 410c270-8 405-71 629-47 224 23 377 11 502-6v161H0Z" fill="#edcfb2" opacity=".68"/>
+  <path d="M0 458c234-45 451-21 626-34 261-20 459-71 650-40 250 41 452 8 644-8V614H0Z" fill="url(#dunes)"/>
+  <path d="M0 497c267-55 483-15 727-40 273-27 480-37 695-11 157 19 319 3 498-36v235H0Z" fill="#f1d9be" opacity=".78"/>
+  <rect y="290" width="1920" height="265" fill="url(#mist)" opacity=".55"/>
+  <!-- An empty curved racing course with white protective rails, echoing the approved mock-up. -->
+  <path d="M0 550Q396 445 780 437c340-8 631 28 831 23 132-4 210-28 309-45v545H0Z" fill="url(#track)"/>
+  <path d="M0 585Q430 477 835 476c313 2 599 43 804 18 115-14 201-39 281-60" fill="none" stroke="#c89165" stroke-opacity=".25" stroke-width="24"/>
+  <path d="M0 655Q405 504 845 494c346-8 599 45 795 17 113-16 206-50 280-68" fill="none" stroke="#fff8ed" stroke-opacity=".85" stroke-width="11"/>
+  <path d="M0 671Q405 520 845 510c346-8 599 45 795 17 113-16 206-50 280-68" fill="none" stroke="#9b806b" stroke-opacity=".23" stroke-width="4"/>
+  <path d="M0 665Q408 516 845 502c346-7 599 45 795 17 113-16 206-50 280-68" fill="none" stroke="#fffdfa" stroke-width="7"/>
+  <g fill="none" stroke="#fff8f0" stroke-width="5" stroke-linecap="round" opacity=".94">
+    <path d="M75 636v43M210 595v47M358 558v49M525 526v49M694 506v43M856 504v40M1028 510v41M1216 520v43M1385 523v48M1540 515v49M1690 496v47M1833 460v54"/>
+  </g>
+  <g fill="none" stroke="#d1a079" stroke-width="3" opacity=".2">
+    <path d="M-30 825Q280 670 667 661t779 42t474-112"/>
+    <path d="M-25 854Q322 688 675 685t735 36t510-103"/>
+    <path d="M-15 886Q356 711 713 704t709 39t498-104"/>
+  </g>
+  <path d="M0 694Q458 588 830 571c321-13 591 29 798 16 114-7 218-29 292-50" fill="none" stroke="#fff3e4" stroke-opacity=".16" stroke-width="62" filter="url(#soft)"/>
+  <rect x="0" y="480" width="1920" height="470" filter="url(#dust)" opacity=".44"/>
+  <!-- Keep content areas quiet: editorial type and cards remain the focal point. -->
+  <rect width="1200" height="820" fill="url(#leftFade)"/>
+  <rect y="620" width="1920" height="340" fill="url(#lowerFade)"/>
+</svg>

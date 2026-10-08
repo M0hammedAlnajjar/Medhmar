@@ -134,3 +134,42 @@
   .home-experience a,.home-experience img{transition:none}
   .home-experience a:hover,.home-showcase:hover img,.home-heritage:hover img{transform:none}
 }
+
+
+/* Home-only camel racetrack scene: sand, track barriers and distant mountains.
+   Kept separate from the feature photographs and out of other app pages. */
+.app-shell:has(.home-experience){
+  background-color:#f7f3ec;
+  background-image:url("/assets/home-racetrack.svg");
+  background-position:center 76px;
+  background-repeat:no-repeat;
+  background-size:max(1500px,100vw) auto;
+}
+.home-experience{gap:40px}
+.home-intro{padding-top:8px}
+.home-section-header{margin-bottom:20px}
+.home-discovery-card{box-shadow:0 12px 28px rgba(68,39,21,.13)}
+.home-discovery-copy strong{text-shadow:0 2px 8px rgba(28,17,11,.32)}
+.home-tools{background:rgba(255,252,247,.97);box-shadow:0 8px 28px rgba(92,61,35,.06)}
+@media(min-width:881px){
+  .home-discovery-card{height:394px}
+  .home-intro h1{font-size:clamp(30px,3.2vw,45px)}
+  .home-section-header h2{font-size:clamp(28px,2.85vw,40px)}
+}
+@media(max-width:880px){
+  .app-shell:has(.home-experience){
+    background-position:53% 66px;
+    background-size:1500px auto;
+  }
+  .home-experience{gap:36px}
+}
+@media(max-width:600px){
+  .app-shell:has(.home-experience){
+    background-image:linear-gradient(180deg,rgba(247,243,236,.2),rgba(247,243,236,.48) 650px,#f7f3ec 1060px),url("/assets/home-racetrack.svg");
+    background-position:center top,58% 66px;
+    background-size:100% 100%,1280px auto;
+  }
+  .home-experience{gap:32px}
+  .home-discovery-card{height:320px}
+  .home-section-header h2{font-size:clamp(27px,8vw,32px)}
+}
