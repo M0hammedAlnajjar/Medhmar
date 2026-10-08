@@ -1,8 +1,10 @@
 package com.gulfracing.controller;
 
 import com.gulfracing.dto.OfferDTO;
+import com.gulfracing.dto.SaleTransactionDTO;
 import com.gulfracing.security.AccountAccess;
 import com.gulfracing.service.OfferService;
+import com.gulfracing.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -16,6 +18,7 @@ import java.util.List;
 public class OfferController {
 
     private final OfferService offerService;
+    private final UserService userService;
 
     @PostMapping("/add")
     public Long addOffer(
@@ -60,6 +63,14 @@ public class OfferController {
                         AccountAccess.requiredId(auth)
                 )
         );
+    }
+
+    @GetMapping("/{id}/sale")
+    public SaleTransactionDTO getSaleReceipt(@PathVariable Long id, Authentication auth) {
+        Long userId = AccountAccess.requiredId(auth);
+        var sale = offerService.getSaleByOfferId(id, userId);
+        boolean showSellerFinancials = sale.getSeller().getUserId().equals(userId) || userService.isAdmin(userId);
+        return SaleTransactionDTO.from(sale, showSellerFinancials);
     }
 
     @PutMapping("/update")
