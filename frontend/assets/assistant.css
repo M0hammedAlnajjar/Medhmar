@@ -1,4 +1,4 @@
-/* Medhmar Assistant — scoped to Profile & Settings. */
+/* Medhmar Assistant — discoverable, global floating chat dock. */
 .settings-assistant-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(335px,410px);align-items:start;gap:22px}
 .settings-profile-stack{min-width:0;display:grid;gap:20px}
 .settings-profile-card{display:flex;align-items:center;flex-wrap:wrap;gap:24px;min-width:0;padding:26px}
@@ -84,3 +84,30 @@
 @media(prefers-reduced-motion:reduce){
  .medhmar-assistant *{scroll-behavior:auto;transition:none}
 }
+/* Account settings is now just the account form — chat lives in its own dock. */
+.settings-account-layout{width:min(100%,900px);margin:0 auto}
+.settings-account-layout .settings-profile-stack{width:100%}
+
+/* Persistent launcher and non-modal flyout, outside the page router. */
+.medhmar-assistant-dock{position:fixed;right:26px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:75;direction:ltr;font-family:inherit}
+.assistant-dock-launcher{display:flex;align-items:center;gap:11px;min-height:55px;padding:7px 17px 7px 7px;border-radius:999px;border:1px solid #d8b58c;background:#3f2b1e;color:#fff8ed;box-shadow:0 12px 34px rgba(56,34,20,.26);cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.01em;transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
+.assistant-dock-launcher:hover{transform:translateY(-2px);background:#5c3c25;box-shadow:0 17px 34px rgba(56,34,20,.29)}
+.assistant-dock-launcher-icon{width:39px;height:39px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#f2d19a,#d5a268);color:#493020;font-size:22px}
+.assistant-dock-launcher-label{white-space:nowrap}
+.assistant-dock-launcher-pulse{width:7px;height:7px;border-radius:50%;background:#d5a875;box-shadow:0 0 0 3px rgba(213,168,117,.16)}
+.assistant-dock-panel{position:absolute;right:0;bottom:calc(100% + 13px);width:min(405px,calc(100vw - 32px));height:min(625px,calc(100dvh - 115px));min-height:0;filter:drop-shadow(0 18px 30px rgba(48,30,18,.18))}
+.assistant-dock-panel[hidden]{display:none!important}
+.assistant-dock-panel .medhmar-assistant{height:100%;min-height:0;max-height:none;box-shadow:none;border-radius:17px}
+.assistant-dock-panel .assistant-messages{min-height:0}
+.assistant-dock-close{flex:0 0 auto;display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:#f2e7d9;color:#5c422d;border:1px solid #e3d6c6;font-size:23px;line-height:1;cursor:pointer}
+.assistant-dock-close:hover{background:#e7d7c3}
+.medhmar-assistant-dock :is(.assistant-dock-launcher,.assistant-dock-close):focus-visible{outline:3px solid #c68c51;outline-offset:3px}
+body:has(.modal-backdrop) .medhmar-assistant-dock{visibility:hidden}
+@media(max-width:600px){
+ .medhmar-assistant-dock{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+ .assistant-dock-launcher{min-height:51px;padding-right:15px;font-size:12px}
+ .assistant-dock-launcher-icon{width:36px;height:36px}
+ .assistant-dock-panel{width:calc(100vw - 24px);height:min(570px,calc(100dvh - 105px));bottom:calc(100% + 9px)}
+ .assistant-dock-panel .medhmar-assistant{border-radius:12px}
+}
+@media(prefers-reduced-motion:reduce){.assistant-dock-launcher{transition:none}.assistant-dock-launcher:hover{transform:none}}
