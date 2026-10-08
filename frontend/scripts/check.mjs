@@ -9,7 +9,7 @@ for (const file of (await readdir("js")).filter(name => name.endsWith(".js"))) {
 
 const required = [
   "index.html", "server.mjs", "package.json",
-  "assets/styles.css", "assets/race-styles.css", "assets/mark.svg", "assets/racing-hero.webp",
+  "assets/styles.css", "assets/race-styles.css", "assets/medhmar-logo.svg", "assets/medhmar-logo-full.svg", "assets/medhmar-logo-icon.svg", "assets/racing-hero.webp",
   "js/app.js", "js/api.js", "js/data.js", "js/routes.js", "js/race-routes.js", "js/race-extra-app.js"
 ];
 
