@@ -605,19 +605,19 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar .brand-wordmark{padding:3px 4px}
 }
 
-/* Full-width navigation: no surrounding white gutters or floating-card spacing.
+/* Floating navigation faithful to the approved Medhmar screenshot.
    Keep the approved camel wordmark and brown visual treatment. */
 .topbar{
-  width:100%;max-width:none;height:82px;
-  margin:0;top:0;border-radius:0;
-  border:0;
-  box-shadow:0 3px 14px rgba(44,27,17,.14);
+  width:calc(100% - 36px);max-width:1600px;height:82px;
+  margin:22px auto 0;top:10px;border-radius:12px;
+  border:1px solid rgba(211,165,110,.20);
+  box-shadow:0 9px 22px rgba(44,27,17,.14);
 }
-.landing-page .topbar{box-shadow:0 3px 14px rgba(44,27,17,.14);border:0}
+.landing-page .topbar{box-shadow:0 9px 22px rgba(44,27,17,.14);border:1px solid rgba(211,165,110,.20)}
 .topbar-inner{padding:0 30px;gap:25px}
 .topbar .brand-wordmark{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
-.topbar .brand-wordmark img{width:224px;height:54px;object-fit:contain;object-position:left center}
-.topbar .nav{gap:0}
+.topbar .brand-wordmark img{width:224px;height:54px;object-fit:contain;object-position:left center;transform:scaleY(1.13)}
+.topbar .nav{gap:0;justify-content:flex-start;padding-left:18px}
 .topbar .nav a{font-size:12px;padding:0 7px}
 .topbar .nav a::after{left:7px;right:7px;bottom:21px}
 .topbar .nav-actions{gap:8px}
@@ -635,7 +635,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar-inner{gap:14px}
 }
 @media(max-width:720px){
-  .topbar{height:66px}
+  .topbar{width:calc(100% - 16px);height:66px;margin-top:8px;top:6px;border-radius:10px}
   .topbar-inner{height:66px;padding:0 12px;gap:7px}
   .topbar .brand-wordmark img{width:144px;height:40px}
 }
