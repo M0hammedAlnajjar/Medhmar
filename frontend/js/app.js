@@ -858,7 +858,7 @@ async function render() {
 }
 function bind(){
  bindPedigreeImages(root);
- bindAssistantView(root);
+ if ($('#medhmar-assistant')) bindAssistantView(root);
  $('#admin-retry')?.addEventListener('click',()=>render());
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
