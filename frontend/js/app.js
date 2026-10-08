@@ -109,7 +109,133 @@ function landing(){
 
 const auth = authView;
 
-function home(){ const firstName=state.user?.fullName?.trim().split(/\s+/)[0]||'Guest'; return shell(`${head(`Good morning, ${esc(firstName)} 👋`,'Welcome back to Medhmar. Your integration overview keeps your platform modules in one place.')}${demoNote()}<div class="stats">${[['Challenges','2','1 open'],['Training Logs','18','this month'],['Organizations','3','active'],['Race Cards','3','versions']].map(([a,b,c])=>`<div class="card stat"><div class="stat-label">${a}</div><div class="stat-value">${b}</div><div class="stat-note">${c}</div></div>`).join('')}</div><div class="grid grid-2"><section class="card card-pad"><div class="section-title"><h2>Quick access</h2></div><div class="grid grid-2">${visibleNavItems().filter(([path])=>path!=='/home').map(([p,l])=>`<a class="card card-pad" href="${p}" data-link><strong>${l}</strong><p class="form-help">Open module →</p></a>`).join('')}</div></section><section class="card card-pad"><div class="section-title"><h2>Platform activity</h2></div><div class="timeline"><div class="timeline-item"><h3>Challenge opened</h3><p>Desert Champions Challenge is accepting votes.</p></div><div class="timeline-item"><h3>Race card published</h3><p>Al Bashayer Camel Race v3 is now public.</p></div><div class="timeline-item"><h3>Profile secured</h3><p>Role-aware access is active for this session.</p></div></div></section></div>`,'/home'); }
+function home() {
+  const firstName = esc(state.user?.fullName?.trim().split(/\s+/)[0] || 'Guest');
+  const greeting = state.user?.userId ? `Welcome back, ${firstName}.` : 'Welcome to Medhmar.';
+
+  const discoveries = [
+    {
+      path: '/races',
+      eyebrow: '01 / THE RACE',
+      title: 'Every race has a story.',
+      description: 'Find races, participants and results.',
+      image: '/assets/racing-hero.webp',
+      alt: 'Camels racing on an Omani track',
+    },
+    {
+      path: '/camels',
+      eyebrow: '02 / THE CHAMPIONS',
+      title: 'Meet the camels.',
+      description: 'Get to know the athletes of the track.',
+      image: '/assets/mock-camels/camel-1.jpg',
+      alt: 'Portrait of a racing camel',
+    },
+    {
+      path: '/pedigree',
+      eyebrow: '03 / THE LEGACY',
+      title: 'Explore their lineage.',
+      description: 'Discover family trees and heritage.',
+      image: '/assets/mock-camels/camel-3.jpg',
+      alt: 'Camel in the desert',
+    },
+  ];
+  const discoveryCards = discoveries.map(card => `
+    <a class="home-discovery-card" href="${card.path}" data-link>
+      <img src="${card.image}" alt="${esc(card.alt)}" loading="lazy" decoding="async">
+      <span class="home-discovery-shade" aria-hidden="true"></span>
+      <span class="home-discovery-top">${card.eyebrow}</span>
+      <span class="home-discovery-copy">
+        <strong>${card.title}</strong>
+        <span>${card.description}</span>
+      </span>
+      <span class="home-discovery-arrow" aria-hidden="true">↗</span>
+    </a>
+  `).join('');
+
+  const shortcutPaths = new Set([
+    '/challenges', '/training', '/agreements', '/race-cards',
+    '/organizations', '/trainer-profile', '/admin', '/audit-logs',
+  ]);
+  const shortcuts = visibleNavItems()
+    .filter(([path]) => shortcutPaths.has(path))
+    .map(([path, label], i) => `
+      <a class="home-shortcut" href="${path}" data-link>
+        <span class="home-shortcut-index">${String(i + 1).padStart(2, '0')}</span>
+        <span class="home-shortcut-name">${esc(label)}</span>
+        <span class="home-shortcut-arrow" aria-hidden="true">↗</span>
+      </a>
+    `).join('');
+
+  return shell(`
+    <div class="home-experience" lang="en" dir="ltr">
+      <header class="home-intro">
+        <div>
+          <p class="home-overline"><span aria-hidden="true"></span> YOUR RACING HUB</p>
+          <h1>${greeting}</h1>
+          <p>Discover Oman's camel racing world — the people, the races and the legacy.</p>
+        </div>
+        <a href="/races" data-link class="home-intro-link">Explore race calendar <span aria-hidden="true">↗</span></a>
+      </header>
+
+      <section class="home-showcase" aria-labelledby="home-showcase-title">
+        <div class="home-showcase-content">
+          <span class="home-showcase-kicker">MEDHMAR <span aria-hidden="true">/</span> THE OMANI SPIRIT</span>
+          <h2 id="home-showcase-title">Rooted in heritage.<br><em>Built for the race.</em></h2>
+          <p>From legendary bloodlines to unforgettable race days, experience the tradition from a whole new perspective.</p>
+          <div class="home-showcase-actions">
+            <a class="home-showcase-primary" href="/races" data-link>Discover races <span aria-hidden="true">↗</span></a>
+            <a class="home-showcase-secondary" href="/pedigree" data-link>Explore pedigree <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="home-showcase-signature" aria-label="Races, heritage and community">
+            <span>RACES</span><i></i><span>HERITAGE</span><i></i><span>COMMUNITY</span>
+          </div>
+        </div>
+        <div class="home-showcase-image">
+          <img src="/assets/landing-hero-wide.png" alt="Racing camels crossing an Omani track in warm sunlight" fetchpriority="high" decoding="async">
+          <span class="home-showcase-image-wash" aria-hidden="true"></span>
+          <div class="home-image-note">
+            <span class="home-image-note-symbol" aria-hidden="true">✦</span>
+            <div><span>THE MEDHMAR EXPERIENCE</span><strong>A living Omani tradition</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-section" aria-labelledby="home-discover-title">
+        <div class="home-section-header">
+          <div>
+            <p class="home-overline">DISCOVER MEDHMAR</p>
+            <h2 id="home-discover-title">A world beyond the finish line.</h2>
+            <p>Explore the moments and stories that make camel racing special.</p>
+          </div>
+          <span class="home-section-number">01 — EXPLORE</span>
+        </div>
+        <div class="home-discovery-grid">${discoveryCards}</div>
+      </section>
+
+      <section class="home-workspace" aria-labelledby="home-tools-title">
+        <div class="home-tools">
+          <div class="home-section-header home-tools-header">
+            <div>
+              <p class="home-overline">YOUR WORKSPACE</p>
+              <h2 id="home-tools-title">Everything within reach.</h2>
+              <p>Jump into the platform tools available to your account.</p>
+            </div>
+          </div>
+          <div class="home-shortcuts">${shortcuts}</div>
+        </div>
+        <a class="home-heritage" href="/tourism" data-link>
+          <img src="/assets/racing-hero.webp" alt="Camels on a racing track in Oman" loading="lazy" decoding="async">
+          <span class="home-heritage-overlay" aria-hidden="true"></span>
+          <span class="home-heritage-copy">
+            <span>BEYOND RACE DAY</span>
+            <strong>Discover the<br>heritage of Oman.</strong>
+            <span class="home-heritage-cta">Explore our story <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+      </section>
+    </div>
+  `, '/home');
+}
 
 function settings(){ return shell(`${head('Profile & Settings','Update your profile and preferred language.')}${demoNote()}<div class="two-pane"><section class="card profile-hero"><div class="profile-avatar">M</div><div><h1>${esc(state.user.fullName)}</h1><p>${esc(state.user.email)}</p><div class="actions">${state.user.roles.map(badge).join('')}</div></div></section><section class="card card-pad"><form id="settings-form" class="form"><div class="field"><label>Full Name</label><input class="input" name="fullName" value="${esc(state.user.fullName)}"></div><div class="field"><label>Preferred Language</label><select class="select" name="preferredLanguage"><option value="en">English</option><option value="ar">العربية</option></select></div><button class="btn btn-primary">Save Changes</button><button class="btn btn-secondary" type="button" id="logout-btn">Sign Out</button></form></section></div>`,'/settings'); }
 
