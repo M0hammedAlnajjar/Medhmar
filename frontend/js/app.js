@@ -90,19 +90,19 @@ function landing(){
  '<div class="landing-brandline"><span class="landing-rule"></span><div><div class="landing-wordmark">MEDHMAR</div><div class="landing-eyebrow">OMAN\'S CAMEL RACING COMMUNITY</div></div></div>' +
  '<div class="landing-copy"><h1 id="landing-title">Where tradition<br>races into<br><em>the future.</em></h1>' +
  '<p>Races. Camels. Heritage. Community.<br>Experience Oman\'s living legacy and a new generation of racing excellence.</p>' +
- '<div class="landing-hero-actions"><a class="landing-primary" href="/race-cards" data-link>Explore Races <span aria-hidden="true">→</span></a><a class="landing-secondary" href="/tourism" data-link>Discover Heritage <span class="landing-circle-arrow" aria-hidden="true">→</span></a></div></div>' +
+ '<div class="landing-hero-actions"><a class="landing-primary" href="/race-cards" data-link>Explore Races</a><a class="landing-secondary" href="/tourism" data-link>Discover Heritage</a></div></div>' +
  '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span><img class="landing-landscape" src="/assets/oman-line.svg" alt="" aria-hidden="true"></div>' +
  '</section>' +
  '<section class="landing-visual" aria-label="Camel race in Oman">' +
  '<img class="landing-race-photo" src="/assets/landing-hero-wide.png" alt="Racing camels on an Omani track at golden hour" fetchpriority="high" decoding="async">' +
  '<div class="landing-photo-wash" aria-hidden="true"></div>' +
- '<aside class="landing-track-card"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2024&nbsp; · &nbsp;Al Seeb, Oman</span></div><a href="/race-cards" data-link class="landing-track-arrow" aria-label="Open race cards">→</a></aside>' +
+ '<a class="landing-track-card" href="/race-cards" data-link aria-label="Open race cards for Sultan Qaboos Race"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2024&nbsp; · &nbsp;Al Seeb, Oman</span></div></a>' +
  '</section>' +
  '</main>' +
  '<section class="landing-below main" aria-labelledby="landing-modules-title">' +
- '<div class="landing-section-head"><div><h2 id="landing-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div><a class="landing-view-all" href="/home" data-link>View all modules <span>→</span></a></div>' +
+ '<div class="landing-section-head"><div><h2 id="landing-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div><a class="landing-view-all" href="/home" data-link>View all modules</a></div>' +
  '<div class="landing-module-grid">' +
- modules.map(([k,t,d,p,img,b],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div><span class="landing-module-arrow" aria-hidden="true">→</span></a>').join('') +
+ modules.map(([k,t,d,p,img,b],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div></a>').join('') +
  '</div>' +
  '</section>' +
  '</div>';
