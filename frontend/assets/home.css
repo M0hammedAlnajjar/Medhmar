@@ -51,11 +51,9 @@
 .home-discovery-card:hover img{transform:scale(1.045)}
 .home-discovery-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,22,16,.5),rgba(32,23,16,0) 40%,rgba(29,19,12,.89) 100%);z-index:1}
 .home-discovery-top{position:relative;z-index:2;margin:25px 25px 0;font-size:10px;letter-spacing:.19em;font-weight:900;color:#fff6e9}
-.home-discovery-copy{position:relative;z-index:2;display:flex;flex-direction:column;gap:9px;margin:auto 60px 26px 25px;justify-content:end;flex:1}
+.home-discovery-copy{position:relative;z-index:2;display:flex;flex-direction:column;gap:9px;margin:auto 25px 26px 25px;justify-content:end;flex:1}
 .home-discovery-copy strong{font-family:Georgia,"Times New Roman",serif;font-size:clamp(25px,2.25vw,33px);line-height:1.1;letter-spacing:-.03em;font-weight:600;text-wrap:balance}
 .home-discovery-copy>span{font-size:13px;line-height:1.5;color:#ebdfd3}
-.home-discovery-arrow{position:absolute;z-index:2;right:22px;bottom:24px;width:39px;height:39px;border:1px solid rgba(255,255,255,.75);border-radius:50%;display:grid;place-items:center;font-size:19px;transition:background .2s ease,color .2s ease}
-.home-discovery-card:hover .home-discovery-arrow{background:#fffaf3;color:#452d1d}
 
 .home-workspace{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,.68fr);gap:20px;min-width:0;align-items:stretch}
 .home-tools{min-width:0;padding:30px;border:1px solid #e3d6c9;background:#fffbf5;border-radius:17px}
