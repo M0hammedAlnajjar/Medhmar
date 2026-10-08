@@ -8,7 +8,7 @@ if (!landingFn) throw new Error("Landing page implementation missing");
 const landing = new Function("topbar", "function landing(){" + landingFn + "; return landing();")(() => "<nav></nav>");
 
 test("landing uses verified authentic photographic links, one hero and four unique modules", () => {
-  const urls = [...landing.matchAll(/<img\\b[^>]*\\bsrc="(https:\/\/(?:thumb|upload)\.wikimedia\.org[^"]+)"/g)].map(match => match[1]);
+  const urls = [...landing.matchAll(/<img\b[^>]*\bsrc="(https:\/\/(?:thumb|upload)\.wikimedia\.org[^"]+)"/g)].map(match => match[1]);
   assert.equal(urls.length, 5, "hero and all four modules should use real photos");
   assert.equal(new Set(urls).size, 5, "images should be varied instead of repeated");
   assert.match(landing, /class="landing-race-photo" src="https:\/\/thumb\.wikimedia\.org/);
