@@ -604,3 +604,47 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar .brand-wordmark img{width:118px;height:33px}
   .topbar .brand-wordmark{padding:3px 4px}
 }
+
+/* Floating desktop navigation based on the approved Medhmar reference.
+   Keep the authentic camel wordmark on brown: the transparent asset needs no cream tile. */
+.topbar{
+  width:calc(100% - 36px);max-width:1600px;height:82px;
+  margin:18px auto 0;top:10px;border-radius:12px;
+  border:1px solid rgba(211,165,110,.20);
+  box-shadow:0 9px 22px rgba(44,27,17,.14);
+}
+.landing-page .topbar{box-shadow:0 9px 22px rgba(44,27,17,.14);border:1px solid rgba(211,165,110,.20)}
+.topbar-inner{padding:0 30px;gap:25px}
+.topbar .brand-wordmark{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+.topbar .brand-wordmark img{width:224px;height:54px;object-fit:contain;object-position:left center}
+.topbar .nav{gap:0}
+.topbar .nav a{font-size:12px;padding:0 7px}
+.topbar .nav a::after{left:7px;right:7px;bottom:21px}
+.topbar .nav-actions{gap:8px}
+.topbar .nav-actions::before{height:40px;margin-right:3px}
+.topbar .nav-language-single{min-width:44px;height:42px}
+@media(min-width:1321px) and (max-width:1490px){
+  .topbar-inner{gap:19px}
+  .topbar .brand-wordmark img{width:216px;height:52px}
+  .topbar .nav a{font-size:11px;padding:0 6px}
+  .topbar .nav a::after{left:6px;right:6px}
+  .topbar .nav-actions{gap:6px}
+}
+@media(max-width:1320px){
+  .topbar .brand-wordmark img{width:175px;height:48px}
+  .topbar-inner{gap:14px}
+}
+@media(max-width:720px){
+  .topbar{width:calc(100% - 16px);height:66px;margin-top:8px;top:6px;border-radius:10px}
+  .topbar-inner{height:66px;padding:0 12px;gap:7px}
+  .topbar .brand-wordmark img{width:144px;height:40px}
+}
+@media(max-width:640px){
+  .topbar{height:64px}
+  .topbar-inner{height:64px}
+  .topbar .brand-wordmark img{width:140px;height:37px}
+}
+@media(max-width:480px){
+  .topbar .brand-wordmark img{width:118px;height:33px}
+  .topbar .brand-wordmark{padding:0}
+}
