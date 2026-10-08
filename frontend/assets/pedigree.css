@@ -1,6 +1,6 @@
 /* Scoped pedigree layout: keep the existing Medhmar navigation and palette. */
 .pedigree-shell { display: flex; flex-direction: column; }
-.pedigree-shell .main { width: 100%; padding-bottom: 20px; }
+.pedigree-shell .main { width: 100%; margin: 0 auto; padding-bottom: 20px; }
 .pedigree-shell footer { width: 100%; margin-top: auto; padding-top: 20px; }
 .pedigree-more { position: relative; display: flex; align-items: center; }
 .pedigree-more summary { display: flex; align-items: center; gap: 9px; height: 100%; padding: 0 14px; cursor: pointer; list-style: none; color: #f4e9dd; font-size: 13px; font-weight: 550; }
@@ -96,168 +96,25 @@ a.pedigree-node:hover { border-color: var(--primary-2); box-shadow: 0 4px 14px r
   .pedigree-hint { width: 100%; text-align: center; padding: 0; border: 0; }
 }
 
-
-/* Pedigree directory visual hero */
-.pedigree-directory-hero{
-  position:relative;
-  display:grid;
-  grid-template-columns:minmax(260px,.78fr) minmax(480px,1.22fr);
-  gap:34px;
-  align-items:center;
-  min-height:360px;
-  margin:4px 0 28px;
-  padding:38px 40px;
-  overflow:hidden;
-  border:1px solid rgba(184,130,72,.28);
-  border-radius:24px;
-  background:
-    radial-gradient(circle at 82% 20%,rgba(210,154,87,.18),transparent 28%),
-    linear-gradient(135deg,#fffdf9 0%,#f8f0e5 52%,#efe0cc 100%);
-  box-shadow:0 18px 48px rgba(67,42,25,.08);
-}
-.pedigree-directory-hero::before{
-  content:"";
-  position:absolute;
-  width:360px;height:360px;
-  right:-95px;bottom:-190px;
-  border:1px solid rgba(125,78,42,.1);
-  border-radius:50%;
-  box-shadow:0 0 0 48px rgba(125,78,42,.035),0 0 0 96px rgba(125,78,42,.025);
-  pointer-events:none;
-}
-.pedigree-directory-copy{position:relative;z-index:2}
-.pedigree-directory-copy h2{
-  margin:8px 0 14px;
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(34px,4vw,56px);
-  line-height:.98;
-  letter-spacing:-.035em;
-  color:#352116;
-}
-.pedigree-directory-copy h2 em{font-weight:400;color:#9b612e}
-.pedigree-directory-copy p{
-  max-width:470px;
-  margin:0;
-  color:#756557;
-  font-size:14px;
-  line-height:1.75;
-}
-.pedigree-directory-key{
-  display:flex;flex-wrap:wrap;gap:14px 18px;
-  margin-top:22px;
-  color:#5e4a3b;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.08em;
-}
-.pedigree-directory-key span{display:flex;align-items:center;gap:7px}
-.pedigree-key-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.pedigree-key-dot.sire{background:#8e5b2e}
-.pedigree-key-dot.dam{background:#c29a6c}
-.pedigree-key-dot.camel{background:#3e281a}
-
-.pedigree-directory-tree{
-  position:relative;
-  min-height:282px;
-  border-radius:20px;
-  background:
-    linear-gradient(rgba(255,255,255,.34),rgba(255,255,255,.1)),
-    repeating-linear-gradient(0deg,transparent 0 38px,rgba(89,57,35,.035) 39px 40px);
-}
-.pedigree-tree-glow{
-  position:absolute;inset:24px 18%;
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(198,144,82,.18),rgba(198,144,82,0) 68%);
-  filter:blur(8px);
-}
-.pedigree-mini-node{
-  position:absolute;
-  width:148px;
-  min-height:68px;
-  padding:12px 14px;
-  border:1px solid rgba(126,81,47,.18);
-  border-radius:14px;
-  background:rgba(255,253,249,.94);
-  box-shadow:0 9px 24px rgba(79,47,26,.08);
-}
-.pedigree-mini-node small{
-  display:block;margin-bottom:5px;
-  color:#a36c3b;font-size:9px;font-weight:900;
-  text-transform:uppercase;letter-spacing:.12em;
-}
-.pedigree-mini-node strong{font-size:13px;color:#3e2a1d}
-.pedigree-mini-subject{
-  left:50%;top:50%;
-  width:166px;min-height:82px;
-  transform:translate(-50%,-50%);
-  padding-left:54px;
-  border-color:rgba(110,67,36,.4);
-  background:#3d281b;
-  box-shadow:0 16px 36px rgba(61,40,27,.2);
-}
-.pedigree-mini-subject small{color:#d8ae7b}
-.pedigree-mini-subject strong{color:#fff6ec}
-.pedigree-mini-mark{
-  position:absolute;left:12px;top:18px;
-  width:32px;height:32px;
-  display:grid;place-items:center;
-  border-radius:50%;
-  background:#d7a460;
-}
-.pedigree-mini-mark img{width:23px;height:23px;object-fit:contain;filter:brightness(0) invert(1)}
-
-.pedigree-mini-branch>.pedigree-mini-node:first-child{top:50%;transform:translateY(-50%)}
-.pedigree-mini-sire>.pedigree-mini-node:first-child{left:5%}
-.pedigree-mini-dam>.pedigree-mini-node:first-child{right:5%}
-.pedigree-mini-grand{width:132px;min-height:58px;padding:10px 12px}
-.pedigree-mini-sire .pedigree-mini-gs{left:0;top:4px}
-.pedigree-mini-sire .pedigree-mini-gd{left:0;bottom:4px}
-.pedigree-mini-dam .pedigree-mini-gs{right:0;top:4px}
-.pedigree-mini-dam .pedigree-mini-gd{right:0;bottom:4px}
-
-/* Connector lines */
-.pedigree-directory-tree::before,
-.pedigree-directory-tree::after{
-  content:"";position:absolute;top:50%;height:1px;
-  width:calc(50% - 150px);
-  background:linear-gradient(90deg,rgba(119,77,45,.35),rgba(119,77,45,.12));
-}
-.pedigree-directory-tree::before{left:148px}
-.pedigree-directory-tree::after{right:148px;transform:scaleX(-1)}
-.pedigree-mini-branch::before{
-  content:"";position:absolute;top:35px;bottom:35px;width:1px;
-  background:rgba(119,77,45,.22);
-}
-.pedigree-mini-sire::before{left:146px}
-.pedigree-mini-dam::before{right:146px}
-.pedigree-mini-branch::after{
-  content:"";position:absolute;top:50%;width:34px;height:1px;
-  background:rgba(119,77,45,.22);
-}
-.pedigree-mini-sire::after{left:112px}
-.pedigree-mini-dam::after{right:112px}
-
-.pedigree-directory-toolbar{
-  padding:14px;
-  border:1px solid var(--border);
-  border-radius:16px;
-  background:#fff;
-  box-shadow:0 8px 22px rgba(68,43,25,.035);
-}
-
-@media(max-width:980px){
-  .pedigree-directory-hero{grid-template-columns:1fr;padding:30px}
-  .pedigree-directory-tree{min-height:300px}
-}
-@media(max-width:680px){
-  .pedigree-directory-hero{padding:24px 18px;border-radius:18px}
-  .pedigree-directory-copy h2{font-size:38px}
-  .pedigree-directory-tree{min-height:360px;overflow:hidden}
-  .pedigree-mini-node{width:122px}
-  .pedigree-mini-subject{width:150px}
-  .pedigree-mini-grand{width:112px;font-size:11px}
-  .pedigree-mini-sire>.pedigree-mini-node:first-child{left:2%}
-  .pedigree-mini-dam>.pedigree-mini-node:first-child{right:2%}
-  .pedigree-mini-sire .pedigree-mini-gs,.pedigree-mini-sire .pedigree-mini-gd{left:-16px}
-  .pedigree-mini-dam .pedigree-mini-gs,.pedigree-mini-dam .pedigree-mini-gd{right:-16px}
-  .pedigree-directory-tree::before,.pedigree-directory-tree::after,
-  .pedigree-mini-branch::before,.pedigree-mini-branch::after{opacity:.6}
+/* Keep the family tree as the main content of the navbar destination. */
+.pedigree-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; margin-top: 26px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
+.pedigree-picker { flex: 0 1 320px; min-width: 220px; }
+.pedigree-picker label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 650; color: var(--muted); }
+.pedigree-picker .select { min-height: 46px; background-color: #fff; }
+.pedigree-search { display: flex; align-items: center; gap: 10px; flex: 0 1 440px; min-width: 0; margin-left: auto; }
+.pedigree-search .input { min-width: 0; flex: 1; width: auto; min-height: 46px; background: #fff; }
+.pedigree-search .btn { min-height: 46px; font-size: 13px; font-weight: 600; }
+.pedigree-clear { font-size: 13px; color: var(--primary-2); text-decoration: underline; text-underline-offset: 3px; }
+.pedigree-pagination { display: flex; align-items: center; gap: 7px; height: 46px; }
+.pedigree-pagination a, .pedigree-pagination > span { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.pedigree-pagination > span { opacity: .4; }
+.pedigree-pagination a:hover { border-color: var(--primary-2); }
+.pedigree-pagination small { min-width: 40px; text-align: center; color: var(--muted); }
+@media (max-width: 700px) {
+  .pedigree-controls { gap: 14px; margin-top: 22px; padding-bottom: 18px; }
+  .pedigree-picker, .pedigree-search { flex: 1 1 100%; min-width: 0; }
+  .pedigree-search { margin-left: 0; }
+  .pedigree-pagination { margin-left: auto; }
+  .pedigree-heading .actions { gap: 8px; }
+  .pedigree-heading .actions .btn { padding: 10px 12px; font-size: 13px; }
 }
