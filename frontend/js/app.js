@@ -45,7 +45,16 @@ const navItems = [
 ];
 
 
-const navAll = [...navItems.slice(0,7),['/camels','Camels'],['/pedigree','Pedigree'],['/marketplace','Marketplace'],...navItems.slice(7)];
+// Place the frequently used modules in the reference navbar order; preserve
+// specialized routes and permissions in the More/mobile navigation.
+const navAll = [
+    ['/home','Home'], ['/challenges','Challenges'], ['/training','Training'],
+    ['/organizations','Organizations'], ['/tourism','Heritage'],
+    ['/races','Races'], ['/race-cards','Race Cards'], ['/camels','Camels'],
+    ['/pedigree','Pedigree'], ['/marketplace','Marketplace'],
+    ['/trainer-profile','Trainer'], ['/agreements','Agreements'],
+    ['/audit-logs','Audit log'], ['/admin','Admin']
+];
 const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
 const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/pedigree','/marketplace']);
 
@@ -54,8 +63,13 @@ function topbar(active='', compact=false){
   const items = visibleNavItems();
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
   const corePaths = ['/home', '/races', '/camels', '/pedigree', '/marketplace'];
-  const desktopItems = compact ? corePaths.map(path => items.find(([p]) => p === path)).filter(Boolean) : items;
-  const extraItems = compact ? items.filter(([path]) => !corePaths.includes(path)) : [];
+  const primaryDesktopPaths = [
+    '/home', '/challenges', '/training', '/organizations', '/tourism',
+    '/races', '/race-cards', '/camels', '/pedigree', '/marketplace', '/trainer-profile'
+  ];
+  const visiblePaths = compact ? corePaths : primaryDesktopPaths;
+  const desktopItems = visiblePaths.map(path => items.find(([p]) => p === path)).filter(Boolean);
+  const extraItems = items.filter(([path]) => !visiblePaths.includes(path));
   const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
 
   const accountActions = signedIn
