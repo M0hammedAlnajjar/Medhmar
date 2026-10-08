@@ -172,33 +172,9 @@ function home() {
         <div>
           <p class="home-overline"><span aria-hidden="true"></span> YOUR RACING HUB</p>
           <h1>${greeting}</h1>
-          <p>Discover Oman's camel racing world — the people, the races and the legacy.</p>
         </div>
         <a href="/races" data-link class="home-intro-link">Explore race calendar <span aria-hidden="true">↗</span></a>
       </header>
-
-      <section class="home-showcase" aria-labelledby="home-showcase-title">
-        <div class="home-showcase-content">
-          <span class="home-showcase-kicker">MEDHMAR <span aria-hidden="true">/</span> THE OMANI SPIRIT</span>
-          <h2 id="home-showcase-title">Rooted in heritage.<br><em>Built for the race.</em></h2>
-          <p>From legendary bloodlines to unforgettable race days, experience the tradition from a whole new perspective.</p>
-          <div class="home-showcase-actions">
-            <a class="home-showcase-primary" href="/races" data-link>Discover races <span aria-hidden="true">↗</span></a>
-            <a class="home-showcase-secondary" href="/pedigree" data-link>Explore pedigree <span aria-hidden="true">→</span></a>
-          </div>
-          <div class="home-showcase-signature" aria-label="Races, heritage and community">
-            <span>RACES</span><i></i><span>HERITAGE</span><i></i><span>COMMUNITY</span>
-          </div>
-        </div>
-        <div class="home-showcase-image">
-          <img src="/assets/landing-hero-wide.png" alt="Racing camels crossing an Omani track in warm sunlight" fetchpriority="high" decoding="async">
-          <span class="home-showcase-image-wash" aria-hidden="true"></span>
-          <div class="home-image-note">
-            <span class="home-image-note-symbol" aria-hidden="true">✦</span>
-            <div><span>THE MEDHMAR EXPERIENCE</span><strong>A living Omani tradition</strong></div>
-          </div>
-        </div>
-      </section>
 
       <section class="home-section" aria-labelledby="home-discover-title">
         <div class="home-section-header">
