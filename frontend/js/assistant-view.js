@@ -174,3 +174,96 @@ export function bindAssistantView(root = document) {
     }
   });
 }
+
+// Discoverable, site-wide launcher: only mounted once outside the router.
+
+export function renderAssistantLauncher() {
+  return `
+    <button type="button" class="assistant-dock-launcher" id="assistant-dock-launcher"
+      aria-controls="assistant-dock-panel" aria-expanded="false"
+      aria-label="Open Medhmar Assistant">
+      <span class="assistant-dock-launcher-icon" aria-hidden="true">✦</span>
+      <span class="assistant-dock-launcher-label">Ask Medhmar</span>
+      <span class="assistant-dock-launcher-pulse" aria-hidden="true"></span>
+    </button>
+    <div class="assistant-dock-panel" id="assistant-dock-panel" hidden></div>
+  `;
+}
+
+export function syncAssistantDock({ user, preferredLanguage = "en", path = "/" } = {}) {
+  if (typeof document === "undefined" || !document.body) return;
+
+  // Keep the login and recovery forms distraction-free.
+  const authPages = new Set(["/signin", "/signup", "/forgot-password", "/reset-password"]);
+  let dock = document.getElementById("medhmar-assistant-dock");
+  if (authPages.has(path)) {
+    dock?.remove();
+    return;
+  }
+
+  const accountId = user?.userId ? String(user.userId) : "guest";
+  if (dock && dock.dataset.accountId !== accountId) {
+    // Do not let one account see the previous account's local chat messages.
+    dock.remove();
+    dock = null;
+  }
+
+  // The dock stays in document.body, outside the router-managed #app tree.
+  // This keeps an open conversation intact when navigating between pages.
+  if (dock) return;
+  dock = document.createElement("aside");
+  dock.id = "medhmar-assistant-dock";
+  dock.className = "medhmar-assistant-dock";
+  dock.dataset.accountId = accountId;
+  dock.setAttribute("aria-label", "Medhmar Assistant");
+  dock.innerHTML = renderAssistantLauncher();
+  document.body.append(dock);
+
+  const launcher = dock.querySelector("#assistant-dock-launcher");
+  const panel = dock.querySelector("#assistant-dock-panel");
+
+  function close() {
+    panel.hidden = true;
+    launcher.setAttribute("aria-expanded", "false");
+    launcher.setAttribute("aria-label", "Open Medhmar Assistant");
+    launcher.focus();
+  }
+
+  launcher.addEventListener("click", () => {
+    if (!panel.hidden) {
+      close();
+      return;
+    }
+
+    // Initialize chat only when requested: no unnecessary AI status calls.
+    if (!panel.firstElementChild) {
+      panel.innerHTML = renderAssistantView({
+        signedIn: accountId !== "guest",
+        preferredLanguage
+      });
+      const heading = panel.querySelector(".assistant-heading");
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.className = "assistant-dock-close";
+      closeButton.id = "assistant-dock-close";
+      closeButton.setAttribute("aria-label", "Close Medhmar Assistant");
+      closeButton.textContent = "×";
+      heading.append(closeButton);
+      closeButton.addEventListener("click", close);
+      bindAssistantView(panel);
+    }
+
+    panel.hidden = false;
+    launcher.setAttribute("aria-expanded", "true");
+    launcher.setAttribute("aria-label", "Close Medhmar Assistant");
+    const availableInput = panel.querySelector("#assistant-question:not(:disabled)");
+    (availableInput || panel.querySelector("#assistant-dock-close"))?.focus();
+  });
+
+  dock.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !panel.hidden) {
+      event.preventDefault();
+      close();
+    }
+  });
+}

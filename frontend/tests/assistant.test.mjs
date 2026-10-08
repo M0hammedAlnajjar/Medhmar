@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 
 // The API module reads the location at import time, as it does in the browser.
 globalThis.window = { location: { hostname: "localhost" } };
-const { renderAssistantView } = await import("../js/assistant-view.js");
+const { renderAssistantView, renderAssistantLauncher, syncAssistantDock } = await import("../js/assistant-view.js");
 const { assistantApi } = await import("../js/api.js");
 
-test("Profile & Settings shows the assistant even before AI is configured", () => {
+test("Assistant chat can render before AI is configured", () => {
   const html = renderAssistantView({ signedIn: true, preferredLanguage: "en" });
   assert.match(html, /Medhmar Assistant/);
   assert.match(html, /id="assistant-form"/);
@@ -76,4 +76,70 @@ test("Disabled AI status is surfaced, not replaced by mock answers", async () =>
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+
+test("site-wide launcher offers discoverable chat access and an accessible toggle", () => {
+  const html = renderAssistantLauncher();
+  assert.match(html, /Ask Medhmar/);
+  assert.match(html, /id="assistant-dock-launcher"/);
+  assert.match(html, /aria-expanded="false"/);
+  assert.match(html, /aria-controls="assistant-dock-panel"/);
+  assert.match(html, /id="assistant-dock-panel" hidden/);
+});
+
+test("dock is created once and does not lose its conversation across route changes", () => {
+  const originalDocument = globalThis.document;
+  let current = null;
+  const launcher = {
+    addEventListener() {}, setAttribute() {}, focus() {}
+  };
+  const panel = {
+    hidden: true, firstElementChild: null
+  };
+  const fakeDocument = {
+    body: { append(node) { current = node; } },
+    getElementById(id) { return id === "medhmar-assistant-dock" ? current : null; },
+    createElement(tag) {
+      assert.equal(tag, "aside");
+      return {
+        dataset: {},
+        setAttribute() {}, addEventListener() {},
+        querySelector(selector) {
+          if (selector === "#assistant-dock-launcher") return launcher;
+          if (selector === "#assistant-dock-panel") return panel;
+          return null;
+        },
+        remove() { current = null; }
+      };
+    }
+  };
+  globalThis.document = fakeDocument;
+  try {
+    const account = { userId: 42 };
+    syncAssistantDock({ user: account, path: "/home" });
+    assert.equal(current?.id, "medhmar-assistant-dock");
+    assert.match(current?.innerHTML, /Ask Medhmar/);
+    const firstInstance = current;
+    syncAssistantDock({ user: account, path: "/races" });
+    assert.equal(current, firstInstance, "navigation should not rebuild chat");
+    syncAssistantDock({ user: account, path: "/settings" });
+    assert.equal(current, firstInstance, "Settings should not contain a second copy");
+    syncAssistantDock({ user: { userId: 99 }, path: "/home" });
+    assert.notEqual(current, firstInstance, "switching accounts must discard old chat");
+    assert.equal(current.dataset.accountId, "99");
+    syncAssistantDock({ user: { userId: 99 }, path: "/signin" });
+    assert.equal(current, null, "auth pages must not display the dock");
+  } finally {
+    globalThis.document = originalDocument;
+  }
+});
+
+test("Profile & Settings no longer embeds the chat in its main layout", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const script = await readFile(new URL("../js/app.js", import.meta.url), "utf8");
+  const settings = script.split("function settings()")[1].split("function trainer()")[0];
+  assert.match(settings, /settings-account-layout/);
+  assert.doesNotMatch(settings, /renderAssistantView|medhmar-assistant/);
+  assert.match(script, /syncAssistantDock\(\{ user: state\.user/);
 });
