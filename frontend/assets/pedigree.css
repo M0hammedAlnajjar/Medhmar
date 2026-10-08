@@ -97,210 +97,105 @@ a.pedigree-node:hover { border-color: var(--primary-2); box-shadow: 0 4px 14px r
 }
 
 
-/* Pedigree directory visual hero */
-.pedigree-directory-hero{
-  position:relative;
-  display:grid;
-  grid-template-columns:minmax(260px,.78fr) minmax(480px,1.22fr);
-  gap:34px;
-  align-items:center;
-  min-height:360px;
-  margin:4px 0 28px;
-  padding:38px 40px;
-  overflow:hidden;
-  border:1px solid rgba(184,130,72,.28);
-  border-radius:24px;
-  background:
-    radial-gradient(circle at 82% 20%,rgba(210,154,87,.18),transparent 28%),
-    linear-gradient(135deg,#fffdf9 0%,#f8f0e5 52%,#efe0cc 100%);
-  box-shadow:0 18px 48px rgba(67,42,25,.08);
+/* Pedigree directory preview: the same three-tier tree as a real camel's pedigree.
+   Example portraits and names are a visual preview, never registry claims. */
+.pedigree-directory-preview {
+  margin: 8px 0 28px;
+  padding: 34px 4px 0;
+  border-top: 1px solid rgba(112, 82, 56, .13);
 }
-.pedigree-directory-hero::before{
-  content:"";
-  position:absolute;
-  width:360px;height:360px;
-  right:-95px;bottom:-190px;
-  border:1px solid rgba(125,78,42,.1);
-  border-radius:50%;
-  box-shadow:0 0 0 48px rgba(125,78,42,.035),0 0 0 96px rgba(125,78,42,.025);
-  pointer-events:none;
+.pedigree-directory-preview .pedigree-preview-chart {
+  margin: 0;
 }
-.pedigree-directory-copy{position:relative;z-index:2}
-.pedigree-directory-copy h2{
-  margin:8px 0 14px;
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(34px,4vw,56px);
-  line-height:.98;
-  letter-spacing:-.035em;
-  color:#352116;
+.pedigree-directory-preview .pedigree-node {
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(73, 48, 32, .075);
+  border: 1px solid #ddcbbb;
 }
-.pedigree-directory-copy h2 em{font-weight:400;color:#9b612e}
-.pedigree-directory-copy p{
-  max-width:470px;
-  margin:0;
-  color:#756557;
-  font-size:14px;
-  line-height:1.75;
+.pedigree-directory-preview .pedigree-node-subject {
+  width: min(100%, 312px);
+  min-height: 120px;
 }
-.pedigree-directory-key{
-  display:flex;flex-wrap:wrap;gap:14px 18px;
-  margin-top:22px;
-  color:#5e4a3b;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.08em;
+.pedigree-directory-preview .pedigree-node-subject .pedigree-photo {
+  flex-basis: 100px;
+  width: 100px;
+  height: 96px;
 }
-.pedigree-directory-key span{display:flex;align-items:center;gap:7px}
-.pedigree-key-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.pedigree-key-dot.sire{background:#8e5b2e}
-.pedigree-key-dot.dam{background:#c29a6c}
-.pedigree-key-dot.camel{background:#3e281a}
-
-.pedigree-directory-tree{
-  position:relative;
-  min-height:282px;
-  border-radius:20px;
-  background:
-    linear-gradient(rgba(255,255,255,.34),rgba(255,255,255,.1)),
-    repeating-linear-gradient(0deg,transparent 0 38px,rgba(89,57,35,.035) 39px 40px);
+.pedigree-directory-preview .pedigree-branch > .pedigree-node {
+  width: min(100%, 282px);
+  min-height: 106px;
 }
-.pedigree-tree-glow{
-  position:absolute;inset:24px 18%;
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(198,144,82,.18),rgba(198,144,82,0) 68%);
-  filter:blur(8px);
+.pedigree-directory-preview .pedigree-branch > .pedigree-node .pedigree-photo {
+  flex-basis: 78px;
+  width: 78px;
+  height: 82px;
 }
-.pedigree-mini-node{
-  position:absolute;
-  width:148px;
-  min-height:68px;
-  padding:12px 14px;
-  border:1px solid rgba(126,81,47,.18);
-  border-radius:14px;
-  background:rgba(255,253,249,.94);
-  box-shadow:0 9px 24px rgba(79,47,26,.08);
+.pedigree-directory-preview .pedigree-grandparents .pedigree-node {
+  min-height: 106px;
 }
-.pedigree-mini-node small{
-  display:block;margin-bottom:5px;
-  color:#a36c3b;font-size:9px;font-weight:900;
-  text-transform:uppercase;letter-spacing:.12em;
+.pedigree-directory-preview .pedigree-grandparents .pedigree-photo {
+  flex-basis: 70px;
+  width: 70px;
+  height: 76px;
 }
-.pedigree-mini-node strong{font-size:13px;color:#3e2a1d}
-.pedigree-mini-subject{
-  left:50%;top:50%;
-  width:166px;min-height:82px;
-  transform:translate(-50%,-50%);
-  padding-left:54px;
-  border-color:rgba(110,67,36,.4);
-  background:#3d281b;
-  box-shadow:0 16px 36px rgba(61,40,27,.2);
+.pedigree-directory-preview .pedigree-parents,
+.pedigree-directory-preview .pedigree-grandparents {
+  padding-top: 60px;
 }
-.pedigree-mini-subject small{color:#d8ae7b}
-.pedigree-mini-subject strong{color:#fff6ec}
-.pedigree-mini-mark{
-  position:absolute;left:12px;top:18px;
-  width:32px;height:32px;
-  display:grid;place-items:center;
-  border-radius:50%;
-  background:#d7a460;
+.pedigree-directory-preview .pedigree-parents::before,
+.pedigree-directory-preview .pedigree-grandparents::before {
+  height: 30px;
 }
-.pedigree-mini-mark img{width:23px;height:23px;object-fit:contain;filter:brightness(0) invert(1)}
-
-.pedigree-mini-branch>.pedigree-mini-node:first-child{top:50%;transform:translateY(-50%)}
-.pedigree-mini-sire>.pedigree-mini-node:first-child{left:5%}
-.pedigree-mini-dam>.pedigree-mini-node:first-child{right:5%}
-.pedigree-mini-grand{width:132px;min-height:58px;padding:10px 12px}
-.pedigree-mini-sire .pedigree-mini-gs{left:0;top:4px}
-.pedigree-mini-sire .pedigree-mini-gd{left:0;bottom:4px}
-.pedigree-mini-dam .pedigree-mini-gs{right:0;top:4px}
-.pedigree-mini-dam .pedigree-mini-gd{right:0;bottom:4px}
-
-/* Connector lines */
-.pedigree-directory-tree::before,
-.pedigree-directory-tree::after{
-  content:"";position:absolute;top:50%;height:1px;
-  width:calc(50% - 150px);
-  background:linear-gradient(90deg,rgba(119,77,45,.35),rgba(119,77,45,.12));
+.pedigree-directory-preview .pedigree-parents::after,
+.pedigree-directory-preview .pedigree-grandparents::after {
+  top: 30px;
 }
-.pedigree-directory-tree::before{left:148px}
-.pedigree-directory-tree::after{right:148px;transform:scaleX(-1)}
-.pedigree-mini-branch::before{
-  content:"";position:absolute;top:35px;bottom:35px;width:1px;
-  background:rgba(119,77,45,.22);
+.pedigree-directory-preview .pedigree-branch::before,
+.pedigree-directory-preview .pedigree-grandparents > li::before {
+  top: -30px;
+  height: 30px;
 }
-.pedigree-mini-sire::before{left:146px}
-.pedigree-mini-dam::before{right:146px}
-.pedigree-mini-branch::after{
-  content:"";position:absolute;top:50%;width:34px;height:1px;
-  background:rgba(119,77,45,.22);
+.pedigree-directory-preview .pedigree-name { color: #181311; }
+.pedigree-directory-preview .pedigree-label { color: #8a6c55; }
+.pedigree-directory-preview .pedigree-legend { margin-top: 16px; padding-bottom: 4px; }
+.pedigree-directory-toolbar {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(68,43,25,.035);
 }
-.pedigree-mini-sire::after{left:112px}
-.pedigree-mini-dam::after{right:112px}
-
-.pedigree-directory-toolbar{
-  padding:14px;
-  border:1px solid var(--border);
-  border-radius:16px;
-  background:#fff;
-  box-shadow:0 8px 22px rgba(68,43,25,.035);
+@media (min-width: 701px) and (max-width: 1100px) {
+  .pedigree-directory-preview .pedigree-grandparents .pedigree-photo {
+    width: 100%;
+    height: 94px;
+    flex-basis: auto;
+  }
 }
-
-@media(max-width:980px){
-  .pedigree-directory-hero{grid-template-columns:1fr;padding:30px}
-  .pedigree-directory-tree{min-height:300px}
-}
-@media(max-width:680px){
-  .pedigree-directory-hero{padding:24px 18px;border-radius:18px}
-  .pedigree-directory-copy h2{font-size:38px}
-  .pedigree-directory-tree{min-height:360px;overflow:hidden}
-  .pedigree-mini-node{width:122px}
-  .pedigree-mini-subject{width:150px}
-  .pedigree-mini-grand{width:112px;font-size:11px}
-  .pedigree-mini-sire>.pedigree-mini-node:first-child{left:2%}
-  .pedigree-mini-dam>.pedigree-mini-node:first-child{right:2%}
-  .pedigree-mini-sire .pedigree-mini-gs,.pedigree-mini-sire .pedigree-mini-gd{left:-16px}
-  .pedigree-mini-dam .pedigree-mini-gs,.pedigree-mini-dam .pedigree-mini-gd{right:-16px}
-  .pedigree-directory-tree::before,.pedigree-directory-tree::after,
-  .pedigree-mini-branch::before,.pedigree-mini-branch::after{opacity:.6}
-}
-
-/* Portraits in the directory's decorative pedigree preview. */
-.pedigree-directory-tree .pedigree-mini-node{
-  padding-left:56px;
-}
-.pedigree-directory-tree .pedigree-mini-photo{
-  position:absolute;
-  left:10px;
-  top:50%;
-  transform:translateY(-50%);
-  display:block;
-  width:36px;
-  height:42px;
-  object-fit:cover;
-  border-radius:9px;
-  border:1px solid rgba(111,75,46,.18);
-  background:#ead9c3;
-}
-.pedigree-directory-tree .pedigree-mini-subject{
-  padding-left:66px;
-}
-.pedigree-directory-tree .pedigree-mini-subject .pedigree-mini-photo{
-  left:12px;
-  width:43px;
-  height:52px;
-  border-color:rgba(255,255,255,.25);
-}
-.pedigree-directory-tree .pedigree-mini-grand{
-  padding-left:48px;
-}
-.pedigree-directory-tree .pedigree-mini-grand .pedigree-mini-photo{
-  left:8px;
-  width:32px;
-  height:36px;
-}
-@media(max-width:680px){
-  .pedigree-directory-tree .pedigree-mini-node{padding-left:46px}
-  .pedigree-directory-tree .pedigree-mini-photo{left:6px;width:33px;height:39px}
-  .pedigree-directory-tree .pedigree-mini-subject{padding-left:57px}
-  .pedigree-directory-tree .pedigree-mini-subject .pedigree-mini-photo{left:8px;width:41px;height:50px}
-  .pedigree-directory-tree .pedigree-mini-grand{padding-left:43px}
-  .pedigree-directory-tree .pedigree-mini-grand .pedigree-mini-photo{left:6px;width:31px;height:35px}
+@media (max-width: 700px) {
+  .pedigree-directory-preview { padding: 22px 0 0; }
+  .pedigree-directory-preview .pedigree-node-subject { width: min(100%, 290px); min-height: 112px; }
+  .pedigree-directory-preview .pedigree-node-subject .pedigree-photo { flex-basis: 88px; width: 88px; height: 88px; }
+  .pedigree-directory-preview .pedigree-parents { padding-top: 48px; }
+  .pedigree-directory-preview .pedigree-parents::before { height: 24px; }
+  .pedigree-directory-preview .pedigree-parents::after { top: 24px; }
+  .pedigree-directory-preview .pedigree-branch::before { top: -24px; height: 24px; }
+  .pedigree-directory-preview .pedigree-branch > .pedigree-node,
+  .pedigree-directory-preview .pedigree-grandparents .pedigree-node { width: 100%; }
+  .pedigree-directory-preview .pedigree-branch > .pedigree-node .pedigree-photo,
+  .pedigree-directory-preview .pedigree-grandparents .pedigree-photo {
+    flex-basis: auto;
+    width: 100%;
+    height: 96px;
+  }
+  .pedigree-directory-preview .pedigree-grandparents { padding-top: 28px; }
+  .pedigree-directory-preview .pedigree-grandparents::before { height: 12px; }
+  .pedigree-directory-preview .pedigree-grandparents::after { top: 12px; }
+  .pedigree-directory-preview .pedigree-grandparents > li::before {
+    top: 50%;
+    left: -12px;
+    width: 12px;
+    height: 0;
+  }
+  .pedigree-directory-preview .pedigree-hint { text-align: center; }
 }
