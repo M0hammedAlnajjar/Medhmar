@@ -1021,6 +1021,17 @@ function raceFormMarkup(race, user, mode) {
         </label>
 
         <label>
+          <span>Race Cover Image URL</span>
+          <input
+            type="url"
+            name="coverImageUrl"
+            maxlength="2048"
+            placeholder="https://example.com/race-cover.jpg"
+            value="${escapeHtml(race?.coverImageUrl || "")}"
+          >
+        </label>
+
+        <label>
           <span>Results Image URL</span>
           <input
             type="url"
@@ -1054,6 +1065,7 @@ function racePayload(form) {
         location: String(data.get("location") || "").trim(),
         distanceKm: Number(data.get("distanceKm")),
         status: String(data.get("status")),
+        coverImageUrl: String(data.get("coverImageUrl") || "").trim() || null,
         resultsImageUrl: String(data.get("resultsImageUrl") || "").trim() || null,
         organizerId: Number(data.get("organizerId")),
         organizationId: data.get("organizationId")

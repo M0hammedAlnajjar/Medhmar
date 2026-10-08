@@ -325,7 +325,7 @@ function normalizeBackendRace(race) {
         organizerId: race.organizerId,
         organizationId: race.organizationId,
         organizerName: backendOrganizerLabel(race),
-        coverImage: race.coverImage || fallbackRaceImage(race)
+        coverImage: race.coverImageUrl || race.coverImage || fallbackRaceImage(race)
     };
 }
 

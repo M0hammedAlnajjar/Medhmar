@@ -82,6 +82,7 @@ public class RaceService {
         race.setLocation(updatedRace.getLocation());
         race.setDistanceKm(updatedRace.getDistanceKm());
         race.setStatus(updatedRace.getStatus());
+        race.setCoverImageUrl(updatedRace.getCoverImageUrl());
         race.setResultsImageUrl(updatedRace.getResultsImageUrl());
         race.setOrganizer(updatedRace.getOrganizer());
         race.setOrganization(updatedRace.getOrganization());

@@ -42,6 +42,9 @@ public class RaceDTO {
     @NotNull(message = "Race status is required")
     private RaceStatus status;
 
+    @Size(max = 2048, message = "Cover image URL cannot exceed 2048 characters")
+    private String coverImageUrl;
+
     @Size(max = 2048, message = "Results image URL cannot exceed 2048 characters")
     private String resultsImageUrl;
 
@@ -65,6 +68,7 @@ public class RaceDTO {
                 .location(entity.getLocation())
                 .distanceKm(entity.getDistanceKm())
                 .status(entity.getStatus())
+                .coverImageUrl(entity.getCoverImageUrl())
                 .resultsImageUrl(entity.getResultsImageUrl())
                 .organizerId(
                         entity.getOrganizer() == null
@@ -99,6 +103,7 @@ public class RaceDTO {
         race.setLocation(location);
         race.setDistanceKm(distanceKm);
         race.setStatus(status);
+        race.setCoverImageUrl(coverImageUrl);
         race.setResultsImageUrl(resultsImageUrl);
 
         if (organizerId != null) {
