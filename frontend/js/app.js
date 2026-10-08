@@ -1,6 +1,7 @@
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView } from './auth-view.js';
+import { renderAssistantView, bindAssistantView } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
@@ -212,7 +213,46 @@ function home() {
   `, '/home');
 }
 
-function settings(){ return shell(`${head('Profile & Settings','Update your profile and preferred language.')}${demoNote()}<div class="two-pane"><section class="card profile-hero"><div class="profile-avatar">M</div><div><h1>${esc(state.user.fullName)}</h1><p>${esc(state.user.email)}</p><div class="actions">${state.user.roles.map(badge).join('')}</div></div></section><section class="card card-pad"><form id="settings-form" class="form"><div class="field"><label>Full Name</label><input class="input" name="fullName" value="${esc(state.user.fullName)}"></div><div class="field"><label>Preferred Language</label><select class="select" name="preferredLanguage"><option value="en">English</option><option value="ar">العربية</option></select></div><button class="btn btn-primary">Save Changes</button><button class="btn btn-secondary" type="button" id="logout-btn">Sign Out</button></form></section></div>`,'/settings'); }
+function settings() {
+  const user = state.user || guestUser;
+  const signedIn = Boolean(user.userId);
+  const roles = Array.isArray(user.roles) ? user.roles : [];
+  return shell(`${head('Profile & Settings', 'Manage your account and ask the Medhmar Assistant.')}
+    <div class="settings-assistant-layout">
+      <div class="settings-profile-stack">
+        <section class="card profile-hero settings-profile-card" aria-label="Account profile">
+          <div class="profile-avatar">${esc(user.fullName?.[0] || 'M')}</div>
+          <div class="settings-profile-copy">
+            <div class="kicker">YOUR ACCOUNT</div>
+            <h2>${esc(user.fullName || 'Guest')}</h2>
+            <p>${esc(user.email || 'Sign in to view your account details.')}</p>
+            <div class="actions">${roles.map(badge).join('')}</div>
+          </div>
+        </section>
+        <section class="card card-pad settings-preferences">
+          <div class="kicker">ACCOUNT PREFERENCES</div>
+          <h2>Personal information</h2>
+          <p>Update your profile and preferred language.</p>
+          <form id="settings-form" class="form">
+            <div class="field"><label for="settings-fullname">Full Name</label>
+              <input class="input" id="settings-fullname" name="fullName" autocomplete="name" value="${esc(user.fullName || '')}" maxlength="150"></div>
+            <div class="field"><label for="settings-language">Preferred Language</label>
+              <select class="select" id="settings-language" name="preferredLanguage">
+                <option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option>
+                <option value="ar" ${state.lang === 'ar' ? 'selected' : ''}>العربية</option>
+              </select>
+            </div>
+            <div class="settings-preferences-actions">
+              <button class="btn btn-primary" type="submit">Save Changes</button>
+              <button class="btn btn-secondary" type="button" id="logout-btn">Sign Out</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      ${renderAssistantView({ signedIn, preferredLanguage: state.lang })}
+    </div>
+  `, '/settings');
+}
 
 function trainer(){ const t=demo.trainer; return shell(`${head('Trainer Profile','Professional profile integrated with the current platform.')}${demoNote()}<section class="card profile-hero"><div class="profile-avatar">S</div><div><h1>${t.name}</h1><p>Professional Camel Trainer • ${t.location}</p><div class="actions">${badge('ACTIVE')}<span class="badge neutral">★ ${t.rating}</span></div></div><div class="stats"><div class="stat"><div class="stat-value">${t.assigned}</div><div class="stat-label">Assigned Camels</div></div><div class="stat"><div class="stat-value">${t.years}</div><div class="stat-label">Years Experience</div></div></div></section><section class="card card-pad section"><h2>About</h2><p>${t.bio}</p></section>`,'/trainer-profile'); }
 
@@ -818,6 +858,7 @@ async function render() {
 }
 function bind(){
  bindPedigreeImages(root);
+ bindAssistantView(root);
  $('#admin-retry')?.addEventListener('click',()=>render());
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
