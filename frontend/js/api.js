@@ -72,6 +72,16 @@ export const authApi = {
   googleUrl: () => `${API_BASE}/oauth2/authorization/google`,
 };
 
+// The AI service is optional; read its status before enabling chat.
+// Refresh CSRF before sending each question to support session-token rotation.
+export const assistantApi = {
+  status: () => api("/api/ai/status"),
+  chat: async (payload) => {
+    await refreshCsrf();
+    return api("/api/ai/chat", { method: "POST", body: JSON.stringify(payload) });
+  },
+};
+
 export const challengeApi = {
   list: () => api("/api/challenges?page=0&size=20"),
   one: (id) => api(`/api/challenges/${id}`),
