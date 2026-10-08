@@ -38,6 +38,9 @@ public class Race {
     @Column(name = "status", nullable = false, length = 30)
     private RaceStatus status;
 
+    @Column(name = "cover_image_url", length = 2048)
+    private String coverImageUrl;
+
     @Column(name = "results_image_url", length = 2048)
     private String resultsImageUrl;
 
