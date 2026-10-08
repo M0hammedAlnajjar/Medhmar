@@ -148,7 +148,6 @@ function home() {
         <strong>${card.title}</strong>
         <span>${card.description}</span>
       </span>
-      <span class="home-discovery-arrow" aria-hidden="true">↗</span>
     </a>
   `).join('');
 
