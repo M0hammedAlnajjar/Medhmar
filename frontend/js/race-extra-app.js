@@ -87,8 +87,24 @@ const DEMO_RESULTS = {
 };
 
 const DEMO_OWNER_CAMELS = [
-    { camelId: "demo-camel-a", name: "Al Wathba", breed: "Omani", status: "ACTIVE" },
-    { camelId: "demo-camel-b", name: "Shaheen", breed: "Omani", status: "ACTIVE" }
+    {
+        camelId: "demo-camel-a",
+        name: "Al Wathba",
+        breed: "Omani",
+        gender: "Male",
+        category: "Racing",
+        status: "ACTIVE",
+        photoUrl: "/assets/mock-camels/camel-1.jpg"
+    },
+    {
+        camelId: "demo-camel-b",
+        name: "Shaheen",
+        breed: "Omani",
+        gender: "Male",
+        category: "Racing",
+        status: "ACTIVE",
+        photoUrl: "/assets/mock-camels/camel-2.jpg"
+    }
 ];
 
 function escapeHtml(value) {
@@ -452,71 +468,93 @@ export async function renderRaceRegistration(container, raceId) {
         );
 
         container.innerHTML = `
-          <section class="medhmar-race-workflow medhmar-form-page">
+          <section class="medhmar-race-workflow medhmar-registration-page">
             <button type="button" class="medhmar-back-races" data-back-race>
               ← Back to Race
             </button>
 
-            <div class="medhmar-participants-heading">
+            <div class="medhmar-registration-heading">
               <div>
-                <div class="medhmar-detail-title">
-                  <h1>Register Camel</h1>
-                  <span class="medhmar-race-status open">OPEN</span>
-                </div>
-                <p>${escapeHtml(race.name)}</p>
+                <h1>Register for ${escapeHtml(race.name)}</h1>
+                <p>Select one of your active camels to enter this race.</p>
               </div>
+              <span class="medhmar-race-status open medhmar-static-status">OPEN</span>
             </div>
 
             ${raceSummary(race)}
 
-            <section class="medhmar-workflow-card medhmar-form-card">
-              <div class="medhmar-participants-card-head">
-                <div>
-                  <h2>Race Registration</h2>
-                  <p>Select one of your active camels for this race.</p>
-                </div>
-              </div>
+            <section class="medhmar-workflow-card medhmar-registration-card">
+              <form id="race-registration-form" class="medhmar-registration-form">
+                <fieldset class="medhmar-camel-choice-list" ${available.length ? "" : "disabled"}>
+                  <legend>Select Your Camel</legend>
 
-              <form class="medhmar-race-form" id="race-registration-form">
-                <label>
-                  <span>Camel</span>
-                  <select name="camelId" required ${available.length ? "" : "disabled"}>
-                    <option value="">Select a camel</option>
-                    ${available.map(camel => `
-                      <option value="${escapeHtml(camel.camelId)}">
-                        ${escapeHtml(camel.name)} · ${escapeHtml(camel.breed || "Camel")}
-                      </option>
-                    `).join("")}
-                  </select>
-                </label>
+                  ${available.length ? available.map((camel, index) => `
+                    <label class="medhmar-camel-choice">
+                      <input
+                        type="radio"
+                        name="camelId"
+                        value="${escapeHtml(camel.camelId)}"
+                        ${index === 0 ? "checked" : ""}
+                        required
+                      >
+                      <span class="medhmar-camel-radio" aria-hidden="true"></span>
+                      <img
+                        src="${escapeHtml(camel.photoUrl || "/assets/racing-hero.webp")}"
+                        alt="${escapeHtml(camel.name)}"
+                      >
+                      <span class="medhmar-camel-choice-copy">
+                        <strong>${escapeHtml(camel.name)}</strong>
+                        <span>
+                          ${escapeHtml(camel.gender || "Camel")}
+                          ·
+                          ${escapeHtml(camel.breed || "Breed not listed")}
+                          ${camel.category ? ` · ${escapeHtml(camel.category)}` : ""}
+                        </span>
+                      </span>
+                    </label>
+                  `).join("") : `
+                    <div class="medhmar-registration-empty">
+                      <div class="medhmar-state-icon">🐪</div>
+                      <strong>No Active Camels</strong>
+                      <span>Add or activate a camel before registering for this race.</span>
+                    </div>
+                  `}
+                </fieldset>
 
                 <div class="medhmar-form-note">
-                  New registrations are created with PENDING status and must be reviewed by the race organizer.
+                  New registrations start with PENDING status and must be reviewed by the race organizer.
                 </div>
 
                 <div class="medhmar-form-feedback" id="race-registration-feedback" hidden></div>
 
-                <button
-                  type="submit"
-                  class="medhmar-view-race"
-                  ${available.length ? "" : "disabled"}
-                >
-                  ${demo ? "Preview Registration" : "Register Camel"}
-                </button>
-              </form>
-
-              ${available.length ? "" : `
-                <div class="medhmar-form-note">
-                  No active owned camels are available for registration.
+                <div class="medhmar-registration-actions">
+                  <button type="button" class="medhmar-outline-action" data-cancel-registration>
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    class="medhmar-view-race"
+                    ${available.length ? "" : "disabled"}
+                  >
+                    ${demo ? "Preview Registration" : "Submit Registration"}
+                  </button>
                 </div>
-              `}
+              </form>
             </section>
           </section>
         `;
 
+        const backToRace = () =>
+            navigate(`/races/${encodeURIComponent(raceId)}`);
+
         container.querySelector("[data-back-race]")?.addEventListener(
             "click",
-            () => navigate(`/races/${encodeURIComponent(raceId)}`)
+            backToRace
+        );
+
+        container.querySelector("[data-cancel-registration]")?.addEventListener(
+            "click",
+            backToRace
         );
 
         container.querySelector("#race-registration-form")?.addEventListener(
@@ -567,20 +605,6 @@ export async function renderRaceRegistration(container, raceId) {
             "Back to Race"
         );
     }
-}
-
-async function enrichRegistration(entry) {
-    const [race, camel] = await Promise.all([
-        safeRace(entry.raceId),
-        safeCamel(entry.camelId)
-    ]);
-
-    return {
-        ...entry,
-        raceName: race?.name || `Race #${entry.raceId}`,
-        raceStartsAt: race?.startsAt,
-        camelName: camel?.name || `Camel #${entry.camelId}`
-    };
 }
 
 export async function renderMyRegistrations(container) {
