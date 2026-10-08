@@ -1,7 +1,7 @@
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView } from './auth-view.js';
-import { renderAssistantView, bindAssistantView } from './assistant-view.js';
+import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
@@ -215,10 +215,9 @@ function home() {
 
 function settings() {
   const user = state.user || guestUser;
-  const signedIn = Boolean(user.userId);
   const roles = Array.isArray(user.roles) ? user.roles : [];
-  return shell(`${head('Profile & Settings', 'Manage your account and ask the Medhmar Assistant.')}
-    <div class="settings-assistant-layout">
+  return shell(`${head('Profile & Settings', 'Manage your profile and account preferences.')}
+    <div class="settings-account-layout">
       <div class="settings-profile-stack">
         <section class="card profile-hero settings-profile-card" aria-label="Account profile">
           <div class="profile-avatar">${esc(user.fullName?.[0] || 'M')}</div>
@@ -249,7 +248,6 @@ function settings() {
           </form>
         </section>
       </div>
-      ${renderAssistantView({ signedIn, preferredLanguage: state.lang })}
     </div>
   `, '/settings');
 }
@@ -858,7 +856,8 @@ async function render() {
 }
 function bind(){
  bindPedigreeImages(root);
- if ($('#medhmar-assistant')) bindAssistantView(root);
+ // The dock lives outside #app and survives in-app route changes.
+ if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang, path: normalizePath() });
  $('#admin-retry')?.addEventListener('click',()=>render());
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
