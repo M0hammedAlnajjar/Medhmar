@@ -390,18 +390,18 @@ const pedigreeDirectoryVisual = () => `<section class="pedigree-directory-hero" 
   <div class="pedigree-directory-tree" aria-hidden="true">
     <div class="pedigree-tree-glow"></div>
     <div class="pedigree-mini-node pedigree-mini-subject">
-      <span class="pedigree-mini-mark"><img src="/assets/mark.svg" alt=""></span>
+      <img class="pedigree-mini-photo" src="/assets/mock-camels/camel-1.jpg" alt="" loading="lazy">
       <small>Selected camel</small><strong>MEDHMAR</strong>
     </div>
     <div class="pedigree-mini-branch pedigree-mini-sire">
-      <div class="pedigree-mini-node"><small>Sire</small><strong>Father</strong></div>
-      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><small>Grand Sire</small><strong>Father's Sire</strong></div>
-      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><small>Grand Dam</small><strong>Father's Dam</strong></div>
+      <div class="pedigree-mini-node"><img class="pedigree-mini-photo" src="/assets/mock-camels/camel-2.jpg" alt="" loading="lazy"><small>Sire</small><strong>Father</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><img class="pedigree-mini-photo" src="/assets/mock-camels/camel-3.jpg" alt="" loading="lazy"><small>Grand Sire</small><strong>Father's Sire</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><img class="pedigree-mini-photo" src="/assets/mock-camels/camel-4.jpg" alt="" loading="lazy"><small>Grand Dam</small><strong>Father's Dam</strong></div>
     </div>
     <div class="pedigree-mini-branch pedigree-mini-dam">
-      <div class="pedigree-mini-node"><small>Dam</small><strong>Mother</strong></div>
-      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><small>Grand Sire</small><strong>Mother's Sire</strong></div>
-      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><small>Grand Dam</small><strong>Mother's Dam</strong></div>
+      <div class="pedigree-mini-node"><img class="pedigree-mini-photo" src="/assets/mock-camels/camel-3.jpg" alt="" loading="lazy"><small>Dam</small><strong>Mother</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gs"><img class="pedigree-mini-photo" src="/assets/mock-camels/camel-2.jpg" alt="" loading="lazy"><small>Grand Sire</small><strong>Mother's Sire</strong></div>
+      <div class="pedigree-mini-node pedigree-mini-grand pedigree-mini-gd"><img class="pedigree-mini-photo" src="/assets/mock-camels/camel-4.jpg" alt="" loading="lazy"><small>Grand Dam</small><strong>Mother's Dam</strong></div>
     </div>
   </div>
 </section>`;
