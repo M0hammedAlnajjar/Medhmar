@@ -605,15 +605,15 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar .brand-wordmark{padding:3px 4px}
 }
 
-/* Floating navigation faithful to the approved Medhmar screenshot.
-   Keep the approved camel wordmark and brown visual treatment. */
+/* Full-width Medhmar navigation. Limit the inner content, not the background:
+   no exposed page background at the top or on either side of the header. */
 .topbar{
-  width:calc(100% - 36px);max-width:1600px;height:82px;
-  margin:22px auto 0;top:10px;border-radius:12px;
-  border:1px solid rgba(211,165,110,.20);
-  box-shadow:0 9px 22px rgba(44,27,17,.14);
+  width:100%;max-width:none;height:82px;
+  margin:0;top:0;border-radius:0;
+  border:0;border-bottom:1px solid rgba(211,165,110,.20);
+  box-shadow:0 3px 14px rgba(44,27,17,.12);
 }
-.landing-page .topbar{box-shadow:0 9px 22px rgba(44,27,17,.14);border:1px solid rgba(211,165,110,.20)}
+.landing-page .topbar{box-shadow:0 3px 14px rgba(44,27,17,.12);border:0;border-bottom:1px solid rgba(211,165,110,.20)}
 .topbar-inner{padding:0 30px;gap:25px}
 .topbar .brand-wordmark{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
 .topbar .brand-wordmark img{width:224px;height:54px;object-fit:contain;object-position:left center;transform:scaleY(1.13)}
@@ -635,7 +635,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar-inner{gap:14px}
 }
 @media(max-width:720px){
-  .topbar{width:calc(100% - 16px);height:66px;margin-top:8px;top:6px;border-radius:10px}
+  .topbar{width:100%;height:66px;margin:0;top:0;border-radius:0}
   .topbar-inner{height:66px;padding:0 12px;gap:7px}
   .topbar .brand-wordmark img{width:144px;height:40px}
 }
