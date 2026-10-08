@@ -47,7 +47,7 @@ test("desktop reference uses a floating rounded navbar with the original control
   assert.match(css, /\.topbar \.brand-wordmark\{padding:0;background:transparent;border:0/);
   assert.match(css, /@media\(max-width:720px\)\{[\s\S]*?width:calc\(100% - 16px\)/);
   assert.match(app, /const primaryDesktopPaths = \[/);
-  assert.match(app, /'/races', '/race-cards', '/camels', '/pedigree', '/marketplace'/);
+  assert.ok(app.includes("'/races', '/race-cards', '/camels', '/pedigree', '/marketplace'"));
   assert.match(app, /const extraItems = items.filter\(\(\[path\]\) => !visiblePaths.includes\(path\)\);/);
   assert.match(app, /class="nav-search"/);
   assert.match(app, /class="nav-language-single"/);
