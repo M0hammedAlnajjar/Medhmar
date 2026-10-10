@@ -231,3 +231,80 @@
 @media(max-width:900px){.home-experience.home-cinematic{width:calc(100% - 36px)}.home-hero{padding:45px 24px;min-height:350px}.home-cinematic .home-discovery-card{height:235px}.home-cinematic .home-tools{padding:26px}}
 @media(max-width:700px){.home-experience.home-cinematic{width:calc(100% - 24px);gap:16px}.home-hero{min-height:370px;padding:38px 20px;background:linear-gradient(90deg,rgba(255,246,229,.95),rgba(255,242,220,.7))}.home-hero h1{font-size:clamp(36px,9vw,53px)}.home-hero-description br{display:none}.home-cinematic .home-discovery-grid{grid-template-columns:1fr}.home-cinematic .home-discovery-card{height:240px}.home-cinematic .home-shortcuts{grid-template-columns:1fr}.home-cinematic .home-tools{padding:24px 18px}.home-cinematic .home-tools-header h2{font-size:34px}.home-cinematic .home-shortcut-name{font-size:18px}}
 @media(prefers-reduced-motion:reduce){.home-hero-actions a{transition:none}.home-hero-actions a:hover{transform:none}}
+
+
+/* Reference-alignment pass: page-wide landscape, unobstructed right-side racing image,
+   restrained headlines, overlapping editorial grid, and workspace panel. */
+.app-shell:has(.home-cinematic){
+  background-color:#f3e8dc;
+  background-image:
+    linear-gradient(180deg,rgba(251,242,226,.06) 0%,rgba(250,232,207,.03) 36%,rgba(115,61,27,.25) 67%,#f3e8dc 100%),
+    url('/assets/landing-hero-wide.png');
+  background-repeat:no-repeat;
+  background-position:center top,center 60px;
+  background-size:100% 1100px,cover;
+}
+.home-experience.home-cinematic{
+  max-width:1440px;
+  width:min(100% - 84px,1440px);
+  padding:0 0 68px;
+  gap:18px;
+}
+.home-cinematic .home-hero{
+  min-height:365px;
+  padding:46px 28px 36px;
+  background:linear-gradient(90deg,rgba(255,247,233,.96) 0%,rgba(255,245,225,.87) 28%,rgba(255,242,218,.3) 51%,transparent 70%);
+  border-radius:0;
+  overflow:visible;
+}
+.home-cinematic .home-hero-content{max-width:920px;}
+.home-cinematic .home-hero h1{
+  font-size:clamp(38px,4.3vw,66px);
+  max-width:none;
+  line-height:1.05;
+  text-wrap:initial;
+}
+.home-cinematic .home-hero-tagline{font-size:clamp(25px,2.85vw,41px)}
+.home-cinematic .home-hero-description{max-width:580px}
+.home-cinematic .home-discovery-grid{gap:14px}
+.home-cinematic .home-discovery-card{
+  height:225px;
+  border-radius:14px;
+  box-shadow:0 7px 24px rgba(58,31,15,.22);
+}
+.home-cinematic .home-discovery-card img{object-fit:cover}
+.home-cinematic .home-discovery-copy{padding-right:45px}
+.home-cinematic .home-discovery-copy strong{font-size:clamp(22px,2.05vw,31px)}
+.home-cinematic .home-workspace{margin-top:0}
+.home-cinematic .home-tools{
+  background:rgba(255,252,247,.98);
+  padding:29px 32px 30px;
+  border-radius:18px;
+  box-shadow:0 10px 34px rgba(64,37,22,.12);
+}
+.home-cinematic .home-tools-header h2{
+  font-size:clamp(33px,3.3vw,47px);
+}
+.home-cinematic .home-shortcut{min-height:73px}
+.home-cinematic .home-shortcut:last-child:nth-child(odd){grid-column:1/-1}
+@media(min-width:1050px){
+  .home-cinematic .home-hero h1{white-space:nowrap}
+}
+@media(max-width:900px){
+ .app-shell:has(.home-cinematic){background-size:100% 950px,auto 950px;background-position:center top,59% 58px}
+ .home-experience.home-cinematic{width:calc(100% - 36px)}
+ .home-cinematic .home-hero{min-height:345px;padding:43px 19px 24px}
+ .home-cinematic .home-hero h1{font-size:clamp(36px,5.7vw,56px)}
+ .home-cinematic .home-discovery-card{height:220px}
+}
+@media(max-width:700px){
+ .app-shell:has(.home-cinematic){background-image:linear-gradient(180deg,rgba(255,246,230,.82) 0%,rgba(255,246,230,.62) 42%,#f3e8dc 95%),url('/assets/landing-hero-wide.png');background-size:100% 950px,auto 760px;background-position:center top,60% 70px}
+ .home-experience.home-cinematic{width:calc(100% - 24px);gap:14px}
+ .home-cinematic .home-hero{min-height:auto;padding:48px 14px 30px}
+ .home-cinematic .home-hero h1{white-space:normal;font-size:clamp(35px,9vw,49px)}
+ .home-cinematic .home-hero-tagline{font-size:clamp(24px,6vw,34px)}
+ .home-cinematic .home-discovery-grid{grid-template-columns:1fr}
+ .home-cinematic .home-discovery-card{height:225px}
+ .home-cinematic .home-tools{padding:24px 18px}
+ .home-cinematic .home-shortcut:last-child:nth-child(odd){grid-column:auto}
+}

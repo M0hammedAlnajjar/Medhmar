@@ -156,7 +156,7 @@ function home() {
   const firstName = esc(state.user?.fullName?.trim().split(/\s+/)[0] || 'Guest');
   const greeting = state.user?.userId ? `Welcome back, ${firstName}.` : 'Welcome to Medhmar.';
   const discoveries = [
-    {path:'/races', eyebrow:'01 / THE RACE', title:'Every race has a story.', description:'Find races, participants and results.', image:'/assets/racing-hero.webp', alt:'Camels racing along a desert track'},
+    {path:'/races', eyebrow:'01 / THE RACE', title:'Every race has a story.', description:'Find races, participants and results.', image:'/assets/landing-hero-wide.png', alt:'Camels racing along a desert track'},
     {path:'/camels', eyebrow:'02 / THE CHAMPIONS', title:'Meet the camels.', description:'Get to know the athletes of the track.', image:'/assets/mock-camels/camel-1.jpg', alt:'Racing camel portrait'},
     {path:'/pedigree', eyebrow:'03 / THE LEGACY', title:'Explore their lineage.', description:'Discover family trees and heritage.', image:'/assets/mock-camels/camel-3.jpg', alt:'Camel in an Omani desert'}
   ];
