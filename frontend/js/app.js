@@ -114,7 +114,7 @@ function homeFooter() {
     + '<img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing" loading="lazy" width="225" height="60"></a>'
     + '<h2 id="mh-footer-heading">Where heritage<br><em>moves forward.</em></h2>'
     + '<p>A home for Oman&#39;s camel racing community — connecting races, champions, traditions and the people behind them.</p>'
-    + '<a href="/races" data-link class="mh-footer-cta">Explore Races <span aria-hidden="true">↗</span></a>'
+    + '<a href="/races" data-link class="mh-footer-cta">Explore Races</a>'
     + '</div>'
     + '<nav class="mh-footer-links" aria-label="Discover"><h3>Discover</h3>' + discover + '</nav>'
     + '<nav class="mh-footer-links" aria-label="Platform"><h3>Platform</h3>' + platform + '</nav>'
