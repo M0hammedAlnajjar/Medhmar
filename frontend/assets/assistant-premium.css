@@ -240,6 +240,17 @@
   width:2px;
   background:#b46c36;
 }
+
+.medhmar-assistant .assistant-suggestion[hidden]{display:none!important}
+.medhmar-assistant .assistant-suggestions-title>span{flex:1}
+.medhmar-assistant .assistant-suggestions-toggle{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 0 4px 7px;
+  background:transparent;border:0;color:#986031;
+  font-size:10px;font-weight:750;cursor:pointer;
+}
+.medhmar-assistant .assistant-suggestions-toggle[aria-expanded="true"] svg{transform:rotate(-90deg)}
+.medhmar-assistant .assistant-suggestions-toggle:hover{color:#563019}
 .medhmar-assistant .assistant-suggestions{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
