@@ -194,3 +194,40 @@
 .home-shortcut-arrow{color:#a65c2c}
 .home-shortcut:focus-visible{outline:3px solid #ad632d;outline-offset:3px}
 @media(max-width:600px){.home-tools{padding:22px 18px}.home-shortcuts{grid-template-columns:1fr}.home-tools-header h2{font-size:32px}}
+
+/* Cinematic homepage — scoped to /home, no changes to other pages. */
+.app-shell:has(.home-cinematic){background:#f6efe5 url('/assets/home-racetrack.jpg') center 75px / cover no-repeat}
+.home-experience.home-cinematic{max-width:1320px;width:calc(100% - 64px);margin:0 auto;display:flex;flex-direction:column;gap:20px;padding:0 0 76px}
+.home-hero{min-height:405px;display:flex;align-items:center;position:relative;padding:58px 42px 42px;border-radius:0 0 20px 20px;background:linear-gradient(90deg,rgba(255,246,229,.96) 0%,rgba(255,241,218,.87) 35%,rgba(255,240,216,.08) 78%);overflow:hidden}
+.home-hero-content{max-width:770px;position:relative;z-index:1}
+.home-hero-eyebrow{font-size:11px;letter-spacing:.24em;font-weight:800;color:#a25e30;margin:0 0 13px}
+.home-hero-eyebrow span{letter-spacing:0;margin-left:9px;color:#bca18a}
+.home-hero h1{font:600 clamp(42px,5.3vw,74px)/1.05 Georgia,'Times New Roman',serif;letter-spacing:-.045em;color:#24140d;margin:0 0 2px;text-wrap:balance}
+.home-hero-tagline{font:600 clamp(26px,3.25vw,43px)/1.12 Georgia,'Times New Roman',serif;color:#87401e;letter-spacing:-.035em;margin:0 0 14px}
+.home-hero-description{font-size:15px;line-height:1.75;color:#4c3d32;max-width:630px}
+.home-hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:23px}
+.home-hero-actions a{display:inline-flex;align-items:center;justify-content:center;gap:18px;border-radius:8px;min-height:45px;padding:11px 26px;font-size:13px;font-weight:750;text-decoration:none;transition:transform .2s,background .2s}
+.home-hero-primary{background:#793c1d;color:#fff!important;border:1px solid #793c1d}
+.home-hero-secondary{background:rgba(255,252,247,.89);color:#442c1c!important;border:1px solid #b98a6b}
+.home-hero-actions a:hover{transform:translateY(-2px)}
+.home-cinematic .home-discovery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.home-cinematic .home-discovery-card{height:260px;border-radius:15px;overflow:hidden;border:1px solid rgba(255,255,255,.8)}
+.home-cinematic .home-discovery-copy strong{font-size:clamp(23px,2.15vw,33px)}
+.home-discovery-action{position:absolute;right:20px;bottom:22px;color:white;border:1px solid rgba(255,255,255,.82);border-radius:50%;width:34px;height:34px;display:grid;place-items:center;z-index:2}
+.home-cinematic .home-workspace{display:block;margin-top:0}
+.home-cinematic .home-tools{padding:35px 37px 33px;background:rgba(255,251,246,.97);border:1px solid #e9d7c5;border-radius:20px;box-shadow:0 12px 45px rgba(68,40,23,.1)}
+.home-cinematic .home-tools-header{margin-bottom:20px}
+.home-cinematic .home-tools-header h2{font-size:clamp(33px,3.7vw,52px);line-height:1.1;letter-spacing:-.04em;margin:5px 0}
+.home-cinematic .home-tools-header>p:last-child{color:#6a5e55;font-size:14px}
+.home-cinematic .home-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.home-cinematic .home-shortcut{display:flex;align-items:center;gap:14px;min-height:78px;padding:12px 15px;border-radius:12px;background:linear-gradient(120deg,#fff 30%,#fbf1e5);box-shadow:0 3px 10px rgba(66,45,27,.045)}
+.home-cinematic .home-shortcut-index{width:34px;height:34px;font-family:inherit;font-weight:800;font-size:12px}
+.home-shortcut-icon{display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;border-radius:10px;background:linear-gradient(140deg,#c18b53,#955b2b);color:#fff;font-size:26px;line-height:1}
+.home-shortcut-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.home-cinematic .home-shortcut-name{font-family:Georgia,'Times New Roman',serif;font-size:19px;color:#23170f}
+.home-shortcut-desc{font-size:12px;color:#766d66}
+.home-cinematic .home-shortcut-arrow{display:grid;place-items:center;width:28px;height:28px;border:1px solid #ead6c4;border-radius:50%;font-size:22px;flex:0 0 auto}
+.home-cinematic a:focus-visible{outline:3px solid #a45b2d;outline-offset:3px}
+@media(max-width:900px){.home-experience.home-cinematic{width:calc(100% - 36px)}.home-hero{padding:45px 24px;min-height:350px}.home-cinematic .home-discovery-card{height:235px}.home-cinematic .home-tools{padding:26px}}
+@media(max-width:700px){.home-experience.home-cinematic{width:calc(100% - 24px);gap:16px}.home-hero{min-height:370px;padding:38px 20px;background:linear-gradient(90deg,rgba(255,246,229,.95),rgba(255,242,220,.7))}.home-hero h1{font-size:clamp(36px,9vw,53px)}.home-hero-description br{display:none}.home-cinematic .home-discovery-grid{grid-template-columns:1fr}.home-cinematic .home-discovery-card{height:240px}.home-cinematic .home-shortcuts{grid-template-columns:1fr}.home-cinematic .home-tools{padding:24px 18px}.home-cinematic .home-tools-header h2{font-size:34px}.home-cinematic .home-shortcut-name{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.home-hero-actions a{transition:none}.home-hero-actions a:hover{transform:none}}

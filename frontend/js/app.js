@@ -155,91 +155,57 @@ const auth = authView;
 function home() {
   const firstName = esc(state.user?.fullName?.trim().split(/\s+/)[0] || 'Guest');
   const greeting = state.user?.userId ? `Welcome back, ${firstName}.` : 'Welcome to Medhmar.';
-
   const discoveries = [
-    {
-      path: '/races',
-      eyebrow: '01 / THE RACE',
-      title: 'Every race has a story.',
-      description: 'Find races, participants and results.',
-      image: '/assets/racing-hero.webp',
-      alt: 'Camels racing on an Omani track',
-    },
-    {
-      path: '/camels',
-      eyebrow: '02 / THE CHAMPIONS',
-      title: 'Meet the camels.',
-      description: 'Get to know the athletes of the track.',
-      image: '/assets/mock-camels/camel-1.jpg',
-      alt: 'Portrait of a racing camel',
-    },
-    {
-      path: '/pedigree',
-      eyebrow: '03 / THE LEGACY',
-      title: 'Explore their lineage.',
-      description: 'Discover family trees and heritage.',
-      image: '/assets/mock-camels/camel-3.jpg',
-      alt: 'Camel in the desert',
-    },
+    {path:'/races', eyebrow:'01 / THE RACE', title:'Every race has a story.', description:'Find races, participants and results.', image:'/assets/racing-hero.webp', alt:'Camels racing along a desert track'},
+    {path:'/camels', eyebrow:'02 / THE CHAMPIONS', title:'Meet the camels.', description:'Get to know the athletes of the track.', image:'/assets/mock-camels/camel-1.jpg', alt:'Racing camel portrait'},
+    {path:'/pedigree', eyebrow:'03 / THE LEGACY', title:'Explore their lineage.', description:'Discover family trees and heritage.', image:'/assets/mock-camels/camel-3.jpg', alt:'Camel in an Omani desert'}
   ];
-  const discoveryCards = discoveries.map(card => `
+  const discoveryCards = discoveries.filter(card=>canAccessRoute(matchRoute(card.path)?.route,state.user)).map(card => `
     <a class="home-discovery-card" href="${card.path}" data-link>
       <img src="${card.image}" alt="${esc(card.alt)}" loading="lazy" decoding="async">
       <span class="home-discovery-shade" aria-hidden="true"></span>
       <span class="home-discovery-top">${card.eyebrow}</span>
-      <span class="home-discovery-copy">
-        <strong>${card.title}</strong>
-        <span>${card.description}</span>
-      </span>
-    </a>
-  `).join('');
-
-  const workspacePaths = ['/challenges', '/training', '/organizations', '/race-cards', '/trainer-profile'];
-  const shortcuts = workspacePaths
-    .map(path => visibleNavItems().find(([route]) => route === path))
-    .filter(Boolean)
-    .map(([path, label], i) => `
-      <a class="home-shortcut" href="${path}" data-link>
-        <span class="home-shortcut-index">${String(i + 1).padStart(2, '0')}</span>
-        <span class="home-shortcut-name">${esc(label)}</span>
-        <span class="home-shortcut-arrow" aria-hidden="true">↗</span>
-      </a>
-    `).join('');
-
+      <span class="home-discovery-copy"><strong>${card.title}</strong><span>${card.description}</span></span>
+      <span class="home-discovery-action" aria-hidden="true">↗</span>
+    </a>`).join('');
+  const workspace = [
+    ['/challenges','Challenges','Join and track challenges.','🏆'],
+    ['/training','Training','Manage training records.','▥'],
+    ['/organizations','Organizations','Explore racing organizations.','♟'],
+    ['/race-cards','Race Cards','View race details and entries.','▤'],
+    ['/trainer-profile','Trainer','Find and connect with trainers.','♙']
+  ];
+  const shortcuts=workspace.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user)).map(([path,label,description,symbol],i)=>`
+    <a class="home-shortcut" href="${path}" data-link aria-label="Open ${esc(label)}">
+      <span class="home-shortcut-index">${String(i+1).padStart(2,'0')}</span>
+      <span class="home-shortcut-icon" aria-hidden="true">${symbol}</span>
+      <span class="home-shortcut-content"><strong class="home-shortcut-name">${esc(label)}</strong><span class="home-shortcut-desc">${description}</span></span>
+      <span class="home-shortcut-arrow" aria-hidden="true">›</span>
+    </a>`).join('');
   return shell(`
-    <div class="home-experience" lang="en" dir="ltr">
-      <header class="home-intro">
-        <div>
-          <p class="home-overline"><span aria-hidden="true"></span> YOUR RACING HUB</p>
-          <h1>${greeting}</h1>
-        </div>
-        <a href="/races" data-link class="home-intro-link">Explore race calendar <span aria-hidden="true">↗</span></a>
-      </header>
-
-      <section class="home-section" aria-labelledby="home-discover-title">
-        <div class="home-section-header">
-          <div>
-            <p class="home-overline">DISCOVER MEDHMAR</p>
-            <h2 id="home-discover-title">A world beyond the finish line.</h2>
-            <p>Explore the moments and stories that make camel racing special.</p>
+    <div class="home-experience home-cinematic" lang="en" dir="ltr">
+      <section class="home-hero" aria-labelledby="home-hero-title">
+        <div class="home-hero-content">
+          <p class="home-hero-eyebrow">OMAN CAMEL RACING <span aria-hidden="true">────</span></p>
+          <h1 id="home-hero-title">${greeting}</h1>
+          <p class="home-hero-tagline">A world beyond the finish line.</p>
+          <p class="home-hero-description">Discover the moments and stories that make camel racing special.<br>Races, champions, heritage and a passionate community — all in one place.</p>
+          <div class="home-hero-actions">
+            <a href="/races" data-link class="home-hero-primary">Explore Races <span aria-hidden="true">→</span></a>
+            <a href="/tourism" data-link class="home-hero-secondary">Learn More <span aria-hidden="true">↗</span></a>
           </div>
-          <span class="home-section-number">01 — EXPLORE</span>
         </div>
-        <div class="home-discovery-grid">${discoveryCards}</div>
       </section>
-
+      <section class="home-discovery-grid" aria-label="Discover Medhmar">${discoveryCards}</section>
       <section class="home-workspace" aria-labelledby="home-tools-title">
         <div class="home-tools">
-          <div class="home-section-header home-tools-header">
-            <div>
-              <p class="home-overline">YOUR WORKSPACE</p>
-              <h2 id="home-tools-title">Everything within reach.</h2>
-              <p>Jump into the platform tools available to your account.</p>
-            </div>
+          <div class="home-tools-header">
+            <p class="home-overline">YOUR WORKSPACE</p>
+            <h2 id="home-tools-title">Everything within reach.</h2>
+            <p>Jump into the platform tools available to your account.</p>
           </div>
           <div class="home-shortcuts">${shortcuts}</div>
         </div>
-
       </section>
     </div>
   `, '/home');
