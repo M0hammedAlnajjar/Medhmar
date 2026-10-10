@@ -34,7 +34,7 @@ function assistantIcon(name, size = 20) {
     + ' stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">'
     + (assistantIconPaths[name] || assistantIconPaths.info) + '</svg>';
 }
-const assistantCamelLogo = '<img src="/assets/medhmar-logo-icon.svg" alt="" loading="lazy" aria-hidden="true" />';
+const assistantCamelLogo = '<img src="/assets/assistant-camel-mark.svg" alt="" aria-hidden="true" width="48" height="48" />';
 const assistantFullLogo = '<img src="/assets/medhmar-logo-full.svg" alt="MEDHMAR — Oman Camel Racing" loading="lazy" />';
 function assistantTimestamp() {
   return new Intl.DateTimeFormat(undefined, {hour:'numeric',minute:'2-digit'}).format(new Date());
