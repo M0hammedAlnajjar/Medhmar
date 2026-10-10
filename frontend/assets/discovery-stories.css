@@ -144,15 +144,17 @@
   .mh-page .mh-story:hover,.mh-page .mh-story:hover>img,.mh-page .mh-story:hover .mh-round-arrow{transform:none;}
 }
 
-/* The Champions — zoomed-out camel portrait (only this discovery card).
-   object-fit: contain preserves the snout, eye, ear and neck instead of
-   cropping the camel face with cover. The soft background fills letterboxing. */
+/* The Champions — ONE image only. A soft sky-to-sand gradient fills
+   unused space caused by object-fit:contain; no repeated photo background. */
 .mh-page .mh-story--champions {
-  background-color:#9bafc0;
-  background-image:
-    linear-gradient(180deg,rgba(37,27,22,.10) 0%,rgba(55,33,21,.24) 56%,#2f1b11 100%),
-    url("https://images.rawpixel.com/image_social_landscape/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvZnJjYW1lbF9zZWFfYW5pbWFsX3RyYXZlbC1pbWFnZS1reWJlMzcwZS5qcGc.jpg");
-  background-position:center,center;
+  background-color:#9faebc;
+  background-image:linear-gradient(180deg,
+    #98a9ba 0%,
+    #b6bcc1 29%,
+    #c6b4a2 57%,
+    #74503a 78%,
+    #301c13 100%);
+  background-position:center;
   background-size:cover;
 }
 .mh-page .mh-story--champions > img {
@@ -163,18 +165,24 @@
   inset:0;
   transform:none;
   filter:saturate(.99) contrast(1.025);
-  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 10%,#000 62%,transparent 86%);
-  mask-image:linear-gradient(180deg,transparent 0%,#000 10%,#000 62%,transparent 86%);
+  -webkit-mask-image:linear-gradient(180deg,
+    transparent 10%,
+    #000 29%,
+    #000 65%,
+    transparent 92%);
+  mask-image:linear-gradient(180deg,
+    transparent 10%,
+    #000 29%,
+    #000 65%,
+    transparent 92%);
 }
-.mh-page .mh-story--champions:hover > img {
-  transform:none;
-}
+.mh-page .mh-story--champions:hover > img {transform:none;}
 .mh-page .mh-story--champions .mh-story-wash {
   background:linear-gradient(180deg,
-    rgba(30,26,27,.38) 0%,
-    rgba(30,26,27,0) 27%,
-    rgba(39,23,14,.06) 45%,
-    rgba(36,20,11,.75) 77%,
+    rgba(30,26,27,.33) 0%,
+    rgba(30,26,27,0) 26%,
+    rgba(39,23,14,.03) 44%,
+    rgba(36,20,11,.64) 74%,
     rgba(30,15,7,.97) 100%);
 }
 @media(max-width:700px){
