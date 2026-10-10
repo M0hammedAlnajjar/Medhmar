@@ -1,0 +1,148 @@
+/*
+ * Medhmar — viewport-aware homepage chapters.
+ * Keep each desktop section fully visible beneath the sticky navigation.
+ * Snap only when all cards can fit; phones/short screens retain natural scroll.
+ * Loaded last, so these intentionally override older fixed card sizes/padding.
+ */
+
+/* Desktop: one complete chapter for each scroll stop. */
+@media (min-width: 1024px) and (min-height: 740px) {
+  html:has(.mh-page) {
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 76px; /* sticky topbar height */
+  }
+
+  .mh-page > section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+  /* Keep the footer reachable after the final full-height chapter. */
+  .app-shell:has(.mh-page) > footer {
+    scroll-snap-align: end;
+  }
+
+  .mh-page .mh-stories-section,
+  .mh-page .mh-modules-section,
+  .mh-page .mh-workspace-section {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - 76px);
+    padding-block: clamp(20px, 2.5svh, 38px);
+  }
+
+  /* The Hero has its own image composition; keep it viewport-sized. */
+  .mh-page .mh-hero-band,
+  .mh-page .mh-hero-layout {
+    min-height: calc(100svh - 76px);
+  }
+
+  /* Discovery Stories: title + all three cards + credits fit as a unit. */
+  .mh-page .mh-stories-heading {
+    max-width: 1000px;
+    margin-bottom: clamp(14px, 2.15svh, 24px);
+  }
+  .mh-page .mh-stories-heading .mh-eyebrow {
+    font-size: 10px;
+    margin-bottom: clamp(8px, 1.15svh, 14px)!important;
+  }
+  .mh-page .mh-stories-heading h2 {
+    font-size: clamp(41px, 4.1vw, 67px);
+    line-height: 1;
+  }
+  .mh-page .mh-stories-heading > p:last-child {
+    font-size: clamp(13px, 1vw, 16px);
+    line-height: 1.4;
+    margin-top: clamp(9px, 1.4svh, 15px);
+  }
+  .mh-page .mh-story-grid {
+    gap: clamp(12px, 1.2vw, 22px);
+  }
+  .mh-page .mh-story {
+    height: clamp(275px, 40svh, 430px);
+  }
+  .mh-page .mh-story-footer {
+    margin: 0 clamp(15px, 1.6vw, 25px) clamp(17px, 2.2svh, 27px);
+  }
+  .mh-page .mh-story-footer strong {
+    font-size: clamp(27px, 2.4vw, 41px);
+  }
+  .mh-page .mh-story-footer small {
+    font-size: clamp(11px, .9vw, 14px);
+  }
+  .mh-page .mh-story-kicker {
+    margin: clamp(17px, 2svh, 24px) clamp(15px, 1.6vw, 25px) auto;
+    font-size: 11px;
+  }
+  .mh-page .mh-photo-credits {
+    margin-top: 10px;
+    font-size: 10px;
+  }
+
+  /* Platform Modules: keep all four complete cards in the viewport. */
+  .mh-page .mh-section-head {
+    margin-bottom: clamp(17px, 2.7svh, 31px);
+  }
+  .mh-page .mh-section-head h2 {
+    font-size: clamp(42px, 4.1vw, 66px);
+  }
+  .mh-page .mh-section-head p:last-child {
+    font-size: clamp(13px, 1.1vw, 17px);
+    margin-top: 7px;
+  }
+  .mh-page .mh-section-head .mh-overline {
+    margin-bottom: 8px;
+  }
+  .mh-page .mh-module {
+    height: clamp(290px, 44svh, 445px);
+  }
+  .mh-page .mh-module-details {
+    min-height: clamp(98px, 12svh, 136px);
+    padding: clamp(12px, 1.7svh, 19px);
+  }
+
+  /* Workspace: panel remains one visible unit. */
+  .mh-page .mh-workspace-panel {
+    padding: clamp(24px, 3.5svh, 44px) clamp(25px, 3vw, 45px);
+    min-height: 0;
+  }
+  .mh-page .mh-workspace-header {
+    margin-bottom: clamp(17px, 3svh, 32px);
+  }
+  .mh-page .mh-workspace-header h2 {
+    font-size: clamp(40px, 4.1vw, 64px);
+  }
+  .mh-page .mh-quick {
+    min-height: clamp(95px, 13svh, 142px);
+  }
+  .mh-page .mh-join {
+    min-height: clamp(105px, 13svh, 145px);
+  }
+}
+
+/* Short desktop / enlarged text: prefer complete, scrollable content to
+   squeezing or trapping the user inside an oversized snap target. */
+@media (max-height: 739px), (max-width: 1023px) {
+  html:has(.mh-page) {
+    scroll-snap-type: none;
+  }
+  .mh-page > section {
+    scroll-snap-align: none;
+  }
+}
+
+/* Tablet and phone: long stacked content is not forcibly clipped. */
+@media (max-width: 700px) {
+  .mh-page .mh-stories-section,
+  .mh-page .mh-modules-section,
+  .mh-page .mh-workspace-section {
+    min-height: 0;
+    height: auto;
+  }
+}
+
+/* Scroll snap must not introduce unwanted animated transitions for users
+   who request reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html:has(.mh-page) { scroll-behavior: auto; }
+}
