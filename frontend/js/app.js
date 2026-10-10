@@ -154,6 +154,7 @@ const auth = authView;
 
 function home() {
   const icon = (name, size = 22) => {
+    if (name === 'camel') return '<img src="/assets/medhmar-logo-icon.svg" alt="" width="'+size+'" height="'+size+'" loading="lazy">';
     const paths = {
       trophy:'<path d="M8 21h8m-4-4v4M7 4h10v7a5 5 0 0 1-10 0V4ZM7 6H4v3a4 4 0 0 0 4 4m9-7h3v3a4 4 0 0 1-4 4"/>',
       user:'<circle cx="12" cy="8" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
@@ -179,7 +180,7 @@ function home() {
     .map(([path,kicker,title,description,image,alt])=>'<a class="mh-story" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" loading="lazy" decoding="async"><span class="mh-story-wash"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
   const modules = [
     {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/racing-hero.webp',alt:'Camel race in progress',icon:'trophy'},
-    {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Camel at a race',icon:'flag'},
+    {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Camel at a race',icon:'camel'},
     {path:'/pedigree',name:'Pedigree',desc:'Family trees and lineage.',photo:'/assets/mock-camels/camel-4.jpg',alt:'Camel crossing rolling sand dunes',icon:'branch'},
     {path:'/marketplace',name:'Marketplace',desc:'Buy, sell and exchange camels.',photo:'/assets/mock-camels/camel-2.jpg',alt:'Camels in a sandy landscape',icon:'cart'}
   ];
@@ -193,7 +194,7 @@ function home() {
 
   const quickActions = [
     {id:'profile',label:'My Profile',path:'/settings',icon:'user'},
-    {id:'camels',label:'My Camels',path:'/camels/my',icon:'flag'},
+    {id:'camels',label:'My Camels',path:'/camels/my',icon:'camel'},
     {id:'entries',label:'Race Entries',path:'/race-cards',icon:'document'},
     {id:'training',label:'Training',path:'/training',icon:'chart'},
     {id:'market',label:'Marketplace',path:'/marketplace',icon:'cart'},
