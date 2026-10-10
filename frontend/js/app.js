@@ -153,63 +153,115 @@ function landing(){
 const auth = authView;
 
 function home() {
-  const firstName = esc(state.user?.fullName?.trim().split(/\s+/)[0] || 'Guest');
-  const greeting = state.user?.userId ? `Welcome back, ${firstName}.` : 'Welcome to Medhmar.';
-  const discoveries = [
-    {path:'/races', eyebrow:'01 / THE RACE', title:'Every race has a story.', description:'Find races, participants and results.', image:'/assets/landing-hero-wide.png', alt:'Camels racing along a desert track'},
-    {path:'/camels', eyebrow:'02 / THE CHAMPIONS', title:'Meet the camels.', description:'Get to know the athletes of the track.', image:'/assets/mock-camels/camel-1.jpg', alt:'Racing camel portrait'},
-    {path:'/pedigree', eyebrow:'03 / THE LEGACY', title:'Explore their lineage.', description:'Discover family trees and heritage.', image:'/assets/mock-camels/camel-3.jpg', alt:'Camel in an Omani desert'}
+  const icon = (name, size = 22) => {
+    const paths = {
+      trophy:'<path d="M8 21h8m-4-4v4M7 4h10v7a5 5 0 0 1-10 0V4ZM7 6H4v3a4 4 0 0 0 4 4m9-7h3v3a4 4 0 0 1-4 4"/>',
+      user:'<circle cx="12" cy="8" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
+      group:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 4a5 5 0 0 1 3 5"/>',
+      chart:'<path d="M4 20V10m6 10V4m6 16v-8m4 8V7"/>',
+      document:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v6h5M10 13h6m-6 4h6"/>',
+      cart:'<circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 3h2l3 13h13l2-10H5"/>',
+      heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
+      bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+      branch:'<circle cx="6" cy="4" r="2"/><circle cx="18" cy="7" r="2"/><circle cx="8" cy="20" r="2"/><path d="M6 6v9a5 5 0 0 0 5 5M18 9v4a5 5 0 0 1-5 5h-3"/>',
+      flag:'<path d="M5 22V3m0 1c4-3 9 3 14 0v11c-5 3-10-3-14 0"/>',
+      book:'<path d="M12 7c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V6c-4-1-7-1-10 1ZM12 7v14"/>',
+      spark:'<path d="m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9L12 3Zm7 14 1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2Z"/>'
+    };
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]||paths.spark)+'</svg>';
+  };
+  const discovery = [
+    ['/races','01 / THE RACE','Every race<br>has a story.','Find races, participants and results.','/assets/racing-hero.webp','Camels racing across a sandy track'],
+    ['/camels','02 / THE CHAMPIONS','Meet the camels.','Get to know the athletes of the track.','/assets/mock-camels/camel-7.jpg','Camel wearing racing equipment'],
+    ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-3.jpg','Camels in an open sandy desert']
   ];
-  const discoveryCards = discoveries.filter(card=>canAccessRoute(matchRoute(card.path)?.route,state.user)).map(card => `
-    <a class="home-discovery-card" href="${card.path}" data-link>
-      <img src="${card.image}" alt="${esc(card.alt)}" loading="lazy" decoding="async">
-      <span class="home-discovery-shade" aria-hidden="true"></span>
-      <span class="home-discovery-top">${card.eyebrow}</span>
-      <span class="home-discovery-copy"><strong>${card.title}</strong><span>${card.description}</span></span>
-      <span class="home-discovery-action" aria-hidden="true">↗</span>
-    </a>`).join('');
-  const workspace = [
-    ['/challenges','Challenges','Join and track challenges.','🏆'],
-    ['/training','Training','Manage training records.','▥'],
-    ['/organizations','Organizations','Explore racing organizations.','♟'],
-    ['/race-cards','Race Cards','View race details and entries.','▤'],
-    ['/trainer-profile','Trainer','Find and connect with trainers.','♙']
+  const discoveryCards = discovery.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user))
+    .map(([path,kicker,title,description,image,alt])=>'<a class="mh-story" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" loading="lazy" decoding="async"><span class="mh-story-wash"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
+  const modules = [
+    {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/racing-hero.webp',alt:'Camel race in progress',icon:'trophy'},
+    {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Camel at a race',icon:'flag'},
+    {path:'/pedigree',name:'Pedigree',desc:'Family trees and lineage.',photo:'/assets/mock-camels/camel-4.jpg',alt:'Camel crossing rolling sand dunes',icon:'branch'},
+    {path:'/marketplace',name:'Marketplace',desc:'Buy, sell and exchange camels.',photo:'/assets/mock-camels/camel-2.jpg',alt:'Camels in a sandy landscape',icon:'cart'}
   ];
-  const shortcuts=workspace.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user)).map(([path,label,description,symbol],i)=>`
-    <a class="home-shortcut" href="${path}" data-link aria-label="Open ${esc(label)}">
-      <span class="home-shortcut-index">${String(i+1).padStart(2,'0')}</span>
-      <span class="home-shortcut-icon" aria-hidden="true">${symbol}</span>
-      <span class="home-shortcut-content"><strong class="home-shortcut-name">${esc(label)}</strong><span class="home-shortcut-desc">${description}</span></span>
-      <span class="home-shortcut-arrow" aria-hidden="true">›</span>
-    </a>`).join('');
-  return shell(`
-    <div class="home-experience home-cinematic" lang="en" dir="ltr">
-      <section class="home-hero" aria-labelledby="home-hero-title">
-        <div class="home-hero-content">
-          <p class="home-hero-eyebrow">OMAN CAMEL RACING <span aria-hidden="true">────</span></p>
-          <h1 id="home-hero-title">${greeting}</h1>
-          <p class="home-hero-tagline">A world beyond the finish line.</p>
-          <p class="home-hero-description">Discover the moments and stories that make camel racing special.<br>Races, champions, heritage and a passionate community — all in one place.</p>
-          <div class="home-hero-actions">
-            <a href="/races" data-link class="home-hero-primary">Explore Races <span aria-hidden="true">→</span></a>
-            <a href="/tourism" data-link class="home-hero-secondary">Learn More <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-      </section>
-      <section class="home-discovery-grid" aria-label="Discover Medhmar">${discoveryCards}</section>
-      <section class="home-workspace" aria-labelledby="home-tools-title">
-        <div class="home-tools">
-          <div class="home-tools-header">
-            <p class="home-overline">YOUR WORKSPACE</p>
-            <h2 id="home-tools-title">Everything within reach.</h2>
-            <p>Jump into the platform tools available to your account.</p>
-          </div>
-          <div class="home-shortcuts">${shortcuts}</div>
-        </div>
-      </section>
-    </div>
-  `, '/home');
+  const moduleCards = modules.filter(m=>canAccessRoute(matchRoute(m.path)?.route,state.user))
+    .map(m=>'<a class="mh-module" href="'+m.path+'" data-link><img src="'+m.photo+'" alt="'+esc(m.alt)+'" loading="lazy" decoding="async"><span class="mh-module-details"><span class="mh-module-symbol">'+icon(m.icon,24)+'</span><span class="mh-module-text"><strong>'+m.name+'</strong><small>'+m.desc+'</small></span><span class="mh-module-arrow" aria-hidden="true">›</span></span></a>').join('');
+  const additionalModules = [
+    ['/challenges','Challenges'],['/training','Training'],['/organizations','Organizations'],
+    ['/race-cards','Race Cards'],['/trainer-profile','Trainer']
+  ].filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user));
+  const extraCards = additionalModules.map(([path,name])=>'<a href="'+path+'" data-link class="mh-extra-module">'+esc(name)+' <span aria-hidden="true">↗</span></a>').join('');
+
+  const quickActions = [
+    {id:'profile',label:'My Profile',path:'/settings',icon:'user'},
+    {id:'camels',label:'My Camels',path:'/camels/my',icon:'flag'},
+    {id:'entries',label:'Race Entries',path:'/race-cards',icon:'document'},
+    {id:'training',label:'Training',path:'/training',icon:'chart'},
+    {id:'market',label:'Marketplace',path:'/marketplace',icon:'cart'},
+    {id:'favorites',label:'Favorites',action:'favorites',icon:'heart'},
+    {id:'notifications',label:'Notifications',action:'notifications',icon:'bell'}
+  ];
+  let hidden = [];
+  try {const stored = JSON.parse(localStorage.getItem('medhmar-home-hidden-v1')||'[]'); if(Array.isArray(stored)) hidden=stored;} catch {}
+  const tile = q => {
+    const base='class="mh-quick" data-mh-quick="'+q.id+'"'+(hidden.includes(q.id)?' hidden':'');
+    const inside='<span class="mh-quick-icon">'+icon(q.icon,26)+'</span><span>'+q.label+'</span>';
+    return q.path ? '<a '+base+' href="'+q.path+'" data-link>'+inside+'</a>' :
+      '<button type="button" '+base+' data-mh-panel="'+q.action+'">'+inside+'</button>';
+  };
+  const config = quickActions.map(q=>'<label class="mh-customize-option"><input type="checkbox" data-mh-toggle="'+q.id+'"'+(hidden.includes(q.id)?'':' checked')+'><span>'+q.label+'</span></label>').join('');
+  const joinLink = state.user?.userId ? '/organizations' : '/signup';
+
+  return shell(''
+   +'<div class="mh-page" lang="en" dir="ltr">'
+   +'<section class="mh-hero-band" aria-labelledby="mh-main-title">'
+   +'<div class="mh-hero-photo" aria-hidden="true"></div>'
+   +'<div class="mh-container mh-hero-layout"><div class="mh-hero-copy">'
+   +'<p class="mh-eyebrow"><span></span> OMAN CAMEL RACING</p>'
+   +'<h1 id="mh-main-title">Where tradition<br>races into<br><em>the future.</em></h1>'
+   +'<p class="mh-hero-lead">Races. Camels. Heritage. Community.<br>Experience Oman&#39;s living legacy and a new generation<br class="mh-lead-break"> of racing excellence.</p>'
+   +'<div class="mh-hero-buttons"><a class="mh-cta-primary" href="/races" data-link>Explore Races <span aria-hidden="true">→</span></a>'
+   +'<a class="mh-cta-outline" href="/tourism" data-link>Discover Heritage</a></div>'
+   +'<div class="mh-hero-traits"><span>'+icon('trophy',17)+' REAL RACES</span><span>'+icon('flag',17)+' CHAMPION CAMELS</span><span>'+icon('book',17)+' RICH HERITAGE</span><span>'+icon('group',17)+' GROWING COMMUNITY</span></div>'
+   +'</div></div>'
+   +'<div class="mh-container"><div class="mh-story-grid">'+discoveryCards+'</div></div>'
+   +'</section>'
+   +'<section class="mh-modules-section" aria-labelledby="mh-modules-title"><div class="mh-container">'
+   +'<div class="mh-section-head"><div><p class="mh-overline"></p><h2 id="mh-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div>'
+   +(extraCards?'<details class="mh-expand-modules"><summary>View all modules <span aria-hidden="true">→</span></summary><div class="mh-extra-list">'+extraCards+'</div></details>':'')
+   +'</div><div class="mh-module-grid">'+moduleCards+'</div></div></section>'
+   +'<section class="mh-workspace-section" aria-labelledby="mh-workspace-title"><div class="mh-container"><div class="mh-workspace-panel">'
+   +'<div class="mh-workspace-header"><div><p class="mh-overline">YOUR WORKSPACE</p><h2 id="mh-workspace-title">Your Workspace</h2><p>Everything within reach.</p></div>'
+   +'<details class="mh-customizer"><summary>Customize <span aria-hidden="true">→</span></summary><div class="mh-customizer-pop"><strong>Show shortcuts</strong>'+config+'</div></details></div>'
+   +'<div class="mh-workspace-layout"><div class="mh-quick-grid">'+quickActions.map(tile).join('')+'</div>'
+   +'<aside class="mh-join"><div><strong>Be part of<br>a greater community.</strong><a href="'+joinLink+'" data-link>Join Now <span aria-hidden="true">→</span></a></div></aside></div>'
+   +'<div class="mh-context-panel" id="mh-context-panel" hidden><button type="button" id="mh-context-close" aria-label="Close panel">×</button><h3 id="mh-context-title"></h3><p id="mh-context-copy"></p><a href="/races" data-link id="mh-context-browse">Explore races →</a></div>'
+   +'</div></div></section>'
+   +'</div>','/home');
 }
+function bindHomeControls() {
+  if (!document.querySelector('.mh-page')) return;
+  const storageKey = 'medhmar-home-hidden-v1';
+  document.querySelectorAll('[data-mh-toggle]').forEach(input => input.addEventListener('change', () => {
+    const hidden = [...document.querySelectorAll('[data-mh-toggle]:not(:checked)')].map(el=>el.dataset.mhToggle);
+    localStorage.setItem(storageKey,JSON.stringify(hidden));
+    const card = document.querySelector('[data-mh-quick="'+input.dataset.mhToggle+'"]');
+    if (card) card.hidden = !input.checked;
+  }));
+  const panel = document.getElementById('mh-context-panel');
+  document.querySelectorAll('[data-mh-panel]').forEach(button => button.addEventListener('click', () => {
+    const favorites = button.dataset.mhPanel === 'favorites';
+    document.getElementById('mh-context-title').textContent = favorites ? 'Favorites' : 'Notifications';
+    document.getElementById('mh-context-copy').textContent = favorites
+      ? 'Your saved items will appear here when the favorites feature is connected. Explore camels and races in the meantime.'
+      : 'Live notifications are not connected to this homepage yet. You can explore current races and platform updates.';
+    document.getElementById('mh-context-browse').textContent = favorites ? 'Explore camels →' : 'Explore races →';
+    document.getElementById('mh-context-browse').setAttribute('href',favorites?'/camels':'/races');
+    panel.hidden = false; panel.scrollIntoView({block:'nearest',behavior:'smooth'});
+    document.getElementById('mh-context-close').focus({preventScroll:true});
+  }));
+  document.getElementById('mh-context-close')?.addEventListener('click',()=>{ panel.hidden=true; });
+}
+
 
 function settings() {
   const user = state.user || guestUser;
@@ -864,6 +916,7 @@ function bind(){
  $('#admin-retry')?.addEventListener('click',()=>render());
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
+ bindHomeControls();
  document.querySelectorAll('[data-link]').forEach(a=>a.addEventListener('click',e=>{ if(!e.ctrlKey&&!e.metaKey){e.preventDefault();go(a.getAttribute('href'));} }));
  document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',async()=>{
   const language=button.dataset.language;
