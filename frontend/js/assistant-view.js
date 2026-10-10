@@ -177,6 +177,14 @@ export function bindAssistantView(root = document) {
   if (panel.dataset.signedIn !== "true") {
     report("Sign in to ask questions.", "signin");
     controls();
+    // Suggested questions remain useful: guide guests to authentication
+    // instead of presenting clickable buttons that appear to do nothing.
+    panel.querySelectorAll("[data-assistant-prompt]").forEach(button => {
+      button.addEventListener("click", () => {
+        feedback.textContent = "Sign in to ask: " + button.dataset.assistantPrompt;
+        panel.querySelector(".assistant-signin")?.focus();
+      });
+    });
     return;
   }
 
