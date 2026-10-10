@@ -17,56 +17,69 @@
 .mh-page .mh-modules-section,
 .mh-page .mh-workspace-section {position:relative;display:block;isolation:isolate;width:100%;overflow:clip;}
 
-/* SECTION 01: Cinematic hero, its OWN visual surface */
-.mh-page .mh-hero-band{
-  min-height:calc(100svh - 76px);
+/* SECTION 01: Refined hero — 3 intentional headline lines, photographic clarity,
+   warm color without the artificial hard edge that appeared in the screenshot. */
+.mh-page .mh-hero-band {
+  min-height:clamp(650px,calc(100svh - 76px),820px);
+  background:linear-gradient(115deg,#fff9f1 0%,#f9e6cf 48%,#e3ab76 100%);
   padding:0;
-  background:linear-gradient(90deg,#fff8ef 0%,#fff0db 43%,#e4ab71 100%);
 }
-.mh-page .mh-hero-band::before{
-  position:absolute;content:"";inset:0;z-index:-2;
+.mh-page .mh-hero-band::before {
+  content:"";position:absolute;inset:0;z-index:-2;
   background:
-    radial-gradient(ellipse 58% 55% at -5% 50%,#fffcf8 0%,rgba(255,248,238,.90) 45%,transparent 100%),
-    linear-gradient(0deg,rgba(187,103,44,.2),transparent 35%),
-    linear-gradient(110deg,#fff7ea 0%,#f4dfc5 55%,#dca06d 100%);
+    radial-gradient(ellipse 65% 70% at 2% 35%,rgba(255,254,250,.95),rgba(255,246,235,.74) 68%,transparent 100%),
+    linear-gradient(0deg,rgba(232,191,154,.24),transparent 31%);
 }
-.mh-page .mh-hero-photo{
-  z-index:-1;position:absolute;inset:0 0 0 37%;pointer-events:none;opacity:1;
+.mh-page .mh-hero-photo {
+  position:absolute;inset:0 0 0 28%;z-index:-1;pointer-events:none;opacity:1;
   background-image:
-     linear-gradient(90deg,#fff8ee 0%,rgba(255,246,232,.97) 5%,rgba(255,240,216,.56) 19%,transparent 46%),
-     linear-gradient(180deg,rgba(255,220,172,.12),rgba(167,85,33,.19)),
-     url('/assets/home-racetrack.jpg');
-  background-size:cover,cover,cover;
-  background-position:center,center,51% center;
+    linear-gradient(180deg,rgba(247,201,154,.08) 0%,rgba(128,61,25,.10) 100%),
+    url("https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Camel_race_using_robot_jockeys.jpg/1280px-Camel_race_using_robot_jockeys.jpg"),
+    url("/assets/home-racetrack.jpg");
   background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center,53% center,center;
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.24) 15%,rgba(0,0,0,.82) 30%,#000 47%);
+  mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.24) 15%,rgba(0,0,0,.82) 30%,#000 47%);
 }
-.mh-page .mh-hero-layout{
-  min-height:min(780px,calc(100svh - 76px));padding:64px 0 86px;
+.mh-page .mh-hero-layout {
+  min-height:clamp(650px,calc(100svh - 76px),820px);
+  padding:64px 0 80px;
   display:flex;align-items:center;
 }
-.mh-page .mh-hero-copy {width:min(630px,56%);z-index:1;}
-.mh-page .mh-hero-copy h1{
-  font:600 clamp(53px,5.7vw,92px)/.98 Georgia,'Times New Roman',serif;
-  letter-spacing:-.057em;text-wrap:initial;
-  color:#28170e;
+.mh-page .mh-hero-copy {
+  width:min(650px,49%);min-width:0;position:relative;z-index:2;
 }
-.mh-page .mh-hero-copy h1 em{color:#aa652f;}
-.mh-page .mh-hero-lead{
-  font-size:clamp(14px,1.15vw,18px);line-height:1.58;
-  margin-top:29px!important;max-width:530px;color:#54443a;
+.mh-page .mh-hero-copy h1 {
+  font:600 clamp(48px,4.35vw,76px)/1.015 Georgia,"Times New Roman",serif;
+  letter-spacing:-.054em;color:#28170e;max-width:none;
+  text-wrap:initial;
 }
-.mh-page .mh-hero-buttons {margin-top:27px;gap:13px;}
-.mh-page .mh-hero-buttons a{
-  min-width:202px;min-height:58px;padding:16px 27px;
-  font-size:15px;border-radius:8px;
+.mh-page .mh-hero-line{display:block;white-space:nowrap}
+.mh-page .mh-hero-copy h1 em {font-weight:500;color:#a65f29;font-style:italic}
+.mh-page .mh-hero-lead {
+  font-size:clamp(15px,1.2vw,18px);
+  line-height:1.55;
+  margin-top:24px!important;max-width:540px;color:#59463a;
 }
-.mh-page .mh-hero-traits{
-  margin-top:42px;gap:20px;max-width:720px;
+.mh-page .mh-hero-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin-top:27px}
+.mh-page .mh-hero-buttons a {
+  min-width:188px;min-height:54px;
+  padding:14px 24px;font-size:14px;border-radius:8px;
 }
-.mh-page .mh-hero-traits>span{
-  font-size:10px;gap:7px;color:#614a36;font-weight:700;
+.mh-page .mh-hero-traits {
+  display:flex;align-items:center;flex-wrap:wrap;
+  gap:12px 17px;margin-top:39px;max-width:640px;
 }
-.mh-page .mh-hero-traits svg{width:22px;height:22px;}
+.mh-page .mh-hero-traits>span{font-size:10px;gap:7px;font-weight:750;color:#664832}
+.mh-page .mh-hero-traits svg{width:20px;height:20px}
+.mh-page .mh-hero-credit{
+  position:absolute;right:23px;bottom:12px;z-index:2;
+  font-size:10px;letter-spacing:.01em;
+  color:#fff!important;background:rgba(49,27,16,.61);
+  padding:5px 9px;border-radius:5px;text-decoration:none;
+}
+.mh-page .mh-hero-credit:hover{text-decoration:underline}
 
 /* SECTION 02: Three stories have their OWN image gallery */
 .mh-page .mh-stories-section{
@@ -194,7 +207,6 @@
 /* Responsive: keep generous section separation without horizontal overflow */
 @media(max-width:1240px){
   .mh-page .mh-container{width:calc(100% - 64px);}
-  .mh-page .mh-hero-copy h1{font-size:clamp(49px,5.1vw,73px);}
   .mh-page .mh-workspace-layout{grid-template-columns:1fr;gap:18px;}
   .mh-page .mh-quick{min-height:116px;}
   .mh-page .mh-join{min-height:145px;}
@@ -204,11 +216,6 @@
   .mh-page .mh-module-symbol svg{height:26px;width:26px;}
 }
 @media(max-width:900px){
-  .mh-page .mh-hero-band{min-height:690px;}
-  .mh-page .mh-hero-layout{min-height:690px;}
-  .mh-page .mh-hero-copy{width:67%;}
-  .mh-page .mh-hero-photo{inset:0 0 0 29%;opacity:.85;}
-  .mh-page .mh-hero-copy h1{font-size:clamp(46px,6.4vw,64px);}
   .mh-page .mh-stories-section,.mh-page .mh-modules-section,.mh-page .mh-workspace-section{padding-block:86px 100px;}
   .mh-page .mh-story-grid{gap:13px;}
   .mh-page .mh-story{height:360px;}
@@ -223,22 +230,7 @@
 }
 @media(max-width:600px){
   .mh-page .mh-container{width:calc(100% - 32px);}
-  .mh-page .mh-hero-band{min-height:0;}
-  .mh-page .mh-hero-photo{inset:0 0 auto 0;height:410px;opacity:.8;
-    background-image:
-      linear-gradient(90deg,rgba(255,249,240,.96) 0%,rgba(255,243,226,.78) 68%,rgba(255,233,200,.4) 100%),
-      linear-gradient(180deg,transparent,rgba(247,222,192,.7)),
-      url('/assets/home-racetrack.jpg');
-    background-position:center,center,61% center;
-  }
-  .mh-page .mh-hero-layout{min-height:630px;align-items:start;padding:76px 0 58px;}
-  .mh-page .mh-hero-copy{width:100%;}
-  .mh-page .mh-hero-copy h1{font-size:clamp(45px,11.5vw,67px);}
-  .mh-page .mh-hero-lead{font-size:14px;margin-top:24px!important;}
   .mh-page .mh-lead-break,.mh-page .mh-desktop-break{display:none;}
-  .mh-page .mh-hero-buttons a{min-width:0;flex:1;min-height:51px;padding:11px;font-size:12px;}
-  .mh-page .mh-hero-traits{margin-top:35px;gap:13px;}
-  .mh-page .mh-hero-traits>span{font-size:9px;}
   .mh-page .mh-stories-section,.mh-page .mh-modules-section,.mh-page .mh-workspace-section{padding-block:78px 88px;}
   .mh-page .mh-stories-heading{margin-bottom:32px;}
   .mh-page .mh-stories-heading h2{font-size:clamp(42px,10vw,62px);}
@@ -270,14 +262,53 @@
   .mh-page .mh-join{min-height:170px;padding:20px;}
 }
 @media(max-width:360px){
-  .mh-page .mh-hero-copy h1{font-size:42px;}
-  .mh-page .mh-hero-buttons{flex-direction:column;}
-  .mh-page .mh-hero-buttons a{width:100%;}
-  .mh-page .mh-hero-layout{min-height:730px;}
   .mh-page .mh-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .mh-page .mh-workspace-header h2{font-size:35px;}
 }
 @media(prefers-reduced-motion:reduce){
  .mh-page .mh-story,.mh-page .mh-module,.mh-page .mh-quick{transition:none;}
  .mh-page .mh-story:hover,.mh-page .mh-module:hover,.mh-page .mh-quick:hover{transform:none;}
+}
+
+
+/* Hero-only responsive rules: preserve deliberate 3-line composition */
+@media(max-width:1250px){
+  .mh-page .mh-hero-copy{width:min(585px,54%)}
+  .mh-page .mh-hero-copy h1{font-size:clamp(46px,4.4vw,65px)}
+  .mh-page .mh-hero-photo{inset-inline-start:27%;background-position:center,55% center,center}
+  .mh-page .mh-hero-traits{max-width:580px}
+}
+@media(max-width:900px){
+  .mh-page .mh-hero-band,.mh-page .mh-hero-layout{min-height:620px}
+  .mh-page .mh-hero-layout{padding:50px 0 65px}
+  .mh-page .mh-hero-copy{width:min(530px,66%)}
+  .mh-page .mh-hero-copy h1{font-size:clamp(42px,5.6vw,53px)}
+  .mh-page .mh-hero-photo{inset-inline-start:20%;background-position:center,60% center,center;opacity:.80}
+  .mh-page .mh-hero-traits{margin-top:27px}
+}
+@media(max-width:600px){
+  .mh-page .mh-hero-band{min-height:auto;background:#fff3e3}
+  .mh-page .mh-hero-layout{min-height:610px;padding:57px 0 50px;align-items:flex-start}
+  .mh-page .mh-hero-copy{width:100%}
+  .mh-page .mh-hero-copy h1{font-size:clamp(38px,10.1vw,55px);line-height:1.04}
+  .mh-page .mh-hero-photo{
+    inset:0 0 auto 0;height:430px;
+    background-position:center,67% center,center;
+    opacity:.34;
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 30%,transparent 100%);
+    mask-image:linear-gradient(to bottom,#000 0%,#000 30%,transparent 100%);
+  }
+  .mh-page .mh-hero-lead{font-size:14px;max-width:420px;margin-top:20px!important}
+  .mh-page .mh-lead-break{display:none}
+  .mh-page .mh-hero-buttons{gap:9px;margin-top:22px}
+  .mh-page .mh-hero-buttons a{flex:1;min-width:0;min-height:49px;padding:11px 14px;font-size:12px}
+  .mh-page .mh-hero-traits{margin-top:28px;gap:10px 12px}
+  .mh-page .mh-hero-traits>span{font-size:9px}
+  .mh-page .mh-hero-credit{right:10px;bottom:7px;font-size:8px;color:#6d4931!important;background:rgba(255,251,244,.72)}
+}
+@media(max-width:390px){
+  .mh-page .mh-hero-copy h1{font-size:clamp(34px,9.9vw,40px)}
+  .mh-page .mh-hero-layout{min-height:645px}
+  .mh-page .mh-hero-buttons{flex-direction:column;align-items:stretch}
+  .mh-page .mh-hero-buttons a{width:100%}
 }
