@@ -16,6 +16,10 @@
     scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
+  /* Keep the footer reachable after the final full-height chapter. */
+  .app-shell:has(.mh-page) > footer {
+    scroll-snap-align: end;
+  }
 
   .mh-page .mh-stories-section,
   .mh-page .mh-modules-section,
