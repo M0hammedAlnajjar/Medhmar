@@ -143,3 +143,42 @@
   .mh-page .mh-story,.mh-page .mh-story>img,.mh-page .mh-story .mh-round-arrow{transition:none;}
   .mh-page .mh-story:hover,.mh-page .mh-story:hover>img,.mh-page .mh-story:hover .mh-round-arrow{transform:none;}
 }
+
+/* The Champions — zoomed-out camel portrait (only this discovery card).
+   object-fit: contain preserves the snout, eye, ear and neck instead of
+   cropping the camel face with cover. The soft background fills letterboxing. */
+.mh-page .mh-story--champions {
+  background-color:#9bafc0;
+  background-image:
+    linear-gradient(180deg,rgba(37,27,22,.10) 0%,rgba(55,33,21,.24) 56%,#2f1b11 100%),
+    url("https://images.rawpixel.com/image_social_landscape/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvZnJjYW1lbF9zZWFfYW5pbWFsX3RyYXZlbC1pbWFnZS1reWJlMzcwZS5qcGc.jpg");
+  background-position:center,center;
+  background-size:cover;
+}
+.mh-page .mh-story--champions > img {
+  object-fit:contain;
+  object-position:center 36%;
+  width:100%;
+  height:100%;
+  inset:0;
+  transform:none;
+  filter:saturate(.99) contrast(1.025);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 10%,#000 62%,transparent 86%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 10%,#000 62%,transparent 86%);
+}
+.mh-page .mh-story--champions:hover > img {
+  transform:none;
+}
+.mh-page .mh-story--champions .mh-story-wash {
+  background:linear-gradient(180deg,
+    rgba(30,26,27,.38) 0%,
+    rgba(30,26,27,0) 27%,
+    rgba(39,23,14,.06) 45%,
+    rgba(36,20,11,.75) 77%,
+    rgba(30,15,7,.97) 100%);
+}
+@media(max-width:700px){
+  .mh-page .mh-story--champions > img{
+    object-position:center 34%;
+  }
+}
