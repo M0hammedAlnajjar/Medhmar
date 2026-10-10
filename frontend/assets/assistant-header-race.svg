@@ -22,15 +22,15 @@
   <path d="M0 123C115 116 183 96 263 105S377 121 455 100C548 75 606 93 680 91V125H0Z" fill="#E9C69E" opacity=".24"/>
   <path d="M0 125C173 119 234 107 325 115C420 125 507 103 567 105S634 106 680 99V125H0Z" fill="url(#foreground)"/>
   <g fill="#9D724D" opacity=".39">
-    <g transform="translate(374 46) scale(.49)"><use href="#racer"/></g>
-    <g transform="translate(418 42) scale(.55)"><use href="#racer"/></g>
+    <g transform="translate(374 59) scale(.49)"><use href="#racer"/></g>
+    <g transform="translate(418 55) scale(.55)"><use href="#racer"/></g>
   </g>
   <g fill="#93623C" opacity=".6">
-    <g transform="translate(469 38) scale(.66)"><use href="#racer"/></g>
-    <g transform="translate(536 34) scale(.7)"><use href="#racer"/></g>
+    <g transform="translate(469 51) scale(.66)"><use href="#racer"/></g>
+    <g transform="translate(536 47) scale(.7)"><use href="#racer"/></g>
   </g>
   <g fill="#875534" opacity=".79">
-    <g transform="translate(604 28) scale(.77)"><use href="#racer"/></g>
+    <g transform="translate(604 41) scale(.77)"><use href="#racer"/></g>
   </g>
   <path d="M333 120c53-4 97-6 140-5 80 2 134 7 207-6" stroke="#BA8557" stroke-width="1" opacity=".2"/>
 </svg>
