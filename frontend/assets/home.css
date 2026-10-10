@@ -180,3 +180,17 @@
   .home-discovery-card{height:320px}
   .home-section-header h2{font-size:clamp(27px,8vw,32px)}
 }
+
+/* Reference-matched workspace: full-width tools panel, two-column shortcuts. */
+.home-workspace{display:block;width:100%}
+.home-tools{width:100%;padding:30px;border-radius:18px;background:#fffbf7;border-color:#e7d7c8}
+.home-tools-header{margin-bottom:20px}
+.home-tools-header h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(31px,4.4vw,43px);letter-spacing:-.035em;line-height:1.12;color:#20150f}
+.home-tools-header p:last-child{font-size:14px;color:#956947}
+.home-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.home-shortcut{min-height:66px;border-radius:11px;background:#fff;border-color:#e6d6c6;padding:14px 15px}
+.home-shortcut-index{background:#f2e6d9;color:#ad632d}
+.home-shortcut-name{color:#251c16}
+.home-shortcut-arrow{color:#a65c2c}
+.home-shortcut:focus-visible{outline:3px solid #ad632d;outline-offset:3px}
+@media(max-width:600px){.home-tools{padding:22px 18px}.home-shortcuts{grid-template-columns:1fr}.home-tools-header h2{font-size:32px}}
