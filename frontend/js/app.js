@@ -88,7 +88,45 @@ function topbar(active='', compact=false){
   </div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
-const shell = (body,active='', compact=false) => `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main><footer>${compact ? 'MEDHMAR • Oman Camel Racing' : 'MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform'}</footer></div>`;
+function homeFooter() {
+  const links = (items) => items
+    .filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user))
+    .map(([path, label]) => '<a href="' + path + '" data-link>' + esc(label) + '</a>')
+    .join('');
+  const discover = links([
+    ['/races','Races'], ['/camels','Camels'],
+    ['/pedigree','Pedigree'], ['/tourism','Omani Heritage']
+  ]);
+  const platform = links([
+    ['/challenges','Challenges'], ['/training','Training'],
+    ['/race-cards','Race Cards'], ['/marketplace','Marketplace'],
+    ['/organizations','Organizations']
+  ]);
+  const account = state.user?.userId
+    ? links([['/settings','My Profile']])
+    : links([['/signin','Sign In'], ['/signup','Create Account']]);
+
+  return '<footer class="mh-home-footer" aria-labelledby="mh-footer-heading" lang="en" dir="ltr">'
+    + '<div class="mh-footer-topline" aria-hidden="true"></div>'
+    + '<div class="mh-footer-inner">'
+    + '<div class="mh-footer-brand">'
+    + '<a href="/home" data-link class="mh-footer-brand-link" aria-label="Medhmar — Home">'
+    + '<img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing" loading="lazy" width="225" height="60"></a>'
+    + '<h2 id="mh-footer-heading">Where heritage<br><em>moves forward.</em></h2>'
+    + '<p>A home for Oman&#39;s camel racing community — connecting races, champions, traditions and the people behind them.</p>'
+    + '<a href="/races" data-link class="mh-footer-cta">Explore Races <span aria-hidden="true">↗</span></a>'
+    + '</div>'
+    + '<nav class="mh-footer-links" aria-label="Discover"><h3>Discover</h3>' + discover + '</nav>'
+    + '<nav class="mh-footer-links" aria-label="Platform"><h3>Platform</h3>' + platform + '</nav>'
+    + '<nav class="mh-footer-links" aria-label="Account"><h3>Your Account</h3>' + account + '</nav>'
+    + '</div>'
+    + '<div class="mh-footer-bottom">'
+    + '<span>© ' + new Date().getFullYear() + ' MEDHMAR. Oman Camel Racing.</span>'
+    + '<span>Rooted in tradition. Built for what&#39;s next.</span>'
+    + '<a href="#mh-home-top" class="mh-footer-backtop">Back to top <span aria-hidden="true">↑</span></a>'
+    + '</div></footer>';
+}
+const shell = (body,active='', compact=false) => `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main>${active === "/home" ? homeFooter() : ""}</div>`;
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 const auth = authView;
@@ -154,7 +192,7 @@ function home() {
   const joinLink = state.user?.userId ? '/organizations' : '/signup';
 
   return shell(''
-   +'<div class="mh-page" lang="en" dir="ltr">'
+   +'<div class="mh-page" id="mh-home-top" lang="en" dir="ltr">'
    +'<section class="mh-hero-band" aria-labelledby="mh-main-title">'
    +'<div class="mh-hero-photo" aria-hidden="true"></div>'
    +'<a class="mh-hero-credit" href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer" title="Photo: Houssain tork, CC BY-SA 4.0">Photo: Houssain tork · CC BY-SA 4.0</a>'
