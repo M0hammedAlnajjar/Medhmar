@@ -27,6 +27,9 @@
 }
 /* Soft Omani sand-dune palette in the assistant header.
    Decoration only: existing Medhmar logo, text and controls remain accessible. */
+/* Header matches the approved calm Omani sand-and-racing reference:
+   one continuous creamy background, low dunes, fine camel-racer silhouettes.
+   No unrelated photo block, oversized animal or hard gradient seam. */
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading {
   position:relative;
   isolation:isolate;
@@ -35,8 +38,8 @@
   min-height:120px;
   gap:12px;
   padding:18px 17px 17px 19px;
-  border-bottom:1px solid #e4c8a9;
-  background:linear-gradient(118deg,#fff9f0 0%,#fae8d2 57%,#efd0aa 100%);
+  border-bottom:1px solid #e8d4bd;
+  background:linear-gradient(110deg,#fff9f0 0%,#fff3e4 57%,#f7e2ca 100%);
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading::before {
   content:"";
@@ -44,27 +47,18 @@
   inset:0;
   z-index:0;
   pointer-events:none;
-  /* Gentle, abstract overlapping dunes; no mountains, trees or buildings. */
   background:
-    radial-gradient(ellipse 90% 48% at 8% 133%,rgba(210,161,104,.20) 0%,rgba(210,161,104,.14) 47%,transparent 68%),
-    radial-gradient(ellipse 72% 58% at 59% 142%,rgba(194,132,77,.24) 0%,rgba(194,132,77,.15) 45%,transparent 70%),
-    radial-gradient(ellipse 54% 40% at 105% 112%,rgba(167,105,61,.19) 0%,transparent 80%),
-    linear-gradient(180deg,rgba(255,253,246,.44) 0%,rgba(255,246,232,.1) 70%);
+    radial-gradient(ellipse 70% 48% at 95% 0%,rgba(213,170,118,.13),transparent 74%),
+    linear-gradient(180deg,rgba(255,252,247,.48) 0%,transparent 67%);
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading::after {
   content:"";
   position:absolute;
-  right:0;
-  bottom:0;
+  inset:0;
   z-index:0;
-  width:34%;
-  height:76%;
   pointer-events:none;
-  opacity:.25;
-  background:url('/assets/mock-camels/camel-4.jpg') 50% 46% / cover no-repeat;
-  filter:sepia(1) saturate(.44) contrast(1.13) brightness(.94);
-  -webkit-mask-image:radial-gradient(ellipse at 94% 98%,#000 12%,rgba(0,0,0,.85) 32%,rgba(0,0,0,.35) 57%,transparent 85%);
-  mask-image:radial-gradient(ellipse at 94% 98%,#000 12%,rgba(0,0,0,.85) 32%,rgba(0,0,0,.35) 57%,transparent 85%);
+  opacity:.92;
+  background:url('/assets/assistant-header-race.svg') center bottom / 100% 100% no-repeat;
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading > * {
   position:relative;
@@ -72,8 +66,9 @@
 }
 @media(max-width:620px) {
   .medhmar-assistant-dock .medhmar-assistant .assistant-heading::after {
-    width:29%;
-    opacity:.16;
+    opacity:.78;
+    background-size:115% 100%;
+    background-position:65% bottom;
   }
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon {
@@ -84,6 +79,9 @@
 .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon img {
   display:block;width:100%;height:100%;object-fit:contain;
   mix-blend-mode:multiply;
+  /* Feather the artwork's light rectangular source edges into the dune sky. */
+  -webkit-mask-image:radial-gradient(ellipse 80% 78% at 50% 50%,#000 72%,transparent 100%);
+  mask-image:radial-gradient(ellipse 80% 78% at 50% 50%,#000 72%,transparent 100%);
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy h2 {
   color:#2f1d13;
