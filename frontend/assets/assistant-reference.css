@@ -25,21 +25,58 @@
   border-color:#e6c6a6;
   background:#fffcf8;
 }
+/* Soft Omani sand-dune palette in the assistant header.
+   Decoration only: existing Medhmar logo, text and controls remain accessible. */
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading {
   position:relative;
+  isolation:isolate;
+  overflow:hidden;
   flex:0 0 auto;
   min-height:120px;
   gap:12px;
   padding:18px 17px 17px 19px;
-  border-bottom:1px solid #edd6bd;
-  background:linear-gradient(125deg,#fff9ee 0%,#fff2e2 61%,#f3d6b4 100%);
+  border-bottom:1px solid #e4c8a9;
+  background:linear-gradient(118deg,#fff9f0 0%,#fae8d2 57%,#efd0aa 100%);
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading::before {
   content:"";
-  position:absolute;z-index:-1;inset:0;pointer-events:none;
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  /* Gentle, abstract overlapping dunes; no mountains, trees or buildings. */
   background:
-    linear-gradient(90deg,rgba(255,248,236,.96) 0%,rgba(255,245,230,.87) 63%,rgba(244,208,169,.48) 100%),
-    url('/assets/mock-camels/camel-4.jpg') right 50% / 50% auto no-repeat;
+    radial-gradient(ellipse 90% 48% at 8% 133%,rgba(210,161,104,.20) 0%,rgba(210,161,104,.14) 47%,transparent 68%),
+    radial-gradient(ellipse 72% 58% at 59% 142%,rgba(194,132,77,.24) 0%,rgba(194,132,77,.15) 45%,transparent 70%),
+    radial-gradient(ellipse 54% 40% at 105% 112%,rgba(167,105,61,.19) 0%,transparent 80%),
+    linear-gradient(180deg,rgba(255,253,246,.44) 0%,rgba(255,246,232,.1) 70%);
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading::after {
+  content:"";
+  position:absolute;
+  right:0;
+  bottom:0;
+  z-index:0;
+  width:34%;
+  height:76%;
+  pointer-events:none;
+  opacity:.25;
+  background:url('/assets/mock-camels/camel-4.jpg') 50% 46% / cover no-repeat;
+  filter:sepia(1) saturate(.44) contrast(1.13) brightness(.94);
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.52) 30%,#000 75%),linear-gradient(to top,#000 0%,#000 72%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.52) 30%,#000 75%),linear-gradient(to top,#000 0%,#000 72%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-composite:intersect;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading > * {
+  position:relative;
+  z-index:1;
+}
+@media(max-width:620px) {
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading::after {
+    width:29%;
+    opacity:.16;
+  }
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon {
   width:126px;height:89px;flex:0 0 126px;
