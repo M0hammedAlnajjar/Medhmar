@@ -401,3 +401,42 @@
     padding:5px 7px;font-size:10px;
   }
 }
+
+/* 2026 Medhmar assistant camel badge: use ONE complete logo mark.
+   No background behind the vector itself (the SVG owns its brown circle).
+   Scoped to AI assistant avatars and launcher; the site header stays untouched. */
+.medhmar-assistant .assistant-message-assistant .assistant-message-avatar,
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-assistant .assistant-message-avatar {
+  background:transparent;
+  border:0;
+  border-radius:50%;
+  box-shadow:none;
+  overflow:visible;
+  padding:0;
+}
+.medhmar-assistant .assistant-message-assistant .assistant-message-avatar img,
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-assistant .assistant-message-avatar img {
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+  border-radius:50%;
+}
+.medhmar-assistant-dock .assistant-dock-launcher-icon {
+  background:transparent;
+  border:0;
+  padding:0;
+  border-radius:50%;
+  overflow:visible;
+}
+.medhmar-assistant-dock .assistant-dock-launcher-icon img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  border-radius:50%;
+}
