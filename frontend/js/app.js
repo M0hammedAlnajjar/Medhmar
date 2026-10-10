@@ -172,17 +172,17 @@ function home() {
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]||paths.spark)+'</svg>';
   };
   const discovery = [
-    ['/races','01 / THE RACE','Every race<br>has a story.','Find races, participants and results.','/assets/racing-hero.webp','Camels racing across a sandy track'],
+    ['/races','01 / THE RACE','Every race<br>has a story.','Find races, participants and results.','/assets/home-racetrack.jpg','Camel race on a level sand track'],
     ['/camels','02 / THE CHAMPIONS','Meet the camels.','Get to know the athletes of the track.','/assets/mock-camels/camel-7.jpg','Camel wearing racing equipment'],
-    ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-3.jpg','Camels in an open sandy desert']
+    ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-4.jpg','Camel and handler in open sand dunes']
   ];
   const discoveryCards = discovery.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user))
     .map(([path,kicker,title,description,image,alt])=>'<a class="mh-story" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" loading="lazy" decoding="async"><span class="mh-story-wash"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
   const modules = [
-    {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/racing-hero.webp',alt:'Camel race in progress',icon:'trophy'},
-    {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Camel at a race',icon:'camel'},
-    {path:'/pedigree',name:'Pedigree',desc:'Family trees and lineage.',photo:'/assets/mock-camels/camel-4.jpg',alt:'Camel crossing rolling sand dunes',icon:'branch'},
-    {path:'/marketplace',name:'Marketplace',desc:'Buy, sell and exchange camels.',photo:'/assets/mock-camels/camel-2.jpg',alt:'Camels in a sandy landscape',icon:'cart'}
+    {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/home-racetrack.jpg',alt:'Camel racing on a flat sandy track',icon:'trophy'},
+    {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Racing camel with colored harness',icon:'camel'},
+    {path:'/pedigree',name:'Pedigree',desc:'Family trees and lineage.',photo:'/assets/mock-camels/camel-4.jpg',alt:'Camel guided through a wide sand dune landscape',icon:'branch'},
+    {path:'/marketplace',name:'Marketplace',desc:'Buy, sell and exchange camels.',photo:'/assets/mock-camels/camel-2.jpg',alt:'Camels on open desert sand dunes',icon:'cart'}
   ];
   const moduleCards = modules.filter(m=>canAccessRoute(matchRoute(m.path)?.route,state.user))
     .map(m=>'<a class="mh-module" href="'+m.path+'" data-link><img src="'+m.photo+'" alt="'+esc(m.alt)+'" loading="lazy" decoding="async"><span class="mh-module-details"><span class="mh-module-symbol">'+icon(m.icon,24)+'</span><span class="mh-module-text"><strong>'+m.name+'</strong><small>'+m.desc+'</small></span><span class="mh-module-arrow" aria-hidden="true">›</span></span></a>').join('');
@@ -224,13 +224,20 @@ function home() {
    +'<a class="mh-cta-outline" href="/tourism" data-link>Discover Heritage</a></div>'
    +'<div class="mh-hero-traits"><span>'+icon('trophy',17)+' REAL RACES</span><span>'+icon('flag',17)+' CHAMPION CAMELS</span><span>'+icon('book',17)+' RICH HERITAGE</span><span>'+icon('group',17)+' GROWING COMMUNITY</span></div>'
    +'</div></div>'
-   +'<div class="mh-container"><div class="mh-story-grid">'+discoveryCards+'</div></div>'
    +'</section>'
-   +'<section class="mh-modules-section" aria-labelledby="mh-modules-title"><div class="mh-container">'
-   +'<div class="mh-section-head"><div><p class="mh-overline"></p><h2 id="mh-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div>'
+   +'<section class="mh-stories-section" id="discover-stories" aria-labelledby="mh-stories-title">'
+   +'<div class="mh-container">'
+   +'<div class="mh-stories-heading"><p class="mh-eyebrow"><span></span> DISCOVERY STORIES</p>'
+   +'<h2 id="mh-stories-title">Three stories.<br><em>One living legacy.</em></h2>'
+   +'<p>Races. Camels. Heritage. Explore the stories that connect<br class="mh-desktop-break"> Oman&#39;s past, present and future.</p>'
+   +'</div>'
+   +'<div class="mh-story-grid">'+discoveryCards+'</div>'
+   +'</div></section>'
+   +'<section class="mh-modules-section" id="platform-modules" aria-labelledby="mh-modules-title"><div class="mh-container">'
+   +'<div class="mh-section-head"><div><p class="mh-overline">OMAN CAMEL RACING</p><h2 id="mh-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div>'
    +(extraCards?'<details class="mh-expand-modules"><summary>View all modules <span aria-hidden="true">→</span></summary><div class="mh-extra-list">'+extraCards+'</div></details>':'')
    +'</div><div class="mh-module-grid">'+moduleCards+'</div></div></section>'
-   +'<section class="mh-workspace-section" aria-labelledby="mh-workspace-title"><div class="mh-container"><div class="mh-workspace-panel">'
+   +'<section class="mh-workspace-section" id="your-workspace" aria-labelledby="mh-workspace-title"><div class="mh-container"><div class="mh-workspace-panel">'
    +'<div class="mh-workspace-header"><div><p class="mh-overline">YOUR WORKSPACE</p><h2 id="mh-workspace-title">Your Workspace</h2><p>Everything within reach.</p></div>'
    +'<details class="mh-customizer"><summary>Customize <span aria-hidden="true">→</span></summary><div class="mh-customizer-pop"><strong>Show shortcuts</strong>'+config+'</div></details></div>'
    +'<div class="mh-workspace-layout"><div class="mh-quick-grid">'+quickActions.map(tile).join('')+'</div>'
