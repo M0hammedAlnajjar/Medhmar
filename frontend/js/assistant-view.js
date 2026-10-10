@@ -35,6 +35,7 @@ function assistantIcon(name, size = 20) {
     + (assistantIconPaths[name] || assistantIconPaths.info) + '</svg>';
 }
 const assistantCamelLogo = '<img src="/assets/medhmar-logo-icon.svg" alt="" loading="lazy" aria-hidden="true" />';
+const assistantFullLogo = '<img src="/assets/medhmar-logo-full.svg" alt="MEDHMAR — Oman Camel Racing" loading="lazy" />';
 function assistantTimestamp() {
   return new Intl.DateTimeFormat(undefined, {hour:'numeric',minute:'2-digit'}).format(new Date());
 }
@@ -79,7 +80,7 @@ export function renderAssistantView({ signedIn = false, preferredLanguage = 'en'
   return '<section class="medhmar-assistant" id="medhmar-assistant" data-signed-in="' + (signedIn ? 'true' : 'false') + '"'
     + ' aria-labelledby="medhmar-assistant-title" lang="en" dir="ltr">'
     + '<div class="assistant-heading">'
-    + '<span class="assistant-brand-icon" aria-hidden="true">' + assistantCamelLogo + '</span>'
+    + '<span class="assistant-brand-icon">' + assistantFullLogo + '</span>'
     + '<div class="assistant-heading-copy"><h2 id="medhmar-assistant-title">Medhmar Assistant</h2>'
     + '<p>Your guide to Oman&#39;s camel racing platform</p></div>'
     + '<span class="assistant-status" id="assistant-status" role="status">' + status + '</span></div>'
