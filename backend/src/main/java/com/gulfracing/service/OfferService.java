@@ -103,6 +103,20 @@ public class OfferService {
         return offer;
     }
 
+    @Transactional(readOnly = true)
+    public SaleTransaction getSaleByOfferId(Long offerId, Long actorId) {
+        validateId(offerId, "An offer ID is required.");
+        users.getActive(actorId);
+        var sale = saleTransactions.findByOffer_OfferId(offerId)
+                .orElseThrow(() -> ApiException.notFound("Sale transaction"));
+        if (!users.isAdmin(actorId)
+                && !actorId.equals(sale.getBuyer().getUserId())
+                && !actorId.equals(sale.getSeller().getUserId())) {
+            throw ApiException.forbidden();
+        }
+        return sale;
+    }
+
     @Transactional
     public Offer updateOffer(Long id, Double offeredPriceOmr, Long actorId) {
         validateId(id, "An offer ID is required.");

@@ -3,9 +3,11 @@ package com.gulfracing.service;
 import com.gulfracing.entity.Camel;
 import com.gulfracing.entity.Pedigree;
 import com.gulfracing.enums.CamelStatus;
+import com.gulfracing.enums.MarketPlaceStatus;
 import com.gulfracing.enums.Gender;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.CamelRepository;
+import com.gulfracing.repository.MarketPlaceRepository;
 import com.gulfracing.repository.PedigreeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class CamelService {
 
     private final CamelRepository camelRepository;
     private final PedigreeRepository pedigrees;
+    private final MarketPlaceRepository marketPlaces;
 
     @Transactional
     public Long addCamel(
@@ -171,6 +174,9 @@ public class CamelService {
     @Transactional
     public Boolean deleteById(Long id) {
         Camel camel = getById(id);
+        if (marketPlaces.existsByCamel_CamelIdAndIsActiveTrueAndStatus(id, MarketPlaceStatus.AVAILABLE)) {
+            throw ApiException.conflict("Cancel the active marketplace listing before deleting this camel.");
+        }
         camel.setIsActive(false);
         camel.setUpdatedDate(new Date());
         // Keep ancestry intact: registered historical parents may later be inactive.

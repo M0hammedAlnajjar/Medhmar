@@ -171,6 +171,7 @@ export const marketplaceApi = {
 };
 
 export const offerApi = {
+  sale: (id) => api(`/offer/${encodeURIComponent(id)}/sale`),
   mine: () => api("/offer/getAll"),
   one: (id) => api(`/offer/getById?id=${encodeURIComponent(id)}`),
   forListing: (listingId) => api(`/offer/listing/${encodeURIComponent(listingId)}`),

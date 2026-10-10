@@ -43,3 +43,14 @@ test("ageLabel, camelMeta and image-source helpers used by the marketplace cards
   assert.equal(isSafeImageSrc("https://example.com/a.jpg"), true);
 });
 
+
+test("real marketplace is the default when no browser demo setting exists", () => {
+  assert.equal(ENABLE_MOCK_MARKETPLACE, false);
+  assert.equal(isMockListingId(9001), false);
+});
+
+test("mock camel IDs are recognized independently of demo activation", async () => {
+  const { isMockCamelId } = await import("../js/mock-marketplace.js");
+  assert.equal(isMockCamelId(9101), true);
+  assert.equal(isMockCamelId(1), false);
+});

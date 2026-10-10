@@ -21,6 +21,7 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
     Optional<MarketPlace> findByListingIdAndIsActiveTrue(Long listingId);
 
     boolean existsByCamel_CamelIdAndIsActiveTrue(Long camelId);
+    boolean existsByCamel_CamelIdAndIsActiveTrueAndStatus(Long camelId, MarketPlaceStatus status);
 
     Optional<MarketPlace> findFirstByCamel_CamelIdAndIsActiveTrueAndStatusOrderByListingIdDesc(
             Long camelId, MarketPlaceStatus status);
@@ -40,6 +41,7 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
         SELECT m
         FROM MarketPlace m
         WHERE m.isActive = true
+          AND m.status = com.gulfracing.enums.MarketPlaceStatus.AVAILABLE
           AND (:search IS NULL
                OR LOWER(m.description) LIKE LOWER(CONCAT('%', :search, '%'))
                OR LOWER(m.camel.name) LIKE LOWER(CONCAT('%', :search, '%')))
