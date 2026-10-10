@@ -172,12 +172,12 @@ function home() {
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]||paths.spark)+'</svg>';
   };
   const discovery = [
-    ['/races','01 / THE RACE','Every race<br>has a story.','Find races, participants and results.','/assets/home-racetrack.jpg','Camel race on a level sand track'],
-    ['/camels','02 / THE CHAMPIONS','Meet the camels.','Get to know the athletes of the track.','/assets/mock-camels/camel-7.jpg','Camel wearing racing equipment'],
-    ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-4.jpg','Camel and handler in open sand dunes']
+    ['/races','01 / THE RACE','Every race<br>has a story.','Find races, participants and results.','https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Camel_race_using_robot_jockeys.jpg/1280px-Camel_race_using_robot_jockeys.jpg','Camel racers competing across a flat sandy track','/assets/home-racetrack.jpg'],
+    ['/camels','02 / THE CHAMPIONS','Meet<br>the camels.','Get to know the athletes of the track.','https://images.rawpixel.com/image_social_landscape/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvZnJjYW1lbF9zZWFfYW5pbWFsX3RyYXZlbC1pbWFnZS1reWJlMzcwZS5qcGc.jpg','Close-up of a camel wearing a red rope halter','/assets/mock-camels/camel-7.jpg'],
+    ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-4.jpg','Camel and handler in open sand dunes','/assets/mock-camels/camel-4.jpg']
   ];
   const discoveryCards = discovery.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user))
-    .map(([path,kicker,title,description,image,alt])=>'<a class="mh-story" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" loading="lazy" decoding="async"><span class="mh-story-wash"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
+    .map(([path,kicker,title,description,image,alt,fallback])=>'<a class="mh-story" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" data-mh-story-fallback="'+fallback+'" loading="lazy" decoding="async"><span class="mh-story-wash" aria-hidden="true"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
   const modules = [
     {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/home-racetrack.jpg',alt:'Camel racing on a flat sandy track',icon:'trophy'},
     {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Racing camel with colored harness',icon:'camel'},
@@ -233,6 +233,7 @@ function home() {
    +'<p>Races. Camels. Heritage. Explore the stories that connect<br class="mh-desktop-break"> Oman&#39;s past, present and future.</p>'
    +'</div>'
    +'<div class="mh-story-grid">'+discoveryCards+'</div>'
+   +'<div class="mh-photo-credits"><span>Illustrative photographs</span> · <a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer">Houssain tork / CC BY-SA 4.0</a> · <a href="https://www.rawpixel.com/image/6040166/camel-desert-free-public-domain-cc0-photo" target="_blank" rel="noopener noreferrer">Camel portrait / CC0</a></div>'
    +'</div></section>'
    +'<section class="mh-modules-section" id="platform-modules" aria-labelledby="mh-modules-title"><div class="mh-container">'
    +'<div class="mh-section-head"><div><p class="mh-overline">OMAN CAMEL RACING</p><h2 id="mh-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div>'
@@ -249,6 +250,15 @@ function home() {
 }
 function bindHomeControls() {
   if (!document.querySelector('.mh-page')) return;
+  document.querySelectorAll('img[data-mh-story-fallback]').forEach(img => {
+    const recover = () => {
+      if (img.dataset.mhFallbackUsed) return;
+      img.dataset.mhFallbackUsed = '1';
+      img.src = img.dataset.mhStoryFallback;
+    };
+    img.addEventListener('error', recover, {once:true});
+    if (img.complete && img.naturalWidth === 0) recover();
+  });
   const storageKey = 'medhmar-home-hidden-v1';
   document.querySelectorAll('[data-mh-toggle]').forEach(input => input.addEventListener('change', () => {
     const hidden = [...document.querySelectorAll('[data-mh-toggle]:not(:checked)')].map(el=>el.dataset.mhToggle);
