@@ -1,0 +1,357 @@
+/*
+  Medhmar Assistant — reference fidelity adjustments
+  Reference: official camel logo, spacious editorial typography, full-height
+  floating chat, 2x2 question cards, sand/brown palette, large composer.
+  Loaded after assistant-premium.css to replace overly compressed sizing.
+*/
+.medhmar-assistant-dock {
+  right:clamp(16px,1.6vw,28px);
+  bottom:calc(18px + env(safe-area-inset-bottom,0px));
+}
+.medhmar-assistant-dock .assistant-dock-panel {
+  right:0;
+  bottom:calc(100% + 12px);
+  width:min(615px,calc(100vw - 40px));
+  height:min(930px,calc(100dvh - 106px));
+  max-height:calc(100dvh - 106px);
+  min-height:0;
+  filter:drop-shadow(0 25px 40px rgba(55,33,18,.24));
+}
+.medhmar-assistant-dock .assistant-dock-panel .medhmar-assistant {
+  height:100%;
+  max-height:none;
+  min-height:0;
+  border-radius:24px;
+  border-color:#e6c6a6;
+  background:#fffcf8;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading {
+  position:relative;
+  flex:0 0 auto;
+  min-height:120px;
+  gap:12px;
+  padding:18px 17px 17px 19px;
+  border-bottom:1px solid #edd6bd;
+  background:linear-gradient(125deg,#fff9ee 0%,#fff2e2 61%,#f3d6b4 100%);
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading::before {
+  content:"";
+  position:absolute;z-index:-1;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(255,248,236,.96) 0%,rgba(255,245,230,.87) 63%,rgba(244,208,169,.48) 100%),
+    url('/assets/mock-camels/camel-4.jpg') right 50% / 50% auto no-repeat;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon {
+  width:126px;height:89px;flex:0 0 126px;
+  display:grid;place-items:center;overflow:visible;
+  border:0;background:transparent;padding:0;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon img {
+  display:block;width:100%;height:100%;object-fit:contain;
+  mix-blend-mode:multiply;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy h2 {
+  color:#2f1d13;
+  font:700 clamp(18px,1.45vw,23px)/1.09 Georgia,'Times New Roman',serif;
+  letter-spacing:-.035em;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy p {
+  max-width:230px;
+  margin-top:8px;
+  font-size:12px;
+  line-height:1.42;
+  color:#765c4a;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-status {
+  font-size:11px;
+  max-width:88px;
+  gap:6px;
+  font-weight:750;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-status::before {
+  width:8px;height:8px;
+}
+.medhmar-assistant-dock .assistant-dock-minimize,
+.medhmar-assistant-dock .assistant-dock-close {
+  width:36px;height:38px;
+  flex:0 0 36px;
+  border:1px solid #eac8aa;
+  border-radius:12px;
+  background:rgba(255,251,246,.82);
+  color:#744424;
+}
+.medhmar-assistant-dock .assistant-dock-close {font-size:27px}
+.medhmar-assistant-dock .medhmar-assistant .assistant-body {
+  min-height:0;
+  flex:1 1 auto;
+  background:linear-gradient(180deg,#fffefa 0%,#fffaf5 100%);
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-messages {
+  flex:1 1 auto;
+  min-height:205px;
+  max-height:none;
+  overflow-y:auto;
+  gap:16px;
+  padding:27px 25px 21px;
+  scrollbar-width:thin;
+  scrollbar-color:#c69a72 transparent;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message {
+  gap:14px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar {
+  flex-basis:48px;
+  width:48px;height:48px;
+  border:0;
+  background:#3b2418;
+  color:#eed2ab;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar img {
+  width:45px;height:35px;
+  object-fit:contain;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-content {
+  max-width:calc(100% - 62px);
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-bubble {
+  padding:16px 19px;
+  max-width:100%;
+  background:#f7f0e8;
+  border-color:#eedbc6;
+  border-radius:19px;
+  color:#35241b;
+  font-size:15px;
+  line-height:1.56;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-user .assistant-message-bubble {
+  background:#40281a;
+  border-color:#40281a;
+  color:#fff8ed;
+  border-radius:19px 19px 5px 19px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-user .assistant-message-avatar {
+  background:#f3e0cb;
+  color:#85532e;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-message-time {
+  font-size:11px;
+  padding:7px 6px 0;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-example-label {
+  padding-left:60px;
+  font-size:10px;
+  color:#a17a55;
+  letter-spacing:.13em;
+  margin-top:0;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section {
+  flex:0 0 auto;
+  padding:17px 22px 20px;
+  background:#fffbf6;
+  border-top:1px solid #efdbc8;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title {
+  font-size:15px;
+  margin:0 2px 14px;
+  gap:11px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title::before {
+  height:20px;width:3px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-toggle {
+  font-size:12px;
+  min-height:35px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion {
+  gap:12px;
+  min-height:95px;
+  padding:14px 12px;
+  border-radius:16px;
+  border:1px solid #edd8c0;
+  background:#fffdfa;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol {
+  flex:0 0 47px;
+  width:47px;height:51px;
+  border-radius:13px;
+  background:#f5e7d6;
+  color:#9a581f;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol svg {
+  width:27px;height:27px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text {gap:7px}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text strong {
+  font-size:14px;font-weight:750;line-height:1.25;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small {
+  font-size:12px;line-height:1.38;color:#746152;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-chevron svg {
+  width:17px;height:17px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-form {
+  flex:0 0 auto;
+  padding:17px 22px 0;
+  border-top:1px solid #efdbc8;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-input-label {
+  font-size:13px;
+  margin-bottom:9px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-compose {
+  min-height:72px;
+  border-radius:18px;
+  gap:9px;
+  padding:9px 12px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-compose textarea {
+  min-height:44px;
+  padding:12px 5px;
+  font-size:15px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-compose .assistant-attach,
+.medhmar-assistant-dock .medhmar-assistant .assistant-compose .assistant-mic {
+  width:37px;height:44px;flex-basis:37px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-compose .assistant-send {
+  width:47px;height:47px;flex-basis:47px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-form-footer {
+  gap:17px;
+  margin-top:13px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-language-label {
+  font-size:13px;gap:8px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-language-label select {
+  height:35px;
+  font-size:12px;
+  max-width:112px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-disclaimer {
+  max-width:210px;
+  font-size:10px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-feedback {
+  min-height:28px;
+  padding:9px 22px 10px;
+  font-size:11px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-signin-row {
+  min-height:66px;
+  padding:14px 22px;
+  gap:12px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-signin-row>span {
+  font-size:12px;gap:9px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-signin {
+  font-size:13px;
+  min-height:43px;
+  padding:12px 19px;
+  border-radius:11px;
+}
+
+/* Screenshot reference was portrait/tall. Compact viewports cannot display its
+   whole conversation at once; preserve useful composer and let history scroll. */
+@media(max-height:900px) and (min-width:621px) {
+  .medhmar-assistant-dock .assistant-dock-panel {
+    width:min(580px,calc(100vw - 40px));
+    height:calc(100dvh - 100px);
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading {
+    min-height:92px;
+    padding:10px 13px 10px 16px;
+    gap:9px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon {
+    width:99px;height:73px;flex-basis:99px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy h2{font-size:18px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy p{font-size:10px;margin-top:4px}
+  .medhmar-assistant-dock .assistant-dock-close,
+  .medhmar-assistant-dock .assistant-dock-minimize{flex-basis:31px;width:31px;height:32px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-messages {
+    min-height:154px;
+    padding:15px 19px;
+    gap:10px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar {
+    flex-basis:38px;width:38px;height:38px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar img{width:35px;height:28px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-content{max-width:calc(100% - 50px)}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-bubble{font-size:13px;padding:11px 14px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{padding:10px 16px 12px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title{font-size:13px;margin-bottom:8px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions{gap:9px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion{min-height:68px;padding:9px;gap:8px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol{width:37px;flex-basis:37px;height:40px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol svg{width:23px;height:23px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text strong{font-size:12px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small{font-size:10px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-form{padding:10px 16px 0}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-compose{min-height:54px;padding:5px 8px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-compose textarea{min-height:40px;padding:10px 3px;font-size:13px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-compose .assistant-send{width:40px;height:40px;flex-basis:40px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-form-footer{margin-top:8px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-feedback{padding:6px 16px;min-height:22px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-signin-row{min-height:54px;padding:9px 16px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-signin{min-height:38px;padding:8px 15px}
+}
+@media(max-width:620px) {
+  .medhmar-assistant-dock {right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .medhmar-assistant-dock .assistant-dock-panel {
+    width:calc(100vw - 24px);
+    height:calc(100dvh - 102px);
+    max-height:calc(100dvh - 102px);
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading{
+    min-height:89px;
+    padding:12px 10px;
+    gap:8px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon{width:82px;height:67px;flex-basis:82px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy h2{font-size:17px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy p{font-size:10px;line-height:1.3;margin-top:3px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-status{max-width:70px;font-size:9px}
+  .medhmar-assistant-dock .assistant-dock-minimize,.medhmar-assistant-dock .assistant-dock-close{flex-basis:30px;width:30px;height:32px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-messages{padding:18px 15px;gap:13px;min-height:110px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar{width:39px;height:39px;flex-basis:39px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar img{width:35px;height:26px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-content{max-width:calc(100% - 49px)}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-message-bubble{font-size:13px;padding:11px 13px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{padding:10px 13px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title{margin-bottom:8px;font-size:13px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions{gap:8px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion{min-height:68px;padding:7px;gap:6px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol{width:33px;flex-basis:33px;height:37px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol svg{width:21px;height:21px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text strong{font-size:11px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small{font-size:10px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-form{padding:10px 13px 0}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-compose{min-height:55px;padding:5px 7px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-compose textarea{min-height:40px;font-size:13px;padding:10px 2px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-compose .assistant-send{width:39px;height:39px;flex-basis:39px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-form-footer{margin-top:9px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-feedback{min-height:22px;padding:6px 13px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-signin-row{padding:10px 13px;min-height:53px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-signin{min-height:38px;padding:9px 14px}
+}
+@media(max-width:420px) {
+  .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon{width:68px;flex-basis:68px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy h2{font-size:15px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy p{font-size:9px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small{font-size:9px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-disclaimer{max-width:135px;font-size:9px}
+}
+@media(max-height:600px) {
+  .medhmar-assistant-dock .assistant-dock-panel{height:calc(100dvh - 86px);max-height:calc(100dvh - 86px)}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-messages{min-height:80px}
+  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{max-height:178px;overflow-y:auto}
+}
