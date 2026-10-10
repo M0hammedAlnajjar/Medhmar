@@ -63,10 +63,8 @@
   opacity:.25;
   background:url('/assets/mock-camels/camel-4.jpg') 50% 46% / cover no-repeat;
   filter:sepia(1) saturate(.44) contrast(1.13) brightness(.94);
-  -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.52) 30%,#000 75%),linear-gradient(to top,#000 0%,#000 72%,transparent 100%);
-  mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.52) 30%,#000 75%),linear-gradient(to top,#000 0%,#000 72%,transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-composite:intersect;
+  -webkit-mask-image:radial-gradient(ellipse at 94% 98%,#000 12%,rgba(0,0,0,.85) 32%,rgba(0,0,0,.35) 57%,transparent 85%);
+  mask-image:radial-gradient(ellipse at 94% 98%,#000 12%,rgba(0,0,0,.85) 32%,rgba(0,0,0,.35) 57%,transparent 85%);
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading > * {
   position:relative;
