@@ -36,9 +36,6 @@
 .assistant-message-user .assistant-message-avatar{background:#dfc29f;color:#4b301e;font-size:9px}
 .assistant-message-user .assistant-message-bubble{background:#e6edf9;border-color:#dae5f5;color:#314763;border-radius:13px 4px 13px 13px}
 .assistant-message-error .assistant-message-bubble{background:#fbece9;border-color:#eccfc9;color:#943f34}
-.assistant-suggestions{display:flex;flex-wrap:wrap;gap:7px;padding:12px 16px 13px;border-top:1px solid #f1e6da}
-.assistant-suggestion{border:1px solid #ead8c4;border-radius:99px;background:#fff8ee;color:#795137;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;cursor:pointer}
-.assistant-suggestion:hover{background:#f3e4d1;border-color:#cda77e}
 .assistant-form{padding:14px 16px 0;border-top:1px solid #f0e8dd}
 .assistant-input-label{display:block;font-size:11px;font-weight:800;color:#624e3b;margin-bottom:7px}
 .assistant-compose{display:flex;align-items:end;gap:8px;min-width:0}
@@ -77,7 +74,6 @@
  .assistant-heading-copy h2{font-size:16px}
  .assistant-status{max-width:88px;font-size:9px}
  .assistant-messages{padding:17px 12px}
- .assistant-suggestions{padding:10px 12px}
  .assistant-form{padding:13px 12px 0}
  .assistant-feedback{padding:8px 12px 12px}
 }

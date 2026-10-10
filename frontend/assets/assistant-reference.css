@@ -144,56 +144,6 @@
   letter-spacing:.13em;
   margin-top:0;
 }
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section {
-  flex:0 0 auto;
-  padding:17px 22px 20px;
-  background:#fffbf6;
-  border-top:1px solid #efdbc8;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title {
-  font-size:15px;
-  margin:0 2px 14px;
-  gap:11px;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title::before {
-  height:20px;width:3px;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-toggle {
-  font-size:12px;
-  min-height:35px;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestions {
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion {
-  gap:12px;
-  min-height:95px;
-  padding:14px 12px;
-  border-radius:16px;
-  border:1px solid #edd8c0;
-  background:#fffdfa;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol {
-  flex:0 0 47px;
-  width:47px;height:51px;
-  border-radius:13px;
-  background:#f5e7d6;
-  color:#9a581f;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol svg {
-  width:27px;height:27px;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text {gap:7px}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text strong {
-  font-size:14px;font-weight:750;line-height:1.25;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small {
-  font-size:12px;line-height:1.38;color:#746152;
-}
-.medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-chevron svg {
-  width:17px;height:17px;
-}
 .medhmar-assistant-dock .medhmar-assistant .assistant-form {
   flex:0 0 auto;
   padding:17px 22px 0;
@@ -287,14 +237,6 @@
   .medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar img{width:35px;height:28px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-message-content{max-width:calc(100% - 50px)}
   .medhmar-assistant-dock .medhmar-assistant .assistant-message-bubble{font-size:13px;padding:11px 14px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{padding:10px 16px 12px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title{font-size:13px;margin-bottom:8px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions{gap:9px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion{min-height:68px;padding:9px;gap:8px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol{width:37px;flex-basis:37px;height:40px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol svg{width:23px;height:23px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text strong{font-size:12px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small{font-size:10px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-form{padding:10px 16px 0}
   .medhmar-assistant-dock .medhmar-assistant .assistant-compose{min-height:54px;padding:5px 8px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-compose textarea{min-height:40px;padding:10px 3px;font-size:13px}
@@ -326,14 +268,6 @@
   .medhmar-assistant-dock .medhmar-assistant .assistant-message-avatar img{width:35px;height:26px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-message-content{max-width:calc(100% - 49px)}
   .medhmar-assistant-dock .medhmar-assistant .assistant-message-bubble{font-size:13px;padding:11px 13px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{padding:10px 13px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-title{margin-bottom:8px;font-size:13px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions{gap:8px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion{min-height:68px;padding:7px;gap:6px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol{width:33px;flex-basis:33px;height:37px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-symbol svg{width:21px;height:21px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text strong{font-size:11px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small{font-size:10px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-form{padding:10px 13px 0}
   .medhmar-assistant-dock .medhmar-assistant .assistant-compose{min-height:55px;padding:5px 7px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-compose textarea{min-height:40px;font-size:13px;padding:10px 2px}
@@ -347,13 +281,11 @@
   .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon{width:68px;flex-basis:68px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy h2{font-size:15px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-heading-copy p{font-size:9px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestion-text small{font-size:9px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-disclaimer{max-width:135px;font-size:9px}
 }
 @media(max-height:600px) {
   .medhmar-assistant-dock .assistant-dock-panel{height:calc(100dvh - 86px);max-height:calc(100dvh - 86px)}
   .medhmar-assistant-dock .medhmar-assistant .assistant-messages{min-height:80px}
-  .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{max-height:178px;overflow-y:auto}
 }
 
 /* Example chat is fully visible on tall viewports. On short screens keep the

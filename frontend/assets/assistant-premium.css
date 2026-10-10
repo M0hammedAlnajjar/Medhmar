@@ -218,106 +218,7 @@
 .medhmar-assistant .assistant-sample-message{
   opacity:.97;
 }
-.medhmar-assistant .assistant-suggestions-section{
-  flex:0 0 auto;
-  background:rgba(255,250,244,.98);
-  border-top:1px solid #f0dfcd;
-  padding:12px 16px 14px;
-}
-.medhmar-assistant .assistant-suggestions-title{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin:0 3px 10px;
-  color:#583825;
-  font-weight:800;
-  font-size:12px;
-  letter-spacing:.01em;
-}
-.medhmar-assistant .assistant-suggestions-title::before{
-  content:"";
-  height:16px;
-  width:2px;
-  background:#b46c36;
-}
 
-.medhmar-assistant .assistant-suggestion[hidden]{display:none!important}
-.medhmar-assistant .assistant-suggestions-title>span{flex:1}
-.medhmar-assistant .assistant-suggestions-toggle{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:4px 0 4px 7px;
-  background:transparent;border:0;color:#986031;
-  font-size:10px;font-weight:750;cursor:pointer;
-}
-.medhmar-assistant .assistant-suggestions-toggle[aria-expanded="true"] svg{transform:rotate(-90deg)}
-.medhmar-assistant .assistant-suggestions-toggle:hover{color:#563019}
-.medhmar-assistant .assistant-suggestions{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-  flex:none;
-  border:0;
-  padding:0;
-  background:transparent;
-}
-.medhmar-assistant .assistant-suggestion{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  min-width:0;
-  min-height:71px;
-  margin:0;
-  padding:10px 8px;
-  border:1px solid #e9d4bd;
-  border-radius:12px;
-  background:#fffcf8;
-  color:#4c3526;
-  text-align:left;
-  cursor:pointer;
-  font-size:11px;
-  line-height:1.25;
-  transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease;
-}
-.medhmar-assistant .assistant-suggestion:hover{
-  transform:translateY(-2px);
-  border-color:#c9915d;
-  box-shadow:0 5px 16px rgba(96,59,33,.09);
-  background:#fff9f1;
-}
-.medhmar-assistant .assistant-suggestion-symbol{
-  flex:0 0 34px;
-  width:34px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  background:#f3e5d4;
-  color:#965320;
-  border-radius:9px;
-}
-.medhmar-assistant .assistant-suggestion-text{
-  display:flex;
-  flex:1;
-  min-width:0;
-  flex-direction:column;
-  gap:5px;
-}
-.medhmar-assistant .assistant-suggestion-text strong{
-  font-weight:800;
-  color:#3f2b21;
-  font-size:11px;
-  overflow-wrap:anywhere;
-}
-.medhmar-assistant .assistant-suggestion-text small{
-  font-size:10px;
-  font-weight:400;
-  color:#77675b;
-  line-height:1.35;
-  overflow-wrap:anywhere;
-}
-.medhmar-assistant .assistant-suggestion-chevron{
-  flex:0 0 12px;
-  color:#995c2f;
-}
 .medhmar-assistant .assistant-form{
   flex:0 0 auto;
   margin:0;
@@ -593,13 +494,6 @@ body:has(.modal-backdrop) .medhmar-assistant-dock{visibility:hidden}
   .medhmar-assistant .assistant-status{font-size:8px;max-width:62px}
   .medhmar-assistant-dock .assistant-dock-close,.medhmar-assistant-dock .assistant-dock-minimize{width:27px;height:29px;flex-basis:27px}
   .medhmar-assistant .assistant-messages{padding:14px 11px 10px}
-  .medhmar-assistant .assistant-suggestions-section{padding:10px}
-  .medhmar-assistant .assistant-suggestions{gap:7px}
-  .medhmar-assistant .assistant-suggestion{padding:7px 5px;gap:5px;min-height:65px}
-  .medhmar-assistant .assistant-suggestion-symbol{width:28px;flex-basis:28px;height:33px}
-  .medhmar-assistant .assistant-suggestion-symbol svg{width:19px;height:19px}
-  .medhmar-assistant .assistant-suggestion-text strong{font-size:10px}
-  .medhmar-assistant .assistant-suggestion-text small{font-size:9px}
   .medhmar-assistant .assistant-form{padding:10px 10px 0}
   .medhmar-assistant .assistant-form-footer{gap:5px}
   .medhmar-assistant .assistant-disclaimer{max-width:140px;font-size:8px}
@@ -608,12 +502,9 @@ body:has(.modal-backdrop) .medhmar-assistant-dock{visibility:hidden}
 @media(max-width:355px){
   .medhmar-assistant .assistant-heading-copy p{display:none}
   .medhmar-assistant .assistant-brand-icon{width:55px;flex-basis:55px}
-  .medhmar-assistant .assistant-suggestions{grid-template-columns:1fr}
-  .medhmar-assistant .assistant-suggestion{min-height:50px}
   .medhmar-assistant .assistant-disclaimer{max-width:122px}
 }
 @media(prefers-reduced-motion:reduce){
   .medhmar-assistant-dock *,
   .medhmar-assistant *{transition:none!important;scroll-behavior:auto!important}
-  .medhmar-assistant .assistant-suggestion:hover{transform:none}
 }
