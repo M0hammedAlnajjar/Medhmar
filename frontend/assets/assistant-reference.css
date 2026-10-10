@@ -355,3 +355,49 @@
   .medhmar-assistant-dock .medhmar-assistant .assistant-messages{min-height:80px}
   .medhmar-assistant-dock .medhmar-assistant .assistant-suggestions-section{max-height:178px;overflow-y:auto}
 }
+
+/* Example chat is fully visible on tall viewports. On short screens keep the
+   welcome readable and offer an explicit preview instead of slicing a bubble. */
+.medhmar-assistant-dock .medhmar-assistant .assistant-example-label {
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-example-toggle {
+  display:none;
+  border:1px solid #e8cdb0;
+  padding:6px 10px;
+  min-height:30px;
+  border-radius:9px;
+  background:#fff8f0;
+  color:#865126;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:0;
+  text-transform:none;
+  cursor:pointer;
+}
+.medhmar-assistant-dock .medhmar-assistant .assistant-example-toggle:hover {
+  background:#f2e1cb;
+}
+@media(max-height:1000px) {
+  .medhmar-assistant-dock .medhmar-assistant .assistant-example-toggle {
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-messages:not([data-preview-open="true"]) .assistant-sample-message {
+    display:none;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-example-label {
+    padding-left:51px;font-size:9px;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-messages[data-preview-open="true"] .assistant-sample-message {
+    display:flex;
+  }
+}
+@media(max-width:420px) {
+  .medhmar-assistant-dock .medhmar-assistant .assistant-example-label {
+    padding-left:0;
+    letter-spacing:.06em;
+  }
+  .medhmar-assistant-dock .medhmar-assistant .assistant-example-toggle {
+    padding:5px 7px;font-size:10px;
+  }
+}
