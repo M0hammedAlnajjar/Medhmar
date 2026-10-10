@@ -194,12 +194,10 @@ function home() {
     </a>
   `).join('');
 
-  const shortcutPaths = new Set([
-    '/challenges', '/training', '/agreements', '/race-cards',
-    '/organizations', '/trainer-profile', '/admin', '/audit-logs',
-  ]);
-  const shortcuts = visibleNavItems()
-    .filter(([path]) => shortcutPaths.has(path))
+  const workspacePaths = ['/challenges', '/training', '/organizations', '/race-cards', '/trainer-profile'];
+  const shortcuts = workspacePaths
+    .map(path => visibleNavItems().find(([route]) => route === path))
+    .filter(Boolean)
     .map(([path, label], i) => `
       <a class="home-shortcut" href="${path}" data-link>
         <span class="home-shortcut-index">${String(i + 1).padStart(2, '0')}</span>
@@ -241,15 +239,7 @@ function home() {
           </div>
           <div class="home-shortcuts">${shortcuts}</div>
         </div>
-        <a class="home-heritage" href="/tourism" data-link>
-          <img src="/assets/racing-hero.webp" alt="Camels on a racing track in Oman" loading="lazy" decoding="async">
-          <span class="home-heritage-overlay" aria-hidden="true"></span>
-          <span class="home-heritage-copy">
-            <span>BEYOND RACE DAY</span>
-            <strong>Discover the<br>heritage of Oman.</strong>
-            <span class="home-heritage-cta">Explore our story <span aria-hidden="true">↗</span></span>
-          </span>
-        </a>
+
       </section>
     </div>
   `, '/home');
