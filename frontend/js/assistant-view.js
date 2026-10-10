@@ -39,8 +39,7 @@ function assistantTimestamp() {
   return new Intl.DateTimeFormat(undefined, {hour:'numeric',minute:'2-digit'}).format(new Date());
 }
 function appendAssistantMessage(list, sender, message, error = false) {
-  const example = list.querySelector('.assistant-example-label');
-  example?.remove();
+  list.querySelectorAll('.assistant-example-label, .assistant-sample-message').forEach(el => el.remove());
   const row = document.createElement('div');
   row.className = 'assistant-message assistant-message-' + sender + (error ? ' assistant-message-error' : '');
   const avatar = document.createElement('span');
@@ -134,23 +133,31 @@ export function bindAssistantView(root = document) {
   const language = panel.querySelector("#assistant-language");
   const status = panel.querySelector("#assistant-status");
   const feedback = panel.querySelector("#assistant-feedback");
+  const attach = panel.querySelector("#assistant-attach");
+  const fileInput = panel.querySelector("#assistant-file");
+  const mic = panel.querySelector("#assistant-mic");
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let ready = false;
   let busy = false;
+  let listening = false;
   let maxLength = 2000;
 
   function controls() {
-    input.disabled = !ready || busy;
-    send.disabled = !ready || busy || !input.value.trim();
-    language.disabled = busy;
+    input.disabled = !ready || busy || listening;
+    send.disabled = !ready || busy || listening || !input.value.trim();
+    attach.disabled = !ready || busy || listening;
+    mic.disabled = !ready || busy || listening || !SpeechRecognition;
+    mic.title = SpeechRecognition ? "Dictate a question" : "Voice input is not supported in this browser";
+    language.disabled = busy || listening;
   }
   function report(message, type = "") {
-    status.textContent = type === "ready" ? "Online" : type === "error" ? "Unavailable" : "Connecting";
+    status.textContent = type === "ready" ? "Online" : type === "signin" ? "Sign in" : type === "error" ? "Unavailable" : "Connecting";
     status.dataset.state = type;
     feedback.textContent = message;
     feedback.dataset.state = type;
   }
   if (panel.dataset.signedIn !== "true") {
-    report("Sign in to ask questions.", "error");
+    report("Sign in to ask questions.", "signin");
     controls();
     return;
   }
@@ -180,6 +187,71 @@ export function bindAssistantView(root = document) {
       if (!input.disabled) input.focus();
     });
   });
+
+  // Attach text as question content. The API accepts text only: no fake file upload.
+  attach.addEventListener('click', () => {
+    if (!attach.disabled) fileInput.click();
+  });
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files?.[0];
+    fileInput.value = '';
+    if (!file || !ready || busy) return;
+    if (!/\.(txt|md)$/i.test(file.name) || file.size > 64 * 1024) {
+      feedback.textContent = 'Choose a .txt or .md file smaller than 64 KB.';
+      return;
+    }
+    try {
+      const text = (await file.text()).trim();
+      if (!text || !panel.isConnected) return;
+      const next = [input.value.trim(),text].filter(Boolean).join('\n\n');
+      input.value = next.slice(0, maxLength);
+      feedback.textContent = next.length > maxLength
+        ? 'Text was shortened to fit the question limit.'
+        : 'Text inserted. Review it before sending.';
+      controls();
+      input.focus();
+    } catch {
+      feedback.textContent = 'Could not read that text file.';
+    }
+  });
+
+  // Browser-native speech-to-text, when supported. No audio reaches our chat API.
+  if (SpeechRecognition) {
+    mic.addEventListener('click', () => {
+      if (mic.disabled) return;
+      const recognition = new SpeechRecognition();
+      recognition.lang = language.value === 'ar' ? 'ar-OM' : 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onresult = (event) => {
+        const said = Array.from(event.results)
+          .map(r=>r[0]?.transcript || '').join(' ').trim();
+        input.value = [input.value.trim(),said].filter(Boolean).join(' ').slice(0,maxLength);
+        feedback.textContent = 'Dictation captured. Review your question before sending.';
+      };
+      recognition.onerror = () => {
+        feedback.textContent = 'Voice recognition could not complete. Try typing instead.';
+      };
+      recognition.onend = () => {
+        listening = false;
+        mic.classList.remove('assistant-mic-active');
+        controls();
+        if (!input.disabled) input.focus();
+      };
+      try {
+        listening = true;
+        mic.classList.add('assistant-mic-active');
+        controls();
+        recognition.start();
+        feedback.textContent = 'Listening…';
+      } catch {
+        listening = false;
+        mic.classList.remove('assistant-mic-active');
+        controls();
+        feedback.textContent = 'Voice input is unavailable. Try typing instead.';
+      }
+    });
+  }
 
   input.addEventListener("input", controls);
   input.addEventListener("keydown", (event) => {
@@ -228,7 +300,7 @@ export function renderAssistantLauncher() {
     <button type="button" class="assistant-dock-launcher" id="assistant-dock-launcher"
       aria-controls="assistant-dock-panel" aria-expanded="false"
       aria-label="Open Medhmar Assistant">
-      <span class="assistant-dock-launcher-icon" aria-hidden="true">✦</span>
+      <span class="assistant-dock-launcher-icon" aria-hidden="true">${assistantCamelLogo}</span>
       <span class="assistant-dock-launcher-label">Ask Medhmar</span>
       <span class="assistant-dock-launcher-pulse" aria-hidden="true"></span>
     </button>
@@ -288,13 +360,20 @@ export function syncAssistantDock({ user, preferredLanguage = "en", path = "/" }
         preferredLanguage
       });
       const heading = panel.querySelector(".assistant-heading");
+      const minimizeButton = document.createElement("button");
+      minimizeButton.type = "button";
+      minimizeButton.className = "assistant-dock-minimize";
+      minimizeButton.setAttribute("aria-label", "Minimize Medhmar Assistant");
+      minimizeButton.title = "Minimize chat";
+      minimizeButton.innerHTML = assistantIcon('minus', 20);
+      minimizeButton.addEventListener("click", close);
       const closeButton = document.createElement("button");
       closeButton.type = "button";
       closeButton.className = "assistant-dock-close";
       closeButton.id = "assistant-dock-close";
       closeButton.setAttribute("aria-label", "Close Medhmar Assistant");
       closeButton.textContent = "×";
-      heading.append(closeButton);
+      heading.append(minimizeButton, closeButton);
       closeButton.addEventListener("click", close);
       bindAssistantView(panel);
     }
