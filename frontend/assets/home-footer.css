@@ -106,7 +106,6 @@
   background:rgba(212,158,99,.18);
   transform:translateY(-2px);
 }
-.mh-home-footer .mh-footer-cta span {font-size:17px}
 .mh-home-footer .mh-footer-links {
   display:flex;
   flex-direction:column;
