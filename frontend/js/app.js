@@ -177,7 +177,7 @@ function home() {
     ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-4.jpg','Camel and handler in open sand dunes','/assets/mock-camels/camel-4.jpg']
   ];
   const discoveryCards = discovery.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user))
-    .map(([path,kicker,title,description,image,alt,fallback])=>'<a class="mh-story" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" data-mh-story-fallback="'+fallback+'" loading="lazy" decoding="async"><span class="mh-story-wash" aria-hidden="true"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
+    .map(([path,kicker,title,description,image,alt,fallback])=>'<a class="mh-story'+(path==='/camels'?' mh-story--champions':'')+'" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" data-mh-story-fallback="'+fallback+'" loading="lazy" decoding="async"><span class="mh-story-wash" aria-hidden="true"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
   const modules = [
     {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/home-racetrack.jpg',alt:'Camel racing on a flat sandy track',icon:'trophy'},
     {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Racing camel with colored harness',icon:'camel'},
