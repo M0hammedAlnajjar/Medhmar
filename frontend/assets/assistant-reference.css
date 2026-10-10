@@ -27,9 +27,9 @@
 }
 /* Soft Omani sand-dune palette in the assistant header.
    Decoration only: existing Medhmar logo, text and controls remain accessible. */
-/* Header matches the approved calm Omani sand-and-racing reference:
-   one continuous creamy background, low dunes, fine camel-racer silhouettes.
-   No unrelated photo block, oversized animal or hard gradient seam. */
+/* Real generated WebP artwork from the approved wide camel-racing image.
+   All branding/buttons remain interactive HTML above the photographic background.
+   A cream text-side gradient ensures contrast and avoids SVG/silhouette overlays. */
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading {
   position:relative;
   isolation:isolate;
@@ -39,36 +39,35 @@
   gap:12px;
   padding:18px 17px 17px 19px;
   border-bottom:1px solid #e8d4bd;
-  background:linear-gradient(110deg,#fff9f0 0%,#fff3e4 57%,#f7e2ca 100%);
+  background-color:#fff5e8;
+  background-image:
+    linear-gradient(90deg,
+      rgba(255,251,245,.94) 0%,
+      rgba(255,250,242,.83) 35%,
+      rgba(255,247,233,.55) 59%,
+      rgba(255,247,233,.17) 100%),
+    url('/assets/assistant-header-desert.webp');
+  background-position:center,center;
+  background-repeat:no-repeat;
+  background-size:cover,cover;
 }
-.medhmar-assistant-dock .medhmar-assistant .assistant-heading::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse 70% 48% at 95% 0%,rgba(213,170,118,.13),transparent 74%),
-    linear-gradient(180deg,rgba(255,252,247,.48) 0%,transparent 67%);
-}
+.medhmar-assistant-dock .medhmar-assistant .assistant-heading::before,
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  opacity:.92;
-  background:url('/assets/assistant-header-race.svg') center bottom / 100% 100% no-repeat;
+  content:none;
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-heading > * {
   position:relative;
   z-index:1;
 }
 @media(max-width:620px) {
-  .medhmar-assistant-dock .medhmar-assistant .assistant-heading::after {
-    opacity:.78;
-    background-size:115% 100%;
-    background-position:65% bottom;
+  .medhmar-assistant-dock .medhmar-assistant .assistant-heading {
+    background-position:center,58% center;
+    background-image:
+      linear-gradient(90deg,
+        rgba(255,251,245,.97) 0%,
+        rgba(255,249,239,.88) 53%,
+        rgba(255,247,234,.40) 100%),
+      url('/assets/assistant-header-desert.webp');
   }
 }
 .medhmar-assistant-dock .medhmar-assistant .assistant-brand-icon {
