@@ -82,7 +82,7 @@ function topbar(active='', compact=false){
 
   return `<header class="topbar"><div class="topbar-inner">
     ${mobileMenu}
-    <a class="brand brand-wordmark" href="/" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
+    <a class="brand brand-wordmark" href="/home" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
     <nav class="nav nav-desktop" aria-label="Primary navigation">${desktopItems.map(navLink).join('')}${moreMenu}</nav>
     <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
   </div></header>`;
@@ -90,65 +90,6 @@ function topbar(active='', compact=false){
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
 const shell = (body,active='', compact=false) => `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main><footer>${compact ? 'MEDHMAR • Oman Camel Racing' : 'MEDHMAR • Mohammed frontend scope • Auth / Security / Integration / Pedigree / Challenges / Training Log / Admin / Platform'}</footer></div>`;
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
-
-/** Restore a local image if a Commons photo is blocked or missing. */
-function bindLandingPhotoFallbacks(container) {
- container.querySelectorAll('[data-landing-fallback]').forEach(img => {
-  if (img.dataset.photoFallbackBound) return;
-  img.dataset.photoFallbackBound = 'true';
-  const recover = () => {
-   if (img.dataset.photoFallbackUsed) {
-    img.classList.add('landing-photo-unavailable');
-    return;
-   }
-   img.dataset.photoFallbackUsed = 'true';
-   img.src = img.dataset.landingFallback;
-  };
-  img.addEventListener('error', recover);
-  // Recover from errors already cached before binding.
-  if (img.complete && img.naturalWidth === 0) recover();
- });
-}
-
-function landing(){
- // Actual photographs served by Wikimedia Commons. Credits and licenses are
- // linked under the module grid. They are illustrative, not event-specific.
- const photos = {
-  hero: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Camel_race_using_robot_jockeys.jpg/1280px-Camel_race_using_robot_jockeys.jpg',
-  account: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Camel_of_Oman.jpg/960px-Camel_of_Oman.jpg',
-  community: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Camel_racing.jpg/960px-Camel_racing.jpg',
-  training: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Camel_Race_Training.jpg/960px-Camel_Race_Training.jpg',
-  platform: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Camels_crossing_the_desert_Wahiba_Sands_Bidiya%2C_Oman_%2853697960088%29.jpg/1280px-Camels_crossing_the_desert_Wahiba_Sands_Bidiya%2C_Oman_%2853697960088%29.jpg'
- };
- const modules = [
-  ['ACCOUNT','Secure accounts','Authentication, registration and passwords for a safe and personalized experience.','/signin',photos.account,'Secure','/assets/mock-camels/camel-3.jpg'],
-  ['COMMUNITY','Challenges & voting','Published camel challenges, community voting and leaderboards.','/challenges',photos.community,'Live','/assets/racing-hero.webp'],
-  ['TRAINER TOOLS','Training records','Chronological trainer session logs, performance notes and progress tracking.','/training',photos.training,'Training','/assets/mock-camels/camel-1.jpg'],
-  ['PLATFORM','Platform operations','Race cards, organizations, heritage and more to keep Medhmar running smoothly.','/race-cards',photos.platform,'Explore','/assets/mock-camels/camel-5.jpg']
- ];
- return '<div class="app-shell landing-page">' + topbar() +
- '<main class="landing-hero" aria-labelledby="landing-title">' +
- '<section class="landing-editorial">' +
- '<div class="landing-brandline"><span class="landing-rule"></span><div><div class="landing-wordmark">MEDHMAR</div><div class="landing-eyebrow">OMAN\'S CAMEL RACING COMMUNITY</div></div></div>' +
- '<div class="landing-copy"><h1 id="landing-title">Where tradition<br>races into<br><em>the future.</em></h1>' +
- '<p>Races. Camels. Heritage. Community.<br>Experience Oman\'s living legacy and a new generation of racing excellence.</p>' +
- '<div class="landing-hero-actions"><a class="landing-primary" href="/race-cards" data-link>Explore Races</a><a class="landing-secondary" href="/tourism" data-link>Discover Heritage</a></div></div>' +
- '<div class="landing-signature"><span class="landing-signature-line"></span><span>PEOPLE</span><b>×</b><span>CAMELS</span><b>×</b><span>OMAN</span><b>×</b><span>A BRIGHTER TOMORROW</span></div>' +
- '</section>' +
- '<section class="landing-visual" aria-label="Camel race in Oman">' +
- '<img class="landing-race-photo" src="'+photos.hero+'" alt="Actual photograph of racing camels with robotic jockeys" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" data-landing-fallback="/assets/landing-hero-wide.png">' +
- '<div class="landing-photo-wash" aria-hidden="true"></div>' +
- '<a class="landing-track-card" href="/race-cards" data-link aria-label="Open race cards for Sultan Qaboos Race"><div><div class="landing-track-kicker">UP NEXT AT AL SAHWA TRACK</div><strong>Sultan Qaboos Race</strong><span>18 Oct 2024&nbsp; · &nbsp;Al Seeb, Oman</span></div></a>' +
- '</section>' +
- '</main>' +
- '<section class="landing-below main" aria-labelledby="landing-modules-title">' +
- '<div class="landing-section-head"><div><h2 id="landing-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div><a class="landing-view-all" href="/home" data-link>View all modules</a></div>' +
- '<div class="landing-module-grid">' +
- modules.map(([k,t,d,p,img,b,fallback],i)=>'<a class="landing-module-card" href="'+p+'" data-link><div class="landing-module-thumb"><img src="'+img+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-landing-fallback="'+fallback+'"></div><div class="landing-module-body"><div class="landing-module-meta"><span class="landing-module-index">0'+(i+1)+'</span><span>'+k+'</span></div><h3>'+t+'</h3><p>'+d+'</p><span class="landing-module-badge">'+b+'</span></div></a>').join('') +
- '</div>' +
- '</section>' +
- '</div>';
-}
 
 const auth = authView;
 
@@ -830,7 +771,6 @@ root.addEventListener('click', onMineClick);
 function notFound(){ return shell(`<section class="card error"><div class="state-icon">!</div><h2>Page not found</h2><p>This route is not part of Mohammed's assigned frontend scope.</p><a class="btn btn-primary" href="/home" data-link>Go Home</a></section>`); }
 
 function screen(match){ const {name}=match.route, p=match.params; return {
- 'Landing / Entry Page':landing,
  'Sign In':()=>auth('signin'),'Create Account':()=>auth('signup'),'Forgot Password':()=>auth('forgot'),'Reset Password':()=>auth('reset'),
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
@@ -929,7 +869,6 @@ async function render() {
 }
 function bind(){
  bindPedigreeImages(root);
- if (root.querySelector?.('.landing-page')) bindLandingPhotoFallbacks(root);
  // The dock lives outside #app and survives in-app route changes.
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang, path: normalizePath() });
  $('#admin-retry')?.addEventListener('click',()=>render());
@@ -1047,6 +986,12 @@ function showUserModal(id) {
 }
 
 async function init(){
+ // The obsolete Entry Page has been removed: canonicalize old root links
+ // without interrupting explicit hash-routed pages or OAuth query params.
+ if ((location.pathname === '/' || location.pathname === '/index.html') &&
+     (!location.hash || location.hash === '#/')) {
+   history.replaceState(history.state, '', '/home' + location.search);
+ }
  const publicAuthPaths=new Set(['/signin','/signup','/forgot-password','/reset-password']);
  if(publicAuthPaths.has(normalizePath())) state.user={...guestUser};
  else {

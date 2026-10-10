@@ -1,7 +1,6 @@
 import { SULAIMAN_RACE_ROUTES } from "./race-routes.js";
 
 export const MOHAMMED_ROUTES = [
-  { path: "/", name: "Landing / Entry Page", owner: "Mohammed" },
   { path: "/signin", name: "Sign In", owner: "Mohammed" },
   { path: "/signup", name: "Create Account", owner: "Mohammed" },
   { path: "/forgot-password", name: "Forgot Password", owner: "Mohammed" },
@@ -61,17 +60,19 @@ export const ALL_ROUTES = [
 
 
 export function normalizePath() {
-  if (location.hash?.startsWith("#/")) return location.hash.slice(1);
-  if (location.pathname === "/reset-password.html") return "/reset-password";
-  return location.pathname || "/";
+  const path = location.hash?.startsWith("#/") ? location.hash.slice(1) : location.pathname;
+  if (path === "/reset-password.html") return "/reset-password";
+  // Route legacy entry URLs straight to the real Home page.
+  return !path || path === "/" || path === "/index.html" ? "/home" : path;
 }
 
 export function matchRoute(path) {
+  const requestedPath = path === "/" || path === "/index.html" ? "/home" : path;
   for (const route of ALL_ROUTES) {
     const pattern = route.path
       .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
       .replace(/:([a-zA-Z]+)/g, "(?<$1>[^/]+)");
-    const match = path.match(new RegExp(`^${pattern}/?$`));
+    const match = requestedPath.match(new RegExp(`^${pattern}/?$`));
     if (match) return { route, params: match.groups || {} };
   }
   return null;
