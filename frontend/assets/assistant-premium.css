@@ -1,0 +1,619 @@
+/* Medhmar Assistant — branded camel-racing chat UI, 2026.
+   This stylesheet is intentionally loaded last and only targets the assistant.
+   Uses official /assets/medhmar-logo-full.svg and medhmar-logo-icon.svg.
+   All features are backed by the existing assistant API and browser capabilities. */
+.medhmar-assistant-dock, .medhmar-assistant {
+  --ma-brown:#382318;
+  --ma-brown-2:#653b24;
+  --ma-amber:#a96633;
+  --ma-gold:#c18a53;
+  --ma-sand:#f7ecdf;
+  --ma-line:#ebd6bd;
+  --ma-cream:#fffbf6;
+  --ma-ink:#2f2017;
+  --ma-muted:#75685f;
+  box-sizing:border-box;
+  font-family:Arial,Helvetica,sans-serif;
+}
+.medhmar-assistant-dock *,
+.medhmar-assistant-dock *::before,
+.medhmar-assistant-dock *::after,
+.medhmar-assistant *,
+.medhmar-assistant *::before,
+.medhmar-assistant *::after{box-sizing:border-box}
+.medhmar-assistant{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  border-radius:22px;
+  border:1px solid rgba(204,161,114,.67);
+  background:var(--ma-cream);
+  color:var(--ma-ink);
+  box-shadow:0 16px 55px rgba(45,28,17,.18);
+  overflow:hidden;
+}
+.medhmar-assistant .assistant-icon{flex:0 0 auto;display:block}
+.medhmar-assistant .assistant-heading{
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:90px;
+  padding:12px 11px 12px 14px;
+  background:linear-gradient(125deg,#fff9f0 0%,#fff3e4 65%,#f2d4b1 100%);
+  border-bottom:1px solid #ead8c5;
+}
+.medhmar-assistant .assistant-heading::before{
+  content:"";
+  position:absolute;z-index:-1;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 105% 42% at 65% 118%,rgba(192,125,68,.18),transparent 66%),
+    linear-gradient(175deg,transparent 70%,rgba(193,131,75,.06));
+}
+.medhmar-assistant .assistant-brand-icon{
+  width:95px;
+  height:71px;
+  flex:0 0 95px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  overflow:hidden;
+  background:transparent;
+  border:0;
+  border-radius:0;
+}
+.medhmar-assistant .assistant-brand-icon img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+}
+.medhmar-assistant .assistant-heading-copy{flex:1;min-width:0}
+.medhmar-assistant .assistant-heading-copy h2{
+  margin:0;
+  color:#34221a;
+  font:700 16px/1.12 Georgia,"Times New Roman",serif;
+  letter-spacing:-.045em;
+  overflow-wrap:normal;
+}
+.medhmar-assistant .assistant-heading-copy p{
+  margin:5px 0 0;
+  color:#806653;
+  font-size:10px;
+  line-height:1.3;
+  max-width:180px;
+}
+.medhmar-assistant .assistant-status{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  flex:0 0 auto;
+  max-width:75px;
+  white-space:nowrap;
+  color:#9c6b3f;
+  font-size:9px;
+  font-weight:750;
+}
+.medhmar-assistant .assistant-status::before{
+  content:"";
+  display:block;
+  width:7px;
+  height:7px;
+  background:#c1a17d;
+  border-radius:50%;
+  flex:none;
+}
+.medhmar-assistant .assistant-status[data-state="ready"]{color:#39764d}
+.medhmar-assistant .assistant-status[data-state="ready"]::before{background:#36874b}
+.medhmar-assistant .assistant-status[data-state="error"]{color:#a45a46}
+.medhmar-assistant .assistant-status[data-state="error"]::before{background:#b86c56}
+.medhmar-assistant .assistant-status[data-state="signin"]{color:#896e57}
+.medhmar-assistant .assistant-body{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  background:linear-gradient(180deg,#fffdfa 0%,#fffaf5 100%);
+}
+.medhmar-assistant .assistant-messages{
+  flex:1;
+  min-height:90px;
+  max-height:none;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  overflow:auto;
+  padding:20px 20px 16px;
+  scrollbar-color:#d5b99d transparent;
+  scrollbar-width:thin;
+  overscroll-behavior:contain;
+}
+.medhmar-assistant .assistant-message{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  min-width:0;
+  flex-shrink:0;
+}
+.medhmar-assistant .assistant-message-avatar{
+  width:39px;
+  height:39px;
+  flex:0 0 39px;
+  display:grid;
+  place-items:center;
+  background:var(--ma-brown);
+  border:1px solid #c59b6e;
+  border-radius:50%;
+  overflow:hidden;
+  color:#f2d1a9;
+}
+.medhmar-assistant .assistant-message-avatar img{
+  width:37px;
+  height:27px;
+  object-fit:contain;
+  display:block;
+}
+.medhmar-assistant .assistant-message-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  min-width:0;
+  max-width:calc(100% - 49px);
+}
+.medhmar-assistant .assistant-message-bubble{
+  width:auto;
+  max-width:100%;
+  padding:14px 17px;
+  border-radius:17px;
+  border:1px solid #f0e5d6;
+  background:#f7f0e8;
+  color:#392920;
+  font-size:13px;
+  line-height:1.6;
+  letter-spacing:.005em;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  unicode-bidi:plaintext;
+}
+.medhmar-assistant .assistant-message-time{
+  display:block;
+  color:#928274;
+  font-size:10px;
+  line-height:1.4;
+  padding:5px 4px 0;
+}
+.medhmar-assistant .assistant-message-user{
+  flex-direction:row-reverse;
+}
+.medhmar-assistant .assistant-message-user .assistant-message-avatar{
+  background:#f0dfcb;
+  color:#815635;
+  border-color:#f4e2cf;
+}
+.medhmar-assistant .assistant-message-user .assistant-message-content{
+  align-items:flex-end;
+}
+.medhmar-assistant .assistant-message-user .assistant-message-bubble{
+  border-radius:17px 17px 4px 17px;
+  background:#472e20;
+  color:#fff9f2;
+  border-color:#472e20;
+}
+.medhmar-assistant .assistant-message-error .assistant-message-bubble{
+  background:#fcebe6;
+  color:#8d3527;
+  border-color:#e8beb3;
+}
+.medhmar-assistant .assistant-example-label{
+  margin:4px 0 0;
+  padding-left:49px;
+  color:#a88b71;
+  font-size:10px;
+  font-weight:750;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+}
+.medhmar-assistant .assistant-sample-message{
+  opacity:.97;
+}
+.medhmar-assistant .assistant-suggestions-section{
+  flex:0 0 auto;
+  background:rgba(255,250,244,.98);
+  border-top:1px solid #f0dfcd;
+  padding:12px 16px 14px;
+}
+.medhmar-assistant .assistant-suggestions-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 3px 10px;
+  color:#583825;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.01em;
+}
+.medhmar-assistant .assistant-suggestions-title::before{
+  content:"";
+  height:16px;
+  width:2px;
+  background:#b46c36;
+}
+
+.medhmar-assistant .assistant-suggestion[hidden]{display:none!important}
+.medhmar-assistant .assistant-suggestions-title>span{flex:1}
+.medhmar-assistant .assistant-suggestions-toggle{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 0 4px 7px;
+  background:transparent;border:0;color:#986031;
+  font-size:10px;font-weight:750;cursor:pointer;
+}
+.medhmar-assistant .assistant-suggestions-toggle[aria-expanded="true"] svg{transform:rotate(-90deg)}
+.medhmar-assistant .assistant-suggestions-toggle:hover{color:#563019}
+.medhmar-assistant .assistant-suggestions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  flex:none;
+  border:0;
+  padding:0;
+  background:transparent;
+}
+.medhmar-assistant .assistant-suggestion{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+  min-height:71px;
+  margin:0;
+  padding:10px 8px;
+  border:1px solid #e9d4bd;
+  border-radius:12px;
+  background:#fffcf8;
+  color:#4c3526;
+  text-align:left;
+  cursor:pointer;
+  font-size:11px;
+  line-height:1.25;
+  transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease;
+}
+.medhmar-assistant .assistant-suggestion:hover{
+  transform:translateY(-2px);
+  border-color:#c9915d;
+  box-shadow:0 5px 16px rgba(96,59,33,.09);
+  background:#fff9f1;
+}
+.medhmar-assistant .assistant-suggestion-symbol{
+  flex:0 0 34px;
+  width:34px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  background:#f3e5d4;
+  color:#965320;
+  border-radius:9px;
+}
+.medhmar-assistant .assistant-suggestion-text{
+  display:flex;
+  flex:1;
+  min-width:0;
+  flex-direction:column;
+  gap:5px;
+}
+.medhmar-assistant .assistant-suggestion-text strong{
+  font-weight:800;
+  color:#3f2b21;
+  font-size:11px;
+  overflow-wrap:anywhere;
+}
+.medhmar-assistant .assistant-suggestion-text small{
+  font-size:10px;
+  font-weight:400;
+  color:#77675b;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.medhmar-assistant .assistant-suggestion-chevron{
+  flex:0 0 12px;
+  color:#995c2f;
+}
+.medhmar-assistant .assistant-form{
+  flex:0 0 auto;
+  margin:0;
+  padding:13px 15px 0;
+  border-top:1px solid #e9d8c5;
+  background:#fffbf6;
+}
+.medhmar-assistant .assistant-input-label{
+  display:block;
+  margin-bottom:7px;
+  color:#614530;
+  font-size:11px;
+  font-weight:750;
+}
+.medhmar-assistant .assistant-compose{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 7px;
+  min-width:0;
+  min-height:55px;
+  background:#fffefd;
+  border:1px solid #ddc5ab;
+  border-radius:17px;
+  box-shadow:0 4px 15px rgba(80,45,25,.035);
+}
+.medhmar-assistant .assistant-compose:focus-within{
+  border-color:#bd8755;
+  box-shadow:0 0 0 3px rgba(201,149,91,.15);
+}
+.medhmar-assistant .assistant-compose textarea{
+  flex:1;
+  width:100%;
+  min-width:0;
+  height:auto;
+  min-height:37px;
+  max-height:124px;
+  margin:0;
+  padding:9px 3px;
+  resize:vertical;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  color:#38291f;
+  font:400 13px/1.45 Arial,Helvetica,sans-serif;
+  outline:none;
+}
+.medhmar-assistant .assistant-compose textarea:focus{border:0;box-shadow:none;outline:none}
+.medhmar-assistant .assistant-compose textarea:disabled{background:transparent;color:#9b9087}
+.medhmar-assistant .assistant-compose textarea::placeholder{color:#9c9188}
+.medhmar-assistant .assistant-compose .assistant-attach,
+.medhmar-assistant .assistant-compose .assistant-mic{
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#956b4f;
+  width:32px;
+  height:38px;
+  flex:0 0 32px;
+  border-radius:9px;
+  cursor:pointer;
+}
+.medhmar-assistant .assistant-compose :is(.assistant-attach,.assistant-mic):hover:not(:disabled){
+  background:#f3e4d2;
+  color:#683e26;
+}
+.medhmar-assistant .assistant-compose :is(.assistant-attach,.assistant-mic):disabled{
+  cursor:not-allowed;
+  opacity:.36;
+}
+.medhmar-assistant .assistant-compose .assistant-mic-active{
+  color:#a44232;
+  background:#f9dfd7;
+}
+.medhmar-assistant .assistant-compose .assistant-send{
+  flex:0 0 39px;
+  width:39px;
+  height:39px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:50%;
+  background:#492d1e;
+  color:#fff5e8;
+  cursor:pointer;
+}
+.medhmar-assistant .assistant-compose .assistant-send:hover:not(:disabled){background:#794a2c}
+.medhmar-assistant .assistant-compose .assistant-send:disabled{opacity:.45;cursor:not-allowed}
+.medhmar-assistant .assistant-form-footer{
+  margin:11px 0 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.medhmar-assistant .assistant-language-label{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  color:#62472f;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.medhmar-assistant .assistant-language-label select{
+  height:32px;
+  max-width:100px;
+  padding:0 5px;
+  border:1px solid #e6d0b7;
+  border-radius:8px;
+  background:#fff7ed;
+  color:#473023;
+  font-size:11px;
+}
+.medhmar-assistant .assistant-disclaimer{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:5px;
+  max-width:184px;
+  color:#817166;
+  font-size:9px;
+  line-height:1.4;
+  text-align:right;
+}
+.medhmar-assistant .assistant-disclaimer svg{flex:0 0 14px}
+.medhmar-assistant .assistant-feedback{
+  flex:0 0 auto;
+  margin:0;
+  min-height:27px;
+  padding:8px 15px 7px;
+  color:#8b6d53;
+  font-size:10px;
+  line-height:1.35;
+}
+.medhmar-assistant .assistant-feedback[data-state="ready"]{color:#42764b}
+.medhmar-assistant .assistant-feedback[data-state="error"]{color:#b0523f}
+.medhmar-assistant .assistant-signin-row{
+  flex:0 0 auto;
+  min-height:57px;
+  padding:10px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:7px;
+  border-top:1px solid #f0dfcd;
+  background:#fff9f1;
+}
+.medhmar-assistant .assistant-signin-row>span{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-size:10px;
+  color:#704e36;
+}
+.medhmar-assistant .assistant-signin{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin:0;
+  min-height:35px;
+  padding:9px 14px;
+  background:#452b1d;
+  color:#fff6eb;
+  border:1px solid #452b1d;
+  border-radius:9px;
+  font-size:11px;
+  font-weight:700;
+  text-decoration:none;
+}
+.medhmar-assistant .assistant-signin:hover{background:#6b432a;color:#fff}
+.medhmar-assistant :is(a,button,textarea,select):focus-visible,
+.medhmar-assistant-dock :is(a,button):focus-visible{
+  outline:3px solid #c58a4b;
+  outline-offset:2px;
+}
+.medhmar-assistant-dock{
+  right:23px;
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  z-index:75;
+}
+.medhmar-assistant-dock .assistant-dock-panel{
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 12px);
+  width:min(472px,calc(100vw - 32px));
+  height:min(705px,calc(100dvh - 112px));
+  min-height:0;
+  filter:drop-shadow(0 19px 39px rgba(44,28,17,.22));
+}
+.medhmar-assistant-dock .assistant-dock-panel[hidden]{display:none!important}
+.medhmar-assistant-dock .assistant-dock-panel .medhmar-assistant{
+  height:100%;
+  min-height:0;
+  max-height:none;
+  border-radius:21px;
+}
+.medhmar-assistant-dock .assistant-dock-launcher{
+  gap:10px;
+  min-height:53px;
+  padding:7px 16px 7px 7px;
+  background:#3c2417;
+  border:1px solid #bd9267;
+  color:#fff9ed;
+  font-size:12px;
+  box-shadow:0 12px 31px rgba(50,29,17,.25);
+}
+.medhmar-assistant-dock .assistant-dock-launcher-icon{
+  display:grid;
+  place-items:center;
+  background:#e7c091;
+  color:#4e2d1d;
+  border-radius:50%;
+  width:39px;
+  height:39px;
+  padding:5px;
+  flex:0 0 39px;
+  overflow:hidden;
+}
+.medhmar-assistant-dock .assistant-dock-launcher-icon img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.medhmar-assistant-dock .assistant-dock-launcher-pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:#c19a68;
+  box-shadow:0 0 0 3px rgba(209,168,114,.13);
+}
+.medhmar-assistant-dock .assistant-dock-minimize,
+.medhmar-assistant-dock .assistant-dock-close{
+  flex:0 0 30px;
+  display:grid;
+  place-items:center;
+  height:31px;
+  width:30px;
+  padding:0;
+  margin:0;
+  background:rgba(255,249,242,.68);
+  border:1px solid #e8ccb0;
+  border-radius:10px;
+  color:#784626;
+  cursor:pointer;
+}
+.medhmar-assistant-dock .assistant-dock-close{
+  font-size:25px;line-height:1;
+}
+.medhmar-assistant-dock :is(.assistant-dock-minimize,.assistant-dock-close):hover{
+  background:#f3dfc7;
+  color:#54311f;
+}
+body:has(.modal-backdrop) .medhmar-assistant-dock{visibility:hidden}
+@media(max-width:600px){
+  .medhmar-assistant-dock{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .medhmar-assistant-dock .assistant-dock-panel{
+    width:calc(100vw - 24px);
+    height:min(655px,calc(100dvh - 105px));
+    bottom:calc(100% + 9px);
+  }
+  .medhmar-assistant-dock .assistant-dock-panel .medhmar-assistant{border-radius:16px}
+}
+@media(max-width:420px){
+  .medhmar-assistant .assistant-heading{gap:5px;padding:10px 8px;min-height:74px}
+  .medhmar-assistant .assistant-brand-icon{flex-basis:65px;width:65px;height:58px}
+  .medhmar-assistant .assistant-heading-copy h2{font-size:14px}
+  .medhmar-assistant .assistant-heading-copy p{font-size:9px}
+  .medhmar-assistant .assistant-status{font-size:8px;max-width:62px}
+  .medhmar-assistant-dock .assistant-dock-close,.medhmar-assistant-dock .assistant-dock-minimize{width:27px;height:29px;flex-basis:27px}
+  .medhmar-assistant .assistant-messages{padding:14px 11px 10px}
+  .medhmar-assistant .assistant-suggestions-section{padding:10px}
+  .medhmar-assistant .assistant-suggestions{gap:7px}
+  .medhmar-assistant .assistant-suggestion{padding:7px 5px;gap:5px;min-height:65px}
+  .medhmar-assistant .assistant-suggestion-symbol{width:28px;flex-basis:28px;height:33px}
+  .medhmar-assistant .assistant-suggestion-symbol svg{width:19px;height:19px}
+  .medhmar-assistant .assistant-suggestion-text strong{font-size:10px}
+  .medhmar-assistant .assistant-suggestion-text small{font-size:9px}
+  .medhmar-assistant .assistant-form{padding:10px 10px 0}
+  .medhmar-assistant .assistant-form-footer{gap:5px}
+  .medhmar-assistant .assistant-disclaimer{max-width:140px;font-size:8px}
+  .medhmar-assistant .assistant-message-bubble{font-size:12px;padding:10px 12px}
+}
+@media(max-width:355px){
+  .medhmar-assistant .assistant-heading-copy p{display:none}
+  .medhmar-assistant .assistant-brand-icon{width:55px;flex-basis:55px}
+  .medhmar-assistant .assistant-suggestions{grid-template-columns:1fr}
+  .medhmar-assistant .assistant-suggestion{min-height:50px}
+  .medhmar-assistant .assistant-disclaimer{max-width:122px}
+}
+@media(prefers-reduced-motion:reduce){
+  .medhmar-assistant-dock *,
+  .medhmar-assistant *{transition:none!important;scroll-behavior:auto!important}
+  .medhmar-assistant .assistant-suggestion:hover{transform:none}
+}
