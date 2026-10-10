@@ -69,10 +69,14 @@ export function renderAssistantView({ signedIn = false, preferredLanguage = 'en'
     ['trophy','Register for a race','Learn how to join races','How do I register a camel for a race?'],
     ['camel','View a pedigree','Explore a camel’s lineage','How can I view a camel’s pedigree?'],
     ['calendar','Upcoming races','Check race schedules','Where can I see upcoming races?'],
-    ['users','Partnerships','Learn about ownership','How do partnerships and shared camel ownership work?']
+    ['users','Partnerships','Learn about ownership','How do partnerships and shared camel ownership work?'],
+    ['camel','Camel profiles','View camel details','How can I view and manage a camel profile?'],
+    ['trophy','Race results','Find racing results','Where can I find race results?'],
+    ['users','My account','Manage your profile','How do I change my account profile?'],
+    ['calendar','Race cards','Browse race cards','Where can I find race cards?']
   ];
-  const suggestions = questions.map(([symbol,title,description,prompt]) =>
-    '<button type="button" class="assistant-suggestion" data-assistant-prompt="' + prompt.replace(/"/g,'&quot;') + '">'
+  const suggestions = questions.map(([symbol,title,description,prompt], index) =>
+    '<button type="button" class="assistant-suggestion" data-assistant-prompt="' + prompt.replace(/"/g,'&quot;') + '"' + (index >= 4 ? ' hidden' : '') + '>'
     + '<span class="assistant-suggestion-symbol">' + assistantIcon(symbol,23) + '</span>'
     + '<span class="assistant-suggestion-text"><strong>' + title + '</strong><small>' + description + '</small></span>'
     + '<span class="assistant-suggestion-chevron">' + assistantIcon('chevron',17) + '</span></button>'
@@ -100,7 +104,7 @@ export function renderAssistantView({ signedIn = false, preferredLanguage = 'en'
     + '<div class="assistant-message-content"><div class="assistant-message-bubble">'
     + 'To register for a race, open the Races section, choose an upcoming race and follow the registration steps.'
     + '</div></div></div></div>'
-    + '<div class="assistant-suggestions-section"><div class="assistant-suggestions-title"><span>Popular questions</span></div>'
+    + '<div class="assistant-suggestions-section"><div class="assistant-suggestions-title"><span>Popular questions</span><button type="button" class="assistant-suggestions-toggle" id="assistant-suggestions-toggle" aria-expanded="false">See all ' + assistantIcon('chevron',15) + '</button></div>'
     + '<div class="assistant-suggestions" aria-label="Suggested questions">' + suggestions + '</div></div>'
     + '<form class="assistant-form" id="assistant-form">'
     + '<label class="assistant-input-label" for="assistant-question">Ask Medhmar something</label>'
@@ -179,6 +183,15 @@ export function bindAssistantView(root = document) {
     if (!panel.isConnected) return;
     report(assistantErrorMessage(error), "error");
     controls();
+  });
+
+  const toggle = panel.querySelector("#assistant-suggestions-toggle");
+  const extra = [...panel.querySelectorAll(".assistant-suggestion[hidden]")];
+  toggle?.addEventListener("click", () => {
+    const expanded = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.innerHTML = (expanded ? "Show less " : "See all ") + assistantIcon('chevron', 15);
+    extra.forEach(button => { button.hidden = !expanded; });
   });
 
   panel.querySelectorAll("[data-assistant-prompt]").forEach(button => {
