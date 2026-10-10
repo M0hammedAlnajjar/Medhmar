@@ -95,7 +95,8 @@ export function renderAssistantView({ signedIn = false, preferredLanguage = 'en'
     + '<div class="assistant-message-content"><div class="assistant-message-bubble">'
     + 'Hello! I&#39;m the Medhmar Assistant. Ask me about races, camels, pedigrees, registration or anything about the platform.'
     + '</div><time class="assistant-message-time">' + assistantTimestamp() + '</time></div></div>'
-    + '<div class="assistant-example-label">Example conversation</div>'
+    + '<div class="assistant-example-label">Example conversation'
+    + '<button class="assistant-example-toggle" id="assistant-example-toggle" type="button" aria-expanded="false" aria-controls="assistant-messages">View example <span aria-hidden="true">⌄</span></button></div>'
     + '<div class="assistant-message assistant-message-user assistant-sample-message" aria-label="Example question">'
     + '<span class="assistant-message-avatar" aria-hidden="true">' + assistantIcon('user',19) + '</span>'
     + '<div class="assistant-message-content"><div class="assistant-message-bubble">How do I register for a race?</div></div></div>'
@@ -138,6 +139,18 @@ export function bindAssistantView(root = document) {
   const language = panel.querySelector("#assistant-language");
   const status = panel.querySelector("#assistant-status");
   const feedback = panel.querySelector("#assistant-feedback");
+  const exampleToggle = panel.querySelector("#assistant-example-toggle");
+  exampleToggle?.addEventListener("click", () => {
+    const expanded = messages.dataset.previewOpen !== "true";
+    messages.dataset.previewOpen = String(expanded);
+    exampleToggle.setAttribute("aria-expanded", String(expanded));
+    exampleToggle.innerHTML = (expanded ? "Hide example" : "View example") + ' <span aria-hidden="true">' + (expanded ? "⌃" : "⌄") + "</span>";
+    if (expanded) {
+      const sample = messages.querySelector(".assistant-sample-message");
+      sample?.scrollIntoView({block:"nearest",behavior:"auto"});
+    }
+  });
+
   const attach = panel.querySelector("#assistant-attach");
   const fileInput = panel.querySelector("#assistant-file");
   const mic = panel.querySelector("#assistant-mic");
