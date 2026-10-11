@@ -100,6 +100,32 @@ jobs:
       - name: Build backend
         run: mvn -B package
 
+  backend-compiler-compatibility:
+    name: Backend JDK 27 Compiler Compatibility
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '27'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Compile main and test sources with the newer compiler
+        run: mvn -B -ntp -DskipTests clean test-compile
+      - name: Verify Java 21 bytecode target
+        shell: python
+        run: |
+          from pathlib import Path
+          import struct
+
+          header = Path("target/classes/com/gulfracing/GulfRacingApplication.class").read_bytes()[:8]
+          magic, minor, major = struct.unpack(">IHH", header)
+          assert magic == 0xCAFEBABE and major == 65, f"Expected Java 21 bytecode, got {major}"
+
   frontend-ci:
     name: Frontend UI & Integration Contracts
     runs-on: ubuntu-latest
