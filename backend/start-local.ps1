@@ -13,29 +13,42 @@ $previousUsername = $env:DB_USERNAME
 $previousPassword = $env:DB_PASSWORD
 $exitCode = 1
 
+# Spring Boot imports .env itself from backend/ or the repository root.
+# Avoid overriding its database URL (especially Docker's port 3307) with 3306.
+$localEnvFiles = @(
+    (Join-Path $PSScriptRoot '.env'),
+    (Join-Path (Split-Path $PSScriptRoot -Parent) '.env')
+)
+$hasLocalEnvFile = @($localEnvFiles | Where-Object { Test-Path $_ -PathType Leaf }).Count -gt 0
+
 try {
-    if ([string]::IsNullOrWhiteSpace($env:DB_URL)) {
-        $env:DB_URL = 'jdbc:mysql://localhost:3306/gulf_racing'
+    if ($hasLocalEnvFile) {
+        Write-Host 'Using local .env configuration. Existing shell/IDE variables take precedence.'
     }
-    if ([string]::IsNullOrWhiteSpace($env:DB_USERNAME) -or $env:DB_USERNAME -eq '${DB_USERNAME}') {
-        $username = Read-Host 'MySQL username'
-        if ([string]::IsNullOrWhiteSpace($username) -or $username -eq '${DB_USERNAME}') {
-            throw 'Enter your actual MySQL username.'
+    else {
+        if ([string]::IsNullOrWhiteSpace($env:DB_URL)) {
+            $env:DB_URL = 'jdbc:mysql://localhost:3306/gulf_racing'
         }
-        $env:DB_USERNAME = $username.Trim()
-    }
-    if ([string]::IsNullOrWhiteSpace($env:DB_PASSWORD) -or $env:DB_PASSWORD -eq '${DB_PASSWORD}') {
-        $securePassword = Read-Host 'MySQL password (hidden)' -AsSecureString
-        $passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-        try {
-            $env:DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
-            if ([string]::IsNullOrEmpty($env:DB_PASSWORD)) {
-                throw 'A non-empty MySQL password is required by this launcher.'
+        if ([string]::IsNullOrWhiteSpace($env:DB_USERNAME) -or $env:DB_USERNAME -eq '${DB_USERNAME}') {
+            $username = Read-Host 'MySQL username'
+            if ([string]::IsNullOrWhiteSpace($username) -or $username -eq '${DB_USERNAME}') {
+                throw 'Enter your actual MySQL username.'
             }
+            $env:DB_USERNAME = $username.Trim()
         }
-        finally {
-            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
-            $securePassword.Dispose()
+        if ([string]::IsNullOrWhiteSpace($env:DB_PASSWORD) -or $env:DB_PASSWORD -eq '${DB_PASSWORD}') {
+            $securePassword = Read-Host 'MySQL password (hidden)' -AsSecureString
+            $passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+            try {
+                $env:DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+                if ([string]::IsNullOrEmpty($env:DB_PASSWORD)) {
+                    throw 'A non-empty MySQL password is required by this launcher.'
+                }
+            }
+            finally {
+                [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+                $securePassword.Dispose()
+            }
         }
     }
 

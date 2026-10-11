@@ -71,6 +71,17 @@ jobs:
 
           echo "All commit messages are valid."
 
+  local-mysql-compose:
+    name: Validate Local MySQL Compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose without actual credentials
+        env:
+          DB_USERNAME: medhmar
+          DB_PASSWORD: ci-validation-only
+        run: docker compose -f compose.yaml config --quiet
+
   backend-ci:
     name: Backend Build & Test
     runs-on: ubuntu-latest

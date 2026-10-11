@@ -1,0 +1,27 @@
+# Local development database. Run from the repository root with:
+#   copy .env.example .env      (PowerShell: Copy-Item .env.example .env)
+#   # Set a private DB_PASSWORD in .env, then:
+#   docker compose up -d mysql
+#
+# Uses localhost:3307 so an existing local MySQL on 3306 is left untouched.
+# App credentials are read from your git-ignored .env; never commit passwords.
+services:
+  mysql:
+    image: mysql:8.4
+    ports:
+      - "127.0.0.1:3307:3306"
+    environment:
+      MYSQL_DATABASE: gulf_racing
+      MYSQL_USER: ${DB_USERNAME:?Set DB_USERNAME in .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - medhmar-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -u \"$$MYSQL_USER\" --password=\"$$MYSQL_PASSWORD\" -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+volumes:
+  medhmar-mysql-data:
