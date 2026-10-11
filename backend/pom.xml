@@ -19,6 +19,8 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- JDK 27 removed EndPosTable; keep Lombok and its processor on the fixed release. -->
+        <lombok.version>1.18.48</lombok.version>
         <spring-ai.version>2.0.1</spring-ai.version>
     </properties>
 
@@ -107,6 +109,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- In-memory database for isolated tests only -->
@@ -119,6 +122,29 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>require-java-21-or-newer</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,)</version>
+                                    <message>Medhmar requires JDK 21 or newer. JDK 21 is recommended. Check mvn -version and the IntelliJ Project SDK and Maven Runner JRE.</message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
