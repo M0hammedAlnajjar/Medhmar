@@ -150,76 +150,63 @@ Gulf-Racing/
 
 ### Prerequisites
 
-Install the following:
+- JDK 21 (recommended for IntelliJ, Maven and runtime) and Maven.
+- Docker Desktop **or** an existing MySQL 8+ installation.
+- Git and a modern browser; Postman is optional.
 
-- Java 17+.
-- Maven.
-- MySQL 8+.
-- Git.
-- Modern web browser.
-- Postman (optional, for API testing).
+### 1. Clone the repository
 
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd Gulf-Racing
+```powershell
+git clone https://github.com/M0hammedAlnajjar/Medhmar.git
+cd Medhmar
 ```
 
-### 2. Create the Database
+### 2. Set up local MySQL with Docker (recommended)
 
-Open MySQL and create the database:
+From the repository root:
 
-```sql
-CREATE DATABASE gulf_racing;
+```powershell
+Copy-Item .env.example .env
+notepad .env
 ```
 
-Run the database scripts if provided:
+Choose a private, non-empty value for `DB_PASSWORD`. The provided template uses
+`DB_USERNAME=medhmar` and `DB_URL=jdbc:mysql://127.0.0.1:3307/gulf_racing`.
+Port **3307** intentionally avoids conflicting with an existing MySQL on 3306.
 
-```sql
-SOURCE database/schema.sql;
-SOURCE database/seed.sql;
+```powershell
+docker compose up -d mysql
+docker compose ps
 ```
 
-### 3. Configure the Backend
+Wait for MySQL to be healthy. The server initializes the `gulf_racing` database
+and `medhmar` application user on first run. Flyway creates the tables and seeds
+roles at backend startup; **do not** import `database/schema.sql` manually into
+a Flyway-managed database.
 
-Open:
+**Using an installed MySQL instead?** Create `gulf_racing` and configure your
+actual MySQL account credentials in `.env`, changing the URL to
+`jdbc:mysql://localhost:3306/gulf_racing`. The account must have access to
+that database. Spring Boot loads the git-ignored `.env` file automatically.
+Shell/IDE environment variables take precedence; do not leave old `DB_*`
+values set in IntelliJ.
 
-```text
-backend/src/main/resources/application.properties
-```
+### 3. Run the backend
 
-Configure the MySQL connection:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/gulf_racing
-spring.datasource.username=${DB_USERNAME}
-spring.datasource.password=${DB_PASSWORD}
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-```
-
-Configure the required environment variables:
-
-```text
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-AI_API_KEY=your_api_key
-```
-
-Do not commit passwords or API keys to GitHub.
-
-### 4. Run the Backend
-
-```bash
+```powershell
 cd backend
 mvn spring-boot:run
 ```
 
-The Spring Boot application will start locally.
+Or launch `GulfRacingApplication` in IntelliJ. Backend: `http://localhost:8080`.
+Hibernate uses `ddl-auto=validate`; **Flyway** manages schema migrations.
 
-### 5. Frontend
+If startup reports `Access denied for user 'root'@'localhost'`, the configured
+MySQL username, password, or account permissions are invalid. This is a local
+database authentication issue, not a Java compilation error. See the
+[backend troubleshooting guide](backend/README.md#troubleshooting-mysql-authentication).
+
+### 4. Frontend
 
 The frontend follows the Gulf Racing visual reference and connects to the Spring Boot APIs.
 

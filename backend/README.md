@@ -37,13 +37,63 @@ Maven rejects JDK versions below 21 during validation with a setup message.
 
 ## Run locally
 
+### Option A: Docker MySQL (no MySQL installation required)
+
+This is the easiest setup if you have Docker Desktop. It runs a dedicated MySQL
+8.4 instance on **127.0.0.1:3307**, leaving any existing MySQL on port 3306
+untouched. It uses an application user, **not** MySQL `root`.
+
+From the **repository root** in Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+notepad .env
+```
+
+Set `DB_PASSWORD` in your private `.env` to a new strong password. The
+template already provides `DB_USERNAME=medhmar` and
+`DB_URL=jdbc:mysql://127.0.0.1:3307/gulf_racing`.
+Do not commit `.env` to GitHub.
+
+```powershell
+docker compose up -d mysql
+docker compose ps
+cd backend
+mvn spring-boot:run
+```
+
+Wait until the MySQL service shows **healthy** before launching Spring Boot.
+Alternatively, run `GulfRacingApplication` from IntelliJ with the repository's
+`.env` file present. Spring Boot imports the file itself; ensure the IDE's
+Run Configuration does **not** override `DB_URL`, `DB_USERNAME`, or
+`DB_PASSWORD` with old values.
+
+Docker's MySQL data stays in the `medhmar-mysql-data` volume across restarts.
+The database password is set **only during first initialization**; editing
+`.env` later does not change an existing MySQL account password. Do not run
+`docker compose down -v` unless you explicitly want to **delete all local
+database data**.
+
+Flyway automatically applies the MySQL migrations and seeds roles on the first
+successful startup; do not import `database/schema.sql` or `seed-data.sql`
+into this database.
+
+### Option B: Existing MySQL installation
+
+If you already have MySQL running, use **port 3306** and a real database account
+with permission to access `gulf_racing`; do not copy Docker's settings unchanged
+or assume the `root` password.
+
 1. Create the MySQL database:
 
    ```sql
    CREATE DATABASE IF NOT EXISTS gulf_racing;
    ```
 
-2. Configure the database credentials. The backend now automatically loads the
+2. Configure the database credentials for your **existing** MySQL instance.
+   Change `DB_URL` in `.env` to `jdbc:mysql://localhost:3306/gulf_racing`
+   and set `DB_USERNAME` / `DB_PASSWORD` to an account that can connect.
+   The backend automatically loads the
    git-ignored `.env` file from the repository root (or from `backend/.env`), so
    the simplest local setup is to copy `.env.example` to `.env` and fill in your
    own MySQL credentials. You can still use terminal or IntelliJ environment
@@ -87,6 +137,31 @@ Google sign-in, configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and activate
 the `google` profile. SMTP password-reset delivery uses the `mail` profile.
 For both, set `SPRING_PROFILES_ACTIVE=google,mail`; required variables are
 listed in `.env.example` and the API guide.
+
+### Troubleshooting MySQL authentication
+
+If startup ends with:
+
+```text
+Access denied for user 'root'@'localhost' (using password: YES)
+```
+
+MySQL is reachable, but it rejected the supplied username/password (or that
+account's host access). This is a **local MySQL account/configuration issue**;
+changing Java, Hibernate, Flyway, or the GitHub source cannot reset a MySQL
+server's password. Check the following:
+
+- If using Docker, confirm `docker compose ps` reports a healthy service,
+  `DB_URL` uses port **3307**, and `DB_USERNAME=medhmar`.
+- If using an installed MySQL, verify the actual username/password and use
+  port **3306**, with database access already granted.
+- In IntelliJ, open **Run > Edit Configurations > Environment variables**
+  and remove stale `DB_*` values; environment variables override `.env`.
+- Verify the login using a MySQL client before starting Spring Boot. Never
+  put credentials directly into `application.properties` or commit `.env`.
+
+A `Flyway` / `entityManagerFactory` exception following `Access denied` is
+a **downstream symptom** of the same failed connection, not a migration bug.
 
 ## Build and test
 
