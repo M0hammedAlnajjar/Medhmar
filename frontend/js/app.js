@@ -1,3 +1,4 @@
+import { organizationDirectory, bindOrganizationDirectory } from './organization-directory.js';
 import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
 import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
 import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
@@ -342,7 +343,7 @@ function denyRoleAccess(route) {
 
 function pedigree(){ return shell(pedigreeView(state.view), '/camels', true); }
 
-function organizations(){ return shell(`${head('Racing Organizations','Regional organizer groups and membership visibility.')}${demoNote()}<div class="grid grid-3">${demo.organizations.map(o=>`<article class="card org-card"><div class="org-top"><div class="org-logo">M</div><div><h3>${o.name}</h3><p class="form-help">${o.region}</p></div></div><div class="org-stats"><div class="org-stat"><strong>${o.members}</strong><span>Members</span></div><div class="org-stat"><strong>${o.races}</strong><span>Races</span></div><div class="org-stat"><strong>${o.status}</strong><span>Status</span></div></div></article>`).join('')}</div>`,'/organizations'); }
+function organizations(){ return shell(organizationDirectory(demo.organizations),'/organizations'); }
 function tourism(){ return shell(`${head('Tourism & Cultural Content','Approved visitor and heritage content within the Medhmar platform.')}<section class="tourism-hero"><div><div class="hero-kicker">Experience the culture behind the race</div><h1>Discover Camel Racing Heritage</h1><p>Regional events, visitor information and approved cultural knowledge.</p></div></section><section class="section"><div class="grid grid-3">${demo.tourism.map(x=>`<article class="card card-pad"><div class="kicker">${x.type}</div><h3>${x.title}</h3><p>${x.location} • ${x.date}</p>${badge(x.status)}</article>`).join('')}</div></section>`,'/tourism'); }
 
 const raceRows = () => `<table><thead><tr><th>No.</th><th>Camel</th><th>Owner</th><th>Trainer</th><th>Category</th></tr></thead><tbody>${[['01','Barq','Ahmed Al Balushi','Salim Al Rashidi','Racing'],['02','Shahin','Khalid Al Maamari','Nasser Al Hinai','Racing'],['03','Al Sahab','Mohammed Al Naqbi','Rashid Al Kindi','Racing'],['04','Najm','Saif Al Busaidi','Khalid Al Harthy','Racing']].map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
@@ -902,6 +903,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindOrganizationDirectory(root);
  bindTrainingJournal(root);
  bindBroadcastPreview(root);
  bindPedigreeImages(root);
