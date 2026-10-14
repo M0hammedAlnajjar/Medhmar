@@ -106,3 +106,13 @@ Spring Security and `AdminUserController` enforce the same role on the API.
 failed-request and stale-response regression checks using mocked API responses.
 
 Training Agreement list and detail routes are available to owners, trainers, and admins; trainers can accept their own pending agreements. Creation and editing are owner/admin routes. Audit Log routes and navigation are restricted to admins.
+
+## Challenge broadcast design preview
+
+The Challenges page includes a presentation-only broadcast preview above the
+published challenge list. It uses existing local race/camel photos, sample vote
+counts, a local one-choice voting interaction, reset, information tabs and image
+fullscreen. It does not connect a stream, write votes, persist choices or modify
+the backend. The Preview label distinguishes it from actual published challenges,
+which retain their existing API behavior. No scheduled times or viewer counts
+are presented as real event data.
