@@ -56,6 +56,7 @@ try {
     await page.goto(`http://127.0.0.1:${port}/${path}`);
     await page.locator(path === 'training'?'.training-journal':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
+    if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
     await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
   }
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');
