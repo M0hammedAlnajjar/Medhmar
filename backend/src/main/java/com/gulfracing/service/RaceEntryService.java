@@ -21,6 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RaceEntryService {
+    private final AuditRecorder audit;
     private final RaceEntryRepository entries;
     private final RaceRepository races;
     private final CamelRepository camels;
@@ -58,7 +59,9 @@ public class RaceEntryService {
         entry.setRegisteredAt(now);
         entry.setParticipantNumber(nextNumber);
         entry.setEntryStatus(RaceEntryStatus.PENDING);
-        return entries.saveAndFlush(entry);
+        entries.saveAndFlush(entry);
+        audit.record("REGISTERED", "RaceEntry", entry.getEntryId(), camel.getCamelId(), actorId);
+        return entry;
     }
 
     @Transactional(readOnly = true)
@@ -107,6 +110,7 @@ public class RaceEntryService {
             throw ApiException.conflict("Registration decisions are closed for this race.");
         }
         entry.setEntryStatus(decision);
+        audit.record(decision.name(), "RaceEntry", id, entry.getCamel().getCamelId(), actorId);
         return entry;
     }
 
@@ -122,6 +126,7 @@ public class RaceEntryService {
             throw ApiException.conflict("Only a pending entry can be withdrawn before the race starts.");
         }
         entry.setEntryStatus(RaceEntryStatus.WITHDRAWN);
+        audit.record("WITHDRAWN", "RaceEntry", id, entry.getCamel().getCamelId(), actorId);
     }
 
     @Transactional(readOnly = true)

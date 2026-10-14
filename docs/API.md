@@ -261,7 +261,7 @@ Camel reads (`GET /camel/getAll` and `GET /camel/getById?id=...`) are public.
 Creating, updating and deleting camels requires OWNER or ADMIN and a CSRF token.
 `POST /camel/add` also creates a 100% ownership record for the signed-in user;
 the client cannot choose a different owner. `PUT /camel/update` and
-`DELETE /camel/deleteById?id=...` require a current, positive ownership share
+`DELETE /camel/deleteById?id=...` require current full ownership
 unless the caller is ADMIN. Existing camels need accurate ownership records
 before an owner can manage them.
 
@@ -270,11 +270,9 @@ Existing challenge entries and results remain available. Gender is MALE or FEMAL
 camel status is ACTIVE, INACTIVE, RETIRED or SOLD. The existing camel request
 fields and response shapes remain unchanged.
 
-Other module endpoints are denied until their access rules are explicitly added
-to SecurityConfig. This keeps new controllers from becoming writable merely
-because a caller has registered an account. The teammate marketplace module is
-preserved, with schema support for its tracking fields; its routes remain denied
-until that module connects listings to authenticated ownership.
+Marketplace reads are public; listing writes require OWNER/ADMIN and authenticated
+seller ownership. Offers are restricted to their buyer, seller, or ADMIN.
+Unmatched endpoints remain denied by default in SecurityConfig.
 
 ## Errors
 
@@ -325,7 +323,7 @@ validation, including camel tracking fields.
 
 Race entry mutations require a valid session and CSRF token. The server controls identity, registration time,
 participant number, and initial status. `OPEN` races accept owner registrations only before `startsAt`.
-The camel must be active, and the submitting user must have a current positive ownership share.
+The camel must be active, and the submitting user must have a current full ownership.
 The same camel cannot be registered twice in one race, including after withdrawal. Participant numbers
 are unique within a race and generated under a race-row lock; MySQL and H2 enforce both constraints.
 
@@ -452,3 +450,46 @@ display names are snapshotted at publication time. Republishing creates a new ve
 | GET | /api/race-cards/{cardId} | Public |
 | GET | /api/race-cards/races/{raceId}/latest | Public |
 | GET | /api/race-cards/races/{raceId} | Public version history |
+
+## Backend integrity and audit history
+
+OMR listing, offer and sale amounts use DECIMAL(12,3) and BigDecimal. JSON amounts
+remain numbers. Writes accept at most nine integer digits and three fractional
+digits. V27 converts existing amounts to three decimal places; inspect legacy
+amounts with greater precision before applying this migration.
+
+Listing creation locks the camel, so simultaneous requests cannot both create
+an active listing. Offer update, withdrawal, decline and acceptance serialize on
+the listing. Ownership writes lock the camel and reject totals above 100% at any
+overlapping current or future interval. Adjacent [start,end) intervals are allowed.
+Sales reject unresolved scheduled future ownership rather than creating
+overlapping ownership for the buyer. A withdrawn offer cannot be accepted after
+a concurrent listing-lock wait.
+Training-log creation shares the agreement lock with termination and acceptance.
+Organization membership writes lock the organization, preserving at least one
+active organizer when either deleting or demoting a member.
+
+Race finishing positions are unique per race through the results service.
+Duplicate positions return 409, including on updates. Equal elapsed times do not
+implicitly grant equal positions; dead-heat results are not supported by this
+contract. Existing historical results are retained.
+
+Audit history automatically records camel create/update/delete, access changes,
+listing creation/update/cancellation, completed sales, ownership and pedigree
+changes, race and result changes, registration decisions, agreement changes, training-log creation and
+organization membership changes in the same transaction as the business write.
+Responses include actorUserId; legacy records and internal operations without an
+authenticated actor may have null. Audit rows can reference non-camel entities.
+Admin POST /audit-log/add appends an attributed MANUAL_NOTE; caller-supplied
+activity labels cannot impersonate automatic events. PUT /audit-log/update and
+DELETE /audit-log/deleteById return 409. Historical rows are preserved by V27;
+application-level append-only rules do not restrict a database administrator.
+
+Marketplace routes are enabled and checked against authenticated seller/buyer
+identity. Earlier statements describing these routes as denied are obsolete.
+Camel edit, deletion, pedigree edit and registration currently require full
+ownership (or the documented admin override); a fractional share is insufficient.
+
+Prize-share terms are recorded, but prize payouts are outside the current API.
+SMTP retries across application restarts and shared rate limiting across multiple
+servers remain deployment extensions, not requirements for local operation.

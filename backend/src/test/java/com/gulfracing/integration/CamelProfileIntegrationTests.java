@@ -44,7 +44,7 @@ class CamelProfileIntegrationTests extends IntegrationSupport {
         var listing = new MarketPlace();
         listing.setCamel(camelRepository.getReferenceById(id));
         listing.setUser(userRepository.getReferenceById(owner.userId()));
-        listing.setAskingPriceOmr(1500.0);
+        listing.setAskingPriceOmr(new java.math.BigDecimal("1500.000"));
         listing.setDescription("Fast racer");
         listing.setStatus(MarketPlaceStatus.AVAILABLE);
         listing.setIsActive(true);

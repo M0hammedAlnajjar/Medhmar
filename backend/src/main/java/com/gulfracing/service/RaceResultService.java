@@ -19,15 +19,19 @@ public class RaceResultService {
     private final RaceResultRepository raceResultRepository;
     private final RaceEntryRepository raceEntryRepository;
     private final Clock clock;
+    private final AuditRecorder audit;
+    private final com.gulfracing.repository.RaceRepository races;
 
     public RaceResultService(
             RaceResultRepository raceResultRepository,
             RaceEntryRepository raceEntryRepository,
-            Clock clock) {
+            Clock clock, com.gulfracing.repository.RaceRepository races, AuditRecorder audit) {
 
         this.raceResultRepository = raceResultRepository;
         this.raceEntryRepository = raceEntryRepository;
         this.clock = clock;
+        this.races = races;
+        this.audit = audit;
     }
 
     @Transactional
@@ -54,11 +58,14 @@ public class RaceResultService {
             );
         }
 
+        lockAndValidatePosition(raceEntry, raceResult.getFinishPosition());
         validateRaceReadyForResults(raceEntry);
 
         raceResult.setRaceEntry(raceEntry);
 
-        return raceResultRepository.save(raceResult);
+        raceResultRepository.saveAndFlush(raceResult);
+        audit.record("SAVED", "RaceResult", raceResult.getEntryId(), raceResult.getRaceEntry().getCamel().getCamelId(), null);
+        return raceResult;
     }
 
     public List<RaceResult> getAllRaceResults() {
@@ -85,9 +92,8 @@ public class RaceResultService {
 
         RaceResult raceResult = getRaceResultById(entryId);
 
-        validateRaceReadyForResults(
-                raceResult.getRaceEntry()
-        );
+        lockAndValidatePosition(raceResult.getRaceEntry(), updatedRaceResult.getFinishPosition());
+        validateRaceReadyForResults(raceResult.getRaceEntry());
 
         raceResult.setFinishPosition(
                 updatedRaceResult.getFinishPosition()
@@ -97,14 +103,27 @@ public class RaceResultService {
                 updatedRaceResult.getElapsedMs()
         );
 
-        return raceResultRepository.save(raceResult);
+        raceResultRepository.saveAndFlush(raceResult);
+        audit.record("SAVED", "RaceResult", raceResult.getEntryId(), raceResult.getRaceEntry().getCamel().getCamelId(), null);
+        return raceResult;
     }
 
+    @Transactional
     public void deleteRaceResult(Long entryId) {
 
         RaceResult raceResult = getRaceResultById(entryId);
 
+        audit.record("DELETED", "RaceResult", entryId, raceResult.getRaceEntry().getCamel().getCamelId(), null);
         raceResultRepository.delete(raceResult);
+    }
+
+    private void lockAndValidatePosition(RaceEntry entry, Integer position) {
+        Long raceId = entry.getRace().getRaceId();
+        races.findLockedById(raceId).orElseThrow(() -> ApiException.notFound("Race"));
+        if (raceResultRepository.existsByRaceEntry_Race_RaceIdAndFinishPositionAndEntryIdNot(
+                raceId, position, entry.getEntryId())) {
+            throw ApiException.conflict("This finishing position is already assigned in the race.");
+        }
     }
 
     private void validateRaceReadyForResults(

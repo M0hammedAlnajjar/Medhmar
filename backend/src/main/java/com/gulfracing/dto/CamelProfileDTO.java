@@ -36,7 +36,7 @@ public record CamelProfileDTO(
 
     public record OwnerInfo(String name, Double sharePercent) {}
 
-    public record ListingInfo(Long listingId, Double askingPriceOmr, String description,
+    public record ListingInfo(Long listingId, java.math.BigDecimal askingPriceOmr, String description,
                               MarketPlaceStatus status, Date createdAt) {}
 
     public static CamelProfileDTO of(Camel camel, Pedigree pedigree,

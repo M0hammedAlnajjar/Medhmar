@@ -22,6 +22,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class PedigreeService {
+    private final AuditRecorder audit;
 
     private final PedigreeRepository pedigrees;
     private final CamelRepository camelRepository;
@@ -106,6 +107,7 @@ public class PedigreeService {
 
         camel.setUpdatedDate(Date.from(clock.instant()));
         pedigrees.saveAndFlush(pedigree);
+        audit.record("UPDATED", "Pedigree", pedigree.getPedigreeId(), camelId, actorId);
         return PedigreeDTO.of(camel, pedigree);
     }
 

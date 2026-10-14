@@ -20,6 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TrainingAgreementService {
+    private final AuditRecorder audit;
     private static final List<AgreementStatus> OPEN_STATES =
             List.of(AgreementStatus.PENDING_APPROVAL, AgreementStatus.ACTIVE);
 
@@ -77,7 +78,9 @@ public class TrainingAgreementService {
         agreement.setProposedAt(clock.instant());
         agreement.setStatus(AgreementStatus.PENDING_APPROVAL);
 
-        return AgreementDtos.View.from(agreements.saveAndFlush(agreement));
+        agreements.saveAndFlush(agreement);
+        audit.record("PROPOSED", "Agreement", agreement.getAgreementId(), request.camelId(), actorId);
+        return AgreementDtos.View.from(agreement);
     }
 
     @Transactional
@@ -101,6 +104,7 @@ public class TrainingAgreementService {
                 request.terms()
         );
 
+        audit.record("UPDATED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
         return AgreementDtos.View.from(agreement);
     }
 
@@ -171,6 +175,7 @@ public class TrainingAgreementService {
         agreement.setRejectionReason(null);
         agreement.setRejectedBy(null);
 
+        audit.record("ACCEPTED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
         return AgreementDtos.View.from(agreement);
     }
 
@@ -189,6 +194,7 @@ public class TrainingAgreementService {
         agreement.setRejectedBy(users.getActive(actorId));
         agreement.setRejectionReason(cleanReason(request == null ? null : request.reason()));
 
+        audit.record("REJECTED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
         return AgreementDtos.View.from(agreement);
     }
 
@@ -214,6 +220,7 @@ public class TrainingAgreementService {
         agreement.setTerminatedBy(users.getActive(actorId));
         agreement.setTerminationReason(cleanReason(request == null ? null : request.reason()));
 
+        audit.record("TERMINATED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
         return AgreementDtos.View.from(agreement);
     }
 

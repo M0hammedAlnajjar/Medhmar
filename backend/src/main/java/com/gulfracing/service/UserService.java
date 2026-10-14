@@ -18,6 +18,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final AuditRecorder audit;
     private static final Set<String> SELF_REGISTRATION_ROLES = Set.of("VIEWER", "OWNER", "TRAINER");
 
     private final UserRepository users;
@@ -97,6 +98,7 @@ public class UserService {
         if (selected.isEmpty()) throw ApiException.badRequest("At least one role is required.");
         user.setRoles(selected);
         user.setSecurityVersion(user.getSecurityVersion() + 1);
+        audit.record("ACCESS_CHANGED", "User", id, null, null);
         return response(user);
     }
     @Transactional
@@ -104,6 +106,7 @@ public class UserService {
         var user = users.findLockedById(id).orElseThrow(() -> ApiException.notFound("User"));
         user.setAccountStatus(status);
         user.setSecurityVersion(user.getSecurityVersion() + 1);
+        audit.record("ACCESS_CHANGED", "User", id, null, null);
         return response(user);
     }
     public UserResponse response(User user) {

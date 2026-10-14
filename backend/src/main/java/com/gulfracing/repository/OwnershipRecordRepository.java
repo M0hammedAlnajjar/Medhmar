@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface OwnershipRecordRepository extends JpaRepository<OwnershipRecord, Long> {
 
+    List<OwnershipRecord> findByCamel_CamelIdAndIsActiveTrue(Long camelId);
+
     @Query("SELECT o FROM OwnershipRecord o WHERE o.isActive = true")
     List<OwnershipRecord> getAllOwnershipRecords();
 

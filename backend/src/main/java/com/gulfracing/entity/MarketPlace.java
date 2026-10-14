@@ -22,7 +22,8 @@ public class MarketPlace {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long listingId;
 
-    private Double askingPriceOmr;
+    @jakarta.persistence.Column(precision = 12, scale = 3)
+    private java.math.BigDecimal askingPriceOmr;
     private Date createdAt;
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)

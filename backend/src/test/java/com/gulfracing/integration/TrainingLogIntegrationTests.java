@@ -210,4 +210,42 @@ class TrainingLogIntegrationTests extends IntegrationSupport {
 
         assertThat(logs.count()).isZero();
     }
+
+    @Autowired com.gulfracing.service.TrainingLogService training;
+    @Autowired org.springframework.transaction.PlatformTransactionManager transactionManager;
+
+    @Test
+    void trainingWriteWaitsForConcurrentTerminationAndThenRejectsIt() throws Exception {
+        var fixture = activeAgreement();
+        var locked = new java.util.concurrent.CountDownLatch(1);
+        var release = new java.util.concurrent.CountDownLatch(1);
+        try (var executor = java.util.concurrent.Executors.newFixedThreadPool(2)) {
+            var termination = executor.submit(() -> {
+                new org.springframework.transaction.support.TransactionTemplate(transactionManager).executeWithoutResult(tx -> {
+                    var agreement = agreements.findLockedById(fixture.agreementId()).orElseThrow();
+                    agreement.setStatus(AgreementStatus.TERMINATED);
+                    agreement.setTerminatedAt(NOW);
+                    agreements.flush();
+                    locked.countDown();
+                    try {
+                        if (!release.await(10, java.util.concurrent.TimeUnit.SECONDS)) throw new IllegalStateException("Test lock timeout");
+                    } catch (InterruptedException ex) { throw new IllegalStateException(ex); }
+                });
+            });
+            try {
+                assertThat(locked.await(10, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+                var write = executor.submit(() -> training.create(
+                        new com.gulfracing.dto.TrainingLogDtos.Create(fixture.agreementId(), NOW.minusSeconds(60), 30, "Concurrent session"),
+                        fixture.trainerId()));
+                org.assertj.core.api.Assertions.assertThatThrownBy(() -> write.get(500, java.util.concurrent.TimeUnit.MILLISECONDS))
+                        .isInstanceOf(java.util.concurrent.TimeoutException.class);
+                release.countDown();
+                termination.get(10, java.util.concurrent.TimeUnit.SECONDS);
+                org.assertj.core.api.Assertions.assertThatThrownBy(() -> write.get(10, java.util.concurrent.TimeUnit.SECONDS))
+                        .isInstanceOf(java.util.concurrent.ExecutionException.class)
+                        .hasCauseInstanceOf(com.gulfracing.exception.ApiException.class);
+                assertThat(logs.count()).isZero();
+            } finally { release.countDown(); }
+        }
+    }
 }

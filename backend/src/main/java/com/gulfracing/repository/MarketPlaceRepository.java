@@ -54,8 +54,8 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
             @Param("search") String search,
             @Param("status") MarketPlaceStatus status,
             @Param("camelId") Long camelId,
-            @Param("minPrice") Double minPrice,
-            @Param("maxPrice") Double maxPrice,
+            @Param("minPrice") java.math.BigDecimal minPrice,
+            @Param("maxPrice") java.math.BigDecimal maxPrice,
             Pageable pageable
     );
 }

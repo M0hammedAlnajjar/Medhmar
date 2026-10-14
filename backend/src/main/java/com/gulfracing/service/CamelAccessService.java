@@ -16,6 +16,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class CamelAccessService {
+    private final AuditRecorder audit;
 
     private final CamelService camels;
     private final CamelRepository camelRepository;
@@ -47,7 +48,7 @@ public class CamelAccessService {
         ownership.setIsActive(true);
         ownership.setCreatedDate(now);
         ownerships.save(ownership);
-
+        audit.record("CREATED", "Camel", id, id, actorId);
         return id;
     }
 

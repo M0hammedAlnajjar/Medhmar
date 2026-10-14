@@ -38,9 +38,10 @@ public class AuditLogDTO {
 
     private String description;
 
-    @NotNull
     @Positive
     private Long camelId;
+
+    private Long actorUserId;
 
     public static AuditLogDTO convertToDTO(AuditLog entity) {
         return AuditLogDTO.builder()
@@ -50,6 +51,7 @@ public class AuditLogDTO {
                 .entityId(entity.getEntityId())
                 .createdAt(entity.getCreatedAt())
                 .description(entity.getDescription())
+                .actorUserId(entity.getActorUserId())
                 .camelId(entity.getCamel() != null
                         ? entity.getCamel().getCamelId()
                         : null)

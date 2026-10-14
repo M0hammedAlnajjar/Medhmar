@@ -41,8 +41,8 @@ public class MarketPlaceController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) MarketPlaceStatus status,
             @RequestParam(required = false) Long camelId,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice
     ) {
         return PageResponse.from(
                 marketPlaceService.searchMarketPlaces(

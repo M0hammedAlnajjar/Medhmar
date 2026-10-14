@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class OwnershipRecordService {
+    private final AuditRecorder audit;
 
     private final OwnershipRecordRepository ownershipRecords;
     private final CamelRepository camels;
@@ -39,9 +40,10 @@ public class OwnershipRecordService {
             );
         }
 
-        var camel = camels.findById(camelId)
+        var camel = camels.findLockedById(camelId)
                 .orElseThrow(() -> ApiException.notFound("Camel"));
 
+        validateOwnershipTotal(camelId, null, sharePercent, startAt, endAt);
         var owner = users.findById(ownerId)
                 .orElseThrow(() -> ApiException.notFound("User"));
 
@@ -59,7 +61,7 @@ public class OwnershipRecordService {
                 .getOwnershipId();
 
         trainingAgreementService.terminateIfOwnerLostFullOwnership(camelId);
-
+        audit.record("CREATED", "Ownership", ownershipId, camelId, null);
         return ownershipId;
     }
 
@@ -116,6 +118,10 @@ public class OwnershipRecordService {
             );
         }
 
+        OwnershipRecord initial = getById(id);
+        Long camelId = initial.getCamel().getCamelId();
+        camels.findLockedById(camelId).orElseThrow(() -> ApiException.notFound("Camel"));
+        validateOwnershipTotal(camelId, id, updateSharePercent, updateStartAt, updateEndAt);
         OwnershipRecord record = getById(id);
         record.setSharePercent(updateSharePercent);
         record.setStartAt(updateStartAt);
@@ -125,6 +131,7 @@ public class OwnershipRecordService {
         trainingAgreementService.terminateIfOwnerLostFullOwnership(
                 record.getCamel().getCamelId()
         );
+        audit.record("UPDATED", "Ownership", id, record.getCamel().getCamelId(), null);
         return record;
     }
 
@@ -137,7 +144,35 @@ public class OwnershipRecordService {
         record.setUpdatedDate(now);
         ownershipRecords.saveAndFlush(record);
         trainingAgreementService.terminateIfOwnerLostFullOwnership(record.getCamel().getCamelId());
+        audit.record("DELETED", "Ownership", id, record.getCamel().getCamelId(), null);
         return true;
+    }
+
+    // Check every interval boundary, including scheduled future ownership. Intervals are [start,end).
+    private void validateOwnershipTotal(Long camelId, Long excludedId, Double share, Date start, Date end) {
+        if (share == null || !Double.isFinite(share) || share <= 0 || share > 100 || start == null) {
+            throw ApiException.badRequest("Ownership requires a valid start date and share between 0 and 100.");
+        }
+        var records = ownershipRecords.findByCamel_CamelIdAndIsActiveTrue(camelId).stream()
+                .filter(r -> !java.util.Objects.equals(r.getOwnershipId(), excludedId)).toList();
+        var boundaries = new java.util.TreeSet<Date>();
+        boundaries.add(start);
+        for (var r : records) {
+            if (r.getStartAt() != null && !r.getStartAt().before(start)
+                    && (end == null || r.getStartAt().before(end))) boundaries.add(r.getStartAt());
+        }
+        for (Date at : boundaries) {
+            java.math.BigDecimal total = java.math.BigDecimal.valueOf(share);
+            for (var r : records) {
+                if ((r.getStartAt() == null || !r.getStartAt().after(at))
+                        && (r.getEndAt() == null || r.getEndAt().after(at)) && r.getSharePercent() != null) {
+                    total = total.add(java.math.BigDecimal.valueOf(r.getSharePercent()));
+                }
+            }
+            if (total.compareTo(java.math.BigDecimal.valueOf(100)) > 0) {
+                throw ApiException.conflict("Overlapping ownership shares cannot exceed 100 percent.");
+            }
+        }
     }
 
     private void validateId(Long id) {
