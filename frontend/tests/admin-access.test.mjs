@@ -15,7 +15,7 @@ function harness(user, { me = async () => user, users } = {}) {
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
-    bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {},
+    bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {},
     session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',

@@ -1,3 +1,4 @@
+import { heritageExperiences, bindHeritageExperiences } from './heritage-experiences.js';
 import { organizationDirectory, bindOrganizationDirectory } from './organization-directory.js';
 import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
 import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
@@ -344,7 +345,7 @@ function denyRoleAccess(route) {
 function pedigree(){ return shell(pedigreeView(state.view), '/camels', true); }
 
 function organizations(){ return shell(organizationDirectory(demo.organizations),'/organizations'); }
-function tourism(){ return shell(`${head('Tourism & Cultural Content','Approved visitor and heritage content within the Medhmar platform.')}<section class="tourism-hero"><div><div class="hero-kicker">Experience the culture behind the race</div><h1>Discover Camel Racing Heritage</h1><p>Regional events, visitor information and approved cultural knowledge.</p></div></section><section class="section"><div class="grid grid-3">${demo.tourism.map(x=>`<article class="card card-pad"><div class="kicker">${x.type}</div><h3>${x.title}</h3><p>${x.location} • ${x.date}</p>${badge(x.status)}</article>`).join('')}</div></section>`,'/tourism'); }
+function tourism(){ return shell(heritageExperiences(),'/tourism'); }
 
 const raceRows = () => `<table><thead><tr><th>No.</th><th>Camel</th><th>Owner</th><th>Trainer</th><th>Category</th></tr></thead><tbody>${[['01','Barq','Ahmed Al Balushi','Salim Al Rashidi','Racing'],['02','Shahin','Khalid Al Maamari','Nasser Al Hinai','Racing'],['03','Al Sahab','Mohammed Al Naqbi','Rashid Al Kindi','Racing'],['04','Najm','Saif Al Busaidi','Khalid Al Harthy','Racing']].map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 function raceCards(){ return shell(`${head('Digital Race Cards','Public, immutable race-card publications with version history.')}${demoNote()}<div class="race-card-sheet"><div class="race-card-head"><div><div class="kicker">Official Digital Race Card</div><h2>Al Bashayer Camel Race</h2><p>12 October 2026 • Al Dakhiliyah • 5 KM</p></div>${badge('OFFICIAL')}</div><div class="table-wrap">${raceRows()}</div></div><section class="section"><h2>Publication History</h2><div class="version-list">${demo.raceCards.map(c=>`<div class="version"><div><strong>Version ${c.version}</strong><div class="form-help">Published ${c.published}</div></div><span>${c.participants} participants</span></div>`).join('')}</div></section>`,'/race-cards'); }
@@ -903,6 +904,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindHeritageExperiences(root);
  bindOrganizationDirectory(root);
  bindTrainingJournal(root);
  bindBroadcastPreview(root);
