@@ -51,10 +51,28 @@ try {
   await page.locator('#close-modal').click();
   assert.equal(mutations.length,0,'preview controls must not submit account data');
   await page.screenshot({path:'test-results/training-desktop.png',fullPage:true});
-  for (const path of ['challenges','training']) {
+  await page.goto(`http://127.0.0.1:${port}/organizations`);
+  await page.locator('.directory-card').first().waitFor();
+  assert.equal(await page.locator('.directory-card').count(),3);
+  await page.locator('#organization-search').fill('nizwa');
+  assert.equal(await page.locator('.directory-card').count(),1);
+  await page.locator('[data-organization="2"]').click();
+  assert.equal(await page.locator('.directory-dialog').evaluate(d=>d.open),true);
+  await page.keyboard.press('Escape');
+  await page.locator('#organization-region').selectOption('Dhofar');
+  assert.equal(await page.locator('.directory-card').count(),0);
+  await page.locator('#organization-search').fill('');
+  assert.equal(await page.locator('.directory-card').count(),1);
+  await page.locator('#organization-region').selectOption('');
+  await page.locator('[data-event="1"]').click();
+  assert.match(await page.locator('.directory-dialog-body').innerText(), /Illustrative event/);
+  await page.keyboard.press('Escape');
+  assert.equal(mutations.length,0,'directory preview must not write to the backend');
+  await page.screenshot({path:'test-results/organizations-desktop.png',fullPage:true});
+  for (const path of ['challenges','training','organizations']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
-    await page.locator(path === 'training'?'.training-journal':'.broadcast-preview').waitFor();
+    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
     await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
