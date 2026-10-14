@@ -128,7 +128,8 @@ public class OfferService {
         var offer = activeOffer(id);
         marketPlaces.findLockedById(offer.getMarketplace().getListingId())
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
-        entityManager.refresh(offer);
+        entityManager.refresh(offer, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (!Boolean.TRUE.equals(offer.getIsActive())) throw ApiException.notFound("Offer");
         requireBuyer(offer, actorId);
 
         if (offer.getStatus() != OfferStatus.PENDING) {
@@ -146,7 +147,9 @@ public class OfferService {
         var offer = activeOffer(id);
         var listing = marketPlaces.findLockedById(offer.getMarketplace().getListingId())
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
-        entityManager.refresh(offer);
+        entityManager.refresh(listing, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        entityManager.refresh(offer, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (!Boolean.TRUE.equals(offer.getIsActive())) throw ApiException.notFound("Offer");
         marketplaceService.requireSeller(listing, actorId);
 
         if (offer.getStatus() != OfferStatus.PENDING) {
@@ -167,7 +170,9 @@ public class OfferService {
         var offer = activeOffer(id);
         var listing = marketPlaces.findLockedById(offer.getMarketplace().getListingId())
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
-        entityManager.refresh(offer);
+        entityManager.refresh(listing, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        entityManager.refresh(offer, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (!Boolean.TRUE.equals(offer.getIsActive())) throw ApiException.notFound("Offer");
         marketplaceService.requireSeller(listing, actorId);
 
         if (!Boolean.TRUE.equals(listing.getIsActive())
@@ -184,6 +189,11 @@ public class OfferService {
         Long sellerId = listing.getUser().getUserId();
 
         camels.findLockedById(camelId).orElseThrow(() -> ApiException.notFound("Camel"));
+        if (ownerships.findByCamel_CamelIdAndIsActiveTrue(camelId).stream().anyMatch(record ->
+                record.getStartAt() != null && record.getStartAt().after(now)
+                && record.getSharePercent() != null && record.getSharePercent() > 0)) {
+            throw ApiException.conflict("Resolve scheduled future ownership before selling this camel.");
+        }
         var currentOwnerships = ownerships.findCurrentOwnershipsForUpdate(camelId, now);
         double sellerShare = currentOwnerships.stream()
                 .filter(record -> record.getOwner() != null
@@ -279,7 +289,8 @@ public class OfferService {
         var offer = activeOffer(id);
         marketPlaces.findLockedById(offer.getMarketplace().getListingId())
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
-        entityManager.refresh(offer);
+        entityManager.refresh(offer, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (!Boolean.TRUE.equals(offer.getIsActive())) throw ApiException.notFound("Offer");
         requireBuyer(offer, actorId);
 
         if (offer.getStatus() != OfferStatus.PENDING) {

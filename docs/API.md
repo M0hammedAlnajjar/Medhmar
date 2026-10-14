@@ -462,6 +462,9 @@ Listing creation locks the camel, so simultaneous requests cannot both create
 an active listing. Offer update, withdrawal, decline and acceptance serialize on
 the listing. Ownership writes lock the camel and reject totals above 100% at any
 overlapping current or future interval. Adjacent [start,end) intervals are allowed.
+Sales reject unresolved scheduled future ownership rather than creating
+overlapping ownership for the buyer. A withdrawn offer cannot be accepted after
+a concurrent listing-lock wait.
 Training-log creation shares the agreement lock with termination and acceptance.
 Organization membership writes lock the organization, preserving at least one
 active organizer when either deleting or demoting a member.

@@ -102,4 +102,54 @@ class BackendIntegrityIntegrationTests extends IntegrationSupport {
         assertThatThrownBy(() -> marketplace.addMarketPlace(new BigDecimal("1.0001"), "Bad precision", 1L, 1L))
                 .isInstanceOf(ApiException.class);
     }
+
+    @Autowired OfferService offerService;
+    @Autowired com.gulfracing.repository.OfferRepository offers;
+    @Autowired com.gulfracing.repository.MarketPlaceRepository listings;
+
+    @Test
+    void saleCannotOverwriteScheduledFutureOwnership() {
+        var seller = register("scheduled-seller@example.com", "OWNER");
+        var buyer = register("scheduled-buyer@example.com", "OWNER");
+        var future = register("future-owner@example.com", "OWNER");
+        var camel = camel("Scheduled"); camel.setIsActive(true); camelRepository.saveAndFlush(camel);
+        Date boundary = Date.from(NOW.plusSeconds(3600));
+        ownerships.addOwnershipRecord(100.0, Date.from(NOW), boundary, camel.getCamelId(), seller.userId());
+        ownerships.addOwnershipRecord(100.0, boundary, null, camel.getCamelId(), future.userId());
+        Long listing = marketplace.addMarketPlace(new BigDecimal("10.125"), "Scheduled listing", camel.getCamelId(), seller.userId());
+        Long offer = offerService.addOffer(new BigDecimal("10.125"), listing, buyer.userId());
+        assertThatThrownBy(() -> offerService.acceptOffer(offer, seller.userId()))
+                .isInstanceOf(ApiException.class).hasMessageContaining("scheduled");
+        assertThat(jdbc.queryForObject("select count(*) from sale_transaction", Integer.class)).isZero();
+    }
+
+    @Test
+    void acceptWaitsForWithdrawalAndCannotAcceptTheWithdrawnOffer() throws Exception {
+        var seller = register("concurrent-seller@example.com", "OWNER");
+        var buyer = register("concurrent-buyer@example.com", "OWNER");
+        var camel = camel("Withdrawal"); camel.setIsActive(true); camelRepository.saveAndFlush(camel);
+        ownerships.addOwnershipRecord(100.0, Date.from(NOW), null, camel.getCamelId(), seller.userId());
+        Long listing = marketplace.addMarketPlace(new BigDecimal("50.001"), "Concurrent offer", camel.getCamelId(), seller.userId());
+        Long offerId = offerService.addOffer(new BigDecimal("50.001"), listing, buyer.userId());
+        var locked = new CountDownLatch(1); var release = new CountDownLatch(1);
+        try (var executor = Executors.newFixedThreadPool(2)) {
+            var withdrawal = executor.submit(() -> new TransactionTemplate(transactionManager).executeWithoutResult(tx -> {
+                listings.findLockedById(listing).orElseThrow();
+                offers.findById(offerId).orElseThrow().setIsActive(false); offers.flush();
+                locked.countDown();
+                try {
+                    if (!release.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("Test timeout");
+                } catch (InterruptedException ex) { throw new IllegalStateException(ex); }
+            }));
+            try {
+                assertThat(locked.await(10, TimeUnit.SECONDS)).isTrue();
+                var accepting = executor.submit(() -> offerService.acceptOffer(offerId, seller.userId()));
+                assertThatThrownBy(() -> accepting.get(500, TimeUnit.MILLISECONDS)).isInstanceOf(TimeoutException.class);
+                release.countDown(); withdrawal.get(10, TimeUnit.SECONDS);
+                assertThatThrownBy(() -> accepting.get(10, TimeUnit.SECONDS))
+                        .isInstanceOf(ExecutionException.class).hasCauseInstanceOf(ApiException.class);
+                assertThat(jdbc.queryForObject("select count(*) from sale_transaction", Integer.class)).isZero();
+            } finally { release.countDown(); }
+        }
+    }
 }
