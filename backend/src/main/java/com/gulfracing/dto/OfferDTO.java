@@ -22,7 +22,8 @@ public class OfferDTO {
     private Long offerId;
 
     @Positive(message = "Offered price must be greater than zero")
-    private Double offeredPriceOmr;
+    @jakarta.validation.constraints.Digits(integer = 9, fraction = 3)
+    private java.math.BigDecimal offeredPriceOmr;
 
     private Date createdAt;
     private OfferStatus status;

@@ -23,7 +23,8 @@ public class MarketPlaceDTO {
     private Long listingId;
 
     @Positive(message = "Asking price must be greater than zero")
-    private Double askingPriceOmr;
+    @jakarta.validation.constraints.Digits(integer = 9, fraction = 3)
+    private java.math.BigDecimal askingPriceOmr;
 
     private Date createdAt;
 

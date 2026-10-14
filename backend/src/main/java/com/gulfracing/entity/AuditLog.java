@@ -36,8 +36,12 @@ public class AuditLog {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "camel_id", nullable = false)
+    // Snapshot ID intentionally survives account removal; legacy records may lack an actor.
+    @Column(name = "actor_user_id")
+    private Long actorUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "camel_id")
     private Camel camel;
 
     @ManyToMany(fetch = FetchType.LAZY)

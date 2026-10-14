@@ -13,7 +13,7 @@ public record SaleTransactionDTO(
         String camelName,
         Long sellerId,
         Long buyerId,
-        Double salePriceOmr,
+        java.math.BigDecimal salePriceOmr,
         Date soldAt,
         BigDecimal trainerShareOmr,
         BigDecimal sellerNetOmr

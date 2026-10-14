@@ -16,7 +16,8 @@ import java.util.List;
 public class AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
-    private final CamelService camelService;
+    private final com.gulfracing.repository.CamelRepository camels;
+    private final AuditRecorder recorder;
 
     @Transactional
     public Long create(
@@ -26,17 +27,10 @@ public class AuditLogService {
             String description,
             Long camelId
     ) {
-        var camel = camelService.getById(camelId);
-
-        var auditLog = new AuditLog();
-        auditLog.setActionType(actionType);
-        auditLog.setEntityType(entityType);
-        auditLog.setEntityId(entityId);
-        auditLog.setCreatedAt(Instant.now());
-        auditLog.setDescription(description);
-        auditLog.setCamel(camel);
-
-        return auditLogRepository.saveAndFlush(auditLog).getAuditId();
+        if (camelId != null && !camels.existsById(camelId)) throw ApiException.notFound("Camel");
+        Long id = recorder.record("MANUAL_NOTE", entityType, entityId, camelId, null);
+        auditLogRepository.findById(id).orElseThrow().setDescription(description);
+        return id;
     }
 
     @Transactional(readOnly = true)
@@ -59,26 +53,11 @@ public class AuditLogService {
             String description,
             Long camelId
     ) {
-        var auditLog = auditLogRepository.findById(id)
-                .orElseThrow(() -> ApiException.notFound("Audit log"));
-
-        var camel = camelService.getById(camelId);
-
-        auditLog.setActionType(actionType);
-        auditLog.setEntityType(entityType);
-        auditLog.setEntityId(entityId);
-        auditLog.setDescription(description);
-        auditLog.setCamel(camel);
-
-        return auditLog;
+        throw ApiException.conflict("Audit history is append-only and cannot be edited.");
     }
 
     @Transactional
     public Boolean delete(Long id) {
-        var auditLog = auditLogRepository.findById(id)
-                .orElseThrow(() -> ApiException.notFound("Audit log"));
-
-        auditLogRepository.delete(auditLog);
-        return true;
+        throw ApiException.conflict("Audit history is append-only and cannot be deleted.");
     }
 }

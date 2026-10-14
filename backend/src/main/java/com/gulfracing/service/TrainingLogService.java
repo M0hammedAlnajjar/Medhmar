@@ -17,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TrainingLogService {
+    private final AuditRecorder audit;
 
     private final TrainingLogRepository logs;
     private final TrainingAgreementRepository agreements;
@@ -30,7 +31,8 @@ public class TrainingLogService {
             throw ApiException.forbidden();
         }
 
-        var agreement = findAgreement(request.agreementId());
+        var agreement = agreements.findLockedById(request.agreementId())
+                .orElseThrow(() -> ApiException.notFound("Agreement"));
         if (!actorId.equals(agreement.getTrainer().getUserId())) {
             throw ApiException.forbidden();
         }
@@ -57,7 +59,9 @@ public class TrainingLogService {
         log.setNotes(request.notes().strip());
         log.setCreatedAt(now);
 
-        return TrainingLogDtos.View.from(logs.saveAndFlush(log));
+        logs.saveAndFlush(log);
+        audit.record("CREATED", "TrainingLog", log.getLogId(), agreement.getCamel().getCamelId(), actorId);
+        return TrainingLogDtos.View.from(log);
     }
 
     @Transactional(readOnly = true)

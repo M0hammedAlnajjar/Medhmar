@@ -22,7 +22,8 @@ public class Offer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long offerId;
 
-    private Double offeredPriceOmr;
+    @jakarta.persistence.Column(precision = 12, scale = 3)
+    private java.math.BigDecimal offeredPriceOmr;
     private Date createdAt;
 
     @Enumerated(EnumType.STRING)

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RaceResultRepository extends JpaRepository<RaceResult, Long> {
+    boolean existsByRaceEntry_Race_RaceIdAndFinishPositionAndEntryIdNot(Long raceId, Integer position, Long entryId);
 
 }

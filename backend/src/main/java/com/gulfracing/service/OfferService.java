@@ -33,10 +33,13 @@ public class OfferService {
     private final Clock clock;
     private final SaleTransactionRepository saleTransactions;
     private final TrainingAgreementService trainingAgreementService;
+    private final jakarta.persistence.EntityManager entityManager;
+    private final com.gulfracing.repository.CamelRepository camels;
+    private final AuditRecorder audit;
 
     @Transactional
     public Long addOffer(
-            Double offeredPriceOmr,
+            java.math.BigDecimal offeredPriceOmr,
             Long listingId,
             Long actorId
     ) {
@@ -118,11 +121,14 @@ public class OfferService {
     }
 
     @Transactional
-    public Offer updateOffer(Long id, Double offeredPriceOmr, Long actorId) {
+    public Offer updateOffer(Long id, java.math.BigDecimal offeredPriceOmr, Long actorId) {
         validateId(id, "An offer ID is required.");
         validatePrice(offeredPriceOmr);
 
         var offer = activeOffer(id);
+        marketPlaces.findLockedById(offer.getMarketplace().getListingId())
+                .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
+        entityManager.refresh(offer);
         requireBuyer(offer, actorId);
 
         if (offer.getStatus() != OfferStatus.PENDING) {
@@ -140,6 +146,7 @@ public class OfferService {
         var offer = activeOffer(id);
         var listing = marketPlaces.findLockedById(offer.getMarketplace().getListingId())
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
+        entityManager.refresh(offer);
         marketplaceService.requireSeller(listing, actorId);
 
         if (offer.getStatus() != OfferStatus.PENDING) {
@@ -160,6 +167,7 @@ public class OfferService {
         var offer = activeOffer(id);
         var listing = marketPlaces.findLockedById(offer.getMarketplace().getListingId())
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
+        entityManager.refresh(offer);
         marketplaceService.requireSeller(listing, actorId);
 
         if (!Boolean.TRUE.equals(listing.getIsActive())
@@ -175,6 +183,7 @@ public class OfferService {
         Long camelId = listing.getCamel().getCamelId();
         Long sellerId = listing.getUser().getUserId();
 
+        camels.findLockedById(camelId).orElseThrow(() -> ApiException.notFound("Camel"));
         var currentOwnerships = ownerships.findCurrentOwnershipsForUpdate(camelId, now);
         double sellerShare = currentOwnerships.stream()
                 .filter(record -> record.getOwner() != null
@@ -189,11 +198,11 @@ public class OfferService {
         var effectiveAgreement = trainingAgreementService.findActiveAgreementForSale(camelId);
 
         BigDecimal trainerShareOmr = BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP);
-        BigDecimal sellerNetOmr = BigDecimal.valueOf(offer.getOfferedPriceOmr())
+        BigDecimal sellerNetOmr = offer.getOfferedPriceOmr()
                 .setScale(3, RoundingMode.HALF_UP);
 
         if (effectiveAgreement != null) {
-            BigDecimal salePrice = BigDecimal.valueOf(offer.getOfferedPriceOmr());
+            BigDecimal salePrice = offer.getOfferedPriceOmr();
             trainerShareOmr = salePrice
                     .multiply(effectiveAgreement.getSaleSharePct())
                     .divide(BigDecimal.valueOf(100), 3, RoundingMode.HALF_UP);
@@ -257,7 +266,10 @@ public class OfferService {
             saleTransaction.setAgreement(effectiveAgreement);
         }
 
+        saleTransaction.setIsActive(true);
+        saleTransaction.setCreatedDate(now);
         saleTransactions.save(saleTransaction);
+        audit.record("SALE_COMPLETED", "Offer", id, camelId, actorId);
         return offer;
     }
 
@@ -265,6 +277,9 @@ public class OfferService {
     public Boolean deleteById(Long id, Long actorId) {
         validateId(id, "An offer ID is required.");
         var offer = activeOffer(id);
+        marketPlaces.findLockedById(offer.getMarketplace().getListingId())
+                .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
+        entityManager.refresh(offer);
         requireBuyer(offer, actorId);
 
         if (offer.getStatus() != OfferStatus.PENDING) {
@@ -314,8 +329,9 @@ public class OfferService {
         }
     }
 
-    private void validatePrice(Double price) {
-        if (price == null || price <= 0) {
+    private void validatePrice(java.math.BigDecimal price) {
+        if (price == null || price.signum() <= 0 || price.stripTrailingZeros().scale() > 3
+                || price.precision() - price.scale() > 9) {
             throw ApiException.badRequest("Offered price must be greater than zero.");
         }
     }

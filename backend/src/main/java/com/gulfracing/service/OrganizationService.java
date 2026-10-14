@@ -19,6 +19,7 @@ import java.util.Locale;
 @Service
 @RequiredArgsConstructor
 public class OrganizationService {
+    private final AuditRecorder audit;
     private final OrganizationRepository organizations;
     private final OrganizationMemberRepository members;
     private final RoleRepository roles;
@@ -76,8 +77,9 @@ public class OrganizationService {
 
     @Transactional
     public MemberView addMember(Long organizationId, MemberRequest request, Long actorId) {
+        var organization = organizations.findLockedById(organizationId)
+                .orElseThrow(() -> ApiException.notFound("Organization"));
         requireManager(organizationId, actorId);
-        var organization = entity(organizationId);
         var user = users.getActive(request.userId());
         String roleName = request.roleName().strip().toUpperCase(Locale.ROOT);
         var role = roles.findByRoleName(roleName)
@@ -86,6 +88,13 @@ public class OrganizationService {
         var membership = members
                 .findByOrganization_OrganizationIdAndUser_UserId(organizationId, request.userId())
                 .orElseGet(OrganizationMember::new);
+        if (membership.getMemberId() != null && membership.getEndAt() == null
+                && "ORGANIZER".equals(membership.getRole().getRoleName())
+                && !"ORGANIZER".equals(roleName)
+                && members.countByOrganization_OrganizationIdAndRole_RoleNameAndEndAtIsNull(
+                        organizationId, "ORGANIZER") <= 1) {
+            throw ApiException.conflict("An organization must keep at least one active organizer.");
+        }
         membership.setOrganization(organization);
         membership.setUser(user);
         membership.setRole(role);
@@ -96,6 +105,8 @@ public class OrganizationService {
 
     @Transactional
     public void removeMember(Long organizationId, Long userId, Long actorId) {
+        organizations.findLockedById(organizationId)
+                .orElseThrow(() -> ApiException.notFound("Organization"));
         requireManager(organizationId, actorId);
         var membership = members.findByOrganization_OrganizationIdAndUser_UserId(organizationId, userId)
                 .orElseThrow(() -> ApiException.notFound("Organization member"));

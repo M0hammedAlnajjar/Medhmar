@@ -23,6 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CamelService {
+    private final AuditRecorder audit;
 
     private final CamelRepository camelRepository;
     private final PedigreeRepository pedigrees;
@@ -168,6 +169,7 @@ public class CamelService {
         camelToUpdate.setDam(updateDam);
         camelToUpdate.setCategory(updateCategory);
         camelToUpdate.setStatus(updateStatus);
+        audit.record("UPDATED", "Camel", id, id, null);
         return camelToUpdate;
     }
 
@@ -179,6 +181,7 @@ public class CamelService {
         }
         camel.setIsActive(false);
         camel.setUpdatedDate(new Date());
+        audit.record("DELETED", "Camel", id, id, null);
         // Keep ancestry intact: registered historical parents may later be inactive.
         return true;
     }

@@ -19,7 +19,8 @@ public class SaleTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long saleTransactionId;
 
-    private Double salePriceOmr;
+    @jakarta.persistence.Column(precision = 12, scale = 3)
+    private java.math.BigDecimal salePriceOmr;
     private Date soldAt;
 
     @Column(name = "trainer_share_omr", precision = 12, scale = 3)

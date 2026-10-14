@@ -20,6 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MarketPlaceService {
+    private final AuditRecorder audit;
 
     private final MarketPlaceRepository marketPlaces;
     private final CamelRepository camels;
@@ -29,18 +30,18 @@ public class MarketPlaceService {
 
     @Transactional
     public Long addMarketPlace(
-            Double askingPriceOmr,
+            java.math.BigDecimal askingPriceOmr,
             String description,
             Long camelId,
             Long actorId
     ) {
         validateListingInput(askingPriceOmr, description, camelId);
-        camelAccess.requireFullOwner(camelId, actorId);
-
-        var camel = camels.findById(camelId)
+        // Serialize listing creation with other operations on this camel.
+        var camel = camels.findLockedById(camelId)
                 .filter(c -> Boolean.TRUE.equals(c.getIsActive()))
                 .orElseThrow(() -> ApiException.notFound("Camel"));
 
+        camelAccess.requireFullOwner(camelId, actorId);
         if (marketPlaces.existsByCamel_CamelIdAndIsActiveTrue(camelId)) {
             throw ApiException.conflict("This camel already has an active marketplace listing.");
         }
@@ -56,7 +57,9 @@ public class MarketPlaceService {
         marketPlace.setCamel(camel);
         marketPlace.setUser(users.getActive(actorId));
 
-        return marketPlaces.save(marketPlace).getListingId();
+        marketPlaces.saveAndFlush(marketPlace);
+        audit.record("CREATED", "Listing", marketPlace.getListingId(), camelId, actorId);
+        return marketPlace.getListingId();
     }
 
     @Transactional(readOnly = true)
@@ -71,22 +74,22 @@ public class MarketPlaceService {
             String search,
             MarketPlaceStatus status,
             Long camelId,
-            Double minPrice,
-            Double maxPrice
+            java.math.BigDecimal minPrice,
+            java.math.BigDecimal maxPrice
     ) {
         if (camelId != null && camelId <= 0) {
             throw ApiException.badRequest("Camel ID must be positive.");
         }
 
-        if (minPrice != null && minPrice < 0) {
+        if (minPrice != null && minPrice.signum() < 0) {
             throw ApiException.badRequest("Minimum price cannot be negative.");
         }
 
-        if (maxPrice != null && maxPrice < 0) {
+        if (maxPrice != null && maxPrice.signum() < 0) {
             throw ApiException.badRequest("Maximum price cannot be negative.");
         }
 
-        if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
             throw ApiException.badRequest("Minimum price cannot be greater than maximum price.");
         }
 
@@ -118,7 +121,7 @@ public class MarketPlaceService {
     @Transactional
     public MarketPlace updateMarketPlace(
             Long id,
-            Double askingPriceOmr,
+            java.math.BigDecimal askingPriceOmr,
             String description,
             Long actorId
     ) {
@@ -176,8 +179,9 @@ public class MarketPlaceService {
         return listing;
     }
 
-    private void validateListingInput(Double askingPriceOmr, String description, Long camelId) {
-        if (askingPriceOmr == null || askingPriceOmr <= 0) {
+    private void validateListingInput(java.math.BigDecimal askingPriceOmr, String description, Long camelId) {
+        if (askingPriceOmr == null || askingPriceOmr.signum() <= 0 || askingPriceOmr.stripTrailingZeros().scale() > 3
+                || askingPriceOmr.precision() - askingPriceOmr.scale() > 9) {
             throw ApiException.badRequest("Asking price must be greater than zero.");
         }
         if (description == null || description.isBlank() || description.length() > 255) {
