@@ -88,10 +88,18 @@ try {
   await page.locator('[data-heritage-category="all"]').click();
   assert.equal(mutations.length,0,'heritage sample actions must not write to backend');
   await page.screenshot({path:'test-results/heritage-desktop.png',fullPage:true});
-  for (const path of ['challenges','training','organizations','tourism']) {
+
+  await page.goto(`http://127.0.0.1:${port}/races`);
+  await page.locator('.medhmar-race-row').first().waitFor();
+  await page.waitForFunction(()=>[...document.querySelectorAll('.medhmar-race-image img')].every(i=>i.complete && i.naturalWidth>0));
+  const raceSources=await page.locator('.medhmar-race-image img').evaluateAll(images=>images.map(i=>i.getAttribute('src')));
+  assert.equal(new Set(raceSources).size,3,'upcoming races use three different real photographs');
+  assert.ok(raceSources.every(src=>src.startsWith('/assets/organization-photos/')));
+  await page.screenshot({path:'test-results/races-desktop.png',fullPage:true});
+  for (const path of ['challenges','training','organizations','tourism','races']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
-    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':'.broadcast-preview').waitFor();
+    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
     await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
