@@ -4,17 +4,17 @@ import {
 } from "./race-api.js";
 import { authApi } from "./api.js";
 
-const HERO_IMAGE = "/assets/racing-hero.webp";
+const HERO_IMAGE = "/assets/organization-photos/robot-jockeys.webp";
 
-// Use locally hosted, distinct racing photographs instead of repeating one
-// image across the entire race directory. These are illustrative preview photos.
+// Real licensed photographs; illustrative, not official images of these races.
 const RACE_IMAGES = [
     HERO_IMAGE,
-    "/assets/mock-camels/camel-1.jpg",
-    "/assets/mock-camels/camel-8.jpg",
-    "/assets/landing-hero-wide.png",
-    "/assets/mock-camels/camel-7.jpg"
+    "/assets/organization-photos/training.webp",
+    "/assets/organization-photos/finish-line.webp",
+    HERO_IMAGE,
+    "/assets/organization-photos/training.webp"
 ];
+const RACE_PHOTO_CREDITS = `<details class="medhmar-race-photo-credits"><summary>Photo credits</summary><p>Illustrative photographs from the UAE and Morocco; not official photographs of these races. Converted to WebP; cropped for display.</p><ul><li><a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener">Camel race using robot jockeys</a> — Houssain tork (Morocco)</li><li><a href="https://commons.wikimedia.org/wiki/File:Camel_Race_Training.jpg" target="_blank" rel="noopener">Camel Race Training</a> — Lintophilip (UAE)</li><li><a href="https://commons.wikimedia.org/wiki/File:Camel_Race_Finishing_Line.jpg" target="_blank" rel="noopener">Camel Race Finishing Line</a> — Tmsprophoto.photography (UAE)</li></ul><p>All three images: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. No endorsement implied.</p></details>`;
 
 function fallbackRaceImage(race) {
     // Stable by ID/name: filtering or tab changes never swap a race's photo.
@@ -823,6 +823,7 @@ export async function renderRacesListing(container) {
 
       </div>
 
+      ${RACE_PHOTO_CREDITS}
       <div class="medhmar-race-list">
 
         ${
