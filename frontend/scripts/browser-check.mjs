@@ -1,0 +1,67 @@
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const port = 5599;
+const server = spawn(process.execPath, ['server.mjs'], { env: { ...process.env, FRONTEND_PORT: String(port) }, stdio: ['ignore','pipe','pipe'] });
+let output = ''; server.stdout.on('data', chunk => output += chunk); server.stderr.on('data', chunk => output += chunk);
+let browser;
+try {
+  let ready = false;
+  for (let i=0;i<100;i++) {
+    if (server.exitCode !== null) throw new Error(`Preview server stopped: ${output}`);
+    try { const r = await fetch(`http://127.0.0.1:${port}/`); if (r.ok) { ready=true;break; } } catch {}
+    await new Promise(resolve=>setTimeout(resolve,100));
+  }
+  assert.ok(ready, `Preview server did not start: ${output}`);
+  browser = await chromium.launch({ headless:true });
+  const page = await browser.newPage({ viewport: {width:1440,height:1100} });
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  const mutations = [];
+  page.on('request', request => { if (request.url().includes(':8080') && request.method() !== 'GET') mutations.push(request.url()); });
+  await page.route('**/*:8080/**', route => {
+    const path = new URL(route.request().url()).pathname;
+    const data = path === '/api/users/me' ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
+  });
+  await mkdir('test-results',{recursive:true});
+  await page.goto(`http://127.0.0.1:${port}/challenges`);
+  await page.locator('.broadcast-preview').waitFor();
+  await page.locator('[data-preview-vote="0"]').click();
+  assert.match(await page.locator('.broadcast-voting').innerText(), /745 votes/);
+  assert.equal(await page.locator('[data-preview-vote="1"]').isDisabled(),true);
+  await page.locator('[data-preview-reset]').click();
+  assert.match(await page.locator('.broadcast-voting').innerText(), /744 votes/);
+  await page.locator('[data-preview-tab="participants"]').click();
+  assert.match(await page.locator('#broadcast-info').innerText(), /Shaheen/);
+  assert.equal(mutations.length,0,'sample voting must never write to the backend');
+  await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
+  await page.goto(`http://127.0.0.1:${port}/training`);
+  await page.locator('.training-journal').waitFor();
+  assert.equal(await page.locator('.journal-session').count(),3);
+  await page.locator('[data-journal-session="1"]').click();
+  assert.equal(await page.locator('#journal-dialog').evaluate(dialog=>dialog.open),true);
+  await page.locator('#journal-dialog button').click();
+  await page.locator('#journal-month').selectOption('2026-09');
+  assert.equal(await page.locator('.journal-session').count(),0);
+  await page.locator('#journal-month').selectOption('2026-10');
+  assert.equal(await page.locator('.journal-session').count(),3);
+  await page.locator('#add-training-btn').click();
+  await page.locator('#training-form').waitFor();
+  await page.locator('#close-modal').click();
+  assert.equal(mutations.length,0,'preview controls must not submit account data');
+  await page.screenshot({path:'test-results/training-desktop.png',fullPage:true});
+  for (const path of ['challenges','training']) {
+    await page.setViewportSize({width:390,height:844});
+    await page.goto(`http://127.0.0.1:${port}/${path}`);
+    await page.locator(path === 'training'?'.training-journal':'.broadcast-preview').waitFor();
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
+    if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
+    await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
+  }
+  assert.deepEqual(errors,[], 'browser must not have unhandled errors');
+  console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
+} finally {
+  await browser?.close();
+  server.kill();
+}

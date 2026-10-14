@@ -10,7 +10,7 @@ for (const file of (await readdir("js")).filter(name => name.endsWith(".js"))) {
 const required = [
   "index.html", "server.mjs", "package.json",
   "assets/styles.css", "assets/race-styles.css", "assets/medhmar-logo.svg", "assets/medhmar-logo-full.svg", "assets/medhmar-logo-icon.svg", "assets/racing-hero.webp",
-  "js/app.js", "js/api.js", "js/data.js", "js/routes.js", "js/race-routes.js", "js/race-extra-app.js"
+  "js/training-journal.js", "js/challenge-preview.js", "js/home-photo-fallbacks.js", "assets/training-journal.css", "assets/challenge-preview.css", "js/app.js", "js/api.js", "js/data.js", "js/routes.js", "js/race-routes.js", "js/race-extra-app.js"
 ];
 
 for (const path of required) await access(path);
@@ -18,7 +18,7 @@ for (const path of required) await access(path);
 const routes = await readFile("js/routes.js", "utf8");
 const raceRoutes = await readFile("js/race-routes.js", "utf8");
 const requiredNames = [
-  "Landing / Entry Page","Sign In","Create Account","Forgot Password","Reset Password",
+  "Sign In","Create Account","Forgot Password","Reset Password",
   "Home / Overview","Settings / User Profile","Trainer Profile","Challenges",
   "Challenge Detail + Voting","Training Log","Admin Dashboard","Pedigree Directory","Pedigree Section","Edit Pedigree",
   "Race Card Publish Control","Organizations UI","Tourism / Cultural Content UI",

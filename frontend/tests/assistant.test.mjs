@@ -11,7 +11,7 @@ test("Assistant chat can render before AI is configured", () => {
   assert.match(html, /Medhmar Assistant/);
   assert.match(html, /id="assistant-form"/);
   assert.match(html, /id="assistant-question"/);
-  assert.match(html, /Checking availability/);
+  assert.match(html, /id="assistant-status"[^>]*role="status">Connecting/);
   assert.match(html, /maxlength="2000"/);
   assert.doesNotMatch(html, /api.key|sk-[a-z0-9]/i);
 });
@@ -26,7 +26,7 @@ test("Guest chat stays disabled and offers a sign-in link", () => {
 test("Assistant language selector supports Arabic and English", () => {
   const html = renderAssistantView({ signedIn: true, preferredLanguage: "ar" });
   assert.match(html, /<option value="ar" selected>/);
-  assert.match(html, /<option value="en" >English/);
+  assert.match(html, /<option value="en">English/);
 });
 
 test("Assistant API sends credentials and a fresh CSRF token with each question", async () => {
