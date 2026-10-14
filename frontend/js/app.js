@@ -1,3 +1,4 @@
+import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView } from './auth-view.js';
@@ -309,8 +310,8 @@ function challenges(){
    ? `<section class="card error"><h2>Unable to load live challenges</h2><p>${esc(state.challengeError)}</p></section>`
    : state.challenges.length
      ? `<div class="grid grid-2" id="challenges-grid">${state.challenges.map(challengeCard).join('')}</div>`
-     : '<section class="card card-pad"><h2>No live challenges yet</h2><p>Create and open a challenge in the backend before voting.</p></section>';
- return shell(`${head('Camel Challenges','Live challenge data from the Spring Boot API.')}${body}`,'/challenges');
+     : '<section class="card card-pad"><h2>No published challenges yet</h2><p>Published challenges will appear here when available.</p></section>';
+ return shell(`${broadcastPreview()}${head('Published Challenges','Explore community challenges and cast your vote.')}${body}`,'/challenges');
 }
 function challenge(id){
  const c = (state.challengeDetail && String(state.challengeDetail.challengeId)===String(id))
@@ -906,6 +907,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindBroadcastPreview(root);
  bindPedigreeImages(root);
  // The dock lives outside #app and survives in-app route changes.
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang, path: normalizePath() });

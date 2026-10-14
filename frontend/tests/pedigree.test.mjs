@@ -72,6 +72,7 @@ test('route loads live data by ID and ignores a late response after moving to an
   const root = { innerHTML: '', addEventListener() {}, querySelectorAll: () => [] };
   const location = { pathname: '/camels/41', search: '' };
   const context = vm.createContext({
+    bindBroadcastPreview: () => {},
     demo: {
       camel: {}
     },
