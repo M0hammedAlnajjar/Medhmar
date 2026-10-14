@@ -19,17 +19,19 @@ public class RaceResultService {
     private final RaceResultRepository raceResultRepository;
     private final RaceEntryRepository raceEntryRepository;
     private final Clock clock;
+    private final AuditRecorder audit;
     private final com.gulfracing.repository.RaceRepository races;
 
     public RaceResultService(
             RaceResultRepository raceResultRepository,
             RaceEntryRepository raceEntryRepository,
-            Clock clock, com.gulfracing.repository.RaceRepository races) {
+            Clock clock, com.gulfracing.repository.RaceRepository races, AuditRecorder audit) {
 
         this.raceResultRepository = raceResultRepository;
         this.raceEntryRepository = raceEntryRepository;
         this.clock = clock;
         this.races = races;
+        this.audit = audit;
     }
 
     @Transactional
@@ -61,7 +63,9 @@ public class RaceResultService {
 
         raceResult.setRaceEntry(raceEntry);
 
-        return raceResultRepository.save(raceResult);
+        raceResultRepository.saveAndFlush(raceResult);
+        audit.record("SAVED", "RaceResult", raceResult.getEntryId(), raceResult.getRaceEntry().getCamel().getCamelId(), null);
+        return raceResult;
     }
 
     public List<RaceResult> getAllRaceResults() {
@@ -99,7 +103,9 @@ public class RaceResultService {
                 updatedRaceResult.getElapsedMs()
         );
 
-        return raceResultRepository.save(raceResult);
+        raceResultRepository.saveAndFlush(raceResult);
+        audit.record("SAVED", "RaceResult", raceResult.getEntryId(), raceResult.getRaceEntry().getCamel().getCamelId(), null);
+        return raceResult;
     }
 
     @Transactional
@@ -107,6 +113,7 @@ public class RaceResultService {
 
         RaceResult raceResult = getRaceResultById(entryId);
 
+        audit.record("DELETED", "RaceResult", entryId, raceResult.getRaceEntry().getCamel().getCamelId(), null);
         raceResultRepository.delete(raceResult);
     }
 

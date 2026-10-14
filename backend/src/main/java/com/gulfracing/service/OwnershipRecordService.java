@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class OwnershipRecordService {
+    private final AuditRecorder audit;
 
     private final OwnershipRecordRepository ownershipRecords;
     private final CamelRepository camels;
@@ -60,7 +61,7 @@ public class OwnershipRecordService {
                 .getOwnershipId();
 
         trainingAgreementService.terminateIfOwnerLostFullOwnership(camelId);
-
+        audit.record("CREATED", "Ownership", ownershipId, camelId, null);
         return ownershipId;
     }
 
@@ -130,6 +131,7 @@ public class OwnershipRecordService {
         trainingAgreementService.terminateIfOwnerLostFullOwnership(
                 record.getCamel().getCamelId()
         );
+        audit.record("UPDATED", "Ownership", id, record.getCamel().getCamelId(), null);
         return record;
     }
 
@@ -142,6 +144,7 @@ public class OwnershipRecordService {
         record.setUpdatedDate(now);
         ownershipRecords.saveAndFlush(record);
         trainingAgreementService.terminateIfOwnerLostFullOwnership(record.getCamel().getCamelId());
+        audit.record("DELETED", "Ownership", id, record.getCamel().getCamelId(), null);
         return true;
     }
 

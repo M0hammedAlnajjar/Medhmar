@@ -138,7 +138,7 @@ public class MarketPlaceService {
         listing.setAskingPriceOmr(askingPriceOmr);
         listing.setDescription(description.strip());
         listing.setUpdatedDate(Date.from(clock.instant()));
-
+        audit.record("UPDATED", "Listing", id, listing.getCamel().getCamelId(), actorId);
         return listing;
     }
 
@@ -155,6 +155,7 @@ public class MarketPlaceService {
         listing.setStatus(MarketPlaceStatus.CANCELLED);
         listing.setIsActive(false);
         listing.setUpdatedDate(Date.from(clock.instant()));
+        audit.record("CANCELLED", "Listing", id, listing.getCamel().getCamelId(), actorId);
         return true;
     }
 

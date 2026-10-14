@@ -121,8 +121,8 @@ or assume the `root` password.
    The default port is `8080`; set `PORT` to override it.
 
 The backend now provides local registration/login, roles, profile management,
-password reset, optional Google login, challenges and voting. New accounts receive
-VIEWER; there is no default administrator or password. Browser authentication uses
+password reset, optional Google login, challenges and voting. Local accounts explicitly select VIEWER, OWNER or TRAINER; new Google accounts
+receive VIEWER; there is no default administrator or password. Browser authentication uses
 an HttpOnly session cookie and CSRF protection. See [API.md](../docs/API.md) for
 the endpoint contracts, frontend fetch examples and first-admin setup.
 

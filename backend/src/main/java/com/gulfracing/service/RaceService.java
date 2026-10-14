@@ -13,15 +13,20 @@ import org.springframework.stereotype.Service;
 public class RaceService {
 
     private final RaceRepository raceRepository;
+    private final AuditRecorder audit;
 
-    public RaceService(RaceRepository raceRepository) {
+    public RaceService(RaceRepository raceRepository, AuditRecorder audit) {
         this.raceRepository = raceRepository;
+        this.audit = audit;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Race addRace(Race race) {
         validateRace(race);
         race.setRaceId(null);
-        return raceRepository.save(race);
+        raceRepository.saveAndFlush(race);
+        audit.record("SAVED", "Race", race.getRaceId(), null, null);
+        return race;
     }
 
     public Page<Race> getRaces(
@@ -65,6 +70,7 @@ public class RaceService {
                 );
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Race updateRace(Long id, Race updatedRace) {
 
         validateId(id);
@@ -87,11 +93,15 @@ public class RaceService {
         race.setOrganizer(updatedRace.getOrganizer());
         race.setOrganization(updatedRace.getOrganization());
 
-        return raceRepository.save(race);
+        raceRepository.saveAndFlush(race);
+        audit.record("SAVED", "Race", race.getRaceId(), null, null);
+        return race;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void deleteRace(Long id) {
         Race race = getRaceById(id);
+        audit.record("DELETED", "Race", id, null, null);
         raceRepository.delete(race);
     }
 
