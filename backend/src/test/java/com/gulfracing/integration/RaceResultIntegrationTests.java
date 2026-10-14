@@ -253,4 +253,42 @@ class RaceResultIntegrationTests extends IntegrationSupport {
                 )
                 .andExpect(status().isConflict());
     }
+
+    @Autowired com.gulfracing.service.RaceResultService results;
+
+    @Test
+    void duplicatePositionIsRejectedWithinRaceButAllowedAcrossRaces() {
+        var organizer = register("positions@example.com");
+        var race = new Race();
+        race.setName("Positions"); race.setLocation("Muscat"); race.setDistanceKm(5.0);
+        race.setStartsAt(NOW.minusSeconds(60)); race.setStatus(RaceStatus.CLOSED);
+        race.setOrganizer(userRepository.findById(organizer.userId()).orElseThrow());
+        raceRepository.saveAndFlush(race);
+        var first = positionEntry(race, organizer.userId(), 1);
+        var second = positionEntry(race, organizer.userId(), 2);
+        results.addRaceResult(resultFor(first, 1));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> results.addRaceResult(resultFor(second, 1)))
+                .isInstanceOf(com.gulfracing.exception.ApiException.class);
+        results.addRaceResult(resultFor(second, 2));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> results.updateRaceResult(second.getEntryId(), resultFor(second, 1)))
+                .isInstanceOf(com.gulfracing.exception.ApiException.class);
+        var other = new Race();
+        other.setName("Other race"); other.setLocation("Muscat"); other.setDistanceKm(5.0);
+        other.setStartsAt(NOW.minusSeconds(60)); other.setStatus(RaceStatus.CLOSED);
+        other.setOrganizer(userRepository.findById(organizer.userId()).orElseThrow());
+        raceRepository.saveAndFlush(other);
+        results.addRaceResult(resultFor(positionEntry(other, organizer.userId(), 1), 1));
+    }
+
+    private RaceEntry positionEntry(Race race, Long organizerId, int number) {
+        var entry = new RaceEntry(); entry.setRace(race); entry.setCamel(camel("Entry " + number));
+        entry.setRegistrant(userRepository.findById(organizerId).orElseThrow());
+        entry.setRegisteredAt(NOW.minusSeconds(120)); entry.setParticipantNumber(number);
+        entry.setEntryStatus(RaceEntryStatus.ACCEPTED);
+        return raceEntryRepository.saveAndFlush(entry);
+    }
+    private com.gulfracing.entity.RaceResult resultFor(RaceEntry entry, int position) {
+        var result = new com.gulfracing.entity.RaceResult(); result.setRaceEntry(entry);
+        result.setFinishPosition(position); result.setElapsedMs(100000L); return result;
+    }
 }

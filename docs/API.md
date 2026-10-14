@@ -452,3 +452,42 @@ display names are snapshotted at publication time. Republishing creates a new ve
 | GET | /api/race-cards/{cardId} | Public |
 | GET | /api/race-cards/races/{raceId}/latest | Public |
 | GET | /api/race-cards/races/{raceId} | Public version history |
+
+## Backend integrity and audit history
+
+OMR listing, offer and sale amounts use DECIMAL(12,3) and BigDecimal. JSON amounts
+remain numbers. Writes accept at most nine integer digits and three fractional
+digits. V27 converts existing amounts to three decimal places; inspect legacy
+amounts with greater precision before applying this migration.
+
+Listing creation locks the camel, so simultaneous requests cannot both create
+an active listing. Offer update, withdrawal, decline and acceptance serialize on
+the listing. Ownership writes lock the camel and reject totals above 100% at any
+overlapping current or future interval. Adjacent [start,end) intervals are allowed.
+Training-log creation shares the agreement lock with termination and acceptance.
+Organization membership writes lock the organization, preserving at least one
+active organizer when either deleting or demoting a member.
+
+Race finishing positions are unique per race through the results service.
+Duplicate positions return 409, including on updates. Equal elapsed times do not
+implicitly grant equal positions; dead-heat results are not supported by this
+contract. Existing historical results are retained.
+
+Audit history automatically records camel create/update/delete, access changes,
+listing creation, completed sales, agreement changes, training-log creation and
+organization membership changes in the same transaction as the business write.
+Responses include actorUserId; legacy records and internal operations without an
+authenticated actor may have null. Audit rows can reference non-camel entities.
+Admin POST /audit-log/add appends an attributed MANUAL_NOTE; caller-supplied
+activity labels cannot impersonate automatic events. PUT /audit-log/update and
+DELETE /audit-log/deleteById return 409. Historical rows are preserved by V27;
+application-level append-only rules do not restrict a database administrator.
+
+Marketplace routes are enabled and checked against authenticated seller/buyer
+identity. Earlier statements describing these routes as denied are obsolete.
+Camel edit, deletion, pedigree edit and registration currently require full
+ownership (or the documented admin override); a fractional share is insufficient.
+
+Prize-share terms are recorded, but prize payouts are outside the current API.
+SMTP retries across application restarts and shared rate limiting across multiple
+servers remain deployment extensions, not requirements for local operation.

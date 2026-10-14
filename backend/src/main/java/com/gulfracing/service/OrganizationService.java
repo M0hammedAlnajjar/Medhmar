@@ -46,6 +46,7 @@ public class OrganizationService {
         membership.setStartAt(clock.instant());
         members.saveAndFlush(membership);
 
+        audit.record("SAVED", "Organization", organization.getOrganizationId(), null, actorId);
         return View.from(organization);
     }
 
@@ -65,6 +66,7 @@ public class OrganizationService {
         var organization = entity(id);
         apply(organization, request.name(), request.region(), request.description(), request.contactEmail());
         organization.setStatus(request.status());
+        audit.record("SAVED", "Organization", organization.getOrganizationId(), null, actorId);
         return View.from(organization);
     }
 
@@ -100,7 +102,9 @@ public class OrganizationService {
         membership.setRole(role);
         membership.setStartAt(clock.instant());
         membership.setEndAt(null);
-        return MemberView.from(members.saveAndFlush(membership));
+        members.saveAndFlush(membership);
+        audit.record("MEMBER_CHANGED", "Organization", organizationId, null, actorId);
+        return MemberView.from(membership);
     }
 
     @Transactional
@@ -118,6 +122,7 @@ public class OrganizationService {
             throw ApiException.conflict("An organization must keep at least one active organizer.");
         }
         membership.setEndAt(clock.instant());
+        audit.record("MEMBER_REMOVED", "Organization", organizationId, null, actorId);
     }
 
     @Transactional(readOnly = true)
