@@ -1,3 +1,5 @@
+import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
+import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
 import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
@@ -230,15 +232,7 @@ function home() {
 }
 function bindHomeControls() {
   if (!document.querySelector('.mh-page')) return;
-  document.querySelectorAll('img[data-mh-story-fallback]').forEach(img => {
-    const recover = () => {
-      if (img.dataset.mhFallbackUsed) return;
-      img.dataset.mhFallbackUsed = '1';
-      img.src = img.dataset.mhStoryFallback;
-    };
-    img.addEventListener('error', recover, {once:true});
-    if (img.complete && img.naturalWidth === 0) recover();
-  });
+  bindHomePhotoFallbacks(document);
   const storageKey = 'medhmar-home-hidden-v1';
   document.querySelectorAll('[data-mh-toggle]').forEach(input => input.addEventListener('change', () => {
     const hidden = [...document.querySelectorAll('[data-mh-toggle]:not(:checked)')].map(el=>el.dataset.mhToggle);
@@ -324,7 +318,7 @@ function challenge(id){
  return shell(`${head(esc(c.title),voteMessage,badge(c.status))}<article class="card challenge-card"><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h2>${esc(x.name)}</h2><div class="stat-value">${x.votePercent}%</div><p>${x.voteCount} votes</p><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div>${signedIn && open ? `<button class="btn btn-primary vote-btn" data-challenge="${c.challengeId}" data-camel="${x.camelId}">Vote ${esc(x.name)}</button>` : `<button class="btn btn-primary" disabled>${signedIn ? 'Voting unavailable' : 'Sign in to vote'}</button>`}</div>`).join('')}</div></article>`,'/challenges');
 }
 
-function training(){ return shell(`${head('Training Log','Chronological training history for an active assignment.','<button class="btn btn-primary" id="add-training-btn">+ Add Training Session</button>')}${demoNote()}<div class="two-pane"><section class="card card-pad"><h2>Barq — Training Log</h2><p class="form-help">Agreement #15 • Active training period</p><div class="timeline">${demo.logs.map(l=>`<div class="timeline-item"><h3>${l.type}</h3><p><strong>${l.date}</strong> • ${l.duration} minutes</p><p>${l.notes}</p></div>`).join('')}</div></section><aside class="card card-pad"><h2>Session rules</h2><div class="info-list"><div class="info-row"><span>Agreement</span><strong>ACTIVE</strong></div><div class="info-row"><span>Max duration</span><strong>720 min</strong></div><div class="info-row"><span>History</span><strong>Append-only</strong></div></div></aside></div>`,'/training'); }
+function training(){ return shell(trainingJournal(), '/training'); }
 
 function admin(page) {
  if(!canAccessRoute(matchRoute('/admin').route,state.user) || !Array.isArray(state.adminUsers)) return adminDenied();
@@ -804,6 +798,7 @@ function onMineClick(e) {
   if (act === 'decline-offer') return confirmModal('Decline offer?', 'The buyer will see this offer as declined.', 'Decline', true, async () => { await offerApi.decline(id); toast('Offer declined.', 'success'); refresh(); });
   if (act === 'accept-offer') return confirmModal('Accept this offer?', `Selling for ${fmtOmr(price)} closes the listing, declines other pending offers and transfers 100% ownership to the buyer. This cannot be undone.`, 'Accept & complete sale', false, async () => { await offerApi.accept(id); toast('Sale completed. Ownership transferred.', 'success'); go(`/offers/${id}?completed=1`); });
 }
+root.addEventListener('journal-rendered', () => $('#add-training-btn')?.addEventListener('click', showTrainingModal));
 root.addEventListener('submit', onMineSubmit);
 root.addEventListener('click', onMineClick);
 
@@ -907,6 +902,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindTrainingJournal(root);
  bindBroadcastPreview(root);
  bindPedigreeImages(root);
  // The dock lives outside #app and survives in-app route changes.

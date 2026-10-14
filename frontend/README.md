@@ -116,3 +116,17 @@ fullscreen. It does not connect a stream, write votes, persist choices or modify
 the backend. The Preview label distinguishes it from actual published challenges,
 which retain their existing API behavior. No scheduled times or viewer counts
 are presented as real event data.
+
+## Training journal design
+
+Training uses an explicitly labeled sample journal with a camel identity card,
+computed session totals, month filter, session and agreement dialogs. The Add
+Training Session button keeps its existing authenticated API submission modal.
+The journal does not invent saved account records or persist sample sessions.
+
+`npm run check` validates current Home-based routes; retired Landing tests have
+been replaced with current Home navigation and image-fallback coverage.
+`npm test` runs unit/regression checks. After `npx playwright install chromium`,
+`npm run test:browser` checks Challenges and Training interactions, mobile
+horizontal overflow and absence of preview backend writes. It saves screenshots
+under `test-results/`, uploaded by CI.

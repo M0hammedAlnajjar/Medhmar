@@ -46,7 +46,7 @@ test("navbar spans the viewport without external white gaps at any breakpoint", 
   assert.match(css, /\.topbar\{\s*width:100%;max-width:none;height:82px;/);
   assert.match(css, /margin:0;top:0;border-radius:0;/);
   assert.match(css, /\.topbar-inner\{height:100%;max-width:1480px;margin:auto;/);
-  assert.match(css, /\.landing-page \.topbar\{[^\n]*border:0;border-bottom:/);
+  assert.match(css, /border:0;border-bottom:1px solid rgba/);
   assert.match(css, /\.topbar\{width:100%;height:66px;margin:0;top:0;border-radius:0\}/);
   const navbarOverrides = css.slice(css.indexOf("/* Full-width Medhmar navigation."));
   assert.doesNotMatch(navbarOverrides, /width:calc\(100% - (?:36|16)px\)/);
