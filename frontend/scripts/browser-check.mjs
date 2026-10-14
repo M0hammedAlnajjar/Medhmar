@@ -69,10 +69,29 @@ try {
   await page.keyboard.press('Escape');
   assert.equal(mutations.length,0,'directory preview must not write to the backend');
   await page.screenshot({path:'test-results/organizations-desktop.png',fullPage:true});
-  for (const path of ['challenges','training','organizations']) {
+
+  await page.goto(`http://127.0.0.1:${port}/tourism`);
+  await page.locator('.heritage-card').first().waitFor();
+  assert.equal(await page.locator('.heritage-card').count(),3);
+  assert.equal(await page.locator('.tourism-hero').count(),0);
+  assert.ok(await page.locator('.heritage-card > img').evaluateAll(images=>images.every(i=>i.complete && i.naturalWidth>0)), 'heritage photographs must load');
+  await page.locator('[data-heritage-category="stories"]').click();
+  assert.equal(await page.locator('.heritage-card').count(),2);
+  await page.locator('#heritage-search').fill('Adam');
+  assert.equal(await page.locator('.heritage-card').count(),0);
+  await page.locator('[data-heritage-category="events"]').click();
+  assert.equal(await page.locator('.heritage-card').count(),1);
+  await page.locator('[data-heritage-item="2"]').click();
+  assert.equal(await page.locator('.heritage-dialog').evaluate(d=>d.open),true);
+  await page.keyboard.press('Escape');
+  await page.locator('#heritage-search').fill('');
+  await page.locator('[data-heritage-category="all"]').click();
+  assert.equal(mutations.length,0,'heritage sample actions must not write to backend');
+  await page.screenshot({path:'test-results/heritage-desktop.png',fullPage:true});
+  for (const path of ['challenges','training','organizations','tourism']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
-    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':'.broadcast-preview').waitFor();
+    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
     await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
