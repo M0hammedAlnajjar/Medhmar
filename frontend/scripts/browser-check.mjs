@@ -23,7 +23,7 @@ try {
     const path = new URL(route.request().url()).pathname;
     if (path === '/camel/getAll') {
       const search = new URL(route.request().url()).searchParams.get('search');
-      const content = search === 'Barq' ? [{camelId:41,name:'Barq',breed:'Omani',gender:'MALE',status:'ACTIVE'}] : [];
+      const content = !search || search === 'Barq' ? [{camelId:41,name:'Barq',breed:'Omani',gender:'MALE',status:'ACTIVE'}] : [];
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content,page:0,totalPages:1,totalElements:content.length})});
     }
     if (path === '/camel/41/pedigree/tree') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Barq',sireName:'Al Zaeem',damName:'Bint Al Reem'})});
@@ -129,6 +129,10 @@ try {
 
   await page.goto(`http://127.0.0.1:${port}/pedigree`);
   await page.locator('.pedigree-search-form').waitFor();
+  await page.locator('.pedigree-inline .pedigree-tree').waitFor();
+  assert.match(await page.locator('.pedigree-inline').innerText(), /Al Zaeem/);
+  await page.getByRole('link',{name:'Choose another camel'}).click();
+  await page.locator('.pedigree-finder-start').waitFor();
   assert.equal(await page.locator('.pedigree-tree').count(),0);
   assert.equal(await page.locator('select[name="gender"]').count(),0);
   await page.locator('#pedigree-search').fill('Barq');

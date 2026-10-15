@@ -1,4 +1,4 @@
-import { pedigreeFinder } from './pedigree-finder.js';
+import { pedigreeFinder, loadPedigreeFinder } from './pedigree-finder.js';
 import { digitalRaceCards, bindDigitalRaceCards } from './digital-race-cards.js';
 import { heritageExperiences, bindHeritageExperiences } from './heritage-experiences.js';
 import { organizationDirectory, bindOrganizationDirectory } from './organization-directory.js';
@@ -373,17 +373,7 @@ async function camelMap(ids) {
 }
 
 const loaders = {
-  'Pedigree Directory': async () => {
-    const q = qparams(), search = (q.search || '').trim();
-    const selected = /^[1-9]\d*$/.test(q.camel || '') ? q.camel : '';
-    const page = search ? await camelApi.list({ page: q.page || 0, size: 8, search }) : null;
-    let tree = null, treeError = null;
-    if (selected) {
-      try { tree = await pedigreeApi.tree(selected); }
-      catch (error) { treeError = error; }
-    }
-    return { q: { ...q, search }, page, tree, treeError };
-  },
+  'Pedigree Directory': () => loadPedigreeFinder(qparams(), camelApi, pedigreeApi),
   'Pedigree Section': async p => {
     const tree = await pedigreeApi.tree(p.id);
     let canEdit = false;
