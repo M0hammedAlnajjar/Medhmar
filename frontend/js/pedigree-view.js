@@ -63,11 +63,16 @@ function feedback(status, error) {
   return `<div class="pedigree-feedback" role="alert"><h2>${title}</h2><p>${message}</p>${action}</div>`;
 }
 
+// Permanent visual structure, with no invented registry records or ancestor links.
+export function pedigreePlaceholder() {
+  return `<section class="pedigree-inline pedigree-placeholder" aria-label="Family tree awaiting camel selection"><figure class="pedigree-chart" data-pedigree-placeholder aria-labelledby="pedigree-placeholder-caption"><figcaption id="pedigree-placeholder-caption" class="pedigree-placeholder-caption"><strong>Family tree</strong><span>Select a registered camel to fill in its recorded lineage.</span></figcaption><div class="pedigree-tree"><div class="pedigree-subject">${nodeCard(null, 'Camel', {subject:true})}</div><ol class="pedigree-parents" aria-label="Parents and grandparents">${branch(null,'sire')}${branch(null,'dam')}</ol></div><div class="pedigree-legend"><span><b>Sire</b> Father</span><span><b>Dam</b> Mother</span><span class="pedigree-hint">Empty positions indicate that no camel is selected.</span></div></figure></section>`.replaceAll('Not recorded','Awaiting selection');
+}
+
 export function pedigreeView(view, { embedded = false } = {}) {
   const tree = view.data?.tree;
   const ready = view.status === 'ready' && tree && registered(tree);
   const actions = ready ? `<div class="actions"><a class="btn btn-secondary pedigree-profile-link" href="/camels/${encodeURIComponent(tree.camelId)}/profile" data-link>View camel profile <span aria-hidden="true">↗</span></a>${view.data?.canEdit ? `<a class="btn btn-primary" href="/camels/${encodeURIComponent(tree.camelId)}/pedigree/edit" data-link>Edit pedigree</a>` : ''}</div>` : '';
-  const content = ready ? `<figure class="pedigree-chart" aria-labelledby="pedigree-caption">
+  const content = ready ? `<figure class="pedigree-chart" data-pedigree-record aria-labelledby="pedigree-caption">
       <figcaption id="pedigree-caption" class="pedigree-sr-only">Three-generation pedigree of ${escape(tree.name)}. Sire is the father; dam is the mother.</figcaption>
       <div class="pedigree-tree">
         <div class="pedigree-subject">${nodeCard(tree, 'Camel', { subject: true })}</div>

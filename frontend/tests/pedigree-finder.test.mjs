@@ -4,7 +4,7 @@ import { pedigreeFinder } from '../js/pedigree-finder.js';
 test('finder starts with a name search instead of another camel directory',()=>{
  const html=pedigreeFinder();
  assert.match(html,/Search pedigree/);
- assert.doesNotMatch(html,/name="gender"|name="breed"|name="status"|name="category"|pedigree-tree|Barq|grid-3/);
+ assert.doesNotMatch(html,/name="gender"|name="breed"|name="status"|name="category"|Barq|grid-3/);
 });
 test('finder uses registered IDs for selection and escapes API names',()=>{
  const html=pedigreeFinder({q:{search:'Barq'},page:{content:[{camelId:41,name:'<script>Barq</script>',breed:'Omani'}]}});
@@ -22,7 +22,8 @@ test('failed or empty lookups never render a fabricated tree',()=>{
  assert.match(pedigreeFinder({q:{search:'missing'},page:{content:[]}}),/No camels match/);
  const html=pedigreeFinder({q:{camel:'41'},treeError:{status:404}});
  assert.match(html,/Camel not found/);
- assert.doesNotMatch(html,/class="pedigree-tree"/);
+ assert.match(html,/data-pedigree-placeholder/);
+ assert.doesNotMatch(html,/data-pedigree-record/);
 });
 
 test('initial visit loads the first registered camel and its recorded lineage',async()=>{
@@ -38,7 +39,8 @@ test('empty registry shows honest guidance without a fabricated family',async()=
  const {loadPedigreeFinder}=await import('../js/pedigree-finder.js');
  const data=await loadPedigreeFinder({}, {list:async()=>({content:[]})}, {tree:()=>assert.fail('must not request an invented camel')});
  assert.match(pedigreeFinder(data),/No registered camels yet/);
- assert.doesNotMatch(pedigreeFinder(data),/class="pedigree-tree"/);
+ assert.match(pedigreeFinder(data),/data-pedigree-placeholder/);
+ assert.doesNotMatch(pedigreeFinder(data),/data-pedigree-record/);
 });
 test('explicit camel, search and change-selection actions are respected',async()=>{
  const {loadPedigreeFinder}=await import('../js/pedigree-finder.js');
@@ -49,4 +51,13 @@ test('explicit camel, search and change-selection actions are respected',async()
  assert.equal(choosing.tree,null);
  const search=await loadPedigreeFinder({search:'missing'},{list:async()=>({content:[]})},{tree:()=>assert.fail('no result should not load a tree')});
  assert.equal(search.tree,null);
+});
+
+test('family tree layout stays visible during loading, empty searches and API failures',()=>{
+ for(const data of [{},{loadState:'loading'},{loadState:'error',loadError:{status:500}},{q:{search:'missing'},page:{content:[]}}]){
+  const html=pedigreeFinder(data);
+  assert.match(html,/data-pedigree-placeholder/);
+  assert.equal((html.match(/class="pedigree-node(?: |")/g)||[]).length,7);
+  assert.doesNotMatch(html,/data-pedigree-record|href="\/camels\/\d|Barq/);
+ }
 });

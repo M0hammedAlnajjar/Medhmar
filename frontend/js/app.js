@@ -550,11 +550,11 @@ const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{c
 
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
-const pedigreeDirectoryScreen = () => scr('/pedigree', '', 'Pedigree', d => ({
-  title: 'Pedigree',
-  sub: 'Find a camel and explore its family tree.',
-  body: pedigreeFinder(d) + (d.page ? pager(d.page) : ''),
-}));
+const pedigreeDirectoryScreen = () => {
+  const v = state.view;
+  const data = v.status === 'ready' ? v.data : { q: qparams(), loadState: v.status, loadError: v.error };
+  return shell(`${head('Pedigree', 'Find a camel and explore its family tree.')}${pedigreeFinder(data)}${data.page ? pager(data.page) : ''}`, '/pedigree');
+};
 
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
   title: 'Camels', sub: 'Registered camels from the Medhmar registry.',
