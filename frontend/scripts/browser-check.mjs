@@ -19,8 +19,11 @@ try {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   const mutations = [];
   page.on('request', request => { if (request.url().includes(':8080') && request.method() !== 'GET') mutations.push(request.url()); });
+  let marketHasListings = false;
   await page.route('**/*:8080/**', route => {
     const path = new URL(route.request().url()).pathname;
+    if (path === '/marketplace/getAll') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content:marketHasListings?[{listingId:77,camelId:41,askingPriceOmr:'4000.125',status:'AVAILABLE'}]:[],page:0,totalPages:1,totalElements:marketHasListings?1:0})});
+    if (path === '/camel/getById') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Recorded camel',breed:'Omani',gender:'MALE',birthDate:'2022-01-01',photoUrl:'/assets/marketplace-photos/wahiba-close.webp'})});
     if (path === '/camel/getAll') {
       const search = new URL(route.request().url()).searchParams.get('search');
       const content = !search || search === 'Barq' ? [{camelId:41,name:'Barq',breed:'Omani',gender:'MALE',status:'ACTIVE'}] : [];
@@ -153,13 +156,58 @@ try {
   assert.equal(await page.locator('[data-pedigree-placeholder] .pedigree-node').count(),7);
   await page.screenshot({path:'test-results/pedigree-empty-permanent.png',fullPage:true});
   assert.equal(mutations.length,0,'pedigree search and selection must remain read only');
-  for (const path of ['challenges','training','organizations','tourism','races','race-cards']) {
+
+  await page.goto(`http://127.0.0.1:${port}/marketplace`);
+  await page.getByText('No live listings are available yet.',{exact:false}).waitFor();
+  assert.equal(await page.locator('.market-listing-card').count(),3);
+  await page.getByRole('link',{name:'View live marketplace'}).click();
+  await page.locator('.market-empty').waitFor();
+  assert.equal(await page.locator('[data-market-sample]').count(),0);
+  marketHasListings=true;
+  await page.goto(`http://127.0.0.1:${port}/marketplace?preview=0`);
+  await page.locator('.market-listing-card').first().waitFor();
+  assert.match(await page.locator('.market-listing-card').innerText(),/Recorded camel/);
+  assert.equal(await page.getByRole('link',{name:'View Listing',exact:true}).getAttribute('href'),'/marketplace/77');
+  assert.equal(await page.getByRole('link',{name:'View Pedigree',exact:true}).getAttribute('href'),'/pedigree?camel=41');
+  assert.equal(await page.locator('[data-market-sample]').count(),0);
+  // Preview marketplace is explicit and all its actions remain local.
+  await page.setViewportSize({width:1440,height:1100});
+  await page.goto(`http://127.0.0.1:${port}/marketplace?preview=1`);
+  await page.locator('.market-listing-card').first().waitFor();
+  assert.equal(await page.locator('.market-listing-card').count(),3);
+  await page.waitForFunction(()=>[...document.querySelectorAll('[data-market-photo]')].length===3&&[...document.querySelectorAll('[data-market-photo]')].every(i=>i.complete&&i.naturalWidth>0));
+  await page.locator('[data-market-sample="sample-barq"]').click();
+  assert.equal(await page.locator('.market-preview-dialog').evaluate(d=>d.open),true);
+  assert.match(await page.locator('.market-dialog-content').innerText(),/No offers or purchases/);
+  await page.keyboard.press('Escape');
+  await page.locator('[data-market-pedigree="sample-barq"]').click();
+  assert.equal(await page.locator('[data-pedigree-placeholder] .pedigree-node').count(),7);
+  await page.keyboard.press('Escape');
+  await page.locator('[name="minPrice"]').fill('3300');
+  await page.locator('[name="maxPrice"]').fill('4600');
+  await page.locator('[name="sort"]').selectOption('price-desc');
+  await page.locator('.market-browse-filters button').click();
+  await page.waitForFunction(()=>document.querySelectorAll('.market-listing-card').length===2);
+  assert.match(await page.locator('.market-listing-body h2').first().innerText(),/Shahin/);
+  await page.locator('[name="search"]').fill('Barq');
+  await page.locator('.market-browse-filters button').click();
+  await page.waitForFunction(()=>document.querySelectorAll('.market-listing-card').length===1);
+  await page.goto(`http://127.0.0.1:${port}/marketplace?preview=1`);
+  await page.locator('.market-listing-card').first().waitFor();
+  await page.locator('[name="minPrice"]').fill('5000');
+  await page.locator('[name="maxPrice"]').fill('1000');
+  assert.equal(await page.locator('.market-browse-filters').evaluate(f=>f.checkValidity()),false);
+  await page.locator('[name="minPrice"]').fill('');
+  await page.locator('[name="maxPrice"]').fill('');
+  await page.screenshot({path:'test-results/marketplace-desktop.png',fullPage:true});
+  assert.equal(mutations.length,0,'sample marketplace must not send offers or purchases');
+  for (const path of ['challenges','training','organizations','tourism','races','race-cards','marketplace?preview=1']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
-    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':path === 'race-cards'?'.digital-race-cards':'.broadcast-preview').waitFor();
+    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':path === 'race-cards'?'.digital-race-cards':path.startsWith('marketplace')?'.marketplace-browse':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
-    await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
+    await page.screenshot({path:`test-results/${path.split('?')[0]}-mobile.png`,fullPage:true});
   }
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');
   console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
