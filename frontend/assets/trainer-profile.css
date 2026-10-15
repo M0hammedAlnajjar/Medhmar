@@ -335,6 +335,10 @@
   transform-origin: 72% 72%;
   object-position: 75% 68%;
 }
+.trainer-photo.sample-reem img {
+  transform: scale(1.25);
+  transform-origin: 72% 25%;
+}
 .trainer-camel-body {
   padding: 15px 17px 0;
 }

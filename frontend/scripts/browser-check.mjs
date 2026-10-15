@@ -244,6 +244,7 @@ try {
       assert.ok(await page.locator('.trainer-preview-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'camel preview must fit on mobile');
       await page.getByRole('button',{name:'Close',exact:true}).click();
     }
+    await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
     await page.screenshot({path:`test-results/${path.split('?')[0]}-mobile.png`,fullPage:true});
   }
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');
