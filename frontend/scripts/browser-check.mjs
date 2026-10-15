@@ -21,12 +21,12 @@ try {
   page.on('request', request => { if (request.url().includes(':8080') && request.method() !== 'GET') mutations.push(request.url()); });
   await page.route('**/*:8080/**', route => {
     const path = new URL(route.request().url()).pathname;
-    if (path === '/api/camel/getAll') {
+    if (path === '/camel/getAll') {
       const search = new URL(route.request().url()).searchParams.get('search');
       const content = search === 'Barq' ? [{camelId:41,name:'Barq',breed:'Omani',gender:'MALE',status:'ACTIVE'}] : [];
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content,page:0,totalPages:1,totalElements:content.length})});
     }
-    if (path === '/api/camel/41/pedigree/tree') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Barq',sireName:'Al Zaeem',damName:'Bint Al Reem'})});
+    if (path === '/camel/41/pedigree/tree') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Barq',sireName:'Al Zaeem',damName:'Bint Al Reem'})});
     const data = path === '/api/users/me'  ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
   });
