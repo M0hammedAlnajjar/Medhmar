@@ -1,3 +1,4 @@
+import { marketplaceBrowse, bindMarketplaceBrowse, loadMarketplaceBrowse } from './marketplace-view.js';
 import { pedigreeFinder, loadPedigreeFinder } from './pedigree-finder.js';
 import { digitalRaceCards, bindDigitalRaceCards } from './digital-race-cards.js';
 import { heritageExperiences, bindHeritageExperiences } from './heritage-experiences.js';
@@ -420,7 +421,7 @@ const loaders = {
   },
   'Edit Camel': async p => { needAuth(); return { camel: await camelApi.one(p.id) }; },
   'Camel Ownership History': async p => { if (ENABLE_MOCK_MARKETPLACE && isMockCamelId(p.id)) return { camel: MOCK_CAMELS[p.id], history: [] }; const [camel, history] = await Promise.all([camelApi.one(p.id), camelApi.ownership(p.id)]); return { camel, history }; },
-  'Marketplace': async () => { const q = qparams(); if (ENABLE_MOCK_MARKETPLACE) { const page = mockMarketplacePage({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: MOCK_CAMELS }; } const page = await marketplaceApi.list({ page: q.page || 0, size: 12, search: q.search, minPrice: q.minPrice, maxPrice: q.maxPrice }); return { q, page, camels: await camelMap(page.content.map(l => l.camelId)) }; },
+  'Marketplace': () => loadMarketplaceBrowse(qparams(), marketplaceApi, camelApi, {mock:ENABLE_MOCK_MARKETPLACE}),
   'Create Listing': async () => { needAuth(); return { camels: await camelApi.mine(), camelId: qparams().camelId }; },
   'My Listings': async () => { needAuth(); const listings = await marketplaceApi.mine(); return { listings, camels: await camelMap(listings.map(l => l.camelId)) }; },
   'Listing History': async () => { needAuth(); const listings = await marketplaceApi.history(); return { listings, camels: await camelMap(listings.map(l => l.camelId)) }; },
@@ -597,10 +598,9 @@ const ownershipScreen = () => scr('/camels', camelTabs(''), 'Ownership History',
 }));
 
 // ---- Marketplace ----
-const listingCard = (l, camels) => { const c = camels[l.camelId]; return `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c?.name || `Camel #${l.camelId}`)}</h3>${sb(l.status)}</div><div class="price">${fmtOmr(l.askingPriceOmr)}</div><p>${esc(l.description || '')}</p><div class="actions"><a class="btn btn-primary" href="/marketplace/${l.listingId}" data-link>View listing</a></div></article>`; };
 const marketScreen = () => scr('/marketplace', marketTabs('/marketplace'), 'Marketplace', d => ({
-  title: 'Marketplace', sub: 'Camels currently listed for sale. Prices are in Omani Rial (OMR).',
-  body: `<form class="toolbar" data-form="market-filter"><input class="input" name="search" placeholder="Search camel or description…" value="${esc(d.q.search || '')}"><input class="input" type="number" min="0" step="any" name="minPrice" placeholder="Min OMR" value="${esc(d.q.minPrice || '')}"><input class="input" type="number" min="0" step="any" name="maxPrice" placeholder="Max OMR" value="${esc(d.q.maxPrice || '')}"><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(l => listingCard(l, d.camels)).join('')}</div>${pager(d.page)}` : emptyCard('No listings found', 'No camels are listed for sale right now.')}`,
+  title: 'Marketplace', sub: 'Discover camels listed for sale. Prices in Omani Rial (OMR).',
+  body: marketplaceBrowse(d) + pager(d.page),
 }));
 const listingTable = (listings, camels, withActions) => `<div class="table-wrap"><table><thead><tr><th>Camel</th><th>Asking price</th><th>Status</th><th>Listed</th><th>Description</th>${withActions ? '<th>Actions</th>' : ''}</tr></thead><tbody>${listings.map(l => { const c = camels[l.camelId]; return `<tr><td><a href="/camels/${l.camelId}/profile" data-link><strong>${esc(c?.name || `Camel #${l.camelId}`)}</strong></a></td><td>${fmtOmr(l.askingPriceOmr)}</td><td>${sb(l.status)}</td><td>${fmtDate(l.createdAt)}</td><td>${esc(l.description || '')}</td>${withActions ? `<td class="table-actions">${l.status === 'AVAILABLE' ? `<a class="small-btn" href="/marketplace/${l.listingId}" data-link>Open</a> <a class="small-btn" href="/marketplace/${l.listingId}/edit" data-link>Edit</a> <button class="small-btn" data-act="cancel-listing" data-id="${l.listingId}">Cancel</button>` : '—'}</td>` : ''}</tr>`; }).join('')}</tbody></table></div>`;
 const myListingsScreen = () => scr('/marketplace', marketTabs('/marketplace/my-listings'), 'My Listings', d => ({
@@ -837,6 +837,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindMarketplaceBrowse(root);
  bindDigitalRaceCards(root);
  bindHeritageExperiences(root);
  bindOrganizationDirectory(root);
