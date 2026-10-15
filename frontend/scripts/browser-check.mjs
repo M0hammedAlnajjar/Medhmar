@@ -96,10 +96,33 @@ try {
   assert.equal(new Set(raceSources).size,3,'upcoming races use three different real photographs');
   assert.ok(raceSources.every(src=>src.startsWith('/assets/organization-photos/')));
   await page.screenshot({path:'test-results/races-desktop.png',fullPage:true});
-  for (const path of ['challenges','training','organizations','tourism','races']) {
+
+  await page.goto(`http://127.0.0.1:${port}/race-cards`);
+  await page.locator('.drc-document').waitFor();
+  assert.equal(await page.locator('.drc-table tbody tr').count(),4);
+  await page.locator('#drc-version').selectOption('1');
+  assert.equal(await page.locator('.drc-table tbody tr').count(),3);
+  await page.locator('[data-drc-version="2"]').click();
+  assert.equal(await page.locator('#drc-version').inputValue(),'2');
+  assert.equal(await page.locator('.drc-table tbody tr').count(),4);
+  await page.locator('#drc-race').selectOption('nizwa');
+  assert.equal(await page.locator('.drc-table tbody tr').count(),2);
+  assert.equal(await page.locator('#drc-version option').count(),1);
+  await page.locator('#drc-race').selectOption('bashayer');
+  await page.evaluate(()=>{window.__printCalls=0;window.print=()=>window.__printCalls++;});
+  await page.locator('[data-drc-print]').click();
+  assert.equal(await page.evaluate(()=>window.__printCalls),1);
+  await page.emulateMedia({media:'print'});
+  assert.equal(await page.locator('.drc-document').evaluate(el=>getComputedStyle(el).visibility),'visible');
+  assert.equal(await page.locator('.drc-toolbar').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+  await page.screenshot({path:'test-results/race-card-print.png',fullPage:true});
+  await page.emulateMedia({media:'screen'});
+  assert.equal(mutations.length,0,'viewing sample race card versions must never publish');
+  await page.screenshot({path:'test-results/race-cards-desktop.png',fullPage:true});
+  for (const path of ['challenges','training','organizations','tourism','races','race-cards']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
-    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':'.broadcast-preview').waitFor();
+    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':path === 'race-cards'?'.digital-race-cards':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
     await page.screenshot({path:`test-results/${path}-mobile.png`,fullPage:true});
