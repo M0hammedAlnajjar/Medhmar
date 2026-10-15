@@ -21,7 +21,13 @@ try {
   page.on('request', request => { if (request.url().includes(':8080') && request.method() !== 'GET') mutations.push(request.url()); });
   await page.route('**/*:8080/**', route => {
     const path = new URL(route.request().url()).pathname;
-    const data = path === '/api/users/me' ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
+    if (path === '/camel/getAll') {
+      const search = new URL(route.request().url()).searchParams.get('search');
+      const content = search === 'Barq' ? [{camelId:41,name:'Barq',breed:'Omani',gender:'MALE',status:'ACTIVE'}] : [];
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content,page:0,totalPages:1,totalElements:content.length})});
+    }
+    if (path === '/camel/41/pedigree/tree') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Barq',sireName:'Al Zaeem',damName:'Bint Al Reem'})});
+    const data = path === '/api/users/me'  ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
   });
   await mkdir('test-results',{recursive:true});
@@ -120,6 +126,26 @@ try {
   await page.emulateMedia({media:'screen'});
   assert.equal(mutations.length,0,'viewing sample race card versions must never publish');
   await page.screenshot({path:'test-results/race-cards-desktop.png',fullPage:true});
+
+  await page.goto(`http://127.0.0.1:${port}/pedigree`);
+  await page.locator('.pedigree-search-form').waitFor();
+  assert.equal(await page.locator('.pedigree-tree').count(),0);
+  assert.equal(await page.locator('select[name="gender"]').count(),0);
+  await page.locator('#pedigree-search').fill('Barq');
+  await page.locator('.pedigree-search-form button').click();
+  await page.locator('.pedigree-search-results a').click();
+  await page.locator('.pedigree-inline .pedigree-tree').waitFor();
+  assert.match(await page.locator('.pedigree-inline').innerText(), /Al Zaeem/);
+  assert.equal(await page.locator('h1').count(),1);
+  await page.screenshot({path:'test-results/pedigree-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), 'selected pedigree overflows on mobile');
+  await page.screenshot({path:'test-results/pedigree-mobile.png',fullPage:true});
+  await page.locator('#pedigree-search').fill('missing');
+  await page.locator('.pedigree-search-form button').click();
+  await page.getByText('No camels match this name.',{exact:false}).waitFor();
+  assert.equal(await page.locator('.pedigree-tree').count(),0);
+  assert.equal(mutations.length,0,'pedigree search and selection must remain read only');
   for (const path of ['challenges','training','organizations','tourism','races','race-cards']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
