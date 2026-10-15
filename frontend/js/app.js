@@ -1,3 +1,4 @@
+import { digitalRaceCards, bindDigitalRaceCards } from './digital-race-cards.js';
 import { heritageExperiences, bindHeritageExperiences } from './heritage-experiences.js';
 import { organizationDirectory, bindOrganizationDirectory } from './organization-directory.js';
 import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
@@ -348,7 +349,7 @@ function organizations(){ return shell(organizationDirectory(demo.organizations)
 function tourism(){ return shell(heritageExperiences(),'/tourism'); }
 
 const raceRows = () => `<table><thead><tr><th>No.</th><th>Camel</th><th>Owner</th><th>Trainer</th><th>Category</th></tr></thead><tbody>${[['01','Barq','Ahmed Al Balushi','Salim Al Rashidi','Racing'],['02','Shahin','Khalid Al Maamari','Nasser Al Hinai','Racing'],['03','Al Sahab','Mohammed Al Naqbi','Rashid Al Kindi','Racing'],['04','Najm','Saif Al Busaidi','Khalid Al Harthy','Racing']].map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-function raceCards(){ return shell(`${head('Digital Race Cards','Public, immutable race-card publications with version history.')}${demoNote()}<div class="race-card-sheet"><div class="race-card-head"><div><div class="kicker">Official Digital Race Card</div><h2>Al Bashayer Camel Race</h2><p>12 October 2026 • Al Dakhiliyah • 5 KM</p></div>${badge('OFFICIAL')}</div><div class="table-wrap">${raceRows()}</div></div><section class="section"><h2>Publication History</h2><div class="version-list">${demo.raceCards.map(c=>`<div class="version"><div><strong>Version ${c.version}</strong><div class="form-help">Published ${c.published}</div></div><span>${c.participants} participants</span></div>`).join('')}</div></section>`,'/race-cards'); }
+function raceCards(){ return shell(digitalRaceCards(),'/race-cards'); }
 function publishRaceCard(id){ return shell(`${head('Race Card Publish Control','Mohammed-owned race-card publication control inside organizer context.','<button class="btn btn-primary" id="publish-race-card" data-race="'+id+'">Publish New Version</button>')}<div class="race-card-sheet"><div class="race-card-head"><div><div class="kicker">Race #${esc(id)}</div><h2>Al Bashayer Camel Race</h2><p>Publishing snapshots accepted entries and creates an immutable new version.</p></div>${badge('READY')}</div><div class="table-wrap">${raceRows()}</div></div>`,''); }
 
 // ===== Camel / Ownership / Marketplace / Offers / Sale-completion (Camel & Marketplace scope) =====
@@ -904,6 +905,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindDigitalRaceCards(root);
  bindHeritageExperiences(root);
  bindOrganizationDirectory(root);
  bindTrainingJournal(root);
