@@ -129,7 +129,7 @@ try {
 
   await page.goto(`http://127.0.0.1:${port}/pedigree`);
   await page.locator('.pedigree-search-form').waitFor();
-  await page.locator('.pedigree-inline .pedigree-tree').waitFor();
+  await page.locator('[data-pedigree-record]').waitFor();
   assert.match(await page.locator('.pedigree-inline').innerText(), /Al Zaeem/);
   await page.getByRole('link',{name:'Choose another camel'}).click();
   await page.locator('.pedigree-finder-start').waitFor();
@@ -139,7 +139,7 @@ try {
   await page.locator('#pedigree-search').fill('Barq');
   await page.locator('.pedigree-search-form button').click();
   await page.locator('.pedigree-search-results a').click();
-  await page.locator('.pedigree-inline .pedigree-tree').waitFor();
+  await page.locator('[data-pedigree-record]').waitFor();
   assert.match(await page.locator('.pedigree-inline').innerText(), /Al Zaeem/);
   assert.equal(await page.locator('h1').count(),1);
   await page.screenshot({path:'test-results/pedigree-desktop.png',fullPage:true});
@@ -151,6 +151,7 @@ try {
   await page.getByText('No camels match this name.',{exact:false}).waitFor();
   assert.equal(await page.locator('[data-pedigree-record]').count(),0);
   assert.equal(await page.locator('[data-pedigree-placeholder] .pedigree-node').count(),7);
+  await page.screenshot({path:'test-results/pedigree-empty-permanent.png',fullPage:true});
   assert.equal(mutations.length,0,'pedigree search and selection must remain read only');
   for (const path of ['challenges','training','organizations','tourism','races','race-cards']) {
     await page.setViewportSize({width:390,height:844});
