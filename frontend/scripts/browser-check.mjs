@@ -114,7 +114,8 @@ try {
   assert.equal(await page.evaluate(()=>window.__printCalls),1);
   await page.emulateMedia({media:'print'});
   assert.equal(await page.locator('.drc-document').evaluate(el=>getComputedStyle(el).visibility),'visible');
-  assert.equal(await page.locator('.drc-toolbar').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+  assert.equal(await page.locator('.drc-toolbar').evaluate(el=>getComputedStyle(el).display),'none');
+  assert.equal(await page.locator('.topbar').evaluate(el=>getComputedStyle(el).display),'none');
   await page.screenshot({path:'test-results/race-card-print.png',fullPage:true});
   await page.emulateMedia({media:'screen'});
   assert.equal(mutations.length,0,'viewing sample race card versions must never publish');
