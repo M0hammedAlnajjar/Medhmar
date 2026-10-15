@@ -133,7 +133,8 @@ try {
   assert.match(await page.locator('.pedigree-inline').innerText(), /Al Zaeem/);
   await page.getByRole('link',{name:'Choose another camel'}).click();
   await page.locator('.pedigree-finder-start').waitFor();
-  assert.equal(await page.locator('.pedigree-tree').count(),0);
+  assert.equal(await page.locator('[data-pedigree-record]').count(),0);
+  assert.equal(await page.locator('[data-pedigree-placeholder] .pedigree-node').count(),7);
   assert.equal(await page.locator('select[name="gender"]').count(),0);
   await page.locator('#pedigree-search').fill('Barq');
   await page.locator('.pedigree-search-form button').click();
@@ -148,7 +149,8 @@ try {
   await page.locator('#pedigree-search').fill('missing');
   await page.locator('.pedigree-search-form button').click();
   await page.getByText('No camels match this name.',{exact:false}).waitFor();
-  assert.equal(await page.locator('.pedigree-tree').count(),0);
+  assert.equal(await page.locator('[data-pedigree-record]').count(),0);
+  assert.equal(await page.locator('[data-pedigree-placeholder] .pedigree-node').count(),7);
   assert.equal(mutations.length,0,'pedigree search and selection must remain read only');
   for (const path of ['challenges','training','organizations','tourism','races','race-cards']) {
     await page.setViewportSize({width:390,height:844});
