@@ -10,6 +10,7 @@ for (const file of (await readdir("js")).filter(name => name.endsWith(".js"))) {
 const required = [
   "index.html", "server.mjs", "package.json",
   "assets/styles.css", "assets/race-styles.css", "assets/medhmar-logo.svg", "assets/medhmar-logo-full.svg", "assets/medhmar-logo-icon.svg", "assets/racing-hero.webp",
+  "js/trainer-profile.js", "assets/trainer-profile.css", "assets/trainer-profile/salim-preview.webp",
   "js/training-journal.js", "js/challenge-preview.js", "js/home-photo-fallbacks.js", "assets/training-journal.css", "assets/challenge-preview.css", "js/app.js", "js/api.js", "js/data.js", "js/routes.js", "js/race-routes.js", "js/race-extra-app.js"
 ];
 
