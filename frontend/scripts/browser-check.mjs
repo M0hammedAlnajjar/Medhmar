@@ -201,12 +201,49 @@ try {
   await page.locator('[name="maxPrice"]').fill('');
   await page.screenshot({path:'test-results/marketplace-desktop.png',fullPage:true});
   assert.equal(mutations.length,0,'sample marketplace must not send offers or purchases');
-  for (const path of ['challenges','training','organizations','tourism','races','race-cards','marketplace?preview=1']) {
+  await page.goto(`http://127.0.0.1:${port}/trainer-profile`);
+  await page.locator('.trainer-profile').waitFor();
+  assert.equal(await page.locator('.trainer-statistics dd').count(),2);
+  assert.equal(await page.locator('.trainer-camel-card').count(),3);
+  assert.equal(await page.locator('.trainer-expertise-grid article').count(),3);
+  assert.doesNotMatch(await page.locator('.trainer-profile').innerText(),/\b(?:rating|reviews?)\b|4\.8|★/i);
+  assert.equal(await page.getByRole('link',{name:'View Training Log',exact:true}).getAttribute('href'),'/training');
+  assert.equal(await page.getByRole('link',{name:'Browse Registry',exact:true}).getAttribute('href'),'/camels');
+  await page.waitForFunction(()=>[...document.querySelectorAll('[data-trainer-photo]')].length===4&&[...document.querySelectorAll('[data-trainer-photo]')].every(i=>i.complete&&i.naturalWidth>0));
+  await page.screenshot({path:'test-results/trainer-profile-desktop.png',fullPage:true});
+  await page.getByRole('button',{name:'View Barq sample camel'}).click();
+  assert.equal(await page.locator('.trainer-preview-dialog').evaluate(d=>d.open),true);
+  assert.match(await page.locator('.trainer-dialog-content').innerText(),/no registered profile or recorded assignment/);
+  assert.equal(await page.locator('.trainer-dialog-content a').getAttribute('href'),'/camels');
+  assert.equal(await page.locator('.trainer-dialog-content a[href^="/camels/"]').count(),0);
+  await page.keyboard.press('Escape');
+  assert.equal(await page.getByRole('button',{name:'View Barq sample camel'}).evaluate(el=>el===document.activeElement),true);
+  await page.getByRole('button',{name:'View Al Reem sample camel'}).click();
+  assert.match(await page.locator('#trainer-dialog-title').innerText(),/Al Reem/);
+  await page.getByRole('button',{name:'Close camel preview',exact:true}).click();
+  assert.equal(await page.locator('.trainer-preview-dialog').evaluate(d=>d.open),false);
+  assert.equal(mutations.length,0,'trainer preview controls must remain read only');
+  // A failed portrait exposes its text fallback without substituting another person.
+  await page.locator('.trainer-portrait img').evaluate(img=>img.dispatchEvent(new Event('error')));
+  assert.equal(await page.locator('.trainer-portrait img').count(),0);
+  assert.equal(await page.locator('.trainer-portrait .trainer-photo-fallback').isVisible(),true);
+  await page.goto(`http://127.0.0.1:${port}/trainer-profile`);
+  await page.getByRole('link',{name:'View Training Log',exact:true}).click();
+  await page.locator('.training-journal').waitFor();
+  for (const path of ['challenges','training','organizations','tourism','races','race-cards','marketplace?preview=1','trainer-profile']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
-    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':path === 'race-cards'?'.digital-race-cards':path.startsWith('marketplace')?'.marketplace-browse':'.broadcast-preview').waitFor();
+    await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':path === 'race-cards'?'.digital-race-cards':path.startsWith('marketplace')?'.marketplace-browse':path === 'trainer-profile'?'.trainer-profile':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
+    if (path === 'trainer-profile') {
+      await page.waitForFunction(()=>[...document.querySelectorAll('[data-trainer-photo]')].every(i=>i.complete&&i.naturalWidth>0));
+      assert.ok(await page.locator('.trainer-camel-card').first().evaluate(el=>el.getBoundingClientRect().width>300),'mobile trainer cards must retain a readable width');
+      await page.getByRole('button',{name:'View Shahin sample camel'}).click();
+      assert.equal(await page.locator('.trainer-preview-dialog').evaluate(d=>d.open),true);
+      assert.ok(await page.locator('.trainer-preview-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'camel preview must fit on mobile');
+      await page.getByRole('button',{name:'Close',exact:true}).click();
+    }
     await page.screenshot({path:`test-results/${path.split('?')[0]}-mobile.png`,fullPage:true});
   }
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');

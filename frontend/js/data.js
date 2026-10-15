@@ -24,7 +24,6 @@ export const demo = {
     name: "Salim Al Rashidi",
     bio: "Professional camel trainer focused on endurance, race preparation and structured training plans.",
     location: "Nizwa, Oman",
-    rating: 4.8,
     assigned: 12,
     years: 8,
   },

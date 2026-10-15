@@ -1,3 +1,4 @@
+import { trainerProfile, bindTrainerProfile } from './trainer-profile.js';
 import { marketplaceBrowse, bindMarketplaceBrowse, loadMarketplaceBrowse } from './marketplace-view.js';
 import { pedigreeFinder, loadPedigreeFinder } from './pedigree-finder.js';
 import { digitalRaceCards, bindDigitalRaceCards } from './digital-race-cards.js';
@@ -300,7 +301,7 @@ function settings() {
   `, '/settings');
 }
 
-function trainer(){ const t=demo.trainer; return shell(`${head('Trainer Profile','Professional profile integrated with the current platform.')}${demoNote()}<section class="card profile-hero"><div class="profile-avatar">S</div><div><h1>${t.name}</h1><p>Professional Camel Trainer • ${t.location}</p><div class="actions">${badge('ACTIVE')}<span class="badge neutral">★ ${t.rating}</span></div></div><div class="stats"><div class="stat"><div class="stat-value">${t.assigned}</div><div class="stat-label">Assigned Camels</div></div><div class="stat"><div class="stat-value">${t.years}</div><div class="stat-label">Years Experience</div></div></div></section><section class="card card-pad section"><h2>About</h2><p>${t.bio}</p></section>`,'/trainer-profile'); }
+function trainer(){ return shell(trainerProfile(),'/trainer-profile'); }
 
 const challengeCard = c => `<article class="card challenge-card"><div class="section-title"><div><div class="kicker">Camel Challenge</div><h2>${esc(c.title)}</h2></div>${badge(c.status)}</div><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h3>${esc(x.name)}</h3><strong>${x.votePercent}%</strong><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div></div>`).join('')}</div><a class="btn btn-primary" href="/challenges/${c.challengeId}" data-link>View Challenge</a></article>`;
 const votingOpen = c => c?.status === 'OPEN' && Date.now() >= new Date(c.opensAt).getTime() && Date.now() < new Date(c.closesAt).getTime();
@@ -837,6 +838,7 @@ async function render() {
  bind();
 }
 function bind(){
+ bindTrainerProfile(root);
  bindMarketplaceBrowse(root);
  bindDigitalRaceCards(root);
  bindHeritageExperiences(root);
