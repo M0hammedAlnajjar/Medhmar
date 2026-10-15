@@ -63,7 +63,7 @@ function feedback(status, error) {
   return `<div class="pedigree-feedback" role="alert"><h2>${title}</h2><p>${message}</p>${action}</div>`;
 }
 
-export function pedigreeView(view) {
+export function pedigreeView(view, { embedded = false } = {}) {
   const tree = view.data?.tree;
   const ready = view.status === 'ready' && tree && registered(tree);
   const actions = ready ? `<div class="actions"><a class="btn btn-secondary pedigree-profile-link" href="/camels/${encodeURIComponent(tree.camelId)}/profile" data-link>View camel profile <span aria-hidden="true">↗</span></a>${view.data?.canEdit ? `<a class="btn btn-primary" href="/camels/${encodeURIComponent(tree.camelId)}/pedigree/edit" data-link>Edit pedigree</a>` : ''}</div>` : '';
@@ -75,6 +75,7 @@ export function pedigreeView(view) {
       </div>
       <div class="pedigree-legend"><span><b>Sire</b> Father</span><span><b>Dam</b> Mother</span><span class="pedigree-hint">Select a registered ancestor to explore its pedigree.</span></div>
     </figure>` : feedback(view.status === 'ready' ? 'error' : view.status, view.error);
+  if (embedded) return `<section class="pedigree-inline" aria-label="Selected camel family tree">${actions}${content}</section>`;
   return `<section class="pedigree-page" lang="en" dir="ltr" aria-labelledby="pedigree-title">
     <a class="pedigree-back" href="/camels" data-link><span aria-hidden="true">←</span> Camels</a>
     <div class="pedigree-heading"><div><h1 id="pedigree-title">Pedigree</h1><p>${ready ? `Explore ${escape(tree.name)}’s family across three generations.` : 'Explore the family behind every camel.'}</p></div>${actions}</div>

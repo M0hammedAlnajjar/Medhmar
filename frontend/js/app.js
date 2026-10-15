@@ -1,3 +1,4 @@
+import { pedigreeFinder } from './pedigree-finder.js';
 import { digitalRaceCards, bindDigitalRaceCards } from './digital-race-cards.js';
 import { heritageExperiences, bindHeritageExperiences } from './heritage-experiences.js';
 import { organizationDirectory, bindOrganizationDirectory } from './organization-directory.js';
@@ -343,7 +344,7 @@ function denyRoleAccess(route) {
  root.innerHTML=shell(`<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available to ${esc(roles)} accounts.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>`);
 }
 
-function pedigree(){ return shell(pedigreeView(state.view), '/camels', true); }
+function pedigree(){ return shell(pedigreeView(state.view), '/pedigree', true); }
 
 function organizations(){ return shell(organizationDirectory(demo.organizations),'/organizations'); }
 function tourism(){ return shell(heritageExperiences(),'/tourism'); }
@@ -373,19 +374,15 @@ async function camelMap(ids) {
 
 const loaders = {
   'Pedigree Directory': async () => {
-    const q = qparams();
-    return {
-      q,
-      page: await camelApi.list({
-        page: q.page || 0,
-        size: 12,
-        search: q.search,
-        gender: q.gender,
-        breed: q.breed,
-        category: q.category,
-        status: q.status,
-      }),
-    };
+    const q = qparams(), search = (q.search || '').trim();
+    const selected = /^[1-9]\d*$/.test(q.camel || '') ? q.camel : '';
+    const page = search ? await camelApi.list({ page: q.page || 0, size: 8, search }) : null;
+    let tree = null, treeError = null;
+    if (selected) {
+      try { tree = await pedigreeApi.tree(selected); }
+      catch (error) { treeError = error; }
+    }
+    return { q: { ...q, search }, page, tree, treeError };
   },
   'Pedigree Section': async p => {
     const tree = await pedigreeApi.tree(p.id);
@@ -563,65 +560,10 @@ const auditDetailScreen = () => scr('/audit-logs','','Audit entry details',d=>{c
 
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
-const pedigreeDirectoryCard = c => `<article class="card card-pad">${camelPhoto({...c, photoUrl: null})}<div class="section-title"><div><div class="kicker">PEDIGREE</div><h3>${esc(c.name)}</h3></div>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}" data-link>View pedigree</a><a class="btn btn-secondary" href="/camels/${c.camelId}/profile" data-link>View profile</a></div></article>`;
-// Static visual example only; live ancestor names and photos come from PedigreeTreeDTO
-// after a visitor opens a registered camel. Do not invent links to sample ancestors.
-const pedigreeDirectoryVisual = () => `<section class="pedigree-directory-preview" aria-label="Illustrative three-generation camel pedigree">
-  <figure class="pedigree-chart pedigree-preview-chart" aria-labelledby="pedigree-preview-caption">
-    <figcaption id="pedigree-preview-caption" class="pedigree-sr-only">Example three-generation camel pedigree: Barq, its parents and four grandparents.</figcaption>
-    <div class="pedigree-tree">
-      <div class="pedigree-subject">
-        <div class="pedigree-node pedigree-node-subject">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-1.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Camel</span><span class="pedigree-name">Barq</span></span>
-        </div>
-      </div>
-      <ol class="pedigree-parents" aria-label="Example parents and grandparents">
-        <li class="pedigree-branch" aria-label="Paternal ancestry">
-          <div class="pedigree-node">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-2.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Sire</span><span class="pedigree-name">Al Zaeem</span></span>
-        </div>
-          <ol class="pedigree-grandparents" aria-label="Paternal grandparents">
-            <li><div class="pedigree-node">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-3.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Grand Sire</span><span class="pedigree-name">Al Majd</span></span>
-        </div></li>
-            <li><div class="pedigree-node">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-4.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Grand Dam</span><span class="pedigree-name">Al Noor</span></span>
-        </div></li>
-          </ol>
-        </li>
-        <li class="pedigree-branch" aria-label="Maternal ancestry">
-          <div class="pedigree-node">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-5.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Dam</span><span class="pedigree-name">Bint Al Reem</span></span>
-        </div>
-          <ol class="pedigree-grandparents" aria-label="Maternal grandparents">
-            <li><div class="pedigree-node">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-6.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Grand Sire</span><span class="pedigree-name">Al Sultan</span></span>
-        </div></li>
-            <li><div class="pedigree-node">
-          <span class="pedigree-photo" aria-hidden="true"><img src="/assets/mock-camels/camel-7.jpg" alt="" loading="lazy" decoding="async"></span>
-          <span class="pedigree-node-copy"><span class="pedigree-label">Grand Dam</span><span class="pedigree-name">Al Dewa</span></span>
-        </div></li>
-          </ol>
-        </li>
-      </ol>
-    </div>
-    <div class="pedigree-legend">
-      <span><b>Sire</b> Father</span>
-      <span><b>Dam</b> Mother</span>
-      <span class="pedigree-hint">Illustrative preview. Select a registered camel below to see its actual pedigree.</span>
-    </div>
-  </figure>
-</section>`;
 const pedigreeDirectoryScreen = () => scr('/pedigree', '', 'Pedigree', d => ({
   title: 'Pedigree',
-  sub: 'Explore registered camel bloodlines and open each family tree.',
-  body: `${pedigreeDirectoryVisual()}<form class="toolbar pedigree-directory-toolbar" data-form="pedigree-filter"><input class="input" name="search" placeholder="Search camel by name…" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(pedigreeDirectoryCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No registered camels match these pedigree filters.', '<a class="btn btn-secondary" href="/camels" data-link>Browse camels</a>')}`,
+  sub: 'Find a camel and explore its family tree.',
+  body: pedigreeFinder(d) + (d.page ? pager(d.page) : ''),
 }));
 
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
