@@ -139,7 +139,9 @@ test("Profile & Settings no longer embeds the chat in its main layout", async ()
   const { readFile } = await import("node:fs/promises");
   const script = await readFile(new URL("../js/app.js", import.meta.url), "utf8");
   const settings = script.split("function settings()")[1].split("function trainer()")[0];
-  assert.match(settings, /settings-account-layout/);
-  assert.doesNotMatch(settings, /renderAssistantView|medhmar-assistant/);
+  const accountView = await readFile(new URL("../js/account-view.js", import.meta.url), "utf8");
+  assert.match(settings, /renderAccount/);
+  assert.match(accountView, /account-layout/);
+  assert.doesNotMatch(settings + accountView, /renderAssistantView|medhmar-assistant/);
   assert.match(script, /syncAssistantDock\(\{ user: state\.user/);
 });

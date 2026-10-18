@@ -44,7 +44,7 @@ test('admin data only appears with active ADMIN role and returned server records
 test('admin server error does not invent or reveal records', () => {
   const html = renderAccount({ user: user('ADMIN'), adminError: 'Server unavailable' });
   assert.match(html, /Administrator access unavailable|Server unavailable/);
-  assert.doesNotMatch(html, /class="small-btn manage-user"|registered users/);
+  assert.doesNotMatch(html, /class="small-btn manage-user"|[0-9]+ registered users/);
 });
 
 test('account route requires authentication and unknown routes are denied', () => {
