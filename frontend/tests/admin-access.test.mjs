@@ -86,7 +86,7 @@ test('verified admin receives live users, never demo accounts or fake totals', a
   await app.render();
   assert.deepEqual(app.requests, ['me', 'dashboard']);
   assert.match(app.root.innerHTML, /class="admin-console"/);
-  assert.match(app.root.innerHTML, /REGISTERED USERS/);
+  assert.match(app.root.innerHTML, /Total Users/);
   assert.doesNotMatch(app.root.innerHTML, /Live Account/);
   app.location.pathname='/admin/users';
   await app.render();
