@@ -13,6 +13,7 @@ function navbar(user, pathname = '/home', hash = '') {
   const location = { pathname, hash, search: '' };
   const context = vm.createContext({
     location, matchRoute, canAccessRoute,
+    normalizePath: () => location.pathname,
     authView: () => '',
     localStorage: { getItem: () => 'en' },
     document: { querySelector: () => null }
