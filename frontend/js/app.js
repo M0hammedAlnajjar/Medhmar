@@ -42,38 +42,42 @@ const go = p => { history.pushState({},'',p); render(); };
 function toast(msg,type=''){ const el=document.createElement('div'); el.className=`toast ${type}`; el.textContent=msg; toastRoot.append(el); setTimeout(()=>el.remove(),3200); }
 
 
-const navItems = [
-    ['/home','Home'],
-    ['/challenges','Challenges'],
-    ['/training','Training'],
-    ['/agreements','Agreements'],
-    ['/audit-logs','Audit log'],
-    ['/organizations','Organizations'],
-    ['/tourism','Heritage'],
-    ['/races','Races'],
-    ['/race-cards','Race Cards'],
-    ['/trainer-profile','Trainer'],
-    ['/admin','Admin']
+// Public and regular role-specific navigation. Administrative links never enter "More".
+const userNavItems = [
+  ['/home', 'Home'], ['/challenges', 'Challenges'], ['/training', 'Training'],
+  ['/organizations', 'Organizations'], ['/tourism', 'Heritage'],
+  ['/races', 'Races'], ['/race-cards', 'Race Cards'], ['/camels', 'Camels'],
+  ['/pedigree', 'Pedigree'], ['/marketplace', 'Marketplace'],
+  ['/trainer-profile', 'Trainer'], ['/agreements', 'Agreements']
 ];
-
-
-// Place the frequently used modules in the reference navbar order; preserve
-// specialized routes and permissions in the More/mobile navigation.
-const navAll = [
-    ['/home','Home'], ['/challenges','Challenges'], ['/training','Training'],
-    ['/organizations','Organizations'], ['/tourism','Heritage'],
-    ['/races','Races'], ['/race-cards','Race Cards'], ['/camels','Camels'],
-    ['/pedigree','Pedigree'], ['/marketplace','Marketplace'],
-    ['/trainer-profile','Trainer'], ['/agreements','Agreements'],
-    ['/audit-logs','Audit log']
+const adminNavItems = [
+  ['/admin', 'Admin Dashboard'],
+  ['/admin#account-administration', 'Manage Users'],
+  ['/audit-logs', 'Audit Log']
 ];
-const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
-const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/pedigree','/marketplace']);
+const visibleNavItems = () =>
+  userNavItems.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
+// The admin group requires an authenticated administrator, even if individual
+// destination routes are accessed through legacy URLs or browser bookmarks.
+const visibleAdminNavItems = () =>
+  canAccessRoute(matchRoute('/admin')?.route, state.user)
+    ? adminNavItems.filter(([path]) =>
+        canAccessRoute(matchRoute(path.split('#')[0])?.route, state.user))
+    : [];
 
 function topbar(active='', compact=false){
   const signedIn = Boolean(state.user?.userId);
   const items = visibleNavItems();
+  const adminItems = visibleAdminNavItems();
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
+  const adminNavLink = ([path, label]) => {
+    const route = path.split('#')[0];
+    const activeAdmin = route === '/audit-logs'
+      ? normalizePath().startsWith('/audit-logs')
+      : normalizePath() === '/admin' &&
+        (path.includes('#') === (location.hash === '#account-administration'));
+    return `<a href="${path}" data-link class="${activeAdmin ? 'active' : ''}"${activeAdmin ? ' aria-current="page"' : ''}>${label}</a>`;
+  };
   const corePaths = ['/home', '/races', '/camels', '/pedigree', '/marketplace'];
   const primaryDesktopPaths = [
     '/home', '/challenges', '/training', '/organizations', '/tourism',
@@ -83,6 +87,10 @@ function topbar(active='', compact=false){
   const desktopItems = visiblePaths.map(path => items.find(([p]) => p === path)).filter(Boolean);
   const extraItems = items.filter(([path]) => !visiblePaths.includes(path));
   const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
+  // A distinct navigation surface, not another item in More.
+  const adminMenu = adminItems.length
+    ? `<details class="nav-admin"><summary aria-label="Open administration menu">Admin <span aria-hidden="true">⌄</span></summary><nav class="nav-admin-menu" aria-label="Administration">${adminItems.map(adminNavLink).join('')}</nav></details>`
+    : '';
 
   const accountActions = signedIn
     ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">⌄</span></a>`
@@ -90,13 +98,16 @@ function topbar(active='', compact=false){
 
   const searchAction = `<a class="nav-search" href="/races" data-link aria-label="Search races" title="Search races"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg></a>`;
   const language = '<span class="nav-language-single" aria-label="English language">EN</span>';
-  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu">${items.map(navLink).join('')}</div></details>`;
+  const mobileAdminMenu = adminItems.length
+    ? `<nav class="nav-mobile-admin" aria-label="Administration"><div class="nav-mobile-admin-label">Administration</div>${adminItems.map(adminNavLink).join('')}</nav>`
+    : '';
+  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu"><nav class="nav-mobile-user" aria-label="User pages">${items.map(navLink).join('')}</nav>${mobileAdminMenu}</div></details>`;
 
   return `<header class="topbar"><div class="topbar-inner">
     ${mobileMenu}
     <a class="brand brand-wordmark" href="/home" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
     <nav class="nav nav-desktop" aria-label="Primary navigation">${desktopItems.map(navLink).join('')}${moreMenu}</nav>
-    <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
+    <div class="nav-actions" dir="ltr">${adminMenu}${searchAction}${accountActions}${language}</div>
   </div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
@@ -835,6 +846,12 @@ async function render() {
   }
  } else root.innerHTML=match?screen(match)():notFound();
  bind();
+ // "Manage Users" targets the protected admin section after the API resolves,
+ // rather than scrolling before asynchronous account data is rendered.
+ if (match?.route?.path === '/admin' &&
+     location.hash === '#account-administration' && Array.isArray(state.adminUsers)) {
+   document.querySelector('#account-administration')?.scrollIntoView?.({ block: 'start' });
+ }
 }
 function bind(){
  bindTrainerProfile(root);
