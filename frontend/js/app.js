@@ -28,6 +28,7 @@ let renderEpoch = 0;
 const state = {
   adminUsers: null,
   adminPageData: null,
+  adminSummary: null,
   adminError: '',
   adminPage: 0,
   user: guestUser,
@@ -290,7 +291,7 @@ function training(){ return shell(trainingJournal(), '/training'); }
 
 function admin() {
  if (!canAccessRoute(matchRoute('/admin').route,state.user)) return adminDenied();
- return shell(adminDashboard({user:state.user,page:state.adminPageData,error:state.adminError}),'/admin');
+ return shell(adminDashboard({user:state.user,summary:state.adminSummary,error:state.adminError}),'/admin');
 }
 function adminUsersPage() {
  if (!canAccessRoute(matchRoute('/admin/users').route,state.user)) return adminDenied();
@@ -735,6 +736,7 @@ async function render() {
  if(!adminArea(path)) loadView(match);
  state.adminUsers=null;
  state.adminPageData=null;
+ state.adminSummary=null;
  state.adminError='';
  $('#modal')?.remove();
  document.documentElement.lang=state.lang;
@@ -808,22 +810,30 @@ async function render() {
    if(adminRoute&&!canAccessRoute(match.route,state.user)){denyAdminAccess();bind();return;}
    if(adminRoute&&(path==='/admin'||path==='/admin/users')) {
     try {
-     const page=await adminApi.users(state.adminPage);
-     if(epoch!==renderEpoch)return;
-     if(!Array.isArray(page?.content))throw new Error('Unable to load accounts.');
-     state.adminUsers=page.content;state.adminPageData=page;
+     if(path==='/admin') {
+      const summary=await adminApi.dashboard();
+      if(epoch!==renderEpoch)return;
+      if(!summary || typeof summary.totalUsers!=='number' || !Array.isArray(summary.activity) ||
+         !Array.isArray(summary.recentEvents)) throw new Error('Invalid dashboard response.');
+      state.adminSummary=summary;
+     } else {
+      const page=await adminApi.users(state.adminPage);
+      if(epoch!==renderEpoch)return;
+      if(!Array.isArray(page?.content))throw new Error('Unable to load accounts.');
+      state.adminUsers=page.content;state.adminPageData=page;
+     }
     } catch(err) {
      if(epoch!==renderEpoch)return;
      if(err.status===401)throw err;
      if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
-     state.adminError='Could not load users. Please retry.';
+     state.adminError='Could not load '+(path==='/admin'?'dashboard':'users')+' data. Please retry.';
     }
    }
    if(adminRoute&&path.startsWith('/admin/audit-logs'))loadView(match);
    root.innerHTML=adminRoute?screen(match)():settings();
   }catch(err){
    if(epoch!==renderEpoch)return;
-   state.adminUsers=null;state.adminPageData=null;
+   state.adminUsers=null;state.adminPageData=null;state.adminSummary=null;
    if(err.status===401||err.status===403){state.user={...guestUser};denyRoleAccess(match.route);}
    else {
     const body='<section class="card card-pad error"><h2>Account unavailable</h2><p>Unable to verify your session. Please retry.</p><button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>';
@@ -843,9 +853,11 @@ function bind(){
  bindBroadcastPreview(root);
  bindPedigreeImages(root);
  // The dock lives outside #app and survives in-app route changes.
- if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang, path: normalizePath() });
+ if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
+    path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  $('#admin-retry')?.addEventListener('click',()=>render());
   $('#admin-signout')?.addEventListener('click',handleLogout);
+  $('#admin-mobile-signout')?.addEventListener('click',handleLogout);
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
  bindHomeControls();

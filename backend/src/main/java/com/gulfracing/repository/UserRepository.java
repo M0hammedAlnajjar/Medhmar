@@ -13,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.userId = :id")
     Optional<User> findLockedById(@Param("id") Long id);
+    long countByJoinedAtGreaterThanEqualAndJoinedAtLessThan(java.time.Instant from, java.time.Instant until);
 }

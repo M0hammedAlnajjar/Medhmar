@@ -90,6 +90,7 @@ export const challengeApi = {
 };
 
 export const adminApi = {
+  dashboard: () => api("/api/admin/dashboard"),
   users: (page = 0) => api(`/api/admin/users?page=${Math.max(0, Math.trunc(Number(page) || 0))}&size=20`),
   roles: (id, roles) => api(`/api/admin/users/${id}/roles`, { method: "PUT", body: JSON.stringify({ roles }) }),
   status: (id, status) => api(`/api/admin/users/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),

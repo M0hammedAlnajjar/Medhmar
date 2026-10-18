@@ -58,4 +58,8 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
             @Param("maxPrice") java.math.BigDecimal maxPrice,
             Pageable pageable
     );
+    @Query("SELECT COUNT(m) FROM MarketPlace m WHERE m.isActive = true AND m.status = :status")
+    long countActiveListings(@Param("status") MarketPlaceStatus status);
+
+    long countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(java.util.Date from, java.util.Date until);
 }
