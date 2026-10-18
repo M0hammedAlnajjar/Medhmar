@@ -85,9 +85,17 @@ test('API failures fail closed, including expired sessions and forbidden respons
   for (const status of [401, 403, 500]) {
     const app = harness({ userId: 1, roles: ['ADMIN'] }, { users: async () => { throw Object.assign(new Error('Denied'), { status }); } });
     await app.render();
-    assert.doesNotMatch(app.root.innerHTML, /Admin Dashboard|manage-user|Live Account/);
+    assert.doesNotMatch(app.root.innerHTML, /class="small-btn manage-user"|Live Account|[0-9]+ registered users/);
     assert.equal(vm.runInContext('state.adminUsers', app.context), null);
     if (status === 401) assert.equal(app.location.pathname, '/signin');
+    // A verified administrator may still see the dedicated Admin menu on a
+    // transient 500, but never the protected user-list records.
+    if (status === 500) {
+      assert.match(app.root.innerHTML, /Administrator access unavailable/);
+      assert.match(app.root.innerHTML, /class="nav-admin"/);
+    } else {
+      assert.doesNotMatch(app.root.innerHTML, /class="nav-admin"|class="nav-mobile-admin"/);
+    }
   }
 });
 
