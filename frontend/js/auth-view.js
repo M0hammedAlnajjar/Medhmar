@@ -12,6 +12,26 @@ function passwordField(name, label, isNew = true) {
   return `<div class="field auth-field-with-icon"><label for="auth-${name}">${label}</label><div class="password-control auth-input-wrap"><span class="auth-input-icon">${lockIcon}</span><input class="input" id="auth-${name}" name="${name}" type="password" autocomplete="${isNew ? 'new-password' : 'current-password'}" placeholder="${isNew ? 'At least 12 characters' : 'Enter your password'}" ${isNew ? 'minlength="12"' : ''} maxlength="72" required><button class="password-toggle" type="button" data-password-target="auth-${name}" aria-label="Show ${label.toLowerCase()}" aria-pressed="false">${eye}</button></div></div>`;
 }
 
+const manualRoles = new Set(['VIEWER', 'OWNER', 'TRAINER']);
+
+export function requireRegisteredRole(response, chosenRole) {
+  if (!manualRoles.has(chosenRole)) throw new Error('Choose a valid account type.');
+  if (!Array.isArray(response?.roles) || !response.roles.includes(chosenRole)) {
+    throw new Error(
+      'The account was created, but your selected role was not confirmed by the server. ' +
+      'Do not register again. Ask an administrator to check the account roles.'
+    );
+  }
+  return response;
+}
+
+export function googleSignupWarning(role) {
+  return role === 'OWNER' || role === 'TRAINER'
+    ? 'Google sign-up creates a Fan / Spectator (VIEWER) account. ' +
+      'Use the Create Account button above for Owner or Trainer registration.'
+    : '';
+}
+
 export function authView(kind) {
   const configs = {
     signin: {
@@ -63,7 +83,7 @@ export function authView(kind) {
               <p class="auth-feedback" id="auth-feedback" role="status" aria-live="polite" hidden></p>
               <button class="btn btn-primary auth-submit" type="submit">${cfg.submit} <span aria-hidden="true">→</span></button>
             </form>
-            ${social ? `<div class="divider">Or login with</div><button class="btn auth-google" type="button" id="google-signin">${google}Continue with Google</button>${kind === 'signup' ? '<p class="form-help auth-google-note">Google sign-up creates a Fan / Spectator account automatically.</p>' : ''}<p class="auth-switch">${footer}</p>` : kind === 'forgot' ? '<a class="auth-back" href="/signin" data-link>← Back to Sign In</a>' : ''}
+            ${social ? `<div class="divider">Or login with</div><button class="btn auth-google" type="button" id="google-signin">${google}Continue with Google</button>${kind === 'signup' ? '<p class="form-help auth-google-note">Google sign-up creates a Fan / Spectator (VIEWER) account. For Owner or Trainer registration, use the email/password form above.</p>' : ''}<p class="auth-switch">${footer}</p>` : kind === 'forgot' ? '<a class="auth-back" href="/signin" data-link>← Back to Sign In</a>' : ''}
           </div>
         </section>
       </section>
