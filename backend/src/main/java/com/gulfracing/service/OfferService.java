@@ -278,7 +278,12 @@ public class OfferService {
 
         saleTransaction.setIsActive(true);
         saleTransaction.setCreatedDate(now);
-        saleTransactions.save(saleTransaction);
+        saleTransactions.saveAndFlush(saleTransaction);
+
+        // A successful sale grants the buyer management rights to the camel.
+        // The role, sale, ownership transfer and audit all commit or roll back together.
+        // Existing buyers with OWNER keep their roles and active sessions unchanged.
+        users.grantOwnerRoleAfterSale(offer.getUser().getUserId(), camelId, actorId);
         audit.record("SALE_COMPLETED", "Offer", id, camelId, actorId);
         return offer;
     }

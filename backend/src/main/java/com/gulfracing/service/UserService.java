@@ -64,6 +64,34 @@ public class UserService {
         return roles.findByRoleName("VIEWER").orElseThrow(() ->
             new IllegalStateException("The VIEWER role is missing. Apply the database migrations."));
     }
+
+    /**
+     * Called only after a marketplace offer has been accepted and ownership has
+     * transferred, within the SAME database transaction as the sale.
+     *
+     * Locks the buyer to serialize concurrent role grants and admin role edits.
+     * Only adds OWNER: existing VIEWER, TRAINER and other roles are preserved.
+     * securityVersion invalidates sessions with stale role authorities.
+     *
+     * @return true only if OWNER was newly granted
+     */
+    @Transactional
+    public boolean grantOwnerRoleAfterSale(Long buyerId, Long camelId, Long sellerId) {
+        var buyer = users.findLockedById(buyerId)
+            .orElseThrow(() -> ApiException.notFound("Buyer"));
+        if (buyer.getAccountStatus() != AccountStatus.ACTIVE) {
+            throw ApiException.forbidden();
+        }
+        if (buyer.getRoles().stream().anyMatch(role -> "OWNER".equals(role.getRoleName()))) {
+            return false;
+        }
+        var ownerRole = roles.findByRoleName("OWNER").orElseThrow(() ->
+            new IllegalStateException("The OWNER role is missing. Apply the database migrations."));
+        buyer.getRoles().add(ownerRole);
+        buyer.setSecurityVersion(buyer.getSecurityVersion() + 1);
+        audit.record("OWNER_ROLE_GRANTED", "User", buyerId, camelId, sellerId);
+        return true;
+    }
     @Transactional(readOnly = true)
     public User getActive(Long id) {
         var user = users.findById(id).orElseThrow(ApiException::unauthorized);
