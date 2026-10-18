@@ -853,7 +853,8 @@ function bind(){
  bindBroadcastPreview(root);
  bindPedigreeImages(root);
  // The dock lives outside #app and survives in-app route changes.
- if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang, path: normalizePath() });
+ if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
+    path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  $('#admin-retry')?.addEventListener('click',()=>render());
   $('#admin-signout')?.addEventListener('click',handleLogout);
   $('#admin-mobile-signout')?.addEventListener('click',handleLogout);
