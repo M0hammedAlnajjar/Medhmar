@@ -13,7 +13,7 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace("window.addEventListener('popstate',render); init();", '');
 
-function harness(user, { me = async () => user, users } = {}) {
+function harness(user, { me = async () => user, users, dashboard } = {}) {
   const root = { innerHTML: '', addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
@@ -23,10 +23,18 @@ function harness(user, { me = async () => user, users } = {}) {
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
-    adminApi: { users: async () => {
-      requests.push('users');
-      return users ? users() : { content: [{ userId: 50, fullName: 'Live Account', email: 'live@example.com', roles: ['VIEWER'], accountStatus: 'ACTIVE' }], page: 0, totalPages: 1, totalElements: 1 };
-    } },
+    adminApi: { 
+      dashboard: async () => {
+        requests.push('dashboard');
+        return dashboard ? dashboard() : { totalUsers:1,activeCamels:2,upcomingRaces:3,activeListings:4,
+          activity:Array.from({length:7},(_,i)=>({date:'2026-10-12',newUsers:i,newCamels:i,newListings:i})),
+          recentEvents:[],generatedAt:'2026-10-18T10:00:00Z' };
+      },
+      users: async () => {
+        requests.push('users');
+        return users ? users() : { content: [{ userId: 50, fullName: 'Live Account', email: 'live@example.com', roles: ['VIEWER'], accountStatus: 'ACTIVE' }], page: 0, totalPages: 1, totalElements: 1 };
+      }
+    },
     document: {
       querySelector: selector => selector === '#app' ? root : null,
       querySelectorAll: () => [], documentElement: {},
@@ -76,7 +84,7 @@ test('admin role is rechecked with the server and revoked roles cannot load user
 test('verified admin receives live users, never demo accounts or fake totals', async () => {
   const app = harness({ userId: 1, roles: ['ADMIN'] });
   await app.render();
-  assert.deepEqual(app.requests, ['me', 'users']);
+  assert.deepEqual(app.requests, ['me', 'dashboard']);
   assert.match(app.root.innerHTML, /class="admin-console"/);
   assert.match(app.root.innerHTML, /REGISTERED USERS/);
   assert.doesNotMatch(app.root.innerHTML, /Live Account/);
@@ -84,12 +92,13 @@ test('verified admin receives live users, never demo accounts or fake totals', a
   await app.render();
   assert.match(app.root.innerHTML, /Live Account/);
   assert.match(app.root.innerHTML, /1 registered users/);
+  assert.deepEqual(app.requests,['me','dashboard','me','users']);
   assert.doesNotMatch(app.root.innerHTML, /2,100|mohammed@medhmar|preview data/);
 });
 
 test('API failures fail closed, including expired sessions and forbidden responses', async () => {
   for (const status of [401, 403, 500]) {
-    const app = harness({ userId: 1, roles: ['ADMIN'] }, { users: async () => { throw Object.assign(new Error('Denied'), { status }); } });
+    const app = harness({ userId: 1, roles: ['ADMIN'] }, { dashboard: async () => { throw Object.assign(new Error('Denied'), { status }); } });
     await app.render();
     assert.doesNotMatch(app.root.innerHTML, /class="small-btn manage-user"|Live Account|[0-9]+ registered users/);
     assert.equal(vm.runInContext('state.adminUsers', app.context), null);
@@ -97,7 +106,7 @@ test('API failures fail closed, including expired sessions and forbidden respons
     // A verified administrator may still see the dedicated Admin menu on a
     // transient 500, but never the protected user-list records.
     if (status === 500) {
-      assert.match(app.root.innerHTML, /Could not load users/);
+      assert.match(app.root.innerHTML, /Could not load dashboard data/);
       assert.match(app.root.innerHTML, /class="admin-console"/);
     } else {
       assert.doesNotMatch(app.root.innerHTML, /class="admin-console"/);
@@ -108,15 +117,15 @@ test('API failures fail closed, including expired sessions and forbidden respons
 test('late admin responses cannot restore the dashboard after navigation', async () => {
   let release;
   const pending = new Promise(resolve => { release = resolve; });
-  const app = harness({ userId: 1, roles: ['ADMIN'] }, { users: () => pending });
+  const app = harness({ userId: 1, roles: ['ADMIN'] }, { dashboard: () => pending });
   const render = app.render();
   await new Promise(resolve => setImmediate(resolve));
   app.location.pathname = '/signin';
   await app.render();
-  release({ content: [{ userId: 50, fullName: 'Late user', roles: [] }], page: 0, totalPages: 1, totalElements: 1 });
+  release({ totalUsers:99,activeCamels:0,upcomingRaces:0,activeListings:0,activity:[],recentEvents:[], generatedAt:'2026-10-18T10:00:00Z' });
   await render;
   assert.match(app.root.innerHTML, /Sign In/);
-  assert.doesNotMatch(app.root.innerHTML, /Late user|Admin Dashboard/);
+  assert.doesNotMatch(app.root.innerHTML, /99|Admin Dashboard/);
   assert.equal(vm.runInContext('state.adminUsers', app.context), null);
 });
 
