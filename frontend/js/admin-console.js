@@ -102,6 +102,8 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    '<div class="admin-health-row"><span>External services</span><span class="admin-health-unknown">Not monitored</span></div>'+
    '<a href="/admin/users" data-link class="admin-health-shortcut">Manage Users →</a></section></div>';
 }
+// Shared heading for the existing Users and Settings pages.
+const header=(k,t,d)=>'<div class="admin-heading"><p>'+esc(k)+'</p><h1>'+esc(t)+'</h1><span>'+esc(d)+'</span></div>';
 export function adminUsersView({users,page,error=''}) {
   const rows=Array.isArray(users)?users.map(u=>
     '<tr><td><strong>'+esc(u.fullName||'—')+'</strong></td><td>'+esc(u.email||'—')+'</td><td>'+
