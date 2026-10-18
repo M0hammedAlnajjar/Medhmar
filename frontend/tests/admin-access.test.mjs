@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { matchRoute, canAccessRoute } from '../js/routes.js';
+import { renderAccount } from '../js/account-view.js';
 import { demo } from '../js/data.js';
 import { bindPedigreeImages } from '../js/pedigree-view.js';
 
@@ -16,7 +17,7 @@ function harness(user, { me = async () => user, users } = {}) {
   const requests = [];
   const context = vm.createContext({
     bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
-    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages,
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },

@@ -535,3 +535,28 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   .topbar .brand-wordmark img{width:118px;height:33px}
   .topbar .brand-wordmark{padding:0}
 }
+
+
+/* Unified account workspace with role-sensitive navigation. */
+.account-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(290px,.8fr);gap:22px;align-items:start}
+.account-primary{display:grid;gap:22px;min-width:0}
+.account-profile{grid-template-columns:110px minmax(0,1fr);padding:24px;gap:22px}
+.account-profile .profile-avatar{width:104px;height:104px;border-radius:22px;font-size:40px}
+.account-profile h2{font-size:26px;margin:0 0 6px;overflow-wrap:anywhere}
+.account-profile p{margin:0 0 15px;color:var(--muted);overflow-wrap:anywhere}
+.account-muted{color:var(--muted);font-size:14px;line-height:1.55}
+.account-tools h2,.settings-preferences h2{font-size:21px;margin:7px 0 6px}
+.account-tools>.account-muted,.settings-preferences>.account-muted{margin:0 0 20px}
+.account-tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.account-tool{display:grid;gap:6px;background:#fbf8f4;border:1px solid var(--border);border-radius:13px;padding:16px;min-width:0}
+.account-tool:hover,.account-tool:focus-visible{background:var(--accent-soft);border-color:var(--accent);outline-offset:3px}
+.account-tool strong{font-size:15px;color:var(--primary)}
+.account-tool span{font-size:13px;color:var(--muted);line-height:1.45}
+.settings-preferences{position:sticky;top:96px}
+.settings-preferences form{margin-top:18px}
+.settings-preferences-actions{display:flex;flex-wrap:wrap;gap:10px}
+.account-admin{margin-top:28px;scroll-margin-top:105px}
+.account-admin .page-head h2{font-size:25px;margin:4px 0}
+.account-admin .page-head p{margin:6px 0 0;color:var(--muted)}
+@media(max-width:920px){.account-layout{grid-template-columns:1fr}.settings-preferences{position:static}.account-profile{grid-template-columns:100px minmax(0,1fr)}}
+@media(max-width:540px){.account-tool-grid{grid-template-columns:1fr}.account-profile{grid-template-columns:1fr;text-align:center}.account-profile .profile-avatar{margin:auto}.account-profile .actions{justify-content:center}}

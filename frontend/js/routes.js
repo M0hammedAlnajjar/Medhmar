@@ -6,7 +6,7 @@ export const MOHAMMED_ROUTES = [
   { path: "/forgot-password", name: "Forgot Password", owner: "Mohammed" },
   { path: "/reset-password", name: "Reset Password", owner: "Mohammed" },
   { path: "/home", name: "Home / Overview", owner: "Mohammed" },
-  { path: "/settings", name: "Settings / User Profile", owner: "Mohammed" },
+  { path: "/settings", name: "Settings / User Profile", owner: "Mohammed", auth: true },
   { path: "/trainer-profile", name: "Trainer Profile", owner: "Mohammed" },
   { path: "/challenges", name: "Challenges", owner: "Mohammed" },
   { path: "/challenges/:id", name: "Challenge Detail + Voting", owner: "Mohammed" },
@@ -82,7 +82,9 @@ export function matchRoute(path) {
 // Navigation visibility and route rendering use the same deny-by-default policy.
 // The backend remains the authority for every protected API operation.
 export function canAccessRoute(route, user) {
-  if (!route?.roles) return true;
+  if (!route) return false;
+  if (route.auth && !user?.userId) return false;
+  if (!route.roles) return true;
   return Boolean(user?.userId) && Array.isArray(user.roles)
     && route.roles.some(role => user.roles.includes(role));
 }

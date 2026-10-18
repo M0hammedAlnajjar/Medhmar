@@ -13,6 +13,7 @@ import { authView } from './auth-view.js';
 import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
+import { renderAccount } from './account-view.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
@@ -25,6 +26,8 @@ const guestUser = { fullName: 'Guest', email: '', roles: [] };
 let renderEpoch = 0;
 const state = {
   adminUsers: null,
+  adminPageData: null,
+  adminError: '',
   adminPage: 0,
   user: guestUser,
   challenges: [],
@@ -62,7 +65,7 @@ const navAll = [
     ['/races','Races'], ['/race-cards','Race Cards'], ['/camels','Camels'],
     ['/pedigree','Pedigree'], ['/marketplace','Marketplace'],
     ['/trainer-profile','Trainer'], ['/agreements','Agreements'],
-    ['/audit-logs','Audit log'], ['/admin','Admin']
+    ['/audit-logs','Audit log']
 ];
 const visibleNavItems = () => navAll.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
 const primaryNavPaths = new Set(['/home','/races','/challenges','/training','/camels','/pedigree','/marketplace']);
@@ -263,42 +266,9 @@ function bindHomeControls() {
 
 
 function settings() {
-  const user = state.user || guestUser;
-  const roles = Array.isArray(user.roles) ? user.roles : [];
-  return shell(`${head('Profile & Settings', 'Manage your profile and account preferences.')}
-    <div class="settings-account-layout">
-      <div class="settings-profile-stack">
-        <section class="card profile-hero settings-profile-card" aria-label="Account profile">
-          <div class="profile-avatar">${esc(user.fullName?.[0] || 'M')}</div>
-          <div class="settings-profile-copy">
-            <div class="kicker">YOUR ACCOUNT</div>
-            <h2>${esc(user.fullName || 'Guest')}</h2>
-            <p>${esc(user.email || 'Sign in to view your account details.')}</p>
-            <div class="actions">${roles.map(badge).join('')}</div>
-          </div>
-        </section>
-        <section class="card card-pad settings-preferences">
-          <div class="kicker">ACCOUNT PREFERENCES</div>
-          <h2>Personal information</h2>
-          <p>Update your profile and preferred language.</p>
-          <form id="settings-form" class="form">
-            <div class="field"><label for="settings-fullname">Full Name</label>
-              <input class="input" id="settings-fullname" name="fullName" autocomplete="name" value="${esc(user.fullName || '')}" maxlength="150"></div>
-            <div class="field"><label for="settings-language">Preferred Language</label>
-              <select class="select" id="settings-language" name="preferredLanguage">
-                <option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option>
-                <option value="ar" ${state.lang === 'ar' ? 'selected' : ''}>العربية</option>
-              </select>
-            </div>
-            <div class="settings-preferences-actions">
-              <button class="btn btn-primary" type="submit">Save Changes</button>
-              <button class="btn btn-secondary" type="button" id="logout-btn">Sign Out</button>
-            </div>
-          </form>
-        </section>
-      </div>
-    </div>
-  `, '/settings');
+ return shell(head('My Account', 'Your profile, preferences and workspace in one place.') +
+   renderAccount({ user: state.user, adminUsers: state.adminUsers, adminPageData: state.adminPageData,
+     adminError: state.adminError, language: state.lang }), '/settings');
 }
 
 function trainer(){ return shell(trainerProfile(),'/trainer-profile'); }
@@ -326,11 +296,11 @@ function challenge(id){
 
 function training(){ return shell(trainingJournal(), '/training'); }
 
-function admin(page) {
- if(!canAccessRoute(matchRoute('/admin').route,state.user) || !Array.isArray(state.adminUsers)) return adminDenied();
- const rows=state.adminUsers.map(u=>`<tr><td><strong>${esc(u.fullName)}</strong></td><td>${esc(u.email)}</td><td>${(u.roles||[]).map(badge).join(' ')}</td><td>${badge(u.accountStatus)}</td><td><button class="small-btn manage-user" data-user="${esc(u.userId)}">Manage</button></td></tr>`).join('');
- return shell(`${head('Admin Dashboard','Manage registered users and account access.')}<p>${Number(page.totalElements)||0} registered users · Page ${Number(page.page)+1} of ${Math.max(1,Number(page.totalPages)||0)}</p><div class="table-wrap"><table><thead><tr><th>User</th><th>Email</th><th>Roles</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No registered users found.</td></tr>'}</tbody></table></div><div class="actions section"><button class="btn btn-secondary admin-page" data-page="${Math.max(0,page.page-1)}" ${page.page<=0?'disabled':''}>Previous</button><button class="btn btn-secondary admin-page" data-page="${Number(page.page)+1}" ${page.page+1>=page.totalPages?'disabled':''}>Next</button></div>`,'/admin');
+function admin() {
+ if (!canAccessRoute(matchRoute('/admin').route, state.user) || !Array.isArray(state.adminUsers)) return adminDenied();
+ return settings();
 }
+
 function adminDenied() {
  return shell('<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available only to administrators.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>');
 }
@@ -755,6 +725,8 @@ async function render() {
  const epoch=++renderEpoch, match=matchRoute(normalizePath());
  loadView(match);
  state.adminUsers=null;
+ state.adminPageData=null;
+ state.adminError='';
  $('#modal')?.remove();
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
@@ -813,26 +785,53 @@ async function render() {
         return;
     }
 
- if(match?.route?.path==='/admin') {
-  root.innerHTML=shell('<section class="card card-pad" role="status">Checking administrator access…</section>');bind();
+ if (match && (match.route.path === '/settings' || match.route.path === '/admin')) {
+  root.innerHTML = shell('<section class="card card-pad" role="status">Checking your account…</section>');
+  bind();
   try {
-   const user=await authApi.me();
-   if(epoch!==renderEpoch) return;
-   state.user=user;
-   if(!canAccessRoute(match.route,user)) {denyAdminAccess();bind();return;}
-   const page=await adminApi.users(state.adminPage);
-   if(epoch!==renderEpoch) return;
-   if(!Array.isArray(page?.content)) throw new Error('Unable to load the user list.');
-   state.adminUsers=page.content;
-   root.innerHTML=admin(page);
-  } catch(err) {
-   if(epoch!==renderEpoch) return;
-   state.adminUsers=null;
-   if(err.status===401) {state.user={...guestUser};denyAdminAccess();}
-   else if(err.status===403) {
-    state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN')};
-    denyAdminAccess();
-   } else root.innerHTML=shell('<section class="card error"><h1>Administrator access unavailable</h1><p>Could not verify your access or load users. Please try again.</p><button class="btn btn-primary" id="admin-retry">Retry</button></section>');
+    const user = await authApi.me();
+    if (epoch !== renderEpoch) return;
+    state.user = user || { ...guestUser };
+    if (!state.user?.userId) { denyRoleAccess(match.route); bind(); return; }
+    if (match.route.path === '/admin' && !canAccessRoute(match.route, state.user)) {
+      denyAdminAccess(); bind(); return;
+    }
+    if (hasAnyRole(state.user, 'ADMIN')) {
+      try {
+        const page = await adminApi.users(state.adminPage);
+        if (epoch !== renderEpoch) return;
+        if (!Array.isArray(page?.content)) throw new Error('Unable to load users.');
+        state.adminUsers = page.content;
+        state.adminPageData = page;
+      } catch (err) {
+        if (epoch !== renderEpoch) return;
+        if (err.status === 401) throw err;
+        if (err.status === 403) {
+          state.user = { ...state.user, roles: (state.user.roles || []).filter(role => role !== 'ADMIN' && role !== 'ROLE_ADMIN') };
+          if (match.route.path === '/admin') denyAdminAccess();
+          else root.innerHTML = settings();
+          bind(); return;
+        }
+        state.adminError = 'Could not load users. Please retry.';
+      }
+    }
+    root.innerHTML = match.route.path === '/admin' && !state.adminUsers
+      ? shell('<section class="card error"><h2>Administrator access unavailable</h2>' +
+          '<p>Could not load accounts. Please retry.</p>' +
+          '<button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>')
+      : settings();
+  } catch (err) {
+    if (epoch !== renderEpoch) return;
+    state.adminUsers = null;
+    state.adminPageData = null;
+    if (err.status === 401 || err.status === 403) {
+      state.user = { ...guestUser };
+      denyRoleAccess(match.route);
+    } else {
+      root.innerHTML = shell('<section class="card card-pad error">' +
+        '<h2>Account unavailable</h2><p>We could not verify your session. Please retry.</p>' +
+        '<button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>');
+    }
   }
  } else root.innerHTML=match?screen(match)():notFound();
  bind();
@@ -922,8 +921,39 @@ function bindAuth() {
   window.location.assign(authApi.googleUrl());
  });
 }
-async function handleLogout(){ try{await authApi.logout();}catch{} state.user={...guestUser}; toast('Signed out.','success'); go('/signin'); }
-async function handleSettings(e){ e.preventDefault(); const f=Object.fromEntries(new FormData(e.currentTarget)); try{state.user=await authApi.updateMe(f)||{...state.user,...f};toast('Profile updated.','success');}catch{state.user={...state.user,...f};toast('Backend unavailable; preview updated locally.','error');} render(); }
+async function handleLogout() {
+ try {
+  await authApi.logout();
+  state.user = { ...guestUser };
+  state.adminUsers = null;
+  toast('Signed out.', 'success');
+  go('/signin');
+ } catch (err) { toast(err.message || 'Could not sign out. Please retry.', 'error'); }
+}
+async function handleSettings(e) {
+ e.preventDefault();
+ const form = e.currentTarget;
+ const fields = Object.fromEntries(new FormData(form));
+ const submit = form.querySelector('[type="submit"]');
+ if (submit.disabled) return;
+ const fullName = String(fields.fullName || '').trim();
+ if (!fullName) { toast('Enter your full name.', 'error'); return; }
+ submit.disabled = true;
+ try {
+  const saved = await authApi.updateMe({
+   fullName, preferredLanguage: fields.preferredLanguage,
+   avatarUrl: state.user?.avatarUrl || null
+  });
+  if (!saved?.userId) throw new Error('The backend did not confirm this profile update.');
+  state.user = saved;
+  state.lang = saved.preferredLanguage || state.lang;
+  localStorage.setItem('medhmar-lang', state.lang);
+  toast('Profile updated.', 'success');
+  render();
+ } catch (err) {
+  toast(err.message || 'Unable to save changes. Please retry.', 'error');
+ } finally { submit.disabled = false; }
+}
 async function handleVote(e){ const b=e.currentTarget; if(!state.user?.userId){toast('Sign in before voting.','error');go('/signin');return;} b.disabled=true; try{await challengeApi.vote(b.dataset.challenge,Number(b.dataset.camel)); const updated=await challengeApi.one(b.dataset.challenge); state.challengeDetail=updated; state.challenges=state.challenges.map(c=>String(c.challengeId)===String(updated.challengeId)?updated:c); toast('Vote recorded successfully.','success'); render();}catch(err){toast(err.message,'error');b.disabled=false;} }
 async function handlePublish(e){ const b=e.currentTarget;b.disabled=true;try{await raceCardApi.publish(b.dataset.race);toast('New immutable race-card version published.','success');}catch(err){toast(`${err.message}. Preview data unchanged.`,'error');b.disabled=false;} }
 function showTrainingModal(){ document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="modal"><div class="modal"><h2>Add Training Session</h2><p>Submit only against an active agreement.</p><form id="training-form" class="form"><div class="field"><label>Agreement ID</label><input class="input" name="agreementId" type="number" value="15" required></div><div class="field"><label>Duration</label><input class="input" name="durationMinutes" type="number" value="45" min="1" max="720" required></div><div class="field"><label>Notes</label><textarea class="textarea" name="notes" required>Endurance training session.</textarea></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-modal">Cancel</button><button class="btn btn-primary">Save</button></div></form></div></div>`); $('#close-modal').onclick=()=>$('#modal').remove(); $('#training-form').onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget));f.agreementId=Number(f.agreementId);f.durationMinutes=Number(f.durationMinutes);f.sessionAt=new Date().toISOString();try{await trainingApi.add(f);toast('Training session saved.','success');$('#modal').remove();}catch(err){toast(err.message,'error');}}; }
