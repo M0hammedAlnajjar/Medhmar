@@ -11,12 +11,13 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
 
 function navbar(user, pathname = '/home', hash = '') {
   const location = { pathname, hash, search: '' };
+  const root = { addEventListener: () => {} };
   const context = vm.createContext({
     location, matchRoute, canAccessRoute,
     normalizePath: () => location.pathname,
     authView: () => '',
     localStorage: { getItem: () => 'en' },
-    document: { querySelector: () => null }
+    document: { querySelector: selector => selector === '#app' ? root : null }
   });
   vm.runInContext(source, context);
   context.testUser = user;
