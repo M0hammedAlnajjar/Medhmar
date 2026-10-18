@@ -560,3 +560,19 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .account-admin .page-head p{margin:6px 0 0;color:var(--muted)}
 @media(max-width:920px){.account-layout{grid-template-columns:1fr}.settings-preferences{position:static}.account-profile{grid-template-columns:100px minmax(0,1fr)}}
 @media(max-width:540px){.account-tool-grid{grid-template-columns:1fr}.account-profile{grid-template-columns:1fr;text-align:center}.account-profile .profile-avatar{margin:auto}.account-profile .actions{justify-content:center}}
+
+
+/* Dedicated administrator navigation: never mixed with ordinary "More" links. */
+.nav-admin{position:relative;display:flex;align-items:center;align-self:stretch;flex-shrink:0;z-index:5}
+.nav-admin>summary{display:flex;align-items:center;gap:7px;min-height:40px;padding:0 13px;border:1px solid rgba(222,183,132,.5);border-radius:9px;cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:#ffe2b4;background:rgba(255,255,255,.06);white-space:nowrap}
+.nav-admin>summary::-webkit-details-marker{display:none}
+.nav-admin>summary:hover,.nav-admin[open]>summary{background:rgba(212,163,115,.2);border-color:rgba(222,183,132,.85)}
+.nav-admin>summary:focus-visible{outline:2px solid #f2c58c;outline-offset:3px}
+.nav-admin-menu{position:absolute;top:calc(100% - 2px);right:0;min-width:220px;padding:9px;background:#fffaf4;border:1px solid #dbc8af;border-radius:12px;box-shadow:0 18px 40px rgba(35,23,14,.24);display:grid;gap:2px;z-index:100}
+.nav-admin-menu a{display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;color:#3d2b1e}
+.nav-admin-menu a:hover,.nav-admin-menu a:focus-visible,.nav-admin-menu a.active{background:#f2e7d7;color:#3e2a1d;outline-offset:2px}
+.nav-mobile-user{display:grid}
+.nav-mobile-admin{display:grid;margin-top:9px;padding-top:11px;border-top:1px solid #dfcfbd}
+.nav-mobile-admin-label{padding:3px 12px 7px;color:#775132;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.nav-mobile-admin a{font-weight:650}
+@media(max-width:720px){.nav-actions .nav-admin{display:none}}
