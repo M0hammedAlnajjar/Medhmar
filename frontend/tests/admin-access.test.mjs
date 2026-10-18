@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { matchRoute, canAccessRoute } from '../js/routes.js';
 import { renderAccount } from '../js/account-view.js';
+import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from '../js/admin-console.js';
 import { hasAnyRole } from '../js/format.js';
 import { demo } from '../js/data.js';
 import { bindPedigreeImages } from '../js/pedigree-view.js';
@@ -18,7 +19,7 @@ function harness(user, { me = async () => user, users } = {}) {
   const requests = [];
   const context = vm.createContext({
     bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
-    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole,
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
@@ -76,6 +77,11 @@ test('verified admin receives live users, never demo accounts or fake totals', a
   const app = harness({ userId: 1, roles: ['ADMIN'] });
   await app.render();
   assert.deepEqual(app.requests, ['me', 'users']);
+  assert.match(app.root.innerHTML, /class="admin-console"/);
+  assert.match(app.root.innerHTML, /REGISTERED USERS/);
+  assert.doesNotMatch(app.root.innerHTML, /Live Account/);
+  app.location.pathname='/admin/users';
+  await app.render();
   assert.match(app.root.innerHTML, /Live Account/);
   assert.match(app.root.innerHTML, /1 registered users/);
   assert.doesNotMatch(app.root.innerHTML, /2,100|mohammed@medhmar|preview data/);
@@ -91,10 +97,10 @@ test('API failures fail closed, including expired sessions and forbidden respons
     // A verified administrator may still see the dedicated Admin menu on a
     // transient 500, but never the protected user-list records.
     if (status === 500) {
-      assert.match(app.root.innerHTML, /Administrator access unavailable/);
-      assert.match(app.root.innerHTML, /class="nav-admin"/);
+      assert.match(app.root.innerHTML, /Could not load users/);
+      assert.match(app.root.innerHTML, /class="admin-console"/);
     } else {
-      assert.doesNotMatch(app.root.innerHTML, /class="nav-admin"|class="nav-mobile-admin"/);
+      assert.doesNotMatch(app.root.innerHTML, /class="admin-console"/);
     }
   }
 });

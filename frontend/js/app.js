@@ -14,6 +14,7 @@ import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
+import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from './admin-console.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
@@ -50,34 +51,20 @@ const userNavItems = [
   ['/pedigree', 'Pedigree'], ['/marketplace', 'Marketplace'],
   ['/trainer-profile', 'Trainer'], ['/agreements', 'Agreements']
 ];
-const adminNavItems = [
-  ['/admin', 'Admin Dashboard'],
-  ['/admin#account-administration', 'Manage Users'],
-  ['/audit-logs', 'Audit Log']
-];
-const visibleNavItems = () =>
-  userNavItems.filter(([path]) => canAccessRoute(matchRoute(path)?.route, state.user));
-// The admin group requires an authenticated administrator, even if individual
-// destination routes are accessed through legacy URLs or browser bookmarks.
-const visibleAdminNavItems = () =>
-  canAccessRoute(matchRoute('/admin')?.route, state.user)
-    ? adminNavItems.filter(([path]) =>
-        canAccessRoute(matchRoute(path.split('#')[0])?.route, state.user))
-    : [];
+const visibleNavItems = () => userNavItems.filter(([path]) => canAccessRoute(matchRoute(path)?.route,state.user));
+const adminArea = path => path === '/admin' || path.startsWith('/admin/');
+const authPaths = new Set(['/signin','/signup','/forgot-password','/reset-password']);
+const toAdminPath = path => {
+ if (path === '/admin' && location.hash === '#account-administration') return '/admin/users';
+ if (path.startsWith('/audit-logs')) return '/admin' + path;
+ if (path === '/settings') return '/admin/settings';
+ return adminArea(path) ? path : '/admin';
+};
 
 function topbar(active='', compact=false){
   const signedIn = Boolean(state.user?.userId);
   const items = visibleNavItems();
-  const adminItems = visibleAdminNavItems();
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
-  const adminNavLink = ([path, label]) => {
-    const route = path.split('#')[0];
-    const activeAdmin = route === '/audit-logs'
-      ? normalizePath().startsWith('/audit-logs')
-      : normalizePath() === '/admin' &&
-        (path.includes('#') === (location.hash === '#account-administration'));
-    return `<a href="${path}" data-link class="${activeAdmin ? 'active' : ''}"${activeAdmin ? ' aria-current="page"' : ''}>${label}</a>`;
-  };
   const corePaths = ['/home', '/races', '/camels', '/pedigree', '/marketplace'];
   const primaryDesktopPaths = [
     '/home', '/challenges', '/training', '/organizations', '/tourism',
@@ -87,27 +74,19 @@ function topbar(active='', compact=false){
   const desktopItems = visiblePaths.map(path => items.find(([p]) => p === path)).filter(Boolean);
   const extraItems = items.filter(([path]) => !visiblePaths.includes(path));
   const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
-  // A distinct navigation surface, not another item in More.
-  const adminMenu = adminItems.length
-    ? `<details class="nav-admin"><summary aria-label="Open administration menu">Admin <span aria-hidden="true">⌄</span></summary><nav class="nav-admin-menu" aria-label="Administration">${adminItems.map(adminNavLink).join('')}</nav></details>`
-    : '';
-
   const accountActions = signedIn
     ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">⌄</span></a>`
     : `<a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a><a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a>`;
 
   const searchAction = `<a class="nav-search" href="/races" data-link aria-label="Search races" title="Search races"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg></a>`;
   const language = '<span class="nav-language-single" aria-label="English language">EN</span>';
-  const mobileAdminMenu = adminItems.length
-    ? `<nav class="nav-mobile-admin" aria-label="Administration"><div class="nav-mobile-admin-label">Administration</div>${adminItems.map(adminNavLink).join('')}</nav>`
-    : '';
-  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu"><nav class="nav-mobile-user" aria-label="User pages">${items.map(navLink).join('')}</nav>${mobileAdminMenu}</div></details>`;
+  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu"><nav class="nav-mobile-user" aria-label="User pages">${items.map(navLink).join('')}</nav></div></details>`;
 
   return `<header class="topbar"><div class="topbar-inner">
     ${mobileMenu}
     <a class="brand brand-wordmark" href="/home" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
     <nav class="nav nav-desktop" aria-label="Primary navigation">${desktopItems.map(navLink).join('')}${moreMenu}</nav>
-    <div class="nav-actions" dir="ltr">${adminMenu}${searchAction}${accountActions}${language}</div>
+    <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
   </div></header>`;
 }
 const head = (t,s,a='') => `<div class="page-head"><div><div class="kicker">MEDHMAR</div><h1>${t}</h1><p>${s}</p></div>${a?`<div class="actions">${a}</div>`:''}</div>`;
@@ -149,7 +128,9 @@ function homeFooter() {
     + '<a href="#mh-home-top" class="mh-footer-backtop">Back to top <span aria-hidden="true">↑</span></a>'
     + '</div></footer>';
 }
-const shell = (body,active='', compact=false) => `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main>${active === "/home" ? homeFooter() : ""}</div>`;
+const shell = (body,active='', compact=false) => state.user?.userId && hasAnyRole(state.user,'ADMIN')
+  ? adminShell({user:state.user,active:normalizePath(),body})
+  : `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main>${active === "/home" ? homeFooter() : ""}</div>`;
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 const auth = authView;
@@ -308,8 +289,16 @@ function challenge(id){
 function training(){ return shell(trainingJournal(), '/training'); }
 
 function admin() {
- if (!canAccessRoute(matchRoute('/admin').route, state.user) || !Array.isArray(state.adminUsers)) return adminDenied();
- return settings();
+ if (!canAccessRoute(matchRoute('/admin').route,state.user)) return adminDenied();
+ return shell(adminDashboard({user:state.user,page:state.adminPageData,error:state.adminError}),'/admin');
+}
+function adminUsersPage() {
+ if (!canAccessRoute(matchRoute('/admin/users').route,state.user)) return adminDenied();
+ return shell(adminUsersView({users:state.adminUsers,page:state.adminPageData,error:state.adminError}),'/admin/users');
+}
+function adminSettingsPage() {
+ if (!canAccessRoute(matchRoute('/admin/settings').route,state.user)) return adminDenied();
+ return shell(adminSettingsView({user:state.user,language:state.lang}),'/admin/settings');
 }
 
 function adminDenied() {
@@ -726,15 +715,24 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
  'Audit Logs':auditScreen,'Add Audit Log':()=>mineScreens()[name](),'Edit Audit Log':()=>mineScreens()[name](),'Audit Log Details':auditDetailScreen,
- 'Admin Dashboard':admin,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
+ 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
  }[name] || notFound; }
 
 async function render() {
- const epoch=++renderEpoch, match=matchRoute(normalizePath());
- loadView(match);
+ const epoch=++renderEpoch;
+ let path=normalizePath();
+ if(state.user?.userId && hasAnyRole(state.user,'ADMIN') && !authPaths.has(path)) {
+  const target=toAdminPath(path);
+  if(target!==path || location.hash==='#account-administration') {
+   history.replaceState({},'',target+location.search);
+   path=target;
+  }
+ }
+ const match=matchRoute(path);
+ if(!adminArea(path)) loadView(match);
  state.adminUsers=null;
  state.adminPageData=null;
  state.adminError='';
@@ -796,62 +794,44 @@ async function render() {
         return;
     }
 
- if (match && (match.route.path === '/settings' || match.route.path === '/admin')) {
-  root.innerHTML = shell('<section class="card card-pad" role="status">Checking your account…</section>');
+ if(match && (adminArea(path) || match.route.path==='/settings')) {
+  const adminRoute=adminArea(path);
+  root.innerHTML=adminRoute
+    ? adminShell({user:state.user,active:path,body:'<section class="card card-pad" role="status">Verifying administrator access…</section>'})
+    : shell('<section class="card card-pad" role="status">Checking your account…</section>');
   bind();
   try {
-    const user = await authApi.me();
-    if (epoch !== renderEpoch) return;
-    state.user = user || { ...guestUser };
-    if (!state.user?.userId) { denyRoleAccess(match.route); bind(); return; }
-    if (match.route.path === '/admin' && !canAccessRoute(match.route, state.user)) {
-      denyAdminAccess(); bind(); return;
+   const user=await authApi.me();
+   if(epoch!==renderEpoch) return;
+   state.user=user || {...guestUser};
+   if(!state.user?.userId){denyRoleAccess(match.route);bind();return;}
+   if(adminRoute&&!canAccessRoute(match.route,state.user)){denyAdminAccess();bind();return;}
+   if(adminRoute&&(path==='/admin'||path==='/admin/users')) {
+    try {
+     const page=await adminApi.users(state.adminPage);
+     if(epoch!==renderEpoch)return;
+     if(!Array.isArray(page?.content))throw new Error('Unable to load accounts.');
+     state.adminUsers=page.content;state.adminPageData=page;
+    } catch(err) {
+     if(epoch!==renderEpoch)return;
+     if(err.status===401)throw err;
+     if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
+     state.adminError='Could not load users. Please retry.';
     }
-    if (hasAnyRole(state.user, 'ADMIN')) {
-      try {
-        const page = await adminApi.users(state.adminPage);
-        if (epoch !== renderEpoch) return;
-        if (!Array.isArray(page?.content)) throw new Error('Unable to load users.');
-        state.adminUsers = page.content;
-        state.adminPageData = page;
-      } catch (err) {
-        if (epoch !== renderEpoch) return;
-        if (err.status === 401) throw err;
-        if (err.status === 403) {
-          state.user = { ...state.user, roles: (state.user.roles || []).filter(role => role !== 'ADMIN' && role !== 'ROLE_ADMIN') };
-          if (match.route.path === '/admin') denyAdminAccess();
-          else root.innerHTML = settings();
-          bind(); return;
-        }
-        state.adminError = 'Could not load users. Please retry.';
-      }
-    }
-    root.innerHTML = match.route.path === '/admin' && !state.adminUsers
-      ? shell('<section class="card error"><h2>Administrator access unavailable</h2>' +
-          '<p>Could not load accounts. Please retry.</p>' +
-          '<button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>')
-      : settings();
-  } catch (err) {
-    if (epoch !== renderEpoch) return;
-    state.adminUsers = null;
-    state.adminPageData = null;
-    if (err.status === 401 || err.status === 403) {
-      state.user = { ...guestUser };
-      denyRoleAccess(match.route);
-    } else {
-      root.innerHTML = shell('<section class="card card-pad error">' +
-        '<h2>Account unavailable</h2><p>We could not verify your session. Please retry.</p>' +
-        '<button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>');
-    }
+   }
+   if(adminRoute&&path.startsWith('/admin/audit-logs'))loadView(match);
+   root.innerHTML=adminRoute?screen(match)():settings();
+  }catch(err){
+   if(epoch!==renderEpoch)return;
+   state.adminUsers=null;state.adminPageData=null;
+   if(err.status===401||err.status===403){state.user={...guestUser};denyRoleAccess(match.route);}
+   else {
+    const body='<section class="card card-pad error"><h2>Account unavailable</h2><p>Unable to verify your session. Please retry.</p><button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>';
+    root.innerHTML=adminRoute?adminShell({user:state.user,active:path,body}):shell(body);
+   }
   }
- } else root.innerHTML=match?screen(match)():notFound();
+ }else root.innerHTML=match?screen(match)():notFound();
  bind();
- // "Manage Users" targets the protected admin section after the API resolves,
- // rather than scrolling before asynchronous account data is rendered.
- if (match?.route?.path === '/admin' &&
-     location.hash === '#account-administration' && Array.isArray(state.adminUsers)) {
-   document.querySelector('#account-administration')?.scrollIntoView?.({ block: 'start' });
- }
 }
 function bind(){
  bindTrainerProfile(root);
@@ -865,6 +845,7 @@ function bind(){
  // The dock lives outside #app and survives in-app route changes.
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang, path: normalizePath() });
  $('#admin-retry')?.addEventListener('click',()=>render());
+  $('#admin-signout')?.addEventListener('click',handleLogout);
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));
  bindAuth();
  bindHomeControls();
@@ -898,7 +879,7 @@ async function handleAuth(e) {
    state.user=await authApi.login({email:f.email,password:f.password});
    if(f.rememberMe) localStorage.setItem('medhmar-remembered-email',f.email);
    else localStorage.removeItem('medhmar-remembered-email');
-   toast('Signed in successfully.','success');go('/home');
+   toast('Signed in successfully.','success');go(hasAnyRole(state.user,'ADMIN')?'/admin':'/home');
   } else if(kind==='signup') {
    const registered = await authApi.register({
      fullName: f.fullName, email: f.email, password: f.password,

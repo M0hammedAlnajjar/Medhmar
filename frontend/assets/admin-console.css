@@ -1,0 +1,29 @@
+.admin-console{min-height:100vh;display:flex;flex-direction:column;background:#f7f4ee;color:#33251a}
+.admin-header{background:#241d18;color:#fff;border-bottom:3px solid #bd9868}
+.admin-header-inner{max-width:1480px;margin:auto;padding:14px 26px;min-height:78px;display:flex;align-items:center;gap:25px}
+.admin-brand{display:flex;align-items:center;gap:11px;color:#f2e2cc;text-decoration:none;font-size:11px;letter-spacing:.11em;font-weight:800;white-space:nowrap}
+.admin-brand img{width:113px;max-height:46px;object-fit:contain}.admin-brand span{border-left:1px solid #806d57;padding-left:11px}
+.admin-desktop-nav{display:flex;align-items:center;gap:5px;flex:1}
+.admin-desktop-nav a,.admin-mobile-nav a{padding:12px;border-radius:8px;font-size:13px;font-weight:650;color:#e7d7c4;text-decoration:none;white-space:nowrap}
+.admin-desktop-nav a:hover,.admin-desktop-nav a.active,.admin-mobile-nav a.active{color:#fff;background:#4a382a}
+.admin-account{margin-left:auto;display:flex;align-items:center;gap:14px}.admin-account span{font-size:12px;color:#dfc9ae;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-account button{border:1px solid #957454;border-radius:8px;background:transparent;padding:10px;color:#fff;cursor:pointer;font:inherit;font-size:12px}
+.admin-account button:hover{background:#4a382a}.admin-mobile-nav{display:none;position:relative}
+.admin-mobile-nav summary{list-style:none;border:1px solid #957454;border-radius:8px;padding:10px;cursor:pointer;font-weight:700}
+.admin-mobile-nav nav{position:absolute;right:0;top:calc(100% + 7px);background:#241d18;padding:9px;min-width:180px;display:grid;box-shadow:0 15px 35px #0005;border-radius:10px;z-index:50}
+.admin-main{flex:1;width:min(1240px,100%);padding:35px 25px 70px;margin:auto}
+.admin-heading{margin-bottom:26px}.admin-heading p{color:#9b6a39;font-size:11px;letter-spacing:.15em;font-weight:800;margin:0 0 9px}
+.admin-heading h1{font-size:clamp(29px,3.5vw,40px);margin:0 0 10px;letter-spacing:-.03em}.admin-heading span{color:#786c60;line-height:1.6;display:block}
+.admin-stats{display:flex;margin-bottom:30px}.admin-stat{background:#fff;border:1px solid #e5d8c9;border-radius:14px;padding:24px;display:grid;gap:10px;min-width:290px}
+.admin-stat span{font-size:11px;color:#846443;font-weight:800;letter-spacing:.08em}.admin-stat strong{font-size:38px;font-variant-numeric:tabular-nums}
+.admin-stat small,.admin-stat p{color:#74675c}
+.admin-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.admin-card{border:1px solid #e1d2c0;border-radius:14px;background:#fff;color:#35291f;display:grid;gap:10px;padding:23px;min-height:155px;text-decoration:none}
+.admin-card strong{font-size:18px}.admin-card span{color:#736557;font-size:13px}.admin-card small{margin-top:auto;color:#9b642e;font-size:12px}
+.admin-card:hover,.admin-card:focus-visible{border-color:#a8784d;box-shadow:0 8px 22px #241d181a}
+.admin-user-table{padding:22px;border:1px solid #e2d5c6;background:white;border-radius:15px}.admin-user-table>p{color:#73675a;font-size:13px;margin:0 0 18px}
+.admin-settings-card{max-width:660px}.admin-note{font-size:13px;color:#73675c;overflow-wrap:anywhere}
+.admin-footer{padding:16px;text-align:center;font-size:12px;color:#95887b;border-top:1px solid #e6d9c9}
+@media(max-width:1050px){.admin-desktop-nav a{padding:8px;font-size:12px}.admin-header-inner{gap:13px}.admin-account span{display:none}}
+@media(max-width:870px){.admin-desktop-nav{display:none}.admin-mobile-nav{display:block}.admin-account{margin-left:auto}.admin-cards{grid-template-columns:1fr}}
+@media(max-width:520px){.admin-main{padding:24px 15px 44px}.admin-header-inner{padding:12px;gap:10px}.admin-brand img{width:80px}.admin-brand span{padding-left:7px;font-size:9px}.admin-account button{font-size:11px;padding:8px}}
