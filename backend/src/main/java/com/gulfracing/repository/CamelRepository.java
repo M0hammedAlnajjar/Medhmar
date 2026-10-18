@@ -50,4 +50,8 @@ public interface CamelRepository extends JpaRepository<Camel, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Camel c WHERE c.camelId = :id")
     java.util.Optional<Camel> findLockedById(@Param("id") Long id);
+    @Query("SELECT COUNT(c) FROM Camel c WHERE c.isActive = true")
+    long countActiveCamels();
+
+    long countByCreatedDateGreaterThanEqualAndCreatedDateLessThan(java.util.Date from, java.util.Date until);
 }

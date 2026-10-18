@@ -36,4 +36,5 @@ public interface RaceRepository extends JpaRepository<Race, Long> {
             @Param("status") RaceStatus status,
             Pageable pageable
     );
+    long countByStatusIn(java.util.Collection<RaceStatus> statuses);
 }
