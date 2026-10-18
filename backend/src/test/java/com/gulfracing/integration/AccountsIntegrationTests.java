@@ -31,6 +31,24 @@ class AccountsIntegrationTests extends IntegrationSupport {
             .andExpect(status().isConflict());
     }
     @Test
+    void manualRegistrationRetainsEverySelectableRoleAfterLoginAndMe() throws Exception {
+        for (String selectedRole : List.of("VIEWER", "OWNER", "TRAINER")) {
+            String email = selectedRole.toLowerCase(Locale.ROOT) + "-selected@example.com";
+            mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
+                .content(payload(Map.of("fullName", "Selected Role User", "email", email,
+                    "password", PASSWORD, "preferredLanguage", "en", "role", selectedRole))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.roles", contains(selectedRole)));
+            var session = login(email);
+            mvc.perform(get("/api/users/me").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.roles", contains(selectedRole)));
+        }
+        assertThat(userRepository.count()).isEqualTo(3);
+    }
+
+    @Test
     void registrationRejectsMissingOrPrivilegedSelfAssignedRoles() throws Exception {
         mvc.perform(post("/api/auth/register").with(csrf()).contentType("application/json")
             .content(payload(Map.of("fullName","No Role","email","norole@example.com","password",PASSWORD))))

@@ -9,7 +9,7 @@ import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
 import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
-import { authView } from './auth-view.js';
+import { authView, requireRegisteredRole, googleSignupWarning } from './auth-view.js';
 import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
@@ -883,8 +883,14 @@ async function handleAuth(e) {
    else localStorage.removeItem('medhmar-remembered-email');
    toast('Signed in successfully.','success');go('/home');
   } else if(kind==='signup') {
-   await authApi.register({fullName:f.fullName,email:f.email,password:f.password,role:f.role,preferredLanguage:state.lang});
-   toast('Account created. Sign in to continue.','success');go('/signin');
+   const registered = await authApi.register({
+     fullName: f.fullName, email: f.email, password: f.password,
+     role: f.role, preferredLanguage: state.lang
+   });
+   requireRegisteredRole(registered, f.role);
+   const roleLabel = { VIEWER: 'Fan / Spectator', OWNER: 'Camel Owner', TRAINER: 'Trainer (Mudammer)' }[f.role];
+   toast('Account created as ' + roleLabel + '. Sign in to continue.', 'success');
+   go('/signin');
   } else if(kind==='forgot') {
    await authApi.forgot(f.email);
    feedback.textContent='If the account exists, a reset link will be sent.';
@@ -917,7 +923,18 @@ function bindAuth() {
   button.setAttribute('aria-label',`${visible?'Hide':'Show'} ${label}`);
  }));
  $('#google-signin')?.addEventListener('click',()=>{
-  // New Google accounts are provisioned as VIEWER (Fan / Spectator) by the backend.
+  // Google does not honor an Owner/Trainer selection from the manual form.
+  if (form.dataset.kind === 'signup') {
+    const warning = googleSignupWarning(form.elements.role?.value);
+    if (warning) {
+      const feedback = $('#auth-feedback');
+      feedback.textContent = warning;
+      feedback.className = 'auth-feedback error';
+      feedback.hidden = false;
+      form.elements.role?.focus();
+      return;
+    }
+  }
   window.location.assign(authApi.googleUrl());
  });
 }
