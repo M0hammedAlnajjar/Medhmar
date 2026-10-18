@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -208,6 +209,39 @@ class MarketplaceOfferIntegrationTests extends IntegrationSupport {
                 camelId,
                 buyer.userId()
         )).isEqualTo(100.0);
+
+        // The accepted VIEWER is promoted, while the declined buyer is not.
+        assertThat(users.me(buyer.userId()).roles())
+            .containsExactlyInAnyOrder("VIEWER", "OWNER");
+        assertThat(users.me(secondBuyer.userId()).roles()).containsExactly("VIEWER");
+        assertThat(jdbc.queryForObject(
+            "SELECT COUNT(*) FROM user_roles ur JOIN roles r ON r.role_id=ur.role_id "
+                + "WHERE ur.user_id=? AND r.role_name='OWNER'",
+            Integer.class, buyer.userId())).isEqualTo(1);
+        assertThat(jdbc.queryForObject(
+            "SELECT COUNT(*) FROM audit_log WHERE action_type='OWNER_ROLE_GRANTED' "
+                + "AND entity_type='User' AND entity_id=? AND camel_id=?",
+            Integer.class, buyer.userId(), camelId)).isEqualTo(1);
+
+        // The VIEWER's old security principal must not silently gain OWNER.
+        mvc.perform(get("/api/users/me").session(buyerSession))
+            .andExpect(status().isUnauthorized());
+        var buyerNewSession = login(buyer.email());
+        mvc.perform(get("/api/users/me").session(buyerNewSession))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.roles", containsInAnyOrder("VIEWER", "OWNER")));
+        mvc.perform(get("/camel/my-camels").session(buyerNewSession))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].camelId").value(camelId));
+
+        // A second acceptance cannot repeat the transfer or grant.
+        mvc.perform(post("/offer/" + acceptedOfferId + "/accept")
+                        .session(sellerSession).with(csrf()))
+            .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject(
+            "SELECT COUNT(*) FROM user_roles ur JOIN roles r ON r.role_id=ur.role_id "
+                + "WHERE ur.user_id=? AND r.role_name='OWNER'",
+            Integer.class, buyer.userId())).isEqualTo(1);
     }
 
     @Test
