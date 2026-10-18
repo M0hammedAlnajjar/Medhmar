@@ -46,9 +46,9 @@ test('admin has a separate desktop dropdown with dashboard, users and audit log'
   const html = navbar(user('ADMIN'));
   const admin = adminDropdown(html);
   assert.match(admin, /Open administration menu/);
-  assert.match(admin, /href="\/admin">Admin Dashboard/);
-  assert.match(admin, /href="\/admin#account-administration">Manage Users/);
-  assert.match(admin, /href="\/audit-logs">Audit Log/);
+  assert.match(admin, /href="\/admin"[^>]*>Admin Dashboard/);
+  assert.match(admin, /href="\/admin#account-administration"[^>]*>Manage Users/);
+  assert.match(admin, /href="\/audit-logs"[^>]*>Audit Log/);
   assert.doesNotMatch(more(html), /\/admin|\/audit-logs|Manage Users/);
   assert.ok(html.indexOf('class="nav-admin"') > html.indexOf('class="pedigree-more"'));
 });
