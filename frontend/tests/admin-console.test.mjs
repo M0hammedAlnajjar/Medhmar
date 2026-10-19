@@ -37,7 +37,7 @@ test('dashboard renders real weekly activity, secure recent events and honest st
  assert.match(html,/admin-activity-svg/);
  assert.match(html,/Database queries/);
  assert.match(html,/Not monitored/);
- assert.doesNotMatch(html,/<strong>(?:1,248|642|118)<\\/strong>|All Systems Operational|Payment Service.+Online/);
+ assert.doesNotMatch(html,new RegExp('<strong>(?:1,248|642|118)</strong>|All Systems Operational|Payment Service.+Online'));
 });
 test('dashboard escapes audit values and never presents missing values as zero',()=>{
  const html=adminDashboard({user:{fullName:'<Admin>'},summary:{totalUsers:0,activeCamels:0,upcomingRaces:0,activeListings:0,
