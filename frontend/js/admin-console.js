@@ -14,13 +14,12 @@ export function adminShell({user,active='/admin',body=''}) {
  const initial=name.charAt(0).toUpperCase()||'A';
  return '<div class="admin-console" lang="en" dir="ltr"><aside class="admin-sidebar" aria-label="Administrator workspace">'+
    '<a class="admin-sidebar-brand" href="/admin" data-link aria-label="Medhmar administration home">'+
-   '<img src="/assets/medhmar-logo-icon.svg" alt="" width="72" height="50">'+
-   '<strong>MEDHMAR</strong><span>ADMINISTRATION</span></a>'+
+   '<img src="/assets/medhmar-logo-stacked.svg" alt="Medhmar Camel Racing Platform" width="164" height="100"></a>'+
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+nav+'</nav>'+
    '<div class="admin-sidebar-bottom"><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
    '<div class="admin-workspace"><header class="admin-topbar">'+
    '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+
-   '<a href="/admin" class="admin-mobile-brand" data-link>MEDHMAR <span>ADMIN</span></a>'+
+   '<a href="/admin" class="admin-mobile-brand" data-link aria-label="Medhmar administration home"><img src="/assets/medhmar-logo.svg" alt="Medhmar Camel Racing Platform" width="135" height="40"></a>'+
    '<details class="admin-mobile-nav"><summary aria-label="Open administration navigation">☰ Menu</summary>'+
    '<nav aria-label="Mobile administration">'+nav+'</nav></details>'+
    '<span class="admin-topbar-pill">Administrator workspace</span>'+

@@ -15,9 +15,9 @@ const [navLogo, fullLogo, iconLogo, css, app, auth, index] = await Promise.all([
 
 test("approved Medhmar artwork is embedded locally in responsive logo variants", () => {
   for (const [svg, expectedDimensions] of [
-    [navLogo, "865 169"],
-    [fullLogo, "480 312"],
-    [iconLogo, "100 70"],
+    [navLogo, "446 126"],
+    [fullLogo, "246 150"],
+    [iconLogo, "225 123"],
   ]) {
     assert.match(svg, new RegExp(`viewBox="0 0 ${expectedDimensions}"`));
     assert.match(svg, /data:image\/webp;base64,UklGR/);
