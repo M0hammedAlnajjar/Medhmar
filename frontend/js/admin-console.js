@@ -1,7 +1,7 @@
 // A standalone administration UI; no site-wide community modules are shown here.
 const esc = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const links=[['/admin','Dashboard'],['/admin/users','Manage Users'],['/admin/audit-logs','Audit Logs'],['/admin/settings','Admin Settings']];
-const adminIcon = key => ({"dashboard":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/></svg>","users":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/></svg>","audit":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 8h6M9 12h6M9 16h4\"/></svg>","settings":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1.1 1.5V21h-3v-.9a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.5-1.1H4v-3h1.5A1.7 1.7 0 0 0 7 9.8a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-2 .1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 11.7 4V3h3v1a1.7 1.7 0 0 0 1.1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1H22v3h-1.1a1.7 1.7 0 0 0-1.5 1.1Z\"/></svg>","camel":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 17h3l2-5 4-2 2 2h5l2-4M8 12V8l2-3 4 1 1 4M7 17v4m11-7v7M2 14l1 3\"/></svg>","race":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 21h10M12 17v4M5 4h14v7a7 7 0 0 1-14 0V4Zm0 3H3v3a3 3 0 0 0 3 3m13-6h2v3a3 3 0 0 1-3 3\"/></svg>","market":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 5h11l5 7-10 10L2 12 6 5Z\"/><circle cx=\"8\" cy=\"10\" r=\"1\"/></svg>","logout":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9\"/></svg>","refresh":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 11a8 8 0 1 0-2 6\"/><path d=\"M20 4v7h-7\"/></svg>"})[key]||"";
+const adminIcon = key => ({"dashboard":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/></svg>","users":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/></svg>","audit":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 8h6M9 12h6M9 16h4\"/></svg>","settings":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1.1 1.5V21h-3v-.9a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.5-1.1H4v-3h1.5A1.7 1.7 0 0 0 7 9.8a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-2 .1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 11.7 4V3h3v1a1.7 1.7 0 0 0 1.1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1H22v3h-1.1a1.7 1.7 0 0 0-1.5 1.1Z\"/></svg>","camel":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 17h3l2-5 4-2 2 2h5l2-4M8 12V8l2-3 4 1 1 4M7 17v4m11-7v7M2 14l1 3\"/></svg>","race":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 21h10M12 17v4M5 4h14v7a7 7 0 0 1-14 0V4Zm0 3H3v3a3 3 0 0 0 3 3m13-6h2v3a3 3 0 0 1-3 3\"/></svg>","market":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2.5\"/><path d=\"M6.5 7.4h4.5M6.5 17.6h11M7 14.6h1.4l1.2-3.1 2.1-1 1.5 1.8 2-1 1.6 3.3h1M9 14.6v3m7 0v-3\"/></svg>","logout":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9\"/></svg>","refresh":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 11a8 8 0 1 0-2 6\"/><path d=\"M20 4v7h-7\"/></svg>"})[key]||"";
 
 export function adminShell({user,active='/admin',body=''}) {
  const chosen=active.startsWith('/admin/audit-logs')?'/admin/audit-logs':active;
@@ -37,46 +37,76 @@ function dateTime(value) {
  return date && !Number.isNaN(date.valueOf()) ? date.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC' : 'Time unavailable';
 }
 function weeklyChart(rows) {
- if(!Array.isArray(rows)||rows.length!==7 ||
-    rows.some(day => !day || typeof day.date !== 'string' ||
-      !validCount(day.newUsers) || !validCount(day.newCamels) ||
-      !validCount(day.newListings))) {
-  return '<div class="admin-chart-unavailable">Activity data is unavailable.</div>';
+ const validDate=value=>typeof value==='string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) &&
+   !Number.isNaN(new Date(value+'T00:00:00Z').valueOf()) &&
+   new Date(value+'T00:00:00Z').toISOString().slice(0,10)===value;
+ if (!Array.isArray(rows)||rows.length!==7 || rows.some(d=>!d||!validDate(d.date)||
+     !validCount(d.newUsers)||!validCount(d.newCamels)||!validCount(d.newListings))) {
+   return '<div class="admin-chart-unavailable" role="status">Activity data is unavailable.</div>';
  }
- const data=rows.map(d=>({
-   date:d.date,users:d.newUsers,camels:d.newCamels,listings:d.newListings
- }));
- const maxValue=Math.max(1,...data.flatMap(d=>[d.users,d.camels,d.listings]));
- const max=Math.ceil(maxValue/5)*5;
- const width=700, x0=45, x1=679, y0=13, y1=180;
- const xy=(n,i)=>[x0+(x1-x0)*i/6,y1-n/max*(y1-y0)];
- const series=[['users','New Users','admin-line-users'],['camels','New Camels','admin-line-camels'],['listings','New Listings','admin-line-listings']];
- const grid=Array.from({length:5},(_,i)=>{
-   const y=y1-(y1-y0)*i/4;
-   return '<line x1="'+x0+'" x2="'+x1+'" y1="'+y+'" y2="'+y+'" class="admin-chart-grid"/>'+
-     '<text x="33" y="'+(y+4)+'" class="admin-chart-tick" text-anchor="end">'+Math.round(max*i/4)+'</text>';
+ const metrics=[
+   {id:'users',field:'newUsers',title:'New Users',unit:'user'},
+   {id:'camels',field:'newCamels',title:'New Camels',unit:'camel'},
+   {id:'listings',field:'newListings',title:'New Listings',unit:'listing'}
+ ];
+ const tabs='<div class="admin-chart-tabs" role="tablist" aria-label="Platform activity category">'+
+   metrics.map((m,i)=>'<button type="button" role="tab" id="admin-chart-tab-'+m.id+
+     '" aria-controls="admin-chart-panel-'+m.id+'" aria-selected="'+(i===0)+
+     '" tabindex="'+(i===0?0:-1)+'" class="admin-chart-tab" data-chart="'+m.id+'">'+m.title+'</button>').join('')+'</div>';
+ const charts=metrics.map((m,i)=>{
+   const values=rows.map(d=>d[m.field]);
+   const step=Math.max(1,Math.ceil(Math.max(...values)/4)), maximum=step*4;
+   const grid=Array.from({length:5},(_,j)=>{
+     const y=195-(158*j/4);
+     return '<line class="admin-chart-grid" x1="42" x2="674" y1="'+y+'" y2="'+y+'"/>'+
+       '<text class="admin-chart-tick" x="32" y="'+(y+4)+'" text-anchor="end">'+(j*step)+'</text>';
+   }).join('');
+   const bars=rows.map((d,j)=>{
+     const x=68+96*j, val=values[j], h=158*val/maximum, y=195-h;
+     const date=new Date(d.date+'T00:00:00Z');
+     const label=date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})+
+       ': '+val+' new '+m.unit+(val===1?'':'s');
+     const bar=val?'<rect class="admin-chart-bar admin-chart-bar-'+m.id+'" x="'+(x-20)+'" y="'+y.toFixed(1)+
+       '" width="40" height="'+h.toFixed(1)+'" rx="5"/>':
+       '<circle class="admin-chart-zero" cx="'+x+'" cy="195" r="3"/>';
+     return '<g role="img" tabindex="0" class="admin-chart-bar-group" aria-label="'+esc(label)+'">'+
+       '<title>'+esc(label)+'</title>'+bar+
+       '<text class="admin-chart-value" x="'+x+'" y="'+Math.max(24,y-9).toFixed(1)+'" text-anchor="middle">'+val+'</text>'+
+       '<text class="admin-chart-tick" x="'+x+'" y="219" text-anchor="middle">'+
+       date.toLocaleDateString('en-US',{weekday:'short',timeZone:'UTC'})+'</text></g>';
+   }).join('');
+   return '<section id="admin-chart-panel-'+m.id+'" data-chart-panel="'+m.id+
+     '" class="admin-chart-panel" role="tabpanel" aria-labelledby="admin-chart-tab-'+m.id+
+     '"'+(i===0?'':' hidden')+'><svg class="admin-activity-svg" viewBox="0 0 700 235" role="img" aria-label="'+
+     esc(m.title+' by UTC day over the last 7 days')+'" preserveAspectRatio="xMidYMid meet">'+grid+bars+'</svg></section>';
  }).join('');
- const lines=series.map(([key,title,style])=>{
-  const pts=data.map((d,i)=>xy(d[key],i));
-  const points=pts.map(p=>p.map(n=>n.toFixed(1)).join(',')).join(' ');
-  const markers=pts.map(([x,y],i)=>{
-    const tip='<title>'+title+': '+data[i][key]+' on '+esc(data[i].date)+'</title>';
-    if(key==='camels') return '<rect class="'+style+' admin-chart-square" x="'+(x-4)+'" y="'+(y-4)+'" width="8" height="8">'+tip+'</rect>';
-    if(key==='listings')return '<path class="'+style+' admin-chart-triangle" d="M '+x+' '+(y-5)+' L '+(x-5)+' '+(y+4)+' L '+(x+5)+' '+(y+4)+' Z">'+tip+'</path>';
-    return '<circle cx="'+x+'" cy="'+y+'" r="4.5" class="'+style+' admin-chart-dot">'+tip+'</circle>';
-  }).join('');
-  return '<polyline points="'+points+'" class="'+style+'"/>'+markers;
- }).join('');
- const dayLabels=data.map((d,i)=>{
-   const parsed=new Date(d.date+'T00:00:00Z');
-   const day=Number.isNaN(parsed.getTime())?d.date.slice(5):parsed.toLocaleDateString('en-US',{weekday:'short',timeZone:'UTC'});
-   return '<text x="'+xy(0,i)[0]+'" y="203" class="admin-chart-tick" text-anchor="middle">'+esc(day)+'</text>';
- }).join('');
- const desc=data.map(d=>esc(d.date)+': '+d.users+' users, '+d.camels+' camels, '+d.listings+' listings').join('; ');
- return '<svg class="admin-activity-svg" viewBox="0 0 '+width+' 213" role="img" aria-label="'+esc('Activity in UTC: '+desc)+'" preserveAspectRatio="xMidYMid meet">'+
-  grid+lines+dayLabels+'</svg>'+
-  '<div class="admin-chart-legend"><span class="admin-legend-users">New Users</span><span class="admin-legend-camels">New Camels</span><span class="admin-legend-listings">New Listings</span></div>';
+ return '<div class="admin-chart-container">'+tabs+charts+'</div>';
 }
+
+export function bindAdminChartTabs(root=document) {
+ const tabs=[...root.querySelectorAll('.admin-chart-tab')],panels=[...root.querySelectorAll('.admin-chart-panel')];
+ if(!tabs.length||!panels.length)return;
+ const activate=(id,focus=false)=>{
+   for(const t of tabs){const current=t.dataset.chart===id;
+     t.setAttribute('aria-selected',String(current));t.tabIndex=current?0:-1;
+     if(current&&focus)t.focus();
+   }
+   for(const p of panels)p.hidden=p.dataset.chartPanel!==id;
+ };
+ tabs.forEach((t,i)=>{
+   t.addEventListener('click',()=>activate(t.dataset.chart));
+   t.addEventListener('keydown',event=>{
+     let next;
+     if(event.key==='ArrowRight')next=(i+1)%tabs.length;
+     else if(event.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;
+     else if(event.key==='Home')next=0;
+     else if(event.key==='End')next=tabs.length-1;
+     else return;
+     event.preventDefault();activate(tabs[next].dataset.chart,true);
+   });
+ });
+}
+
 export function adminDashboard({user,summary=null,error='',page=null}) {
  const live=summary&&typeof summary==='object'?summary:null;
  const totalUsers=live?.totalUsers ?? (validCount(page?.totalElements)?page.totalElements:null);
@@ -114,7 +144,7 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    (error?'<div class="admin-summary-error" role="status">Could not load dashboard data: '+esc(error)+
      ' <button type="button" id="admin-retry" class="btn btn-secondary">Retry</button></div>':'')+
    '<div class="admin-overview-grid"><section class="admin-panel admin-panel-chart"><div class="admin-panel-heading">'+
-   '<div><h2>Platform Activity</h2><p>Daily platform records</p></div><span class="admin-chart-period">Last 7 days <span aria-hidden="true">⌄</span></span></div>'+
+   '<div><h2>Platform Activity</h2><p>Daily platform records</p></div><span class="admin-chart-period">Last 7 days · UTC</span></div>'+
    weeklyChart(live?.activity)+'</section>'+
    '<section class="admin-panel admin-panel-events"><div class="admin-panel-heading"><h2>Recent Activity</h2>'+
    '<a href="/admin/audit-logs" data-link>View Audit Logs <span aria-hidden="true">→</span></a></div>'+

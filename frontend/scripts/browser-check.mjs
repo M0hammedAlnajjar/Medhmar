@@ -304,6 +304,34 @@ try {
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin mobile must not overflow');
   await page.screenshot({path:'test-results/admin-nav-mobile.png',fullPage:true});
 
+  // Real admin component and tab handler with clearly test-only data.
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(async()=>{
+    const {adminShell,adminDashboard,bindAdminChartTabs}=await import('/js/admin-console.js');
+    const activity=Array.from({length:7},(_,i)=>({
+      date:'2026-10-'+String(i+13),newUsers:i>4?1:0,newCamels:i===3?2:0,newListings:i===2?1:0
+    }));
+    document.querySelector('#app').innerHTML=adminShell({
+      user:{userId:1,fullName:'Admin',roles:['ADMIN']},active:'/admin',
+      body:adminDashboard({summary:{totalUsers:2,activeCamels:2,upcomingRaces:0,activeListings:1,
+        generatedAt:'2026-10-19T00:00:00Z',activity,recentEvents:[]}})
+    });
+    bindAdminChartTabs(document);
+  });
+  assert.equal(await page.getByRole('tab').count(),3);
+  assert.equal(await page.locator('#admin-chart-panel-users .admin-chart-bar').count(),2);
+  await page.getByRole('tab',{name:'New Camels'}).click();
+  assert.equal(await page.locator('#admin-chart-panel-camels').isVisible(),true);
+  assert.equal(await page.locator('#admin-chart-panel-users').isVisible(),false);
+  await page.getByRole('tab',{name:'New Camels'}).press('ArrowRight');
+  assert.equal(await page.getByRole('tab',{name:'New Listings'}).getAttribute('aria-selected'),'true');
+  await page.getByRole('tab',{name:'New Listings'}).press('Home');
+  assert.equal(await page.getByRole('tab',{name:'New Users'}).getAttribute('aria-selected'),'true');
+  await page.screenshot({path:'test-results/admin-activity-bars-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin chart should not overflow mobile');
+  await page.screenshot({path:'test-results/admin-activity-bars-mobile.png',fullPage:true});
+
   // Approved Manage Users theme: render the real component with test-only records,
   // check the appearance at desktop and mobile viewports without using live accounts.
   await page.setViewportSize({width:1440,height:900});
