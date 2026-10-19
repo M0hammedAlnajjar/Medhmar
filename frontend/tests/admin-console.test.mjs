@@ -95,3 +95,30 @@ test('admin layout stays separate and dashboard refresh can be bound by SPA', as
  assert.match(css,/grid-template-columns:235px minmax\(0,1fr\)/);
  assert.doesNotMatch(css,/\.admin-header-inner/);
 });
+
+
+test('reference-matched administration header and dashboard panels are present',()=>{
+ const shell=adminShell({user:{fullName:'Admin'},active:'/admin',body:'Content'});
+ assert.match(shell,/admin-sidebar-brand|admin-topbar-breadcrumb/);
+ assert.match(shell,/Administrator workspace/);
+ assert.match(shell,/aria-current="page"/);
+ assert.doesNotMatch(shell,/href="\/home"|href="\/camels"|href="\/marketplace"/);
+ const data={totalUsers:12,activeCamels:8,upcomingRaces:3,activeListings:2,
+   generatedAt:'2026-10-19T00:00:00Z',
+   activity:Array.from({length:7},(_,i)=>({date:'2026-10-'+String(i+12),newUsers:i,newCamels:i+1,newListings:i})),
+   recentEvents:[]};
+ const html=adminDashboard({summary:data});
+ assert.match(html,/PLATFORM OVERVIEW/);
+ assert.match(html,/class="admin-chart-period"/);
+ assert.match(html,/admin-status-check/);
+ assert.match(html,/admin-panel-health/);
+ assert.match(html,/12|Registered Camels/);
+});
+test('reference styling stays inside the dedicated administration scope',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ assert.match(css,/\.admin-console \.admin-topbar-breadcrumb/);
+ assert.match(css,/\.admin-console \.admin-status-check/);
+ assert.match(css,/racing-hero\.webp/);
+ assert.match(css,/@media\(max-width:450px\)/);
+});

@@ -5,24 +5,30 @@ const adminIcon = key => ({"dashboard":"<svg viewBox=\"0 0 24 24\" fill=\"none\"
 
 export function adminShell({user,active='/admin',body=''}) {
  const chosen=active.startsWith('/admin/audit-logs')?'/admin/audit-logs':active;
- const labels={ '/admin':'dashboard','/admin/users':'users','/admin/audit-logs':'audit','/admin/settings':'settings' };
+ const icons={ '/admin':'dashboard','/admin/users':'users','/admin/audit-logs':'audit','/admin/settings':'settings' };
  const nav=links.map(([path,label])=>'<a href="'+path+'" data-link'+(chosen===path?' class="active" aria-current="page"':'')+
-   '><span class="admin-nav-icon">'+adminIcon(labels[path])+'</span><span>'+label+'</span></a>').join('');
+   '><span class="admin-nav-icon">'+adminIcon(icons[path])+'</span><span>'+label+'</span></a>').join('');
+ const titles={'/admin':'Overview','/admin/users':'Manage Users','/admin/audit-logs':'Audit Logs','/admin/settings':'Admin Settings'};
+ const section=titles[chosen]||'Administration';
+ const name=String(user?.fullName||'Administrator').trim();
+ const initial=name.charAt(0).toUpperCase()||'A';
  return '<div class="admin-console" lang="en" dir="ltr"><aside class="admin-sidebar" aria-label="Administrator workspace">'+
    '<a class="admin-sidebar-brand" href="/admin" data-link aria-label="Medhmar administration home">'+
-   '<img src="/assets/medhmar-logo.svg" alt="Medhmar"><span>ADMINISTRATION</span></a>'+
-   '<p class="admin-sidebar-label">WORKSPACE</p><nav class="admin-sidebar-nav" aria-label="Administration">'+nav+'</nav>'+
-   '<div class="admin-sidebar-bottom"><span>SECURE MANAGEMENT AREA</span>'+
-   '<button id="admin-signout" type="button">'+adminIcon('logout')+' Sign Out</button></div></aside>'+
+   '<img src="/assets/medhmar-logo-icon.svg" alt="" width="72" height="50">'+
+   '<strong>MEDHMAR</strong><span>ADMINISTRATION</span></a>'+
+   '<nav class="admin-sidebar-nav" aria-label="Administration">'+nav+'</nav>'+
+   '<div class="admin-sidebar-bottom"><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
    '<div class="admin-workspace"><header class="admin-topbar">'+
+   '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+
    '<a href="/admin" class="admin-mobile-brand" data-link>MEDHMAR <span>ADMIN</span></a>'+
    '<details class="admin-mobile-nav"><summary aria-label="Open administration navigation">☰ Menu</summary>'+
    '<nav aria-label="Mobile administration">'+nav+'</nav></details>'+
-   '<div class="admin-user-chip"><span class="admin-user-avatar" aria-hidden="true">'+esc((user?.fullName||'A').slice(0,1).toUpperCase())+'</span>'+
-   '<span><strong>'+esc(user?.fullName||'Administrator')+'</strong><small>Administrator</small></span></div>'+
+   '<span class="admin-topbar-pill">Administrator workspace</span>'+
+   '<div class="admin-user-chip"><span class="admin-user-avatar" aria-hidden="true">'+esc(initial)+'</span>'+
+   '<span><strong>'+esc(name)+'</strong><small>Administrator</small></span></div>'+
    '<button type="button" id="admin-mobile-signout" class="admin-mobile-signout" aria-label="Sign out">Sign Out</button>'+
    '</header><main class="admin-main">'+body+'</main>'+
-   '<footer class="admin-footer">MEDHMAR · Authorized administration · Data from the live platform</footer></div></div>';
+   '<footer class="admin-footer">© '+new Date().getFullYear()+' Medhmar. All rights reserved.</footer></div></div>';
 }
 const validCount=value => typeof value==='number' && Number.isSafeInteger(value) && value>=0;
 const number=value => validCount(value) ? value.toLocaleString('en-US') : '—';
@@ -38,79 +44,88 @@ function weeklyChart(rows) {
       !validCount(day.newListings))) {
   return '<div class="admin-chart-unavailable">Activity data is unavailable.</div>';
  }
- const data=rows.map(x=>({
-  date:String(x?.date||''),
-  users:x.newUsers,
-  camels:x.newCamels,
-  listings:x.newListings
+ const data=rows.map(d=>({
+   date:d.date,users:d.newUsers,camels:d.newCamels,listings:d.newListings
  }));
- const max=Math.max(1,...data.flatMap(d=>[d.users,d.camels,d.listings]));
- const width=680, x0=45, x1=655, y0=18, y1=192;
- const position=(n,i)=>[x0+(x1-x0)*i/6,y1-n/max*(y1-y0)];
- const charts=[['users','New Users','admin-line-users'],['camels','New Camels','admin-line-camels'],['listings','New Listings','admin-line-listings']];
+ const maxValue=Math.max(1,...data.flatMap(d=>[d.users,d.camels,d.listings]));
+ const max=Math.ceil(maxValue/5)*5;
+ const width=700, x0=45, x1=679, y0=13, y1=180;
+ const xy=(n,i)=>[x0+(x1-x0)*i/6,y1-n/max*(y1-y0)];
+ const series=[['users','New Users','admin-line-users'],['camels','New Camels','admin-line-camels'],['listings','New Listings','admin-line-listings']];
  const grid=Array.from({length:5},(_,i)=>{
-  const y=y1-(y1-y0)*i/4;
-  return '<line x1="'+x0+'" x2="'+x1+'" y1="'+y+'" y2="'+y+'" class="admin-chart-grid"/>'+
-   '<text x="34" y="'+(y+4)+'" class="admin-chart-tick" text-anchor="end">'+Math.round(max*i/4)+'</text>';
+   const y=y1-(y1-y0)*i/4;
+   return '<line x1="'+x0+'" x2="'+x1+'" y1="'+y+'" y2="'+y+'" class="admin-chart-grid"/>'+
+     '<text x="33" y="'+(y+4)+'" class="admin-chart-tick" text-anchor="end">'+Math.round(max*i/4)+'</text>';
  }).join('');
- const lines=charts.map(([key,title,style])=>{
-  const pts=data.map((d,i)=>position(d[key],i));
-  return '<polyline points="'+pts.map(p=>p.map(x=>x.toFixed(1)).join(',')).join(' ')+'" class="'+style+'"/>'+
-   pts.map((p,i)=>'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3" class="'+style+' admin-chart-dot"><title>'+title+
-     ': '+data[i][key]+' on '+esc(data[i].date)+'</title></circle>').join('');
+ const lines=series.map(([key,title,style])=>{
+  const pts=data.map((d,i)=>xy(d[key],i));
+  const points=pts.map(p=>p.map(n=>n.toFixed(1)).join(',')).join(' ');
+  const markers=pts.map(([x,y],i)=>{
+    const tip='<title>'+title+': '+data[i][key]+' on '+esc(data[i].date)+'</title>';
+    if(key==='camels') return '<rect class="'+style+' admin-chart-square" x="'+(x-4)+'" y="'+(y-4)+'" width="8" height="8">'+tip+'</rect>';
+    if(key==='listings')return '<path class="'+style+' admin-chart-triangle" d="M '+x+' '+(y-5)+' L '+(x-5)+' '+(y+4)+' L '+(x+5)+' '+(y+4)+' Z">'+tip+'</path>';
+    return '<circle cx="'+x+'" cy="'+y+'" r="4.5" class="'+style+' admin-chart-dot">'+tip+'</circle>';
+  }).join('');
+  return '<polyline points="'+points+'" class="'+style+'"/>'+markers;
  }).join('');
- const xLabels=data.map((d,i)=>'<text x="'+position(0,i)[0]+'" y="211" class="admin-chart-tick" text-anchor="middle">'+
-   esc(d.date.slice(5))+'</text>').join('');
- const description=data.map(d=>esc(d.date)+': '+d.users+' users, '+d.camels+' camels, '+d.listings+' listings').join('; ');
- return '<div class="admin-chart-legend"><span class="admin-legend-users">New Users</span>'+
-   '<span class="admin-legend-camels">New Camels</span><span class="admin-legend-listings">New Listings</span></div>'+
-   '<svg class="admin-activity-svg" viewBox="0 0 '+width+' 224" role="img" aria-label="'+esc('Activity in UTC: '+description)+'" preserveAspectRatio="xMidYMid meet">'+
-   grid+lines+xLabels+'</svg>';
+ const dayLabels=data.map((d,i)=>{
+   const parsed=new Date(d.date+'T00:00:00Z');
+   const day=Number.isNaN(parsed.getTime())?d.date.slice(5):parsed.toLocaleDateString('en-US',{weekday:'short',timeZone:'UTC'});
+   return '<text x="'+xy(0,i)[0]+'" y="203" class="admin-chart-tick" text-anchor="middle">'+esc(day)+'</text>';
+ }).join('');
+ const desc=data.map(d=>esc(d.date)+': '+d.users+' users, '+d.camels+' camels, '+d.listings+' listings').join('; ');
+ return '<svg class="admin-activity-svg" viewBox="0 0 '+width+' 213" role="img" aria-label="'+esc('Activity in UTC: '+desc)+'" preserveAspectRatio="xMidYMid meet">'+
+  grid+lines+dayLabels+'</svg>'+
+  '<div class="admin-chart-legend"><span class="admin-legend-users">New Users</span><span class="admin-legend-camels">New Camels</span><span class="admin-legend-listings">New Listings</span></div>';
 }
 export function adminDashboard({user,summary=null,error='',page=null}) {
  const live=summary&&typeof summary==='object'?summary:null;
  const totalUsers=live?.totalUsers ?? (validCount(page?.totalElements)?page.totalElements:null);
  const metrics=[
-  {label:'Total Users',value:totalUsers,icon:'users',tone:'users',sub:'Registered platform accounts'},
-  {label:'Registered Camels',value:live?.activeCamels,icon:'camel',tone:'camels',sub:'Active camel records'},
-  {label:'Upcoming / Open Races',value:live?.upcomingRaces,icon:'race',tone:'races',sub:'Scheduled or accepting entries'},
-  {label:'Active Listings',value:live?.activeListings,icon:'market',tone:'market',sub:'Available marketplace offers'}
+  {label:'Total Users',value:totalUsers,icon:'users',tone:'users',sub:'Registered platform users'},
+  {label:'Registered Camels',value:live?.activeCamels,icon:'camel',tone:'camels',sub:'Camels in the system'},
+  {label:'Upcoming / Open Races',value:live?.upcomingRaces,icon:'race',tone:'races',sub:'Races open for registration'},
+  {label:'Active Listings',value:live?.activeListings,icon:'market',tone:'market',sub:'Active marketplace listings'}
  ];
- const cards=metrics.map(m=>'<article class="admin-metric-card"><span class="admin-metric-icon admin-tone-'+m.tone+'">'+adminIcon(m.icon)+'</span>'+
-    '<div><span class="admin-metric-label">'+m.label+'</span><strong>'+number(m.value)+'</strong>'+
-    '<small>'+m.sub+'</small></div></article>').join('');
- const events=Array.isArray(live?.recentEvents)?live.recentEvents.slice(0,6):[];
- const activityList=events.length?events.map(a=>'<li class="admin-recent-event"><span class="admin-event-dot" aria-hidden="true"></span>'+
-   '<div><strong>'+esc(safeLabel(a.actionType))+'</strong><small>'+esc(a.entityType||'Record')+' #'+esc(a.entityId||'—')+
-   (a.actorUserId?' · Actor #'+esc(a.actorUserId):'')+'</small></div>'+
-   '<time datetime="'+esc(a.createdAt||'')+'">'+esc(dateTime(a.createdAt))+'</time></li>').join(''):
-   '<li class="admin-empty-state">'+(live?'No audit events recorded yet.':'Recent activity unavailable.')+'</li>';
+ const cards=metrics.map(m=>'<article class="admin-metric-card">'+
+   '<span class="admin-metric-icon admin-tone-'+m.tone+'">'+adminIcon(m.icon)+'</span>'+
+   '<div><span class="admin-metric-label">'+m.label+'</span><strong>'+number(m.value)+'</strong>'+
+   '<small>'+m.sub+'</small></div></article>').join('');
+ const events=Array.isArray(live?.recentEvents)?live.recentEvents.slice(0,4):[];
+ const activityList=events.length?events.map(a=>{
+   const action=String(a.actionType||'Activity recorded'), entity=String(a.entityType||'Record');
+   const search=(action+' '+entity).toUpperCase();
+   const kind=search.includes('CAMEL')?'camel':search.includes('RACE')?'race':
+     /LISTING|MARKET|OFFER/.test(search)?'market':'users';
+   const tone=kind==='camel'||kind==='market'?'camels':'users';
+   return '<li class="admin-recent-event"><span class="admin-event-icon admin-tone-'+tone+'">'+adminIcon(kind)+'</span>'+
+     '<div><strong>'+esc(safeLabel(action))+'</strong><small>'+esc(entity)+' #'+esc(a.entityId??'—')+
+     (a.actorUserId?' · Actor #'+esc(a.actorUserId):'')+'</small></div>'+
+     '<time datetime="'+esc(a.createdAt||'')+'">'+esc(dateTime(a.createdAt))+'</time></li>';
+ }).join(''):'<li class="admin-empty-state">'+(live?'No audit events recorded yet.':'Recent activity unavailable.')+'</li>';
  const updated=live?.generatedAt?dateTime(live.generatedAt):'Not available';
  const status=live?'<span class="admin-health-good">Responding</span>':'<span class="admin-health-unknown">Unverified</span>';
- const pill=live?'<span class="admin-live-pill">Live platform data</span>':
-   '<span class="admin-live-pill admin-offline-pill">Data unavailable</span>';
+ const pill=live?'<span class="admin-live-pill">Live platform data</span>':'<span class="admin-live-pill admin-offline-pill">Data unavailable</span>';
  return '<section class="admin-hero" aria-labelledby="admin-dashboard-title">'+
-   '<div class="admin-hero-copy"><span class="admin-hero-eyebrow">MEDHMAR / ADMINISTRATION</span>'+
+   '<div class="admin-hero-copy"><span class="admin-hero-eyebrow">PLATFORM OVERVIEW</span>'+
    '<h1 id="admin-dashboard-title">Admin Dashboard</h1><p>Monitor and manage the Medhmar platform.</p></div>'+
-   '<div class="admin-hero-actions"><div class="admin-last-updated">Last updated <strong>'+esc(updated)+'</strong></div>'+
-   '<button id="admin-refresh" class="admin-refresh-btn" type="button" aria-label="Refresh dashboard data">'+adminIcon('refresh')+' Refresh</button></div></section>'+
+   '<div class="admin-hero-actions"><button id="admin-refresh" class="admin-refresh-btn" type="button" aria-label="Refresh dashboard data">'+adminIcon('refresh')+' Refresh</button></div></section>'+
    '<section class="admin-metrics" aria-label="Current platform figures">'+cards+'</section>'+
-   '<div class="admin-data-status" role="status">'+pill+
-   '<span>All figures use Medhmar records; activity dates are UTC.</span></div>'+
-   (error?'<div class="admin-summary-error" role="status">Live dashboard data could not be loaded: '+esc(error)+
+   '<div class="admin-data-status" role="status">'+pill+'<span>Last updated: '+esc(updated)+'</span></div>'+
+   (error?'<div class="admin-summary-error" role="status">Could not load dashboard data: '+esc(error)+
      ' <button type="button" id="admin-retry" class="btn btn-secondary">Retry</button></div>':'')+
    '<div class="admin-overview-grid"><section class="admin-panel admin-panel-chart"><div class="admin-panel-heading">'+
-   '<div><h2>Platform Activity</h2><p>Daily registrations, camels and listings · Last 7 days (UTC)</p></div></div>'+
+   '<div><h2>Platform Activity</h2><p>Daily platform records</p></div><span class="admin-chart-period">Last 7 days <span aria-hidden="true">⌄</span></span></div>'+
    weeklyChart(live?.activity)+'</section>'+
    '<section class="admin-panel admin-panel-events"><div class="admin-panel-heading"><h2>Recent Activity</h2>'+
-   '<a href="/admin/audit-logs" data-link>View Audit Logs →</a></div>'+
-   '<ul class="admin-recent-list">'+activityList+'</ul></section>'+
-   '<section class="admin-panel admin-panel-health"><div class="admin-panel-heading"><h2>System Status</h2></div>'+
-   '<p class="admin-health-note">Checks reflect this dashboard request only.</p>'+
-   '<div class="admin-health-row"><span>Backend API</span>'+status+'</div>'+
-   '<div class="admin-health-row"><span>Database queries</span>'+status+'</div>'+
-   '<div class="admin-health-row"><span>External services</span><span class="admin-health-unknown">Not monitored</span></div>'+
-   '<a href="/admin/users" data-link class="admin-health-shortcut">Manage Users →</a></section></div>';
+   '<a href="/admin/audit-logs" data-link>View Audit Logs <span aria-hidden="true">→</span></a></div>'+
+   '<ul class="admin-recent-list">'+activityList+'</ul></section></div>'+
+   '<section class="admin-panel admin-panel-health"><div class="admin-status-heading">'+
+   '<div><h2>System Status</h2><p>Request-level indicators</p></div></div>'+
+   '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('settings')+'</span><strong>Backend API</strong>'+status+'</div>'+
+   '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('dashboard')+'</span><strong>Database queries</strong>'+status+'</div>'+
+   '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('market')+'</span><strong>External services</strong><span class="admin-health-unknown">Not monitored</span></div>'+
+   '</section>';
 }
 // Shared heading for the existing Users and Settings pages.
 const header=(k,t,d)=>'<div class="admin-heading"><p>'+esc(k)+'</p><h1>'+esc(t)+'</h1><span>'+esc(d)+'</span></div>';

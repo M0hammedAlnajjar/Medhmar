@@ -124,3 +124,164 @@
 .admin-console .admin-data-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 0;color:#796d61;font-size:12px;line-height:1.5}
 .admin-console .admin-data-status .admin-live-pill{flex-shrink:0}
 .admin-console .admin-overview-grid{margin-top:18px}
+
+/* Approved October 2026 dashboard reference: layout and palette overrides.
+   All selectors are scoped to the admin shell; public pages are unaffected. */
+.admin-console{grid-template-columns:242px minmax(0,1fr);background:#faf9f7;color:#15131b;font-family:Inter,"Segoe UI",Arial,sans-serif}
+.admin-console .admin-sidebar{padding:19px 16px 20px;background:linear-gradient(151deg,#24170f 0%,#362317 48%,#25180f 100%);color:#fff;box-shadow:5px 0 20px #20140d12}
+.admin-console .admin-sidebar-brand{padding:0 8px 34px;gap:2px;color:#e6b972;text-align:center;letter-spacing:normal}
+.admin-console .admin-sidebar-brand img{width:78px;height:51px;max-height:none;object-fit:contain}
+.admin-console .admin-sidebar-brand strong{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:23px;letter-spacing:.22em;margin-left:.22em;line-height:1.35;color:#e9bd78}
+.admin-console .admin-sidebar-brand span{font-size:10px;font-weight:550;letter-spacing:.29em;color:#e7d2bc}
+.admin-console .admin-sidebar-nav{gap:8px;margin-top:0}
+.admin-console .admin-sidebar-nav a{min-height:57px;padding:0 18px;gap:18px;border-radius:8px;color:#f7f2ef;font-size:15px;font-weight:500}
+.admin-console .admin-sidebar-nav .active,.admin-console .admin-sidebar-nav a:hover{background:linear-gradient(110deg,#b60822,#c5112a);color:#fff}
+.admin-console .admin-nav-icon,.admin-console .admin-nav-icon svg{width:28px;height:28px}
+.admin-console .admin-sidebar-bottom{border-top:1px solid #6b5143;padding:20px 8px 0;margin:0 8px 0;margin-top:auto}
+.admin-console .admin-sidebar-bottom button{font-size:15px;font-weight:500;gap:16px;min-height:48px;color:#fff}
+.admin-console .admin-sidebar-bottom svg{width:26px;height:26px}
+
+.admin-console .admin-topbar{height:62px;min-height:62px;padding:8px 24px 8px 32px;justify-content:flex-start;gap:14px;background:#fff;border-bottom:1px solid #ebebee}
+.admin-console .admin-topbar-breadcrumb{font-size:15px;text-decoration:none;color:#79849d;font-weight:500;white-space:nowrap}
+.admin-console .admin-topbar-section{font-size:15px;color:#16131b;font-weight:600;white-space:nowrap}
+.admin-console .admin-breadcrumb-separator{color:#b7bcc8;font-size:18px;font-weight:400}
+.admin-console .admin-topbar-pill{margin-left:auto;padding:9px 13px;background:#f7ecdd;border-radius:12px;color:#8b551c;font-size:12px;font-weight:550;white-space:nowrap}
+.admin-console .admin-user-chip{border-left:1px solid #ededf0;padding-left:16px;gap:13px;color:#151321;min-width:0}
+.admin-console .admin-user-avatar{width:43px;height:43px;background:#e9c58f;color:#4f311b;font-size:20px;font-weight:500}
+.admin-console .admin-user-chip>span:last-child{gap:2px;min-width:0}
+.admin-console .admin-user-chip strong{font-size:14px;font-weight:600;white-space:nowrap;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.admin-console .admin-user-chip small{font-size:12px;color:#80879b}
+
+.admin-console .admin-main{padding:13px 20px 0}
+.admin-console .admin-hero{margin:0;min-height:212px;padding:31px 29px;align-items:flex-start;gap:18px;border-radius:12px;overflow:hidden;border:1px solid #e4dace;background-color:#f4e7d7;background-image:linear-gradient(90deg,rgba(249,241,231,.97) 0%,rgba(249,241,231,.86) 26%,rgba(249,241,231,.35) 47%,rgba(255,255,255,0) 73%),url('/assets/racing-hero.webp');background-size:cover;background-position:center 45%;color:#17121a;isolation:isolate}
+.admin-console .admin-hero-copy{padding-top:10px;flex:1;min-width:0}
+.admin-console .admin-hero-eyebrow{display:block;color:#a66a13;font-size:13px;font-weight:750;letter-spacing:.12em}
+.admin-console .admin-hero h1{color:#120e10;font-weight:790;font-size:clamp(30px,3.1vw,49px);line-height:1.13;margin:13px 0 3px;letter-spacing:-.038em}
+.admin-console .admin-hero p{font-size:19px;font-weight:450;line-height:1.4;color:#4c566c}
+.admin-console .admin-hero-actions{align-self:flex-start;align-items:flex-start;justify-content:flex-end;flex:0 0 auto}
+.admin-console .admin-refresh-btn{padding:10px 15px;border:1px solid #dadde5;border-radius:9px;background:#fff;color:#273044;font-size:13px;font-weight:600;box-shadow:0 2px 6px #24202010;white-space:nowrap}
+.admin-console .admin-refresh-btn:hover{background:#f9f7f4;border-color:#c6b6a3}
+.admin-console .admin-refresh-btn svg{width:18px;height:18px}
+
+.admin-console .admin-metrics{position:static;margin-top:15px;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.admin-console .admin-metric-card{min-height:136px;padding:17px;display:flex;align-items:flex-start;gap:22px;border:1px solid #e3e7ec;border-radius:10px;box-shadow:0 3px 10px #20232a06}
+.admin-console .admin-metric-icon{width:69px;height:69px;border-radius:11px;flex-shrink:0}
+.admin-console .admin-metric-icon svg{width:37px;height:37px;stroke-width:1.9}
+.admin-console .admin-tone-users{background:#fbe5e9;color:#cf062c}
+.admin-console .admin-tone-camels{background:#fbf0df;color:#ac710c}
+.admin-console .admin-tone-races{background:#fbe5e9;color:#cf062c}
+.admin-console .admin-tone-market{background:#fbf0df;color:#ac710c}
+.admin-console .admin-metric-card>div{gap:3px;padding-top:2px}
+.admin-console .admin-metric-label{font-size:14px;font-weight:530;color:#34415e;line-height:1.35}
+.admin-console .admin-metric-card strong{font-size:40px;font-weight:800;letter-spacing:-.025em;line-height:1.27;color:#180f14}
+.admin-console .admin-metric-card small{font-size:13px;color:#78829a;line-height:1.35}
+
+.admin-console .admin-data-status{margin:7px 0 -1px;gap:8px;justify-content:flex-end;font-size:10px;color:#7c879a}
+.admin-console .admin-live-pill{font-size:10px;padding:3px 8px;border-radius:7px}
+.admin-console .admin-summary-error{margin-top:10px;font-size:12px}
+.admin-console .admin-overview-grid{grid-template-columns:minmax(0,1.39fr) minmax(330px,1fr);align-items:stretch;gap:13px;margin-top:10px}
+.admin-console .admin-panel{min-height:0;border:1px solid #e1e6ed;border-radius:10px;box-shadow:0 3px 12px #20232a04;background:white;padding:16px 22px}
+.admin-console .admin-panel-chart,.admin-console .admin-panel-events{min-height:342px}
+.admin-console .admin-panel-heading{margin:0 0 12px;gap:10px}
+.admin-console .admin-panel-heading h2,.admin-console .admin-status-heading h2{font-size:22px;font-weight:720;letter-spacing:-.025em;color:#15131b;margin:0 0 4px;line-height:1.22}
+.admin-console .admin-panel-heading p,.admin-console .admin-status-heading p{font-size:13px;color:#78829a;line-height:1.35;margin:0}
+.admin-console .admin-panel-heading a{color:#cd0725;font-size:13px;font-weight:650}
+.admin-console .admin-chart-period{flex:0 0 auto;align-self:flex-start;display:flex;align-items:center;gap:15px;padding:8px 12px;border:1px solid #e2e7ef;border-radius:10px;font-size:12px;color:#34415c;background:#fff}
+.admin-console .admin-chart-period span{font-size:20px;line-height:11px}
+.admin-console .admin-activity-svg{width:100%;height:auto;max-height:none;min-height:0;margin-top:5px;display:block}
+.admin-console .admin-chart-grid{stroke:#e6e9ef;stroke-width:1}
+.admin-console .admin-chart-tick{font-size:12px;fill:#56617d}
+.admin-console .admin-line-users,.admin-console .admin-line-camels,.admin-console .admin-line-listings{stroke-width:2.5}
+.admin-console .admin-line-users{stroke:#d0062c}
+.admin-console .admin-line-camels{stroke:#563620}
+.admin-console .admin-line-listings{stroke:#bd820f}
+.admin-console .admin-chart-dot{fill:#d0062c;stroke:#d0062c}
+.admin-console .admin-chart-square{fill:#563620;stroke:#563620}
+.admin-console .admin-chart-triangle{fill:#bd820f;stroke:#bd820f}
+.admin-console .admin-chart-legend{display:flex;gap:25px;justify-content:center;margin:0}
+.admin-console .admin-chart-legend span{font-size:12px;color:#495571;gap:9px}
+.admin-console .admin-chart-legend span:before{width:12px;height:12px;background:#d0062c}
+.admin-console .admin-chart-legend .admin-legend-camels:before{background:#563620;border-radius:1px}
+.admin-console .admin-chart-legend .admin-legend-listings:before{background:#bd820f;clip-path:polygon(50% 0,0 100%,100% 100%);border-radius:0}
+.admin-console .admin-chart-unavailable{min-height:224px;color:#8992a4}
+.admin-console .admin-recent-list{margin:0;padding:0;list-style:none}
+.admin-console .admin-recent-event{min-height:70px;align-items:center;gap:17px;padding:8px 0;border-top:1px solid #e7e9ef}
+.admin-console .admin-recent-event:first-child{border-top:0}
+.admin-console .admin-event-icon{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border-radius:11px}
+.admin-console .admin-event-icon svg{width:29px;height:29px}
+.admin-console .admin-recent-event div{gap:4px}
+.admin-console .admin-recent-event strong{font-size:14px;font-weight:620;color:#17131d}
+.admin-console .admin-recent-event small{font-size:12px;color:#78829a}
+.admin-console .admin-recent-event time{font-size:11px;color:#78829a;max-width:128px;white-space:normal}
+.admin-console .admin-empty-state{color:#7d879b;font-size:13px;text-align:center;padding:30px 5px}
+
+.admin-console .admin-panel-health{grid-column:auto;display:grid;grid-template-columns:minmax(210px,.95fr) repeat(3,minmax(0,1fr));align-items:center;gap:0;min-height:74px;padding:12px 21px;margin-top:13px}
+.admin-console .admin-status-heading{padding-right:14px}
+.admin-console .admin-status-heading h2{font-size:18px}
+.admin-console .admin-status-heading p{font-size:12px}
+.admin-console .admin-status-check{min-width:0;display:flex;align-items:center;justify-content:center;gap:11px;padding:1px 13px;border-left:1px solid #e1e6ed;color:#22202c;font-size:12px}
+.admin-console .admin-status-check strong{font-weight:570;white-space:nowrap}
+.admin-console .admin-status-icon{display:inline-flex;align-items:center;justify-content:center;color:#48516a;flex:0 0 32px}
+.admin-console .admin-status-icon svg{width:28px;height:28px}
+.admin-console .admin-health-good,.admin-console .admin-health-unknown{font-size:11px;font-weight:530;white-space:nowrap;border-radius:99px;padding:6px 12px;background:#f0f1f4;color:#59627b}
+.admin-console .admin-health-good{background:#eaf6ef;color:#246d4c}
+.admin-console .admin-footer{padding:12px 26px 14px;color:#8790a1;font-size:11px;background:transparent}
+
+@media(max-width:1430px){
+ .admin-console .admin-metric-card{gap:12px;padding:14px}
+ .admin-console .admin-metric-icon{width:56px;height:56px}
+ .admin-console .admin-metric-icon svg{width:30px;height:30px}
+ .admin-console .admin-metric-label{font-size:12px}
+ .admin-console .admin-metric-card strong{font-size:33px}
+ .admin-console .admin-metric-card small{font-size:11px}
+ .admin-console .admin-status-check{gap:8px;padding:1px 8px}
+}
+@media(max-width:1150px){
+ .admin-console .admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .admin-console .admin-overview-grid{grid-template-columns:1fr 1fr}
+ .admin-console .admin-panel-health{grid-template-columns:1fr 1fr;gap:12px}
+ .admin-console .admin-status-check:nth-child(2){border-left:0}
+ .admin-console .admin-status-check{justify-content:flex-start}
+}
+@media(max-width:920px){
+ .admin-console{display:block}
+ .admin-console .admin-sidebar{display:none}
+ .admin-console .admin-topbar{height:64px;padding:10px 14px;gap:9px}
+ .admin-console .admin-topbar-breadcrumb,.admin-console .admin-breadcrumb-separator,.admin-console .admin-topbar-section{display:none}
+ .admin-console .admin-mobile-brand{display:block;margin-right:auto}
+ .admin-console .admin-mobile-nav{display:block;position:relative;z-index:30}
+ .admin-console .admin-mobile-nav nav{background:#312115;border-radius:10px;padding:8px}
+ .admin-console .admin-mobile-nav nav a{color:#fff;text-decoration:none;padding:10px;border-radius:6px}
+ .admin-console .admin-mobile-nav nav a.active{background:#bb0c28}
+ .admin-console .admin-mobile-nav nav svg{width:18px;height:18px}
+ .admin-console .admin-topbar-pill{margin-left:0}
+ .admin-console .admin-mobile-signout{display:block}
+ .admin-console .admin-main{padding:14px 14px 0}
+ .admin-console .admin-hero{margin:0}
+}
+@media(max-width:690px){
+ .admin-console .admin-topbar-pill{display:none}
+ .admin-console .admin-hero{min-height:215px;flex-direction:column;padding:18px;gap:12px;background-position:58% center}
+ .admin-console .admin-hero-copy{padding-top:0}
+ .admin-console .admin-hero h1{font-size:34px}
+ .admin-console .admin-hero p{font-size:14px;max-width:260px}
+ .admin-console .admin-hero-actions{align-self:flex-start}
+ .admin-console .admin-overview-grid{grid-template-columns:minmax(0,1fr)}
+ .admin-console .admin-panel-chart,.admin-console .admin-panel-events{min-height:0}
+ .admin-console .admin-panel-health{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .admin-console .admin-status-check:nth-child(4){border-left:0}
+ .admin-console .admin-status-heading{grid-column:1/-1}
+ .admin-console .admin-metric-card{min-height:115px;flex-direction:row}
+ .admin-console .admin-chart-legend{gap:10px}
+}
+@media(max-width:450px){
+ .admin-console .admin-user-chip>span:last-child{display:none}
+ .admin-console .admin-metrics{grid-template-columns:1fr}
+ .admin-console .admin-metric-card{min-height:94px}
+ .admin-console .admin-panel{padding:15px}
+ .admin-console .admin-panel-heading h2{font-size:19px}
+ .admin-console .admin-chart-period{padding:6px 8px;font-size:11px}
+ .admin-console .admin-status-check{gap:6px;padding:8px 5px;flex-wrap:wrap}
+ .admin-console .admin-status-check strong{white-space:normal}
+ .admin-console .admin-health-good,.admin-console .admin-health-unknown{font-size:10px}
+}
