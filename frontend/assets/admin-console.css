@@ -326,3 +326,20 @@
     display:block;width:21px;height:21px
   }
 }
+
+/* Keep the opened menu aligned with the topbar rather than its trigger.
+   Aligning a 300px dropdown to a narrow trigger can push it outside the viewport. */
+@media(max-width:920px){
+  .admin-console .admin-mobile-nav{position:static}
+  .admin-console .admin-mobile-nav[open]>nav{
+    top:calc(100% + 8px);right:14px;left:auto;
+    width:min(300px,calc(100vw - 28px));min-width:0;
+  }
+}
+@media(max-width:450px){
+  .admin-console .admin-mobile-brand{display:none}
+  .admin-console .admin-mobile-nav{margin-right:auto}
+  .admin-console .admin-topbar{gap:7px;padding-inline:12px}
+  .admin-console .admin-user-chip{padding-left:8px}
+  .admin-console .admin-mobile-signout{font-size:11px;padding:7px 8px;white-space:nowrap}
+}
