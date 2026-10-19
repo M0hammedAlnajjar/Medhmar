@@ -9,7 +9,7 @@ import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
 import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
-import { authView, requireRegisteredRole, googleSignupWarning } from './auth-view.js';
+import { authView, requireRegisteredRole } from './auth-view.js';
 import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
@@ -961,34 +961,91 @@ async function handleAuth(e) {
  }
 }
 function bindAuth() {
- const form=$('#auth-form');
- if(!form) return;
- if(form.dataset.kind==='signin') {
-  const remembered=localStorage.getItem('medhmar-remembered-email');
-  if(remembered) { form.elements.email.value=remembered;form.elements.rememberMe.checked=true; }
- }
- document.querySelectorAll('[data-password-target]').forEach(button=>button.addEventListener('click',()=>{
-  const input=document.getElementById(button.dataset.passwordTarget);
-  const visible=input.type==='password';input.type=visible?'text':'password';
-  button.setAttribute('aria-pressed',String(visible));
-  const label=document.querySelector(`label[for="${input.id}"]`).textContent.toLowerCase();
-  button.setAttribute('aria-label',`${visible?'Hide':'Show'} ${label}`);
- }));
- $('#google-signin')?.addEventListener('click',()=>{
-  // Google does not honor an Owner/Trainer selection from the manual form.
-  if (form.dataset.kind === 'signup') {
-    const warning = googleSignupWarning(form.elements.role?.value);
-    if (warning) {
-      const feedback = $('#auth-feedback');
-      feedback.textContent = warning;
-      feedback.className = 'auth-feedback error';
-      feedback.hidden = false;
-      form.elements.role?.focus();
-      return;
+    const form = $('#auth-form');
+    if (!form) return;
+
+    // Display friendly messages after Google OAuth redirects.
+    const error = new URLSearchParams(window.location.search).get('error');
+    const feedback = $('#auth-feedback');
+
+    if (feedback) {
+        let message = '';
+
+        if (form.dataset.kind === 'signup' && error === 'account_exists') {
+            message = 'An account with this email already exists. Please sign in instead.';
+        } else if (form.dataset.kind === 'signin' && error === 'google_failed') {
+            message = 'Google sign-in could not be completed. Please try again.';
+        }
+
+        if (message) {
+            feedback.textContent = message;
+            feedback.className = 'auth-feedback error';
+            feedback.hidden = false;
+        }
     }
-  }
-  window.location.assign(authApi.googleUrl());
- });
+
+    if (form.dataset.kind === 'signin') {
+        const remembered = localStorage.getItem('medhmar-remembered-email');
+        if (remembered) {
+            form.elements.email.value = remembered;
+            form.elements.rememberMe.checked = true;
+        }
+    }
+
+    document.querySelectorAll('[data-password-target]').forEach(button =>
+        button.addEventListener('click', () => {
+            const input = document.getElementById(button.dataset.passwordTarget);
+            const visible = input.type === 'password';
+
+            input.type = visible ? 'text' : 'password';
+            button.setAttribute('aria-pressed', String(visible));
+
+            const label = document
+                .querySelector(`label[for="${input.id}"]`)
+                .textContent.toLowerCase();
+
+            button.setAttribute(
+                'aria-label',
+                `${visible ? 'Hide' : 'Show'} ${label}`
+            );
+        })
+    );
+
+    $('#google-signin')?.addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        if (button.disabled) return;
+
+        const feedback = $('#auth-feedback');
+        button.disabled = true;
+
+        try {
+            if (form.dataset.kind === 'signup') {
+                const role = form.elements.role?.value;
+
+                if (!['VIEWER', 'OWNER', 'TRAINER'].includes(role)) {
+                    form.elements.role?.focus();
+                    throw new Error(
+                        'Please select an account type before continuing with Google.'
+                    );
+                }
+
+                await authApi.googleSignupRole(role);
+            } else {
+                await authApi.clearGoogleSignupRole();
+            }
+
+            window.location.assign(authApi.googleUrl());
+        } catch (err) {
+            if (feedback) {
+                feedback.textContent =
+                    err.message || 'Unable to continue with Google. Please try again.';
+                feedback.className = 'auth-feedback error';
+                feedback.hidden = false;
+            }
+
+            button.disabled = false;
+        }
+    });
 }
 async function handleLogout() {
  try {
