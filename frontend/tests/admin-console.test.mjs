@@ -122,3 +122,16 @@ test('reference styling stays inside the dedicated administration scope',async()
  assert.match(css,/racing-hero\.webp/);
  assert.match(css,/@media\(max-width:450px\)/);
 });
+
+test('admin banner is a committed WebP asset and replaces the old image',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ const image=await readFile(new URL('../assets/admin-dashboard-race.webp',import.meta.url));
+ assert.equal(image.toString('ascii',0,4),'RIFF');
+ assert.equal(image.toString('ascii',8,12),'WEBP');
+ assert.ok(image.byteLength>10_000,'real banner asset must not be a placeholder');
+ assert.match(css,/url\('\/assets\/admin-dashboard-race\.webp'\)/);
+ const finalRule=css.slice(css.lastIndexOf('Medhmar admin banner:'));
+ assert.doesNotMatch(finalRule,/home-racetrack\.jpg|racing-hero\.webp/);
+ assert.match(finalRule,/background-position:62% 42%/);
+});
