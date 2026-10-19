@@ -69,6 +69,14 @@ export const authApi = {
   logout: () => api("/api/auth/logout", { method: "POST" }),
   me: () => api("/api/users/me"),
   updateMe: (payload) => api("/api/users/me", { method: "PUT", body: JSON.stringify(payload) }),
+  googleSignupRole: (role) => api("/api/auth/google/signup-role", {
+    method: "POST",
+    body: JSON.stringify({ role }),
+  }),
+
+  clearGoogleSignupRole: () => api("/api/auth/google/signup-role", {
+    method: "DELETE",
+  }),
   googleUrl: () => `${API_BASE}/oauth2/authorization/google`,
 };
 
