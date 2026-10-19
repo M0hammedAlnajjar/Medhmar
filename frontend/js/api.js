@@ -110,6 +110,15 @@ export const trainingApi = {
   add: (payload) => api("/api/training-logs", { method: "POST", body: JSON.stringify(payload) }),
 };
 
+export const agreementApi = {
+  mine: () => api("/api/agreements/mine"),
+  create: payload => api("/api/agreements", { method: "POST", body: JSON.stringify(payload) }),
+  update: (id, payload) => api(`/api/agreements/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  accept: id => api(`/api/agreements/${id}/accept`, { method: "POST" }),
+  reject: id => api(`/api/agreements/${id}/reject`, { method: "POST", body: JSON.stringify({}) }),
+  terminate: id => api(`/api/agreements/${id}/terminate`, { method: "POST", body: JSON.stringify({}) }),
+};
+
 export const pedigreeApi = {
   tree: (camelId) => api(`/camel/${camelId}/pedigree/tree`),
 };

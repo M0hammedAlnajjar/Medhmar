@@ -2,7 +2,7 @@ import { renderRacesListing, renderRaceDetails } from "./race-app.js";
 import { authView } from './auth-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi } from './api.js';
+import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, agreementApi, camelApi, marketplaceApi, offerApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 
 const $ = (s, el=document) => el.querySelector(s);
@@ -28,6 +28,7 @@ function toast(msg,type=''){ const el=document.createElement('div'); el.classNam
 
 const navItems = [
     ['/home','Home'],
+    ['/agreements','Agreements'],
     ['/challenges','Challenges'],
     ['/training','Training'],
     ['/organizations','Organizations'],
@@ -122,6 +123,25 @@ function admin(page) {
  const rows=state.adminUsers.map(u=>`<tr><td><strong>${esc(u.fullName)}</strong></td><td>${esc(u.email)}</td><td>${(u.roles||[]).map(badge).join(' ')}</td><td>${badge(u.accountStatus)}</td><td><button class="small-btn manage-user" data-user="${esc(u.userId)}">Manage</button></td></tr>`).join('');
  return shell(`${head('Admin Dashboard','Manage registered users and account access.')}<p>${Number(page.totalElements)||0} registered users · Page ${Number(page.page)+1} of ${Math.max(1,Number(page.totalPages)||0)}</p><div class="table-wrap"><table><thead><tr><th>User</th><th>Email</th><th>Roles</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No registered users found.</td></tr>'}</tbody></table></div><div class="actions section"><button class="btn btn-secondary admin-page" data-page="${Math.max(0,page.page-1)}" ${page.page<=0?'disabled':''}>Previous</button><button class="btn btn-secondary admin-page" data-page="${Number(page.page)+1}" ${page.page+1>=page.totalPages?'disabled':''}>Next</button></div>`,'/admin');
 }
+
+function agreementsScreen() {
+  const view = state.view;
+  if (view.status === 'loading' || view.status === 'idle') return shell(`${head('Training Agreements','Manage proposals and active camel training terms.')}${loadingCard()}`,'/agreements');
+  if (view.status === 'error') return shell(`${head('Training Agreements','Manage proposals and active camel training terms.')}${errorCard(view.error)}`,'/agreements');
+  const { agreements = [], camels = [] } = view.data || {};
+  const selectedStatus = qparams().status || '';
+  const filteredAgreements = selectedStatus ? agreements.filter(a => a.status === selectedStatus) : agreements;
+  const owner = hasAnyRole(state.user, 'OWNER');
+  const trainerRole = hasAnyRole(state.user, 'TRAINER');
+  const rows = filteredAgreements.map(a => {
+    const pending = a.status === 'PENDING_APPROVAL';
+    const actions = `${trainerRole && pending ? `<button class="small-btn" data-agreement-act="accept" data-id="${a.agreementId}">Accept</button> <button class="small-btn" data-agreement-act="reject" data-id="${a.agreementId}">Reject</button>` : ''}${(a.status === 'ACTIVE' && (owner || trainerRole)) || (pending && owner) ? ` <button class="small-btn" data-agreement-act="terminate" data-id="${a.agreementId}">Terminate</button>` : ''}`;
+    return `<tr><td><strong>#${a.agreementId}</strong></td><td><a href="/camels/${a.camelId}/profile" data-link>Camel #${a.camelId}</a></td><td>${owner ? `Trainer #${a.trainerUserId}` : `Owner #${a.ownerUserId}`}</td><td>${fmtDate(a.startsAt)} – ${fmtDate(a.endsAt)}</td><td>${fmtOmr(a.feeOmr)}</td><td>${esc(a.prizeSharePct)}% / ${esc(a.saleSharePct)}%</td><td>${sb(a.status)}</td><td>${actions || '—'}</td></tr>`;
+  }).join('');
+  const createForm = owner ? `<section class="card card-pad section"><h2>Propose an agreement</h2><p class="form-help">The trainer must have an active Trainer profile. The proposal stays pending until they respond.</p><form class="form" data-form="agreement-add"><div class="grid grid-2"><div class="field"><label for="agreement-camel">Camel</label><select class="select" id="agreement-camel" name="camelId" required><option value="">Choose a camel</option>${camels.map(c => `<option value="${c.camelId}">${esc(c.name || `Camel #${c.camelId}`)}</option>`).join('')}</select></div><div class="field"><label>Trainer user ID</label><input class="input" name="trainerUserId" type="number" min="1" required></div><div class="field"><label>Fee (OMR)</label><input class="input" name="feeOmr" type="number" min="0" step="0.001" value="0" required></div><div class="field"><label>Prize share (%)</label><input class="input" name="prizeSharePct" type="number" min="0" max="100" step="0.01" value="0" required></div><div class="field"><label>Sale share (%)</label><input class="input" name="saleSharePct" type="number" min="0" max="100" step="0.01" value="0" required></div><div class="field"><label>Starts</label><input class="input" name="startsAt" type="datetime-local" required></div><div class="field"><label>Ends</label><input class="input" name="endsAt" type="datetime-local" required></div></div><div class="field"><label>Terms</label><textarea class="textarea" name="terms" maxlength="5000"></textarea></div><button class="btn btn-primary" type="submit">Send proposal</button></form></section>` : '';
+  const statusFilter = `<form class="toolbar" data-form="agreement-filter"><select class="select" name="status"><option value="">All statuses</option>${['DRAFT','PENDING_APPROVAL','APPROVED','REJECTED','ACTIVE','COMPLETED','TERMINATED','EXPIRED'].map(s => `<option value="${s}" ${selectedStatus === s ? 'selected' : ''}>${s.replaceAll('_',' ')}</option>`).join('')}</select><button class="btn btn-primary" type="submit">Filter</button>${selectedStatus ? '<a class="btn btn-secondary" href="/agreements" data-link>Clear</a>' : ''}</form>`;
+  return shell(`${head('Training Agreements','Review training terms between camel owners and trainers.')}${createForm}<section class="card card-pad section"><div class="section-title"><h2>Your agreements</h2><span class="badge neutral">${filteredAgreements.length} shown / ${agreements.length} total</span></div>${statusFilter}${filteredAgreements.length ? `<div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Camel</th><th>Other party</th><th>Period</th><th>Fee</th><th>Prize / sale share</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : emptyCard(agreements.length ? 'No matching agreements' : 'No agreements yet', agreements.length ? 'No agreements match this status.' : owner ? 'Propose an agreement above to get started.' : 'Owner proposals will appear here.')}</section>`,'/agreements');
+}
 function adminDenied() {
  return shell('<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available only to administrators.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>');
 }
@@ -130,6 +150,11 @@ function denyAdminAccess() {
  if(!state.user?.userId) {
   history.replaceState({},'', '/signin');root.innerHTML=auth('signin');
  } else root.innerHTML=adminDenied();
+}
+function denyRoleAccess(route) {
+ if (!state.user?.userId) { history.replaceState({},'', '/signin'); root.innerHTML=auth('signin'); return; }
+ const allowed=(route?.roles||[]).join(' or ');
+ root.innerHTML=shell(`<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available only to ${esc(allowed)} accounts.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>`);
 }
 
 function pedigree(id){ const p=demo.pedigree; return shell(`${head('Pedigree','Camel profile pedigree section only — the core Camel CRUD remains outside Mohammed’s scope.')}<div class="card pedigree-wrap"><div class="pedigree"><div class="pedigree-row"><div class="pedigree-node"><div class="pedigree-label">Camel</div><div class="pedigree-name">${p.camel}</div></div></div><div class="pedigree-row parents"><div class="pedigree-node"><div class="pedigree-label">Sire</div><div class="pedigree-name">${p.sire}</div></div><div class="pedigree-node"><div class="pedigree-label">Dam</div><div class="pedigree-name">${p.dam}</div></div></div><div class="pedigree-row grands">${p.grands.map((x,i)=>`<div class="pedigree-node"><div class="pedigree-label">Grand ${i<2?'Sire/Dam':'Parent'}</div><div class="pedigree-name">${x}</div></div>`).join('')}</div></div></div>`,''); }
@@ -157,6 +182,12 @@ async function camelMap(ids) {
 }
 
 const loaders = {
+  'Training Agreements': async () => {
+    needAuth();
+    const agreements = await agreementApi.mine();
+    const camels = hasAnyRole(state.user, 'OWNER') ? await camelApi.mine().catch(() => []) : [];
+    return { agreements, camels };
+  },
   'Camels': async () => { const q = qparams(); return { q, page: await camelApi.list({ page: q.page || 0, size: 12, search: q.search, gender: q.gender, breed: q.breed, category: q.category, status: q.status }) }; },
   'My Camels': async () => { needAuth(); return { camels: await camelApi.mine() }; },
   'Add Camel': async () => { needAuth(); return {}; },
@@ -345,6 +376,7 @@ async function onMineSubmit(e) {
   const kind = form.dataset.form, id = form.dataset.id, f = Object.fromEntries(new FormData(form)), btn = form.querySelector('[type=submit]');
   if (kind === 'camel-filter') return go('/camels' + buildQuery(f));
   if (kind === 'market-filter') return go('/marketplace' + buildQuery(f));
+  if (kind === 'agreement-filter') return go('/agreements' + buildQuery(f));
   if (btn) btn.disabled = true;
   try {
     if (kind === 'camel-add') { const newId = await camelApi.add(toCamelPayload(f)); toast('Camel registered.', 'success'); go(`/camels/${newId}/profile`); }
@@ -353,12 +385,25 @@ async function onMineSubmit(e) {
     else if (kind === 'listing-edit') { await marketplaceApi.update(toListingPayload(f, id)); toast('Listing updated.', 'success'); go(`/marketplace/${id}`); }
     else if (kind === 'offer-add') { await offerApi.add(toOfferCreatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer submitted.', 'success'); go('/offers'); }
     else if (kind === 'offer-edit') { await offerApi.update(toOfferUpdatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer updated.', 'success'); refresh(); }
+    else if (kind === 'agreement-add') {
+      const asInstant = value => new Date(value).toISOString();
+      await agreementApi.create({ camelId: Number(f.camelId), trainerUserId: Number(f.trainerUserId), feeOmr: Number(f.feeOmr), prizeSharePct: Number(f.prizeSharePct), saleSharePct: Number(f.saleSharePct), startsAt: asInstant(f.startsAt), endsAt: asInstant(f.endsAt), terms: f.terms.trim() || null });
+      toast('Agreement proposal sent.', 'success'); refresh();
+    }
   } catch (err) { failure(err); if (btn) btn.disabled = false; }
 }
 function onMineClick(e) {
-  const el = e.target.closest?.('[data-act]'); if (!el) return;
+  const el = e.target.closest?.('[data-act], [data-agreement-act]'); if (!el) return;
   const { act, id, price, listing, page } = el.dataset;
   if (act === 'retry') return refresh();
+  if (el.dataset.agreementAct) {
+    const operation = el.dataset.agreementAct;
+    const apiAction = { accept: agreementApi.accept, reject: agreementApi.reject, terminate: agreementApi.terminate }[operation];
+    if (!apiAction) return;
+    const execute = async () => { try { await apiAction(id); toast(`Agreement ${operation === 'terminate' ? 'terminated' : `${operation}ed`}.`, 'success'); refresh(); } catch (err) { failure(err); } };
+    if (operation === 'terminate') return confirmModal('Terminate agreement?', 'This ends the pending or active agreement.', 'Terminate', true, execute);
+    return execute();
+  }
   if (act === 'page') return go(withQuery({ page }));
   if (act === 'make-offer') return signedIn() ? offerModal('add', listing, price) : (toast('Sign in to make an offer.', 'error'), go('/signin'));
   if (act === 'edit-offer') return offerModal('edit', id, price);
@@ -378,6 +423,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Sign In':()=>auth('signin'),'Create Account':()=>auth('signup'),'Forgot Password':()=>auth('forgot'),'Reset Password':()=>auth('reset'),
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Admin Dashboard':admin,'Pedigree Section':()=>pedigree(p.id),
+ 'Training Agreements':agreementsScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
@@ -391,7 +437,7 @@ async function render() {
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
  if(match && !canAccessRoute(match.route,state.user)) {
-  denyAdminAccess();bind();return;
+  if (match.route.name === 'Admin Dashboard') denyAdminAccess(); else denyRoleAccess(match.route);bind();return;
  }
 
     if (
