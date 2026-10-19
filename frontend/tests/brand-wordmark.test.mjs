@@ -62,3 +62,13 @@ test("the original navbar logo, routes, search and language controls remain", ()
   assert.match(app, /class="nav-search"/);
   assert.match(app, /class="nav-language-single"/);
 });
+
+
+test("authentication logo has no white card, border or shadow", () => {
+  const rule=css.match(/\.auth-brandbar \.brand-wordmark\s*\{([^}]+)\}/)?.[1] || "";
+  assert.match(rule,/background:\s*transparent\s*;/);
+  assert.match(rule,/border:\s*0\s*;/);
+  assert.match(rule,/box-shadow:\s*none\s*;/);
+  assert.match(rule,/padding:\s*0\s*;/);
+  assert.match(auth,/class="brand brand-wordmark"/);
+});
