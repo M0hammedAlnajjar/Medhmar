@@ -251,6 +251,10 @@ try {
   // isolates responsive styling without bypassing the real ADMIN route guard.
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/home`);
+  // The SPA initializes asynchronously. Wait before injecting the shell, or
+  // its delayed route render may replace this isolated visual fixture.
+  await page.waitForLoadState('networkidle');
+  await page.locator('#app .app-shell').waitFor({state:'visible'});
   await page.evaluate(async()=>{
     const {adminShell}=await import('/js/admin-console.js');
     document.querySelector('#app').innerHTML=adminShell({
