@@ -133,5 +133,7 @@ test('admin banner is a committed WebP asset and replaces the old image',async()
  assert.match(css,/url\('\/assets\/admin-dashboard-race\.webp'\)/);
  const finalRule=css.slice(css.lastIndexOf('Medhmar admin banner:'));
  assert.doesNotMatch(finalRule,/home-racetrack\.jpg|racing-hero\.webp/);
- assert.match(finalRule,/background-position:62% 42%/);
+ assert.match(finalRule,/background-position:62% 26%/);
+ assert.match(finalRule,/background-position:center 26%/);
+ assert.match(finalRule,/min-height:244px/);
 });
