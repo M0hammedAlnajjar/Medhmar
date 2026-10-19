@@ -532,3 +532,30 @@
 @media(max-width:920px){
  .admin-console .admin-sidebar-brand{min-height:0}
 }
+
+/* Accessible last-seven-days bars: each tab retains the actual UTC API counts. */
+.admin-console .admin-chart-container{min-width:0}
+.admin-console .admin-chart-tabs{display:flex;flex-wrap:wrap;gap:5px;max-width:100%;margin:4px 0 10px;padding:4px;background:#f6f3f0;border:1px solid #eee8e1;border-radius:10px}
+.admin-console .admin-chart-tab{font:inherit;font-size:12px;line-height:1.2;font-weight:650;color:#6b6471;border:1px solid transparent;background:transparent;border-radius:7px;padding:9px 12px;cursor:pointer}
+.admin-console .admin-chart-tab:hover{background:#fff9f7;color:#9c0b2a}
+.admin-console .admin-chart-tab[aria-selected="true"]{background:#fff;color:#b10b2c;border-color:#e5d4d0;box-shadow:0 1px 3px #22100a13}
+.admin-console .admin-chart-tab:focus-visible{outline:3px solid #bd944f;outline-offset:2px}
+.admin-console .admin-chart-panel[hidden]{display:none!important}
+.admin-console .admin-chart-panel{min-width:0}
+.admin-console .admin-chart-panel .admin-activity-svg{width:100%;max-width:100%;height:auto;margin-top:0}
+.admin-console .admin-chart-bar{fill:#be0c2e;transition:fill .16s ease}
+.admin-console .admin-chart-bar-camels{fill:#865330}
+.admin-console .admin-chart-bar-listings{fill:#bf8628}
+.admin-console .admin-chart-value{fill:#38261d;font-size:12px;font-weight:750}
+.admin-console .admin-chart-zero{fill:#c8c6c4}
+.admin-console .admin-chart-bar-group{outline:none;cursor:help}
+.admin-console .admin-chart-bar-group:hover .admin-chart-bar{fill:#81182f}
+.admin-console .admin-chart-bar-group:focus-visible .admin-chart-bar{stroke:#342117;stroke-width:3}
+.admin-console .admin-chart-bar-group:focus-visible .admin-chart-zero{stroke:#342117;stroke-width:3}
+.admin-console .admin-chart-bar-group:focus-visible .admin-chart-value{text-decoration:underline}
+@media(max-width:530px){
+ .admin-console .admin-chart-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:3px}
+ .admin-console .admin-chart-tab{font-size:10px;padding:9px 3px}
+ .admin-console .admin-chart-period{font-size:10px;padding:7px}
+}
+@media(prefers-reduced-motion:reduce){.admin-console .admin-chart-bar{transition:none}}

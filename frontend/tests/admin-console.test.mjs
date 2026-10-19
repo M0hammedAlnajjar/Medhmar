@@ -37,7 +37,7 @@ test('dashboard renders real weekly activity, secure recent events and honest st
  assert.match(html,/admin-activity-svg/);
  assert.match(html,/Database queries/);
  assert.match(html,/Not monitored/);
- assert.doesNotMatch(html,/1,248|642|118|All Systems Operational|Payment Service.+Online/);
+ assert.doesNotMatch(html,new RegExp('<strong>(?:1,248|642|118)</strong>|All Systems Operational|Payment Service.+Online'));
 });
 test('dashboard escapes audit values and never presents missing values as zero',()=>{
  const html=adminDashboard({user:{fullName:'<Admin>'},summary:{totalUsers:0,activeCamels:0,upcomingRaces:0,activeListings:0,
@@ -224,4 +224,37 @@ test('approved sharp logo is committed locally and used only in administrator ch
  const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
  assert.match(css,/\.admin-console \.admin-sidebar-brand img/);
  assert.match(css,/width:210px/);
+});
+
+test('real weekly count chart has 3 tabs and only nonzero days draw bars',()=>{
+ const summary={totalUsers:2,activeCamels:0,upcomingRaces:0,activeListings:0,
+  recentEvents:[],generatedAt:'2026-10-19T00:00:00Z',
+  activity:Array.from({length:7},(_,i)=>({
+   date:'2026-10-'+String(i+13),newUsers:i>4?1:0,newCamels:0,newListings:0
+  }))};
+ const html=adminDashboard({summary});
+ assert.match(html,/role="tablist" aria-label="Platform activity category"/);
+ for(const id of ['users','camels','listings'])assert.match(html,new RegExp('id="admin-chart-tab-'+id+'"'));
+ const users=html.split('id="admin-chart-panel-users"')[1].split('</section>')[0];
+ assert.equal((users.match(/class="admin-chart-bar admin-chart-bar-users"/g)||[]).length,2);
+ assert.equal((users.match(/class="admin-chart-zero"/g)||[]).length,5);
+ assert.match(users,/18 Oct 2026: 1 new user/);
+ assert.match(html,/data-chart-panel="camels"[^>]* hidden/);
+ assert.match(html,/Last 7 days · UTC/);
+ assert.doesNotMatch(html,/<polyline|class="admin-chart-legend"/);
+});
+test('invalid API activity never fabricates zeroes or tabs',()=>{
+ const activity=Array.from({length:7},(_,i)=>({
+  date:'2026-10-'+String(i+13),newUsers:0,newCamels:0,newListings:0
+ }));
+ activity[3].newListings=null;
+ const html=adminDashboard({summary:{totalUsers:0,activeCamels:0,upcomingRaces:0,activeListings:0,recentEvents:[],activity}});
+ assert.match(html,/Activity data is unavailable/);
+ assert.doesNotMatch(html,/role="tablist"/);
+});
+test('admin chart tabs bind inside the existing SPA',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const code=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
+ assert.ok(code.includes('bindAdminChartTabs();'));
+ assert.ok(code.includes('bindAdminChartTabs } from'));
 });

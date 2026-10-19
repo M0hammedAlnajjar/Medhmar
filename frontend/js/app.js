@@ -14,7 +14,7 @@ import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
-import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from './admin-console.js';
+import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs } from './admin-console.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, auditLogApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
@@ -896,6 +896,7 @@ function bind(){
  // The dock lives outside #app and survives in-app route changes.
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
+ bindAdminChartTabs();
  bindAdminUserControls();
  $('#admin-retry')?.addEventListener('click',()=>render());
  $('#admin-refresh')?.addEventListener('click',()=>render());
