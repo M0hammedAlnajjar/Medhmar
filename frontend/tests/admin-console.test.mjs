@@ -185,3 +185,26 @@ test('User management filters and read-only view are wired into the existing SPA
  assert.match(css,/\.admin-console \.admin-users-filters/);
  assert.match(css,/@media\(max-width:560px\)/);
 });
+
+
+test('supplied Medhmar camel brand replaces the old site and admin assets',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const [publicLogo,camelIcon,stacked,css,app]=await Promise.all([
+  readFile(new URL('../assets/medhmar-logo.svg',import.meta.url),'utf8'),
+  readFile(new URL('../assets/medhmar-logo-icon.svg',import.meta.url),'utf8'),
+  readFile(new URL('../assets/medhmar-logo-stacked.svg',import.meta.url),'utf8'),
+  readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8'),
+  readFile(new URL('../js/app.js',import.meta.url),'utf8')
+ ]);
+ for (const logo of [publicLogo,camelIcon,stacked]) {
+  assert.match(logo,/data:image\/webp;base64,UklG/);
+  assert.match(logo,/<svg[^>]+viewBox=/);
+ }
+ assert.match(stacked,/CAMEL RACING PLATFORM|Camel Racing Platform/);
+ assert.match(app,/src="\/assets\/medhmar-logo\.svg"/);
+ const shell=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/users'});
+ assert.match(shell,/src="\/assets\/medhmar-logo-stacked\.svg"/);
+ assert.match(shell,/class="admin-mobile-brand"[^>]*>.*medhmar-logo\.svg/);
+ assert.doesNotMatch(shell,/<strong>MEDHMAR<\/strong><span>ADMINISTRATION<\/span>/);
+ assert.match(css,/\.admin-console \.admin-sidebar-brand img/);
+});
