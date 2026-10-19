@@ -247,6 +247,38 @@ try {
     await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
     await page.screenshot({path:`test-results/${path.split('?')[0]}-mobile.png`,fullPage:true});
   }
+  // Render the real admin shell using the same CSS loaded by the app. This
+  // isolates responsive styling without bypassing the real ADMIN route guard.
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(`http://127.0.0.1:${port}/home`);
+  await page.evaluate(async()=>{
+    const {adminShell}=await import('/js/admin-console.js');
+    document.querySelector('#app').innerHTML=adminShell({
+      user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},
+      active:'/admin',
+      body:'<section class="admin-layout-test">Dashboard content</section>'
+    });
+  });
+  assert.equal(await page.locator('.admin-sidebar').isVisible(),true,'desktop admin sidebar should be visible');
+  assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(),4,'desktop navigation should contain four admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),4,'desktop menu should retain its SVG icons');
+  await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');
+  assert.equal(await page.locator('.admin-mobile-nav').isVisible(),true,'mobile should show navigation trigger');
+  assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
+  await page.locator('.admin-mobile-nav summary').click();
+  assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),4);
+  const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
+    const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
+  }));
+  assert.ok(menuLinks.every((box,i)=>i===0||box.y>=menuLinks[i-1].bottom),
+    'admin mobile menu must stack links vertically rather than colliding');
+  assert.ok(menuLinks.every(b=>b.x>=0&&b.right<=390+1),'mobile nav items must remain in viewport');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin mobile must not overflow');
+  await page.screenshot({path:'test-results/admin-nav-mobile.png',fullPage:true});
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');
   console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
 } finally {
