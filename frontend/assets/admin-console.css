@@ -285,3 +285,61 @@
  .admin-console .admin-status-check strong{white-space:normal}
  .admin-console .admin-health-good,.admin-console .admin-health-unknown{font-size:10px}
 }
+
+
+/* Responsive admin navigation: the native <details> menu must never be visible
+   on desktop. Previous styles configured mobile display but omitted its default. */
+.admin-console .admin-mobile-nav{display:none}
+@media(max-width:920px){
+  .admin-console .admin-topbar{position:relative;z-index:25}
+  .admin-console .admin-mobile-nav{display:block;position:relative;flex-shrink:0}
+  .admin-console .admin-mobile-nav>summary{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    min-height:40px;padding:8px 12px;
+    list-style:none;white-space:nowrap;cursor:pointer;
+    color:#f1e8de;background:#352418;border:1px solid #5c4331;border-radius:9px;
+    font-size:13px;font-weight:650
+  }
+  .admin-console .admin-mobile-nav>summary::-webkit-details-marker{display:none}
+  .admin-console .admin-mobile-nav>summary:hover,
+  .admin-console .admin-mobile-nav[open]>summary{background:#4e3020}
+  .admin-console .admin-mobile-nav:not([open])>nav{display:none}
+  .admin-console .admin-mobile-nav[open]>nav{
+    position:absolute;display:grid;grid-template-columns:minmax(0,1fr);
+    gap:5px;top:calc(100% + 10px);right:0;
+    min-width:min(282px,calc(100vw - 28px));
+    padding:10px;background:#312115;border:1px solid #5a3e2a;
+    border-radius:12px;box-shadow:0 14px 30px #24130830;z-index:50
+  }
+  .admin-console .admin-mobile-nav nav a{
+    display:flex;align-items:center;gap:12px;
+    min-height:46px;width:100%;padding:10px 12px;
+    color:#fff;text-decoration:none;font-size:13px;font-weight:550;
+    border-radius:8px;white-space:nowrap
+  }
+  .admin-console .admin-mobile-nav nav a:hover,
+  .admin-console .admin-mobile-nav nav a.active{background:#b50928}
+  .admin-console .admin-mobile-nav nav .admin-nav-icon{
+    flex-shrink:0;width:22px;height:22px
+  }
+  .admin-console .admin-mobile-nav nav .admin-nav-icon svg{
+    display:block;width:21px;height:21px
+  }
+}
+
+/* Keep the opened menu aligned with the topbar rather than its trigger.
+   Aligning a 300px dropdown to a narrow trigger can push it outside the viewport. */
+@media(max-width:920px){
+  .admin-console .admin-mobile-nav{position:static}
+  .admin-console .admin-mobile-nav[open]>nav{
+    top:calc(100% + 8px);right:14px;left:auto;
+    width:min(300px,calc(100vw - 28px));min-width:0;
+  }
+}
+@media(max-width:450px){
+  .admin-console .admin-mobile-brand{display:none}
+  .admin-console .admin-mobile-nav{margin-right:auto}
+  .admin-console .admin-topbar{gap:7px;padding-inline:12px}
+  .admin-console .admin-user-chip{padding-left:8px}
+  .admin-console .admin-mobile-signout{font-size:11px;padding:7px 8px;white-space:nowrap}
+}
