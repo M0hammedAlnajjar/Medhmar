@@ -34,6 +34,22 @@ try {
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
   });
   await mkdir('test-results',{recursive:true});
+  // Authentication header uses the gold transparent mark directly on brown.
+  await page.goto('http://127.0.0.1:'+port+'/signin');
+  await page.locator('.auth-brandbar .brand-wordmark').waitFor();
+  const authLogoStyle=await page.locator('.auth-brandbar .brand-wordmark').evaluate(el=>{
+    const css=getComputedStyle(el);
+    return {background:css.backgroundColor,border:css.borderTopWidth,shadow:css.boxShadow};
+  });
+  assert.equal(authLogoStyle.background,'rgba(0, 0, 0, 0)','auth logo must have no white background');
+  assert.equal(authLogoStyle.border,'0px','auth logo must have no border');
+  assert.equal(authLogoStyle.shadow,'none','auth logo must not have a shadow');
+  assert.ok(await page.locator('.auth-brandbar .brand-wordmark img').evaluate(img=>img.complete&&img.naturalWidth>0));
+  await page.screenshot({path:'test-results/auth-logo-transparent-desktop.png'});
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.locator('.auth-brandbar .brand-wordmark').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)');
+  await page.screenshot({path:'test-results/auth-logo-transparent-mobile.png'});
+  await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/challenges`);
   await page.locator('.broadcast-preview').waitFor();
   await page.locator('[data-preview-vote="0"]').click();
