@@ -255,6 +255,7 @@ try {
   // its delayed route render may replace this isolated visual fixture.
   await page.waitForLoadState('networkidle');
   await page.locator('#app .app-shell').waitFor({state:'visible'});
+  assert.equal(await page.locator('.brand-wordmark img').first().evaluate(img=>img.complete&&img.naturalWidth>0),true,'public navbar should load the new Medhmar logo');
   await page.evaluate(async()=>{
     const {adminShell}=await import('/js/admin-console.js');
     document.querySelector('#app').innerHTML=adminShell({
@@ -264,6 +265,8 @@ try {
     });
   });
   assert.equal(await page.locator('.admin-sidebar').isVisible(),true,'desktop admin sidebar should be visible');
+  assert.equal(await page.locator('.admin-sidebar-brand img').evaluate(img=>img.complete&&img.naturalWidth>0),true,'stacked admin brand asset should load');
+  assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
   assert.equal(await page.locator('.admin-sidebar-nav a').count(),4,'desktop navigation should contain four admin routes');
   assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),4,'desktop menu should retain its SVG icons');
