@@ -856,6 +856,7 @@ function bind(){
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  $('#admin-retry')?.addEventListener('click',()=>render());
+ $('#admin-refresh')?.addEventListener('click',()=>render());
   $('#admin-signout')?.addEventListener('click',handleLogout);
   $('#admin-mobile-signout')?.addEventListener('click',handleLogout);
  document.querySelectorAll('.admin-page').forEach(button=>button.addEventListener('click',()=>{state.adminPage=Number(button.dataset.page);render();}));

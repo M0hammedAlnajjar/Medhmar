@@ -48,3 +48,50 @@ test('dashboard escapes audit values and never presents missing values as zero',
  assert.match(offline,/Unverified|Activity data is unavailable/);
  assert.doesNotMatch(offline,/all systems operational/i);
 });
+
+
+test('approved dashboard design is integrated at the existing admin route',()=>{
+ const live={totalUsers:5,activeCamels:4,upcomingRaces:2,activeListings:3,
+  generatedAt:'2026-10-19T00:00:00Z',
+  activity:Array.from({length:7},(_,i)=>({date:'2026-10-'+String(i+12),newUsers:i,newCamels:0,newListings:1})),
+  recentEvents:[]};
+ const html=adminDashboard({user:{fullName:'Operator'},summary:live});
+ assert.match(html,/id="admin-dashboard-title"/);
+ assert.match(html,/id="admin-refresh"/);
+ assert.match(html,/admin-data-status/);
+ assert.match(html,/Live platform data/);
+ assert.match(html,/admin-activity-svg/);
+ assert.doesNotMatch(html,/admin-dashboard\.html|demo users|mock metrics/i);
+});
+
+test('invalid chart records do not become misleading zero values',()=>{
+ const summary={totalUsers:8,activeCamels:5,upcomingRaces:1,activeListings:2,
+  generatedAt:'2026-10-19T00:00:00Z',
+  activity:Array.from({length:7},(_,i)=>({date:'2026-10-'+String(i+12),newUsers:i,newCamels:0,newListings:1})),
+  recentEvents:[]};
+ summary.activity[0].newUsers=null;
+ const html=adminDashboard({user:{fullName:'Operator'},summary});
+ assert.match(html,/Activity data is unavailable/);
+ assert.doesNotMatch(html,/class="admin-activity-svg"/);
+});
+
+test('offline mode exposes refresh without claiming platform data is live',()=>{
+ const html=adminDashboard({user:{fullName:'Operator'},error:'Network unavailable'});
+ assert.match(html,/id="admin-refresh"/);
+ assert.match(html,/Data unavailable/);
+ assert.match(html,/Unverified/);
+ assert.doesNotMatch(html,/Live platform data|admin-health-good/);
+});
+
+test('admin layout stays separate and dashboard refresh can be bound by SPA', async()=>{
+ const shell=adminShell({user:{userId:1,fullName:'Owner',roles:['ADMIN']},active:'/admin',body:'Dashboard'});
+ assert.match(shell,/class="admin-console"/);
+ assert.match(shell,/href="\/admin" data-link class="active"/);
+ assert.doesNotMatch(shell,/href="\/home"|href="\/races"|href="\/camels"/);
+ const {readFile}=await import('node:fs/promises');
+ const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
+ assert.match(app,/\$\('#admin-refresh'\)\?\.addEventListener\('click',\(\)=>render\(\)\)/);
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ assert.match(css,/grid-template-columns:235px minmax\(0,1fr\)/);
+ assert.doesNotMatch(css,/\.admin-header-inner/);
+});
