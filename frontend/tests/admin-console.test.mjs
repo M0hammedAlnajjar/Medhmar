@@ -137,3 +137,51 @@ test('admin banner is a committed WebP asset and replaces the old image',async()
  assert.match(finalRule,/background-position:center 26%/);
  assert.match(finalRule,/min-height:244px/);
 });
+
+
+test('Manage Users implements the approved admin theme with live, page-scoped role cards',()=>{
+ const users=[
+  {userId:7,fullName:'Test Owner',email:'owner@test.invalid',roles:['OWNER','VIEWER'],accountStatus:'ACTIVE',joinedAt:'2026-10-01T00:00:00Z'},
+  {userId:8,fullName:'Test Trainer',email:'trainer@test.invalid',roles:['TRAINER'],accountStatus:'SUSPENDED',joinedAt:'2026-09-01T00:00:00Z'}
+ ];
+ const html=adminUsersView({users,page:{page:0,totalPages:2,totalElements:30}});
+ assert.match(html,/class="admin-users-hero"/);
+ assert.match(html,/class="admin-users-stats"/);
+ assert.match(html,/30 registered users/);
+ assert.match(html,/role-owner/);
+ assert.match(html,/status-suspended/);
+ assert.match(html,/id="admin-user-filters"/);
+ assert.match(html,/id="admin-users-refresh"/);
+ assert.match(html,/data-user-search="/);
+ assert.match(html,/view-admin-user/);
+ assert.match(html,/small-btn manage-user/);
+ assert.match(html,/On this page/);
+ assert.doesNotMatch(html,/1,248|892|214|Add User|last month|\+12%/);
+});
+test('User directory escapes malicious content, has safe placeholders and no pretend totals',()=>{
+ const html=adminUsersView({users:[{
+  userId:10,fullName:'<img src=x onerror=alert(1)>',email:'<script>alert(1)</script>',
+  roles:['ADMIN','UNKNOWN'],accountStatus:'ACTIVE',joinedAt:'invalid'
+ }],page:{page:0,totalPages:1}});
+ assert.doesNotMatch(html,/<img src=x|<script>/);
+ assert.match(html,/&lt;img/);
+ assert.match(html,/&lt;script&gt;/);
+ assert.match(html,/class="admin-users-stat/);
+ assert.match(html,/User count unavailable/);
+ const denied=adminUsersView({users:null,error:'Forbidden <script>'});
+ assert.match(denied,/&lt;script&gt;/);
+ assert.doesNotMatch(denied,/class="small-btn manage-user/);
+ assert.doesNotMatch(denied,/Showing 1 to/);
+});
+test('User management filters and read-only view are wired into the existing SPA',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ assert.match(app,/function bindAdminUserControls\(\)/);
+ assert.match(app,/bindAdminUserControls\(\);/);
+ assert.match(app,/\.view-admin-user/);
+ assert.match(app,/admin-users-refresh/);
+ assert.match(css,/\.admin-console \.admin-users-hero/);
+ assert.match(css,/\.admin-console \.admin-users-filters/);
+ assert.match(css,/@media\(max-width:560px\)/);
+});

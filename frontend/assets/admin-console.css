@@ -360,3 +360,131 @@
     min-height:225px;
   }
 }
+
+
+/* Manage Users / approved Oman camel-racing administration theme.
+   Scoped to the admin page only; no styles leak into public pages. */
+.admin-console .admin-users-view{min-width:0;color:#241d1a}
+.admin-console .admin-users-hero{
+ min-height:208px;position:relative;overflow:hidden;isolation:isolate;
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ border-radius:12px 12px 0 0;border:1px solid #6b432f;
+ padding:25px 24px 55px;
+ color:#fff;background-color:#422619;
+ background-image:linear-gradient(90deg,rgba(32,18,12,.95) 0%,rgba(40,22,14,.81) 24%,rgba(50,26,14,.37) 57%,rgba(35,18,12,.56) 100%),url('/assets/admin-dashboard-race.webp');
+ background-size:cover;background-position:center 30%;
+}
+.admin-console .admin-users-kicker{display:block;color:#e6b779;font-size:11px;font-weight:800;letter-spacing:.15em;margin-bottom:13px}
+.admin-console .admin-users-hero h1{margin:0 0 4px;color:#fff;font-size:clamp(30px,3.1vw,41px);font-weight:790;letter-spacing:-.03em;line-height:1.13}
+.admin-console .admin-users-hero p{margin:0;color:#f9e6d8;font-size:16px}
+.admin-console .admin-users-date{position:absolute;right:24px;top:25px;display:flex;align-items:center;gap:9px;color:#f5e3d6;font-size:12px}
+.admin-console .admin-users-date svg{width:18px;height:18px}
+.admin-console .admin-users-stats{
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;
+ margin:-34px 8px 12px;position:relative;z-index:2;
+}
+.admin-console .admin-users-stat{
+ min-width:0;background:#fff;border:1px solid #eee7e2;border-radius:10px;
+ padding:15px 12px;display:flex;align-items:center;gap:10px;
+ min-height:99px;box-shadow:0 4px 12px #22110613;
+}
+.admin-console .admin-users-stat-icon{
+ flex:0 0 45px;width:45px;height:47px;display:grid;place-items:center;
+ border-radius:10px;color:#ca0c29;background:#fce6e7;
+}
+.admin-console .admin-users-stat-icon svg{width:27px;height:27px}
+.admin-console .admin-users-stat-viewer .admin-users-stat-icon{color:#2289f1;background:#e9f3ff}
+.admin-console .admin-users-stat-owner .admin-users-stat-icon{color:#e4940c;background:#fff4e0}
+.admin-console .admin-users-stat-trainer .admin-users-stat-icon{color:#308be4;background:#e9f4ff}
+.admin-console .admin-users-stat-organizer .admin-users-stat-icon{color:#8735df;background:#f3eafd}
+.admin-console .admin-users-stat-admin .admin-users-stat-icon{color:#ca082b;background:#fce6e7}
+.admin-console .admin-users-stat>div{display:grid;min-width:0;gap:3px}
+.admin-console .admin-users-stat-label{font-size:11px;color:#52556b;font-weight:650}
+.admin-console .admin-users-stat strong{font-size:23px;font-weight:790;color:#20181a;font-variant-numeric:tabular-nums;line-height:1.1}
+.admin-console .admin-users-stat small{font-size:10px;color:#818499;line-height:1.2}
+.admin-console .admin-users-panel{
+ background:white;border:1px solid #ede7e1;border-radius:13px;
+ padding:14px;box-shadow:0 3px 15px #160c0710;
+ min-width:0;margin:0 0 15px;
+}
+.admin-console .admin-users-filters{display:grid;grid-template-columns:minmax(205px,1fr) minmax(105px,.28fr) minmax(105px,.28fr) minmax(155px,.40fr) auto auto;align-items:center;gap:9px}
+.admin-console .admin-users-filters input,.admin-console .admin-users-filters select{font:inherit;color:#33384b;background:#fff;border:1px solid #e1e2e6;border-radius:8px;height:40px;width:100%;min-width:0;outline-offset:2px;font-size:12px}
+.admin-console .admin-users-filters select{padding:0 11px;cursor:pointer}
+.admin-console .admin-users-search{display:flex;align-items:center;gap:8px;min-width:0;border:1px solid #e1e2e6;border-radius:8px;height:40px;padding:0 12px;color:#7e8795}
+.admin-console .admin-users-search svg{width:19px;height:19px;flex-shrink:0}
+.admin-console .admin-users-search input{border:0;height:100%;padding:0;outline:0;box-shadow:none}
+.admin-console .admin-users-search:focus-within{outline:2px solid #e5b9be;outline-offset:2px}
+.admin-console .admin-users-filter-btn,.admin-console .admin-users-refresh-btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;white-space:nowrap;border-radius:8px;border:0;padding:0 14px;font-size:12px;font-weight:700;cursor:pointer}
+.admin-console .admin-users-filter-btn{background:#382318;color:#fff}
+.admin-console .admin-users-filter-btn:hover{background:#5b3825}
+.admin-console .admin-users-refresh-btn{background:#c9062b;color:#fff}
+.admin-console .admin-users-refresh-btn:hover{background:#a70625}
+.admin-console .admin-users-filter-btn svg,.admin-console .admin-users-refresh-btn svg{width:17px;height:17px}
+.admin-console .admin-users-page-hint{margin:8px 2px 12px;font-size:11px;color:#7b8190}
+.admin-console .admin-users-scroll{overflow-x:auto;width:100%;border:1px solid #ededf0;border-radius:9px}
+.admin-console .admin-users-table{border-collapse:collapse;width:100%;min-width:760px;margin:0;color:#25212a;background:#fff}
+.admin-console .admin-users-table th{background:#fbfaf9;color:#32313d;text-align:left;font-size:12px;padding:13px 12px;border-bottom:1px solid #e8e8ee;font-weight:700;white-space:nowrap}
+.admin-console .admin-users-table td{padding:9px 12px;border-bottom:1px solid #efedf0;font-size:12px;vertical-align:middle}
+.admin-console .admin-users-table tr:last-child td{border-bottom:0}
+.admin-console .admin-users-table tbody tr:hover{background:#fffbf7}
+.admin-console .admin-users-table .admin-users-rownum{color:#9293a2;text-align:center;width:40px}
+.admin-console .admin-users-person{display:flex;align-items:center;gap:10px;min-width:145px}
+.admin-console .admin-users-initials{width:36px;height:36px;flex:0 0 36px;border-radius:50%;display:grid;place-items:center;background:#ead1b7;color:#6a3519;font-size:12px;font-weight:750}
+.admin-console .admin-users-identity{display:grid;gap:2px}
+.admin-console .admin-users-identity strong{font-size:12px;color:#201b21;font-weight:750}
+.admin-console .admin-users-identity small{font-size:10px;color:#838697}
+.admin-console .admin-users-email{color:#646b7e;overflow-wrap:anywhere}
+.admin-console .admin-users-badges{display:flex;gap:4px;flex-wrap:wrap}
+.admin-console .admin-users-role{display:inline-block;padding:6px 10px;border-radius:7px;font-size:10px;font-weight:730;background:#f1eff4;color:#5f5966}
+.admin-console .role-owner{color:#c4152b;background:#ffe6e8}
+.admin-console .role-viewer{color:#1d78c9;background:#e5f2fe}
+.admin-console .role-trainer{color:#895d1b;background:#ffedcc}
+.admin-console .role-organizer{color:#1b66af;background:#daecff}
+.admin-console .role-admin{color:#7831cd;background:#f0dfff}
+.admin-console .admin-users-status{display:inline-flex;gap:7px;align-items:center;border-radius:99px;padding:6px 10px;background:#f3f3f5;color:#5f6775;font-size:11px;white-space:nowrap}
+.admin-console .admin-users-status span{font-size:8px}
+.admin-console .status-active{color:#138951;background:#e7f9ef}
+.admin-console .status-inactive,.admin-console .status-suspended{color:#c22138;background:#ffebed}
+.admin-console .admin-users-actions{white-space:nowrap}
+.admin-console .admin-users-action{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;background:#fff;border:1px solid #e6e6e8;border-radius:7px;padding:5px;cursor:pointer;color:#453024;margin-right:5px}
+.admin-console .admin-users-action:hover{color:#c20b2c;border-color:#e5a7b4;background:#fff6f6}
+.admin-console .admin-users-action svg{width:17px;height:17px}
+.admin-console .admin-users-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 1px 0}
+.admin-console .admin-users-foot p{font-size:12px;color:#6c7283;margin:0}
+.admin-console .admin-users-pagination{display:flex;align-items:center;gap:7px;color:#5d6170;font-size:12px}
+.admin-console .admin-users-pagination button{border:1px solid #e6e6e9;border-radius:8px;background:#fff;min-width:35px;height:34px;font:inherit;cursor:pointer}
+.admin-console .admin-users-pagination button:hover:not(:disabled){color:white;background:#be092a}
+.admin-console .admin-users-pagination button:disabled{opacity:.35;cursor:not-allowed}
+.admin-console .admin-users-empty-filter{padding:22px;text-align:center;color:#7c7484;font-size:13px}
+.admin-console .admin-users-error{border:1px solid #dfb1b8;background:#fff8f8;border-radius:12px;padding:25px;margin:12px 0;color:#9d2840}
+.admin-console .admin-users-error h2{font-size:20px;margin:0 0 8px}
+.admin-console .admin-users-error p{margin:0 0 14px}
+.admin-console .admin-users-no-data{padding:30px;text-align:center;color:#727588}
+@media(max-width:1420px){
+ .admin-console .admin-users-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .admin-console .admin-users-filters{grid-template-columns:minmax(180px,1fr) repeat(3,minmax(110px,.32fr));}
+ .admin-console .admin-users-filter-btn,.admin-console .admin-users-refresh-btn{min-height:39px}
+}
+@media(max-width:920px){
+ .admin-console .admin-users-hero{min-height:200px;padding:20px 20px 52px}
+ .admin-console .admin-users-date{top:14px;right:16px}
+ .admin-console .admin-users-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .admin-console .admin-users-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .admin-console .admin-users-search{grid-column:1/-1}
+ .admin-console .admin-users-foot{flex-wrap:wrap}
+}
+@media(max-width:560px){
+ .admin-console .admin-users-hero{padding-top:45px;min-height:200px;background-position:60% 35%}
+ .admin-console .admin-users-hero h1{font-size:29px}
+ .admin-console .admin-users-hero p{font-size:13px}
+ .admin-console .admin-users-date{top:12px;left:19px;right:auto;font-size:10px}
+ .admin-console .admin-users-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:-23px 6px 10px}
+ .admin-console .admin-users-stat{padding:10px;min-height:80px}
+ .admin-console .admin-users-stat-icon{width:34px;height:36px;flex-basis:34px}
+ .admin-console .admin-users-stat-icon svg{width:21px;height:21px}
+ .admin-console .admin-users-stat strong{font-size:20px}
+ .admin-console .admin-users-panel{padding:10px}
+ .admin-console .admin-users-filters{grid-template-columns:1fr 1fr}
+ .admin-console .admin-users-filters select{min-width:0}
+ .admin-console .admin-users-filters select:nth-of-type(3){grid-column:1/-1}
+}

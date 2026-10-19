@@ -283,6 +283,31 @@ try {
   assert.ok(menuLinks.every(b=>b.x>=0&&b.right<=390+1),'mobile nav items must remain in viewport');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin mobile must not overflow');
   await page.screenshot({path:'test-results/admin-nav-mobile.png',fullPage:true});
+
+  // Approved Manage Users theme: render the real component with test-only records,
+  // check the appearance at desktop and mobile viewports without using live accounts.
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(async()=>{
+    const {adminShell,adminUsersView}=await import('/js/admin-console.js');
+    const body=adminUsersView({users:[
+      {userId:41,fullName:'Test Owner',email:'owner@example.invalid',roles:['OWNER'],accountStatus:'ACTIVE',joinedAt:'2026-10-01T00:00:00Z'},
+      {userId:42,fullName:'Test Trainer',email:'trainer@example.invalid',roles:['TRAINER'],accountStatus:'INACTIVE',joinedAt:'2026-10-02T00:00:00Z'}
+    ],page:{page:0,totalPages:2,totalElements:21}});
+    document.querySelector('#app').innerHTML=adminShell({
+      user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},active:'/admin/users',body
+    });
+  });
+  assert.equal(await page.locator('.admin-users-stat').count(),6,'six role/total statistic cards should show');
+  assert.equal(await page.locator('.admin-user-row').count(),2,'real user table component renders test records');
+  assert.equal(await page.locator('.admin-users-hero h1').innerText(),'Manage Users');
+  assert.equal(await page.locator('#admin-user-filters').isVisible(),true);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'user management desktop must not overflow');
+  await page.screenshot({path:'test-results/admin-users-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.locator('.admin-users-hero').isVisible(),true);
+  assert.equal(await page.locator('.admin-users-stat').count(),6);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'user management mobile must not overflow');
+  await page.screenshot({path:'test-results/admin-users-mobile.png',fullPage:true});
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');
   console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
 } finally {

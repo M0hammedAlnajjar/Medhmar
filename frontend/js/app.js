@@ -843,6 +843,46 @@ async function render() {
  }else root.innerHTML=match?screen(match)():notFound();
  bind();
 }
+function bindAdminUserControls() {
+ const form=$('#admin-user-filters');
+ if(!form)return;
+ const rows=[...document.querySelectorAll('.admin-user-row')];
+ const empty=$('#admin-users-empty-filter'), count=$('#admin-users-count');
+ const originalCount=count?.textContent||'';
+ const apply=()=>{
+  const term=String(form.elements.search?.value||'').toLowerCase().trim();
+  const role=form.elements.role?.value||'';
+  const status=form.elements.status?.value||'';
+  const days=Number(form.elements.joined?.value||0);
+  const cutoff=days?Date.now()-days*86400000:null;
+  let visible=0;
+  for(const row of rows){
+   const matches=(!term||row.dataset.userSearch?.toLowerCase().includes(term))&&
+    (!role||row.dataset.userRoles?.split(' ').includes(role))&&
+    (!status||row.dataset.userStatus===status)&&
+    (!cutoff||(row.dataset.userJoined&&new Date(row.dataset.userJoined+'T00:00:00Z').getTime()>=cutoff));
+   row.hidden=!matches;
+   if(matches)visible++;
+  }
+  if(empty)empty.hidden=visible!==0||rows.length===0;
+  if(count)count.textContent=term||role||status||days
+   ? 'Showing '+visible+' matching users on this page · '+originalCount:originalCount;
+ };
+ form.addEventListener('submit',e=>{e.preventDefault();apply();});
+ form.elements.search?.addEventListener('input',apply);
+ for(const key of ['role','status','joined'])form.elements[key]?.addEventListener('change',apply);
+ $('#admin-users-refresh')?.addEventListener('click',()=>render());
+ document.querySelectorAll('.view-admin-user').forEach(button=>button.addEventListener('click',()=>{
+  if(!canAccessRoute(matchRoute('/admin/users').route,state.user)||!Array.isArray(state.adminUsers))return;
+  const u=state.adminUsers.find(x=>String(x.userId)===String(button.dataset.user));
+  if(!u)return;
+  const fields=[['User ID',u.userId],['Full name',u.fullName],['Email',u.email],['Roles',(u.roles||[]).join(', ')],['Status',u.accountStatus],['Joined',u.joinedAt||'Not available']];
+  document.body.insertAdjacentHTML('beforeend','<div class="modal-backdrop" id="modal"><div class="modal admin-user-detail-modal">'+
+   '<h2>User Details</h2><dl>'+fields.map(([label,value])=>'<div><dt>'+esc(label)+'</dt><dd>'+esc(value??'—')+'</dd></div>').join('')+
+   '</dl><div class="modal-actions"><button type="button" id="close-modal" class="btn btn-secondary">Close</button></div></div></div>');
+  $('#close-modal').onclick=()=>$('#modal')?.remove();
+ }));
+}
 function bind(){
  bindTrainerProfile(root);
  bindMarketplaceBrowse(root);
@@ -855,6 +895,7 @@ function bind(){
  // The dock lives outside #app and survives in-app route changes.
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
+ bindAdminUserControls();
  $('#admin-retry')?.addEventListener('click',()=>render());
  $('#admin-refresh')?.addEventListener('click',()=>render());
   $('#admin-signout')?.addEventListener('click',handleLogout);
