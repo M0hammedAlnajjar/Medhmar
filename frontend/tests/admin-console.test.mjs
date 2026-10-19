@@ -203,8 +203,25 @@ test('supplied Medhmar camel brand replaces the old site and admin assets',async
  assert.match(stacked,/CAMEL RACING PLATFORM|Camel Racing Platform/);
  assert.match(app,/src="\/assets\/medhmar-logo\.svg"/);
  const shell=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/users'});
- assert.match(shell,/src="\/assets\/medhmar-logo-stacked\.svg"/);
- assert.match(shell,/class="admin-mobile-brand"[^>]*>.*medhmar-logo\.svg/);
+ assert.match(shell,/src="\/assets\/medhmar-admin-logo-approved\.webp"/);
+ assert.match(shell,/class="admin-mobile-brand"[^>]*>.*medhmar-admin-logo-compact\.webp/);
  assert.doesNotMatch(shell,/<strong>MEDHMAR<\/strong><span>ADMINISTRATION<\/span>/);
  assert.match(css,/\.admin-console \.admin-sidebar-brand img/);
+});
+
+test('approved sharp logo is committed locally and used only in administrator chrome', async()=>{
+ const {readFile}=await import('node:fs/promises');
+ for(const name of ['medhmar-admin-logo-approved.webp','medhmar-admin-logo-compact.webp']){
+  const data=await readFile(new URL('../assets/'+name,import.meta.url));
+  assert.equal(data.toString('ascii',0,4),'RIFF');
+  assert.equal(data.toString('ascii',8,12),'WEBP');
+  assert.ok(data.length>20_000);
+ }
+ const shell=adminShell({user:{userId:1,fullName:'Admin',roles:['ADMIN']},active:'/admin'});
+ assert.match(shell,/medhmar-admin-logo-approved\.webp/);
+ assert.match(shell,/medhmar-admin-logo-compact\.webp/);
+ assert.doesNotMatch(shell,/<strong>MEDHMAR<\/strong><span>ADMINISTRATION<\/span>/);
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ assert.match(css,/\.admin-console \.admin-sidebar-brand img/);
+ assert.match(css,/width:210px/);
 });
