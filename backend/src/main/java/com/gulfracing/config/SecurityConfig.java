@@ -21,6 +21,8 @@ import org.springframework.security.web.authentication.session.*;
 import org.springframework.security.web.context.*;
 import org.springframework.security.web.csrf.*;
 import org.springframework.web.cors.*;
+import java.net.URI;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import java.util.List;
 
@@ -100,6 +102,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/csrf",
+ "/api/auth/google/signup-role",
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/forgot-password",
@@ -232,14 +235,47 @@ public class SecurityConfig {
             http.oauth2Login(oauth -> oauth
                     .userInfoEndpoint(info -> info.oidcUserService(google))
                     .defaultSuccessUrl(successUrl, true)
-                    .failureHandler((request, response, ex) ->
+
+                    .failureHandler((request, response, ex) -> {
+                        boolean accountExists = false;
+                        Throwable cause = ex;
+
+                        while (cause != null) {
+                            if (cause instanceof OAuth2AuthenticationException oauthError
+                                    && "account_exists".equals(
+                                    oauthError.getError().getErrorCode())) {
+                                accountExists = true;
+                                break;
+                            }
+                            cause = cause.getCause();
+                        }
+
+                        URI frontend = URI.create(successUrl);
+
+                        if (frontend.isAbsolute()
+                                && ("http".equalsIgnoreCase(frontend.getScheme())
+                                || "https".equalsIgnoreCase(frontend.getScheme()))
+                                && frontend.getRawAuthority() != null
+                                && frontend.getRawUserInfo() == null) {
+
+                            String origin = frontend.getScheme()
+                                    + "://" + frontend.getRawAuthority();
+
+                            String path = accountExists
+                                    ? "/signup?error=account_exists"
+                                    : "/signin?error=google_failed";
+
+                            response.sendRedirect(origin + path);
+                        } else {
                             errors.write(
                                     response,
                                     401,
                                     "GOOGLE_LOGIN_FAILED",
                                     "Google sign-in could not be completed."
-                            )
-                    )
+                            );
+                        }
+                    })
+
             );
         }
 

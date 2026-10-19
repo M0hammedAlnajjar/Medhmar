@@ -25,13 +25,6 @@ export function requireRegisteredRole(response, chosenRole) {
   return response;
 }
 
-export function googleSignupWarning(role) {
-  return role === 'OWNER' || role === 'TRAINER'
-    ? 'Google sign-up creates a Fan / Spectator (VIEWER) account. ' +
-      'Use the Create Account button above for Owner or Trainer registration.'
-    : '';
-}
-
 export function authView(kind) {
   const configs = {
     signin: {
@@ -83,7 +76,7 @@ export function authView(kind) {
               <p class="auth-feedback" id="auth-feedback" role="status" aria-live="polite" hidden></p>
               <button class="btn btn-primary auth-submit" type="submit">${cfg.submit} <span aria-hidden="true">→</span></button>
             </form>
-            ${social ? `<div class="divider">Or login with</div><button class="btn auth-google" type="button" id="google-signin">${google}Continue with Google</button>${kind === 'signup' ? '<p class="form-help auth-google-note">Google sign-up creates a Fan / Spectator (VIEWER) account. For Owner or Trainer registration, use the email/password form above.</p>' : ''}<p class="auth-switch">${footer}</p>` : kind === 'forgot' ? '<a class="auth-back" href="/signin" data-link>← Back to Sign In</a>' : ''}
+            ${social ? `<div class="divider">Or login with</div><button class="btn auth-google" type="button" id="google-signin">${google}Continue with Google</button><p class="auth-switch">${footer}</p>` : kind === 'forgot' ? '<a class="auth-back" href="/signin" data-link>← Back to Sign In</a>' : ''}
           </div>
         </section>
       </section>
