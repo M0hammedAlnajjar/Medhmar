@@ -12,6 +12,7 @@ export const MOHAMMED_ROUTES = [
   { path: "/challenges", name: "Challenges", owner: "Mohammed" },
   { path: "/challenges/:id", name: "Challenge Detail + Voting", owner: "Mohammed" },
   { path: "/training", name: "Training Log", owner: "Mohammed" },
+  { path: "/agreements", name: "Training Agreements", owner: "Mohammed", roles: ["OWNER", "TRAINER"] },
   { path: "/admin", name: "Admin Dashboard", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/camels/:id", name: "Pedigree Section", owner: "Mohammed" },
   { path: "/organizer/races/:id/race-card", name: "Race Card Publish Control", owner: "Mohammed" },
@@ -77,5 +78,5 @@ export function matchRoute(path) {
 export function canAccessRoute(route, user) {
   if (!route?.roles) return true;
   return Boolean(user?.userId) && Array.isArray(user.roles)
-    && route.roles.some(role => user.roles.includes(role));
+    && route.roles.some(role => user.roles.some(userRole => String(userRole).replace(/^ROLE_/, "") === role));
 }
