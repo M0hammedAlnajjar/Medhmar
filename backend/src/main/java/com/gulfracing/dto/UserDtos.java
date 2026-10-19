@@ -14,7 +14,7 @@ public final class UserDtos {
     public record UpdateProfileRequest(
         @NotBlank @Size(max = 150) String fullName,
         @NotBlank @Pattern(regexp = "ar|en") String preferredLanguage,
-        @Size(max = 2048) @Pattern(regexp = "https?://[^\\s]+") String avatarUrl
+        @Size(max = 2048) @Pattern(regexp = "https?://[^\\s]+|/uploads/trainer-profiles/[A-Za-z0-9-]+\\.(jpg|png)") String avatarUrl
     ) {}
     public record UpdateRolesRequest(@NotEmpty Set<@Pattern(regexp = "OWNER|TRAINER|ORGANIZER|ADMIN|VIEWER") String> roles) {}
     public record UpdateStatusRequest(@NotNull AccountStatus status) {}

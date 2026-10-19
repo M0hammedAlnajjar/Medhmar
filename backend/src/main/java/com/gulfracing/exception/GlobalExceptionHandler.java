@@ -33,6 +33,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
         HandlerMethodValidationException.class, ConstraintViolationException.class, IllegalArgumentException.class})
     ResponseEntity<ApiError> invalid(Exception ex) {
+        log.warn("Rejected request with invalid values ({})", ex.getClass().getSimpleName(), ex);
         return ResponseEntity.badRequest().body(ApiError.of(400, "INVALID_REQUEST", "The request contains invalid values."));
     }
     @ExceptionHandler({DataIntegrityViolationException.class, OptimisticLockingFailureException.class})

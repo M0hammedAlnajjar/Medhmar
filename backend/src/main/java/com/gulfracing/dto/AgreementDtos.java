@@ -10,6 +10,8 @@ import java.time.Instant;
 public final class AgreementDtos {
     private AgreementDtos() {}
 
+    public record ActiveAssignment(Long trainerUserId, Long camelId) {}
+
     public record Create(
             @NotNull @Positive Long camelId,
             @NotNull @Positive Long trainerUserId,
