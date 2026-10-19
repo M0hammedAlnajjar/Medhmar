@@ -3,6 +3,15 @@ import { buildQuery } from "./format.js";
 const API_BASE = window.MEDHMAR_API_URL || `http://${window.location.hostname}:8080`;
 let csrf = null;
 
+export function apiAssetUrl(path) {
+  if (!path) return "";
+  try {
+    return new URL(path, `${API_BASE}/`).toString();
+  } catch {
+    return "";
+  }
+}
+
 async function fetchBackend(path, options = {}) {
   try {
     return await fetch(`${API_BASE}${path}`, options);
@@ -37,7 +46,8 @@ export async function api(path, options = {}) {
   if (modifying) {
     if (!csrf) await refreshCsrf();
     headers.set(csrf.headerName, csrf.token);
-    if (options.body && !headers.has("Content-Type")) {
+    const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+    if (options.body && !isFormData && !headers.has("Content-Type")) {
       headers.set("Content-Type", "application/json");
     }
   }
@@ -113,7 +123,16 @@ export const raceCardApi = {
 };
 
 export const trainerApi = {
-  get: (id = 1) => api(`/trainer-profile/getById?id=${id}`),
+  list: () => api("/trainer-profile/getAll"),
+  active: () => api("/trainer-profile/active"),
+  get: (id) => api(`/trainer-profile/getById?id=${encodeURIComponent(id)}`),
+  create: (payload) => api("/trainer-profile/add", { method: "POST", body: JSON.stringify(payload) }),
+  update: (payload) => api("/trainer-profile/update", { method: "PUT", body: JSON.stringify(payload) }),
+  uploadPhoto: (file) => {
+    const body = new FormData();
+    body.append("photo", file);
+    return api("/trainer-profile/photo", { method: "POST", body });
+  },
 };
 
 export const trainingApi = {
@@ -124,6 +143,8 @@ export const trainingApi = {
 export const agreementApi = {
   list: () => api("/api/agreements"),
   mine: () => api("/api/agreements/mine"),
+  assigned: () => api("/api/agreements/assigned"),
+  activeAssignments: () => api("/api/agreements/active-assignments"),
   one: (id) => api(`/api/agreements/${encodeURIComponent(id)}`),
   add: (payload) => api("/api/agreements", { method: "POST", body: JSON.stringify(payload) }),
   update: (id, payload) => api(`/api/agreements/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(payload) }),

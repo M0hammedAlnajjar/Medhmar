@@ -7,8 +7,10 @@ import com.gulfracing.service.TrainerProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +33,11 @@ public class TrainerProfileController {
         return TrainerProfileDTO.convertToDTO(trainerProfileService.getAll());
     }
 
+    @GetMapping("/active")
+    public List<TrainerProfileDTO> getActiveTrainers() {
+        return trainerProfileService.getActiveTrainers();
+    }
+
     @GetMapping("/getById")
     public TrainerProfileDTO getById(@RequestParam Long id) {
         return TrainerProfileDTO.convertToDTO(trainerProfileService.getById(id));
@@ -43,6 +50,11 @@ public class TrainerProfileController {
         return TrainerProfileDTO.convertToDTO(
                 trainerProfileService.update(actorId, dto.getBio(), dto.getLocation())
         );
+    }
+
+    @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String uploadPhoto(@RequestParam("photo") MultipartFile photo, Authentication auth) {
+        return trainerProfileService.uploadPhoto(AccountAccess.requiredId(auth), photo);
     }
 
     @DeleteMapping("/deleteById")

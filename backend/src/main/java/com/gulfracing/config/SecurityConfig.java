@@ -164,8 +164,10 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/trainer-profile/**").permitAll()
                         .requestMatchers("/trainer-profile/**").hasAnyRole("TRAINER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/uploads/trainer-profiles/**").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/agreements").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/agreements/active-assignments").permitAll()
                         .requestMatchers("/api/agreements", "/api/agreements/**").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/api/training-logs").hasRole("TRAINER")

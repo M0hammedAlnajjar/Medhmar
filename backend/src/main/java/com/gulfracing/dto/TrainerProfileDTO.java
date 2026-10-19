@@ -19,17 +19,24 @@ public class TrainerProfileDTO {
     @Positive
     private Long userId;
 
+    private String trainerName;
+
+    private String avatarUrl;
+
     @Size(max = 2000)
     private String bio;
 
     @Size(max = 150)
     private String location;
 
+    private Boolean profileCreated;
+
     public static TrainerProfileDTO convertToDTO(TrainerProfile entity) {
         return TrainerProfileDTO.builder()
                 .userId(entity.getUserId())
                 .bio(entity.getBio())
                 .location(entity.getLocation())
+                .profileCreated(true)
                 .build();
     }
 
