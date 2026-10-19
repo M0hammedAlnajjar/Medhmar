@@ -355,6 +355,7 @@ training fee in OMR, prize share, marketplace sale share, effective dates and op
 | PUT | /api/agreements/{id} | Agreement owner or ADMIN; edit a PENDING_APPROVAL proposal only |
 | GET | /api/agreements/mine | Signed-in owner/trainer sees their agreements |
 | GET | /api/agreements/assigned | TRAINER; own ACTIVE assignments only |
+| GET | /api/agreements/active-assignments | Public active assignment pairs (`trainerUserId`, `camelId`) only |
 | GET | /api/agreements/{id} | Agreement owner, designated trainer or ADMIN |
 | GET | /api/agreements | ADMIN only |
 | POST | /api/agreements/{id}/accept | Designated TRAINER; PENDING_APPROVAL only |

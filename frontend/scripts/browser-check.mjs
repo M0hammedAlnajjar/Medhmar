@@ -30,7 +30,10 @@ try {
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content,page:0,totalPages:1,totalElements:content.length})});
     }
     if (path === '/camel/41/pedigree/tree') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Barq',sireName:'Al Zaeem',damName:'Bint Al Reem'})});
-    const data = path === '/api/users/me'  ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
+    if (path === '/trainer-profile/active') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify([
+      {userId:22,trainerName:'Mohammed Alnajjar',bio:'Experienced camel trainer',location:'Muscat',avatarUrl:null},
+      {userId:23,trainerName:'Salim Al Rashidi',bio:'Trainer profile details',location:'Nizwa',avatarUrl:null}
+    ])});    const data = path === '/api/users/me'  ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
   });
   await mkdir('test-results',{recursive:true});
@@ -219,33 +222,16 @@ try {
   assert.equal(mutations.length,0,'sample marketplace must not send offers or purchases');
   await page.goto(`http://127.0.0.1:${port}/trainer-profile`);
   await page.locator('.trainer-profile').waitFor();
-  assert.equal(await page.locator('.trainer-statistics dd').count(),2);
-  assert.equal(await page.locator('.trainer-camel-card').count(),3);
-  assert.equal(await page.locator('.trainer-expertise-grid article').count(),3);
-  assert.doesNotMatch(await page.locator('.trainer-profile').innerText(),/\b(?:rating|reviews?)\b|4\.8|★/i);
-  assert.equal(await page.getByRole('link',{name:'View Training Log',exact:true}).getAttribute('href'),'/training');
-  assert.equal(await page.getByRole('link',{name:'Browse Registry',exact:true}).getAttribute('href'),'/camels');
-  await page.waitForFunction(()=>[...document.querySelectorAll('[data-trainer-photo]')].length===4&&[...document.querySelectorAll('[data-trainer-photo]')].every(i=>i.complete&&i.naturalWidth>0));
+  await page.locator('.trainer-directory-entry').first().waitFor();
+  assert.equal(await page.locator('.trainer-directory-entry').count(),2);
+  assert.match(await page.locator('.trainer-profile').innerText(),/Mohammed Alnajjar/);
+  assert.match(await page.locator('.trainer-profile').innerText(),/Salim Al Rashidi/);
+  assert.equal(await page.locator('[data-trainer-location-edit]').count(),1);
+  assert.equal(await page.locator('[data-trainer-photo-upload]').count(),1);
+  assert.equal(await page.locator('.trainer-camel-card').count(),0);
+  assert.equal(mutations.length,0,'loading the trainer directory must not write to the backend');
   await page.screenshot({path:'test-results/trainer-profile-desktop.png',fullPage:true});
-  await page.getByRole('button',{name:'View Barq sample camel'}).click();
-  assert.equal(await page.locator('.trainer-preview-dialog').evaluate(d=>d.open),true);
-  assert.match(await page.locator('.trainer-dialog-content').innerText(),/no registered profile or recorded assignment/);
-  assert.equal(await page.locator('.trainer-dialog-content a').getAttribute('href'),'/camels');
-  assert.equal(await page.locator('.trainer-dialog-content a[href^="/camels/"]').count(),0);
-  await page.keyboard.press('Escape');
-  assert.equal(await page.getByRole('button',{name:'View Barq sample camel'}).evaluate(el=>el===document.activeElement),true);
-  await page.getByRole('button',{name:'View Al Reem sample camel'}).click();
-  assert.match(await page.locator('#trainer-dialog-title').innerText(),/Al Reem/);
-  await page.getByRole('button',{name:'Close camel preview',exact:true}).click();
-  assert.equal(await page.locator('.trainer-preview-dialog').evaluate(d=>d.open),false);
-  assert.equal(mutations.length,0,'trainer preview controls must remain read only');
-  // A failed portrait exposes its text fallback without substituting another person.
-  await page.locator('.trainer-portrait img').evaluate(img=>img.dispatchEvent(new Event('error')));
-  assert.equal(await page.locator('.trainer-portrait img').count(),0);
-  assert.equal(await page.locator('.trainer-portrait .trainer-photo-fallback').isVisible(),true);
-  await page.goto(`http://127.0.0.1:${port}/trainer-profile`);
-  await page.getByRole('link',{name:'View Training Log',exact:true}).click();
-  await page.locator('.training-journal').waitFor();
+
   for (const path of ['challenges','training','organizations','tourism','races','race-cards','marketplace?preview=1','trainer-profile']) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`http://127.0.0.1:${port}/${path}`);
@@ -253,12 +239,9 @@ try {
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
     if (path === 'trainer-profile') {
-      await page.waitForFunction(()=>[...document.querySelectorAll('[data-trainer-photo]')].every(i=>i.complete&&i.naturalWidth>0));
-      assert.ok(await page.locator('.trainer-camel-card').first().evaluate(el=>el.getBoundingClientRect().width>300),'mobile trainer cards must retain a readable width');
-      await page.getByRole('button',{name:'View Shahin sample camel'}).click();
-      assert.equal(await page.locator('.trainer-preview-dialog').evaluate(d=>d.open),true);
-      assert.ok(await page.locator('.trainer-preview-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'camel preview must fit on mobile');
-      await page.getByRole('button',{name:'Close',exact:true}).click();
+      await page.locator('.trainer-directory-entry').first().waitFor();
+      assert.ok(await page.locator('.trainer-profile-card').first().evaluate(el=>el.getBoundingClientRect().width>250),'mobile trainer profile must retain a readable width');
+      assert.ok(await page.locator('.trainer-profile').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'trainer directory must fit on mobile');
     }
     await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
     await page.screenshot({path:`test-results/${path.split('?')[0]}-mobile.png`,fullPage:true});

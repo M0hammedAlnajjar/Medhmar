@@ -17,6 +17,11 @@ import java.util.List;
 public class TrainingAgreementController {
     private final TrainingAgreementService agreements;
 
+    @GetMapping("/active-assignments")
+    public List<AgreementDtos.ActiveAssignment> activeAssignments() {
+        return agreements.activeAssignments();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AgreementDtos.View propose(

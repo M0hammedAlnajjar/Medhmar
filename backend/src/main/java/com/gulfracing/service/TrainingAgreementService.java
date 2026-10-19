@@ -135,6 +135,17 @@ public class TrainingAgreementService {
     }
 
     @Transactional
+    public List<AgreementDtos.ActiveAssignment> activeAssignments() {
+        var result = agreements.findByStatusOrderByAgreementIdDesc(AgreementStatus.ACTIVE);
+        result.forEach(this::refreshLifecycle);
+        return result.stream()
+                .filter(a -> a.getStatus() == AgreementStatus.ACTIVE)
+                .map(a -> new AgreementDtos.ActiveAssignment(
+                        a.getTrainer().getUserId(), a.getCamel().getCamelId()))
+                .toList();
+    }
+
+    @Transactional
     public List<AgreementDtos.View> all(Long actorId) {
         if (!users.isAdmin(actorId)) {
             throw ApiException.forbidden();

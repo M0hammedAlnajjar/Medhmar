@@ -177,9 +177,39 @@
 .trainer-action-row .btn {
   flex-shrink: 0;
 }
+.trainer-id {
+  margin: -3px 0 7px;
+  color: #9b8b7b;
+  font-size: 11px;
+}
+.trainer-location-edit {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: #817467;
+}
+.trainer-location-edit label { display: grid; gap: 6px; flex: 1 1 180px; }
+.trainer-location-edit input,
+.trainer-location-edit textarea { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid #d7c8b6; border-radius: 8px; font: inherit; }
+.trainer-location-edit p { flex-basis: 100%; margin: 0; }
+.trainer-photo-upload {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: #817467;
+}
+.trainer-photo-upload label { display: grid; gap: 6px; }
+.trainer-photo-upload input { max-width: 100%; font-size: 12px; }
+.trainer-photo-upload p { flex-basis: 100%; margin: 0; }
 .trainer-statistics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   padding: 19px 0;
   background: #faf5ed;
   border-radius: 12px;
@@ -636,3 +666,4 @@
     min-height: 46px;
   }
 }
+.trainer-directory-entry + .trainer-directory-entry { margin-top: 24px; }

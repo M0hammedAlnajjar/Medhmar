@@ -1,12 +1,16 @@
 package com.gulfracing.service;
 
 import com.gulfracing.entity.TrainerProfile;
+import com.gulfracing.dto.TrainerProfileDTO;
+import com.gulfracing.enums.AccountStatus;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.TrainerProfileRepository;
+import com.gulfracing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,7 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TrainerProfileService {
     private final TrainerProfileRepository trainerProfileRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
+    private final TrainerPhotoStorageService trainerPhotoStorage;
 
     @Transactional
     public Long create(Long actorId, String bio, String location) {
@@ -39,6 +45,26 @@ public class TrainerProfileService {
     }
 
     @Transactional(readOnly = true)
+    public List<TrainerProfileDTO> getActiveTrainers() {
+        var profilesByUserId = trainerProfileRepository.findAll(Sort.by("userId")).stream()
+                .collect(java.util.stream.Collectors.toMap(TrainerProfile::getUserId, profile -> profile));
+        return userRepository.findByAccountStatusAndRoles_RoleNameOrderByUserId(AccountStatus.ACTIVE, "TRAINER")
+                .stream()
+                .map(user -> {
+                    var profile = profilesByUserId.get(user.getUserId());
+                    return TrainerProfileDTO.builder()
+                            .userId(user.getUserId())
+                            .trainerName(user.getFullName())
+                            .avatarUrl(user.getAvatarUrl())
+                            .bio(profile == null ? null : profile.getBio())
+                            .location(profile == null ? null : profile.getLocation())
+                            .profileCreated(profile != null)
+                            .build();
+                })
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public TrainerProfile getById(Long id) {
         return trainerProfileRepository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("Trainer profile"));
@@ -52,6 +78,19 @@ public class TrainerProfileService {
         trainerProfile.setBio(bio);
         trainerProfile.setLocation(location);
         return trainerProfile;
+    }
+
+    @Transactional
+    public String uploadPhoto(Long actorId, MultipartFile photo) {
+        var user = userService.getActive(actorId);
+        boolean trainerRole = user.getRoles().stream().anyMatch(role -> "TRAINER".equals(role.getRoleName()));
+        if (!trainerRole) throw ApiException.forbidden();
+        if (!trainerProfileRepository.existsById(actorId)) {
+            throw ApiException.notFound("Trainer profile");
+        }
+        String photoUrl = trainerPhotoStorage.store(photo);
+        user.setAvatarUrl(photoUrl);
+        return photoUrl;
     }
 
     @Transactional

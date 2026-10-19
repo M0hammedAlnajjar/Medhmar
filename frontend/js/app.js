@@ -59,6 +59,7 @@ const toAdminPath = path => {
  if (path === '/admin' && location.hash === '#account-administration') return '/admin/users';
  if (path.startsWith('/audit-logs')) return '/admin' + path;
  if (path === '/settings') return '/admin/settings';
+ if (path === '/trainer-profile') return path;
  return adminArea(path) ? path : '/admin';
 };
 

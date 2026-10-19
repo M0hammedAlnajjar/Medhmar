@@ -1,58 +1,33 @@
-import test from "node:test";
+﻿import test from "node:test";
 import assert from "node:assert/strict";
-import {
-  trainerProfile,
-  trainerCamelPreview,
-  bindTrainerProfile,
-} from "../js/trainer-profile.js";
-import { demo } from "../js/data.js";
 
-test("trainer preview shows two metrics and contains no ratings or review controls", () => {
+globalThis.window = { location: { hostname: "localhost" } };
+
+const { trainerProfile, bindTrainerProfile } = await import("../js/trainer-profile.js");
+
+test("trainer page displays the live directory loading state", () => {
   const html = trainerProfile();
-  assert.match(html, /Profile preview/);
-  assert.match(html, /Salim Al Rashidi/);
-  assert.match(html, /<dt>Assigned Camels<\/dt><dd>12<\/dd>/);
-  assert.match(html, /<dt>Years Experience<\/dt><dd>8<\/dd>/);
-  assert.equal((html.match(/<dt>/g) || []).length, 2);
-  assert.doesNotMatch(html, /\b(?:rating|reviews?)\b|4\.8|★|⭐/i);
-  assert.equal(Object.hasOwn(demo.trainer, "rating"), false);
-  assert.equal((html.match(/<h1\b/g) || []).length, 1);
-  assert.match(html, /AI-generated/);
+
+  assert.match(html, /Trainer Profile/);
+  assert.match(html, /Experience and dedication behind every performance/);
+  assert.match(html, /data-trainer-results/);
+  assert.match(html, /role="status"/);
+  assert.match(html, /aria-live="polite"/);
+  assert.match(html, /Loading trainer profiles/);
+  assert.doesNotMatch(html, /Salim Al Rashidi|Three illustrative camels|CC BY-SA 4\.0/);
 });
 
-test("sample camel actions stay local while the training and registry actions use existing pages", () => {
+test("trainer directory has an accessible heading and breadcrumb", () => {
   const html = trainerProfile();
-  assert.equal((html.match(/class="trainer-camel-card"/g) || []).length, 3);
-  assert.match(html, /href="\/training" data-link>View Training Log/);
-  assert.match(html, /href="\/camels" data-link>Browse Registry/);
-  assert.doesNotMatch(html, /href="\/camels\/|href="\/agreements\/|data-act=/);
-  assert.match(html, /Three illustrative camels/);
-  assert.match(html, /CC BY-SA 4\.0/);
-  for (const id of ["sample-barq", "sample-shahin", "sample-reem"]) {
-    const preview = trainerCamelPreview(id);
-    assert.match(preview.title, /Sample camel/);
-    assert.match(preview.body, /no registered profile or recorded assignment/);
-    assert.doesNotMatch(preview.body, /href="\/camels\/|data-act=|<form/);
-  }
-  for (const id of ["41", "sample-missing", "<script>", null])
-    assert.equal(trainerCamelPreview(id), null);
+
+  assert.match(html, /aria-labelledby="trainer-page-title"/);
+  assert.match(html, /id="trainer-page-title"/);
+  assert.match(html, /aria-label="Breadcrumb"/);
+  assert.match(html, /href="\/home" data-link/);
 });
 
-test("profile fields are escaped before they reach the DOM", () => {
-  const html = trainerProfile({
-    ...demo.trainer,
-    name: "<script>alert(1)</script>",
-    location: '" onmouseover="x',
-    bio: "<img src=x onerror=x>",
-    assigned: "<svg onload=x>",
-    years: "<b>8</b>",
-  });
-  assert.doesNotMatch(html, /<script>|<img src=x|<svg onload=|<b>8/);
-  assert.match(html, /&lt;script&gt;/);
-  assert.match(html, /&quot; onmouseover=&quot;x/);
-  assert.match(html, /&lt;b&gt;8&lt;\/b&gt;/);
-});
-
-test("binding outside the trainer page has no side effects", () => {
-  assert.doesNotThrow(() => bindTrainerProfile({ querySelector: () => null }));
+test("binding without a trainer results container has no side effects", () => {
+  assert.doesNotThrow(() =>
+    bindTrainerProfile({ querySelector: () => null })
+  );
 });
