@@ -505,3 +505,30 @@
 @media(max-width:450px){
  .admin-console .admin-mobile-brand img{width:109px;height:34px}
 }
+
+
+/* Approved high-clarity logo on the administration shell, using transparent WebP. */
+.admin-console .admin-sidebar-brand{
+ min-height:158px;
+ padding:9px 0 24px;
+}
+.admin-console .admin-sidebar-brand img{
+ display:block;
+ width:210px;
+ height:auto;
+ max-height:none;
+ max-width:100%;
+ object-fit:contain;
+ object-position:center;
+}
+.admin-console .admin-mobile-brand img{
+ display:block;
+ width:154px;
+ height:39px;
+ max-width:100%;
+ object-fit:contain;
+ object-position:left center;
+}
+@media(max-width:920px){
+ .admin-console .admin-sidebar-brand{min-height:0}
+}

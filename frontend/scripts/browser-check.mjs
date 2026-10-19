@@ -266,6 +266,7 @@ try {
   });
   assert.equal(await page.locator('.admin-sidebar').isVisible(),true,'desktop admin sidebar should be visible');
   assert.equal(await page.locator('.admin-sidebar-brand img').evaluate(img=>img.complete&&img.naturalWidth>0),true,'stacked admin brand asset should load');
+  assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
   assert.equal(await page.locator('.admin-sidebar-nav a').count(),4,'desktop navigation should contain four admin routes');
