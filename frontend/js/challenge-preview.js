@@ -52,7 +52,7 @@ export function broadcastPreview(challenge=null, {signedIn=false,error=''}={}) {
       '<div class="broadcast-count"><span>'+safeCount(camel.voteCount)+' votes</span><strong>'+
       (share===null?'—':share.toFixed(0)+'%')+'</strong></div><div class="broadcast-meter" role="meter" '+
       'aria-label="Vote share for '+escapeHtml(camel.name||'Camel')+'" aria-valuemin="0" aria-valuemax="100" '+
-      (share===null?'':'aria-valuenow="'+share+'"')><span style="width:'+(share===null?0:share)+'%"></span></div>'+
+      (share===null?'':'aria-valuenow="'+share+'"')+'><span style="width:'+(share===null?0:share)+'%"></span></div>'+
       action+'</div></article>';
   }).join('') : '<p>No participating camels are available.</p>';
   const votingNote = !open ? (challenge.status==='CLOSED'?'Voting has closed. These are the recorded results.':
