@@ -98,6 +98,11 @@ test('published cards show only API data and use safe fallback illustration',()=
  }]);
  assert.match(html,/More Published Challenges/);
  assert.match(html,/broadcast-published-card/);
+ assert.match(html,/broadcast-published-placeholder/);
+ assert.match(html,/More challenges on the way/);
+ assert.equal((html.match(/broadcast-published-card/g)||[]).length,1);
+ const two=publishedChallengeCards([{...challenge,status:'CLOSED'}, {...challenge,challengeId:43,title:'Real second recorded challenge'}]);
+ assert.doesNotMatch(two,/broadcast-published-placeholder|More challenges on the way/);
  assert.match(html,/&lt;script&gt;unsafe&lt;\/script&gt;/);
  assert.match(html,/Al Barq|Shaheen|75%|25%/);
  assert.match(html,/href="\/challenges\/42"/);
