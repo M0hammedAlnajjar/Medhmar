@@ -112,7 +112,17 @@ try {
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'live challenges mobile must not overflow');
+  const mobileLayout=await page.evaluate(()=>({
+    viewport:innerWidth,document:document.documentElement.scrollWidth,
+    overflow:[...document.querySelectorAll('body *')].filter(el=>{
+      const box=el.getBoundingClientRect();
+      return box.width>0&&(box.right>innerWidth+2||box.left<-2);
+    }).slice(0,12).map(el=>({
+      tag:el.tagName,cls:typeof el.className==='string'?el.className:'',width:el.getBoundingClientRect().width,
+      right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left
+    }))
+  }));
+  assert.ok(mobileLayout.document<=mobileLayout.viewport+1,'live challenges mobile must not overflow: '+JSON.stringify(mobileLayout));
   await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/training`);
