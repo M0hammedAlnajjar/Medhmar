@@ -43,6 +43,12 @@ public class RaceEntryController {
                 raceEntryService.forRace(raceId, AccountAccess.requiredId(auth)));
     }
 
+    @GetMapping("/race/{raceId}/participants")
+    public List<RaceEntryDTO> publicParticipants(@PathVariable Long raceId) {
+        return RaceEntryDTO.convertToDTO(
+                raceEntryService.publicParticipants(raceId));
+    }
+
     @GetMapping("/{id}")
     public RaceEntryDTO getRaceEntryById(@PathVariable Long id, Authentication auth) {
         return RaceEntryDTO.convertToDTO(
