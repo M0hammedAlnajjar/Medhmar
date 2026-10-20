@@ -16,15 +16,11 @@ export const MOHAMMED_ROUTES = [
   { path: "/agreements/:id/edit", name: "Edit Training Agreement", owner: "TrainingAgreement", roles: ["ADMIN", "OWNER"] },
   { path: "/agreements/:id", name: "Training Agreement Details", owner: "TrainingAgreement", roles: ["ADMIN", "OWNER", "TRAINER"] },
   { path: "/audit-logs", name: "Audit Logs", owner: "auditLog", roles: ["ADMIN"] },
-  { path: "/audit-logs/new", name: "Add Audit Log", owner: "auditLog", roles: ["ADMIN"] },
-  { path: "/audit-logs/:id/edit", name: "Edit Audit Log", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/audit-logs/:id", name: "Audit Log Details", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/admin", name: "Admin Dashboard", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/admin/users", name: "Admin Users", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/admin/settings", name: "Admin Settings", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/admin/audit-logs", name: "Audit Logs", owner: "auditLog", roles: ["ADMIN"] },
-  { path: "/admin/audit-logs/new", name: "Add Audit Log", owner: "auditLog", roles: ["ADMIN"] },
-  { path: "/admin/audit-logs/:id/edit", name: "Edit Audit Log", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/admin/audit-logs/:id", name: "Audit Log Details", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/pedigree", name: "Pedigree Directory", owner: "Mohammed" },
   { path: "/camels/:id", name: "Pedigree Section", owner: "Mohammed" },
@@ -74,6 +70,8 @@ export function normalizePath() {
 
 export function matchRoute(path) {
   const requestedPath = path === "/" || path === "/index.html" ? "/home" : path;
+  // The obsolete audit creation form must not be treated as an event ID.
+  if (/^\/(?:admin\/)?audit-logs\/new\/?$/.test(requestedPath)) return null;
   for (const route of ALL_ROUTES) {
     const pattern = route.path
       .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")

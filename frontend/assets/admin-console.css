@@ -559,3 +559,56 @@
  .admin-console .admin-chart-period{font-size:10px;padding:7px}
 }
 @media(prefers-reduced-motion:reduce){.admin-console .admin-chart-bar{transition:none}}
+
+
+/* Audit history: fully scoped administrator read-only layout. */
+.admin-console .admin-audit-hero{margin:24px 0 20px;padding:29px 32px;background:linear-gradient(115deg,#4a3024,#8e5638);color:#fff;border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.admin-console .admin-audit-eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:#f0c8a4;margin:0 0 12px}
+.admin-console .admin-audit-hero h1{font-size:clamp(26px,3vw,38px);margin:0 0 10px;line-height:1.15}
+.admin-console .admin-audit-hero p:last-child{font-size:13px;color:#f1e4d8;margin:0;line-height:1.5}
+.admin-console .admin-audit-readonly{white-space:nowrap;font-size:12px;border:1px solid #ffffff77;border-radius:50px;padding:9px 14px;background:#ffffff16;font-weight:750}
+.admin-console .admin-audit-panel{background:white;border:1px solid #e9ded2;border-radius:14px;padding:24px;min-width:0;box-shadow:0 8px 20px #291b130c}
+.admin-console .admin-audit-panel-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.admin-console .admin-audit-panel-heading h2,.admin-console .admin-audit-detail h2{margin:0;font-size:20px;color:#36261a}
+.admin-console .admin-audit-panel-heading p{margin:0;color:#89796a;font-size:12px}
+.admin-console .admin-audit-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px;background:#faf7f3;border:1px solid #ede3d9;border-radius:11px;margin-bottom:20px}
+.admin-console .admin-audit-filters label{display:grid;gap:6px;min-width:0}
+.admin-console .admin-audit-filters label span{font-size:11px;font-weight:750;color:#66554a}
+.admin-console .admin-audit-filters input{width:100%;min-width:0;background:white;border:1px solid #ddcfc3;border-radius:7px;min-height:40px;padding:8px 10px;font-size:13px;color:#392a20}
+.admin-console .admin-audit-filter-actions{display:flex;align-items:end;flex-wrap:wrap;gap:12px}
+.admin-console .admin-audit-button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;border:0;border-radius:8px;background:#b20a28;color:white;font-size:12px;font-weight:750;text-decoration:none;padding:10px 16px;cursor:pointer}
+.admin-console .admin-audit-button:hover{background:#911024}
+.admin-console .admin-audit-reset,.admin-console .admin-audit-back{font-size:12px;color:#9d1630;text-decoration:none;font-weight:750}
+.admin-console .admin-audit-reset:hover,.admin-console .admin-audit-back:hover{text-decoration:underline}
+.admin-console .admin-audit-table-wrap{overflow-x:auto;max-width:100%}
+.admin-console .admin-audit-table{border-collapse:collapse;width:100%;min-width:780px;font-size:12px;text-align:left}
+.admin-console .admin-audit-table th{white-space:nowrap;background:#f9f5f0;color:#766251;font-size:11px;font-weight:800;padding:13px 12px;border-bottom:1px solid #e8ddd2}
+.admin-console .admin-audit-table td{padding:15px 12px;border-bottom:1px solid #f0eae4;vertical-align:middle;color:#4a3a30}
+.admin-console .admin-audit-table tbody tr:hover{background:#fcfaf8}
+.admin-console .admin-audit-table td strong{color:#35271d}
+.admin-console .admin-audit-table td small{display:block;margin-top:3px;color:#a1958c}
+.admin-console .admin-audit-table time{white-space:nowrap;color:#746458}
+.admin-console .admin-audit-action{display:inline-block;background:#f6ece3;color:#7a4528;border-radius:6px;font-size:11px;font-weight:750;padding:6px 9px;overflow-wrap:anywhere;max-width:220px}
+.admin-console .admin-audit-view{color:#ab0c2b;font-weight:750;text-decoration:none;white-space:nowrap}
+.admin-console .admin-audit-view:hover{text-decoration:underline}
+.admin-console .admin-audit-pagination{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-top:20px;font-size:12px;color:#817266}
+.admin-console .admin-audit-pagination div{display:flex;gap:15px;align-items:center}
+.admin-console .admin-audit-pagination a{color:#9c0f2c;text-decoration:none;font-weight:750}
+.admin-console .admin-audit-pagination a:hover{text-decoration:underline}
+.admin-console .admin-audit-empty{padding:38px 16px;text-align:center;color:#806e5f}
+.admin-console .admin-audit-empty h3{font-size:17px;color:#453429;margin:0 0 8px}
+.admin-console .admin-audit-empty p{margin:0;font-size:13px}
+.admin-console .admin-audit-disclaimer{font-size:12px;color:#76685c;line-height:1.6;margin:18px 3px}
+.admin-console .admin-audit-back{display:inline-block;margin:0 0 16px}
+.admin-console .admin-audit-detail{max-width:880px}
+.admin-console .admin-audit-detail dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0 26px}
+.admin-console .admin-audit-detail dl>div{padding:14px;background:#faf8f5;border:1px solid #eee5dc;border-radius:9px;min-width:0;overflow-wrap:anywhere}
+.admin-console .admin-audit-detail dt{color:#847364;font-size:11px;margin-bottom:8px}
+.admin-console .admin-audit-detail dd{font-weight:700;color:#382b20;margin:0;font-size:13px}
+.admin-console .admin-audit-detail h3{font-size:14px;color:#3b2b21}
+.admin-console .admin-audit-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;color:#5c4b3e;font-size:13px}
+.admin-console .admin-audit-message{background:#fff7f3;padding:24px;border:1px solid #e8b9a9;border-radius:12px}
+.admin-console .admin-audit-message h2{font-size:19px;color:#713c2a;margin:0 0 10px}
+.admin-console .admin-audit-message p{font-size:13px;color:#76594c}
+@media(max-width:950px){.admin-console .admin-audit-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.admin-console .admin-audit-hero{margin:15px 0;padding:22px;align-items:flex-start;flex-direction:column}.admin-console .admin-audit-panel{padding:15px}.admin-console .admin-audit-filters{grid-template-columns:1fr}.admin-console .admin-audit-detail dl{grid-template-columns:1fr}}

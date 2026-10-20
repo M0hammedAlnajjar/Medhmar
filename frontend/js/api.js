@@ -159,12 +159,18 @@ export const agreementApi = {
   accept: (id) => api(`/api/agreements/${encodeURIComponent(id)}/accept`, { method: "POST" }),
 };
 
-export const auditLogApi = {
-  list: () => api("/audit-log/getAll"),
-  one: (id) => api(`/audit-log/getById?id=${encodeURIComponent(id)}`),
-  add: (payload) => api("/audit-log/add", { method: "POST", body: JSON.stringify(payload) }),
-  update: (payload) => api("/audit-log/update", { method: "PUT", body: JSON.stringify(payload) }),
-  remove: (id) => api(`/audit-log/deleteById?id=${encodeURIComponent(id)}`, { method: "DELETE" }),
+// Audit history is read-only and only accessible to authenticated administrators.
+export const adminAuditApi = {
+  list: (filters = {}) => {
+    const from = /^\d{4}-\d{2}-\d{2}$/.test(filters.from || '') ? filters.from + 'T00:00:00.000Z' : undefined;
+    const to = /^\d{4}-\d{2}-\d{2}$/.test(filters.to || '') ? filters.to + 'T23:59:59.999Z' : undefined;
+    return api('/api/admin/audit-logs' + buildQuery({
+      page: filters.page || 0, size: 20,
+      actionType: filters.actionType, entityType: filters.entityType,
+      actorUserId: filters.actorUserId, from, to
+    }));
+  },
+  one: (id) => api('/api/admin/audit-logs/' + encodeURIComponent(id))
 };
 
 export const pedigreeApi = {

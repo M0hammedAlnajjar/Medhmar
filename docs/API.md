@@ -481,10 +481,21 @@ changes, race and result changes, registration decisions, agreement changes, tra
 organization membership changes in the same transaction as the business write.
 Responses include actorUserId; legacy records and internal operations without an
 authenticated actor may have null. Audit rows can reference non-camel entities.
-Admin POST /audit-log/add appends an attributed MANUAL_NOTE; caller-supplied
-activity labels cannot impersonate automatic events. PUT /audit-log/update and
-DELETE /audit-log/deleteById return 409. Historical rows are preserved by V27;
-application-level append-only rules do not restrict a database administrator.
+Admins can inspect the **read-only, server-paginated** audit trail:
+
+| Method | Route | Access |
+| --- | --- | --- |
+| GET | /api/admin/audit-logs?page=0&size=20 | ADMIN |
+| GET | /api/admin/audit-logs/{id} | ADMIN |
+
+The list supports optional exact `actionType` and `entityType` filters, optional
+positive `actorUserId`, and ISO-8601 UTC `from`/`to` timestamp filters.
+Page sizes are limited to 100 and rows are ordered newest first by timestamp,
+then audit ID. Neither this API nor the administrator UI provides create, update,
+or delete endpoints; the former /audit-log/* routes have been removed.
+AuditRecorder writes business events within their original transactions.
+Historical rows are preserved by V27. Application-level append-only restrictions
+do not prevent direct writes by a database administrator with sufficient privileges.
 
 Marketplace routes are enabled and checked against authenticated seller/buyer
 identity. Earlier statements describing these routes as denied are obsolete.

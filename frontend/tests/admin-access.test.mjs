@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import { matchRoute, canAccessRoute } from '../js/routes.js';
 import { renderAccount } from '../js/account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from '../js/admin-console.js';
+import { adminAuditListView, adminAuditDetailView } from '../js/admin-audit.js';
 import { hasAnyRole } from '../js/format.js';
 import { demo } from '../js/data.js';
 import { bindPedigreeImages } from '../js/pedigree-view.js';
@@ -13,16 +14,23 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace("window.addEventListener('popstate',render); init();", '');
 
-function harness(user, { me = async () => user, users, dashboard } = {}) {
+function harness(user, { me = async () => user, users, dashboard, audits, auditDetail } = {}) {
   const root = { innerHTML: '', addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
     bindAdminChartTabs: () => {}, bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
-    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView,
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, adminAuditListView, adminAuditDetailView,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
+    adminAuditApi: {
+      list: async () => { requests.push('audit-list'); return audits ? audits() :
+        { content:[{auditId:1,actionType:'LOGIN',entityType:'User',entityId:1,createdAt:'2026-10-20T00:00:00Z'}],
+          page:0,size:20,totalElements:1,totalPages:1 }; },
+      one: async () => { requests.push('audit-detail'); return auditDetail ? auditDetail() :
+        {auditId:1,actionType:'LOGIN',entityType:'User',entityId:1,createdAt:'2026-10-20T00:00:00Z'}; }
+    },
     adminApi: { 
       dashboard: async () => {
         requests.push('dashboard');
@@ -39,7 +47,7 @@ function harness(user, { me = async () => user, users, dashboard } = {}) {
       querySelector: selector => selector === '#app' ? root : null,
       querySelectorAll: () => [], documentElement: {},
     },
-    localStorage: { getItem: () => null }, location,
+    localStorage: { getItem: () => null }, URLSearchParams, location,
     history: { replaceState: (_, __, path) => { location.pathname = path; } },
   });
   vm.runInContext(source, context);
@@ -130,3 +138,32 @@ test('late admin responses cannot restore the dashboard after navigation', async
   assert.equal(vm.runInContext('state.adminUsers', app.context), null);
 });
 
+
+test('verified administrator can browse read-only audit history and detail', async () => {
+  const app = harness({ userId: 10, fullName: 'Administrator', roles: ['ADMIN'] });
+  app.location.pathname='/admin/audit-logs';
+  await app.render();
+  assert.deepEqual(app.requests,['me','audit-list']);
+  assert.match(app.root.innerHTML, /LOGIN|Read only|View details/);
+  assert.doesNotMatch(app.root.innerHTML, /Add Audit|Edit Audit|Delete/);
+  app.location.pathname='/admin/audit-logs/1';
+  await app.render();
+  assert.deepEqual(app.requests,['me','audit-list','me','audit-detail']);
+  assert.match(app.root.innerHTML,/Audit event #1|Back to audit history/);
+});
+test('revoked administrator cannot download audit records', async () => {
+  const app = harness({ userId: 10, roles: ['ADMIN'] },
+    {me:async()=>({userId:10,roles:['OWNER']})});
+  app.location.pathname='/admin/audit-logs';
+  await app.render();
+  assert.deepEqual(app.requests,['me']);
+  assert.match(app.root.innerHTML,/Access denied/);
+});
+test('audit API failure does not show stale records or mock records', async () => {
+  const app = harness({userId:10,roles:['ADMIN']},
+    {audits:async()=>{throw Object.assign(new Error('Backend offline'),{status:500});}});
+  app.location.pathname='/admin/audit-logs';
+  await app.render();
+  assert.match(app.root.innerHTML,/Audit history unavailable/);
+  assert.doesNotMatch(app.root.innerHTML,/View details|LOGIN/);
+});
