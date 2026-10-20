@@ -1452,7 +1452,7 @@ async function getParticipantsForRace(raceId) {
         return DEMO_PARTICIPANTS[raceId] || [];
     }
 
-    return raceEntryApi.getForRace(raceId);
+    return raceEntryApi.getPublicParticipants(raceId);
 }
 
 export async function renderRaceParticipants(
