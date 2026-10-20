@@ -12,7 +12,7 @@ public final class TourismDtos {
     private TourismDtos() {}
 
     public record EventRequest(
-            @NotNull @Positive Long organizationId,
+            @Positive Long organizationId,
             @NotBlank @Size(max = 180) String name,
             @NotBlank @Size(max = 80) String type,
             @NotBlank @Size(max = 255) String location,
@@ -26,8 +26,8 @@ public final class TourismDtos {
             String location, Instant startAt, Instant endAt, String description
     ) {
         public static EventView from(TouristEvent entity) {
-            return new EventView(entity.getEventId(), entity.getOrganization().getOrganizationId(),
-                    entity.getOrganization().getName(), entity.getName(), entity.getType(), entity.getLocation(),
+            return new EventView(entity.getEventId(), entity.getOrganization() == null ? null : entity.getOrganization().getOrganizationId(),
+                    entity.getOrganization() == null ? null : entity.getOrganization().getName(), entity.getName(), entity.getType(), entity.getLocation(),
                     entity.getStartAt(), entity.getEndAt(), entity.getDescription());
         }
     }
@@ -44,21 +44,23 @@ public final class TourismDtos {
     }
 
     public record ContentRequest(
-            @NotNull @Positive Long organizationId,
+            @Positive Long organizationId,
             @NotBlank @Size(max = 180) String title,
             @NotBlank @Size(max = 80) String type,
             @NotBlank @Size(max = 2048) String contentUrl,
-            @NotBlank @Size(max = 100) String category
+            @NotBlank @Size(max = 100) String category,
+            @Size(max = 5000) String description
     ) {}
 
     public record ContentView(
             Long contentId, Long organizationId, String organizationName, String title, String type,
-            String contentUrl, String category, ContentApprovalStatus approvedStatus, Long approvedBy
+            String contentUrl, String category, String description,
+            ContentApprovalStatus approvedStatus, Long approvedBy
     ) {
         public static ContentView from(CulturalContent entity) {
-            return new ContentView(entity.getContentId(), entity.getOrganization().getOrganizationId(),
-                    entity.getOrganization().getName(), entity.getTitle(), entity.getType(), entity.getContentUrl(),
-                    entity.getCategory(), entity.getApprovedStatus(),
+            return new ContentView(entity.getContentId(), entity.getOrganization() == null ? null : entity.getOrganization().getOrganizationId(),
+                    entity.getOrganization() == null ? null : entity.getOrganization().getName(), entity.getTitle(), entity.getType(), entity.getContentUrl(),
+                    entity.getCategory(), entity.getDescription(), entity.getApprovedStatus(),
                     entity.getApprovedBy() == null ? null : entity.getApprovedBy().getUserId());
         }
     }

@@ -27,6 +27,7 @@ export const MOHAMMED_ROUTES = [
   { path: "/admin/audit-logs", name: "Audit Logs", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/admin/audit-logs/:id", name: "Audit Log Details", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/admin/termination-requests", name: "Termination Requests", owner: "TerminationRequests", roles: ["ADMIN"] },
+  { path: "/admin/heritage", name: "Admin Heritage", owner: "Tourism", roles: ["ADMIN"] },
   { path: "/pedigree", name: "Pedigree Directory", owner: "Mohammed" },
   { path: "/camels/:id", name: "Pedigree Section", owner: "Mohammed" },
   { path: "/camels/:id/pedigree/edit", name: "Edit Pedigree", owner: "Mohammed", roles: ["OWNER", "ADMIN"] },
@@ -94,6 +95,10 @@ export function canAccessRoute(route, user) {
   if (!route) return false;
   if (route.auth && !user?.userId) return false;
   if (!route.roles) return true;
+  // API roles are normally plain (ADMIN); normalize optional Spring authorities
+  // consistently with the shared hasAnyRole() helper, never grant anonymous access.
   return Boolean(user?.userId) && Array.isArray(user.roles)
-    && route.roles.some(role => user.roles.includes(role));
+    && route.roles.some(role => user.roles.some(value =>
+      typeof value === "string" && value.replace(/^ROLE_/, "") === role
+    ));
 }

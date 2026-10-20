@@ -28,12 +28,10 @@ public class TourismService {
 
     @Transactional
     public EventView createEvent(EventRequest request, Long actorId) {
-        organizationService.requireManager(request.organizationId(), actorId);
         validateDates(request.startAt(), request.endAt());
 
         var event = new TouristEvent();
-        event.setOrganization(organizations.findById(request.organizationId())
-                .orElseThrow(() -> ApiException.notFound("Organization")));
+        event.setOrganization(resolveOrganization(request.organizationId(), actorId));
         applyEvent(event, request);
         return EventView.from(events.saveAndFlush(event));
     }
@@ -51,11 +49,9 @@ public class TourismService {
     @Transactional
     public EventView updateEvent(Long id, EventRequest request, Long actorId) {
         var event = event(id);
-        organizationService.requireManager(event.getOrganization().getOrganizationId(), actorId);
-        organizationService.requireManager(request.organizationId(), actorId);
+        requireContentManager(event.getOrganization(), actorId);
         validateDates(request.startAt(), request.endAt());
-        event.setOrganization(organizations.findById(request.organizationId())
-                .orElseThrow(() -> ApiException.notFound("Organization")));
+        event.setOrganization(resolveOrganization(request.organizationId(), actorId));
         applyEvent(event, request);
         return EventView.from(event);
     }
@@ -75,17 +71,15 @@ public class TourismService {
     @Transactional(readOnly = true)
     public List<VisitView> listVisits(Long eventId, Long actorId) {
         var event = event(eventId);
-        organizationService.requireManager(event.getOrganization().getOrganizationId(), actorId);
+        requireContentManager(event.getOrganization(), actorId);
         return visits.findByEvent_EventIdOrderByVisitDateDesc(eventId)
                 .stream().map(VisitView::from).toList();
     }
 
     @Transactional
     public ContentView createContent(ContentRequest request, Long actorId) {
-        organizationService.requireManager(request.organizationId(), actorId);
         var item = new CulturalContent();
-        item.setOrganization(organizations.findById(request.organizationId())
-                .orElseThrow(() -> ApiException.notFound("Organization")));
+        item.setOrganization(resolveOrganization(request.organizationId(), actorId));
         applyContent(item, request);
         item.setApprovedStatus(ContentApprovalStatus.PENDING);
         return ContentView.from(content.saveAndFlush(item));
@@ -113,13 +107,17 @@ public class TourismService {
                 .stream().map(ContentView::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ContentView> manageAllContent(Long actorId) {
+        if (!users.isAdmin(actorId)) throw ApiException.forbidden();
+        return content.findAllByOrderByContentIdDesc().stream().map(ContentView::from).toList();
+    }
+
     @Transactional
     public ContentView updateContent(Long id, ContentRequest request, Long actorId) {
         var item = contentItem(id);
-        organizationService.requireManager(item.getOrganization().getOrganizationId(), actorId);
-        organizationService.requireManager(request.organizationId(), actorId);
-        item.setOrganization(organizations.findById(request.organizationId())
-                .orElseThrow(() -> ApiException.notFound("Organization")));
+        requireContentManager(item.getOrganization(), actorId);
+        item.setOrganization(resolveOrganization(request.organizationId(), actorId));
         applyContent(item, request);
         item.setApprovedStatus(ContentApprovalStatus.PENDING);
         item.setApprovedBy(null);
@@ -132,7 +130,7 @@ public class TourismService {
             throw ApiException.badRequest("Approval decision must be APPROVED or REJECTED.");
         }
         var item = contentItem(id);
-        organizationService.requireManager(item.getOrganization().getOrganizationId(), actorId);
+        requireContentManager(item.getOrganization(), actorId);
         item.setApprovedStatus(decision);
         item.setApprovedBy(users.getActive(actorId));
         return ContentView.from(item);
@@ -146,6 +144,24 @@ public class TourismService {
     private CulturalContent contentItem(Long id) {
         if (id == null || id <= 0) throw ApiException.badRequest("Content ID must be greater than zero.");
         return content.findById(id).orElseThrow(() -> ApiException.notFound("Cultural content"));
+    }
+
+    private com.gulfracing.entity.Organization resolveOrganization(Long organizationId, Long actorId) {
+        if (organizationId == null) {
+            if (!users.isAdmin(actorId)) throw ApiException.badRequest("An organization is required.");
+            return null;
+        }
+        organizationService.requireManager(organizationId, actorId);
+        return organizations.findById(organizationId)
+                .orElseThrow(() -> ApiException.notFound("Organization"));
+    }
+
+    private void requireContentManager(com.gulfracing.entity.Organization organization, Long actorId) {
+        if (organization == null) {
+            if (!users.isAdmin(actorId)) throw ApiException.forbidden();
+            return;
+        }
+        organizationService.requireManager(organization.getOrganizationId(), actorId);
     }
 
     private void applyEvent(TouristEvent event, EventRequest request) {
@@ -162,6 +178,7 @@ public class TourismService {
         item.setType(request.type().strip());
         item.setContentUrl(request.contentUrl().strip());
         item.setCategory(request.category().strip());
+        item.setDescription(request.description() == null ? null : request.description().strip());
     }
 
     private void validateDates(Instant start, Instant end) {

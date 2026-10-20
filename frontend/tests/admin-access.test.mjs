@@ -91,6 +91,19 @@ test('ordinary users cannot see admin links, dashboard, demo accounts or trigger
   }
 });
 
+test('denied admin access shows account roles and safe recovery instructions', async () => {
+ const app = harness({userId:42,fullName:'Ali <script>',roles:['VIEWER'],accountStatus:'ACTIVE'});
+ await app.render();
+ assert.match(app.root.innerHTML,/Only accounts with the ADMIN role/);
+ assert.match(app.root.innerHTML,/Current roles:<\/strong> VIEWER/);
+ assert.match(app.root.innerHTML,/Ali &lt;script&gt;/);
+ assert.doesNotMatch(app.root.innerHTML,/<script>/);
+ assert.match(app.root.innerHTML,/Sign out and sign in again/);
+ assert.match(app.root.innerHTML,/href="\/settings"/);
+ assert.doesNotMatch(app.root.innerHTML,/class="admin-console"|href="\/admin"/);
+ assert.deepEqual(app.requests,[]);
+});
+
 test('direct guest navigation redirects to sign in without requesting admin data', async () => {
   const app = harness({ fullName: 'Guest', roles: [] });
   await app.render();
