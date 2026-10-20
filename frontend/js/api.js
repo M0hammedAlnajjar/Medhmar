@@ -107,6 +107,20 @@ export const challengeApi = {
   vote: (id, camelId) => api(`/api/challenges/${id}/votes`, { method: "POST", body: JSON.stringify({ camelId }) }),
 };
 
+// Administrator discovery includes drafts and inactive organizations. Mutations reuse
+// existing authenticated, server-authorized business endpoints and CSRF handling.
+export const adminModulesApi = {
+  challenges: (page = 0) => api('/api/admin/challenges' + buildQuery({page, size:20})),
+  organizations: (page = 0) => api('/api/admin/organizations' + buildQuery({page, size:20})),
+  createChallenge: (payload) => api('/api/challenges', {method:'POST',body:JSON.stringify(payload)}),
+  updateChallenge: (id,payload) => api('/api/challenges/'+encodeURIComponent(id), {method:'PUT',body:JSON.stringify(payload)}),
+  addChallengeCamel: (id,camelId) => api('/api/challenges/'+encodeURIComponent(id)+'/camels/'+encodeURIComponent(camelId), {method:'PUT'}),
+  openChallenge: (id) => api('/api/challenges/'+encodeURIComponent(id)+'/open', {method:'POST'}),
+  closeChallenge: (id) => api('/api/challenges/'+encodeURIComponent(id)+'/close', {method:'POST'}),
+  createOrganization: (payload) => api('/api/organizations', {method:'POST',body:JSON.stringify(payload)}),
+  updateOrganization: (id,payload) => api('/api/organizations/'+encodeURIComponent(id), {method:'PUT',body:JSON.stringify(payload)})
+};
+
 export const adminApi = {
   dashboard: () => api("/api/admin/dashboard"),
   users: (page = 0) => api(`/api/admin/users?page=${Math.max(0, Math.trunc(Number(page) || 0))}&size=20`),

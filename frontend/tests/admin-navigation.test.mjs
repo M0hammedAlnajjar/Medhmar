@@ -37,11 +37,11 @@ test('admin uses a completely separate shell with no community navigation',()=>{
  const html=adminShell({user:user('ADMIN'),active:'/admin/audit-logs',body:'Audit body'});
  assert.match(html,/class="admin-console"/);
  assert.match(html,/href="\/admin\/audit-logs" data-link class="active" aria-current="page"/);
- assert.match(html,/Manage Users|Admin Settings|Dashboard|id="admin-signout"/);
+ assert.match(html,/Manage Users|Admin Settings|Dashboard|Challenges|Organizations|id="admin-signout"/);
  assert.doesNotMatch(html,/class="topbar"|nav-mobile-user|href="\/home"|href="\/races"|href="\/marketplace"|href="\/camels"/);
 });
 test('admin routes are not accessible to regular users',()=>{
- for(const url of ['/admin','/admin/users','/admin/settings','/admin/audit-logs','/admin/audit-logs/1']){
+ for(const url of ['/admin','/admin/users','/admin/settings','/admin/audit-logs','/admin/audit-logs/1','/admin/challenges','/admin/organizations']){
   const r=matchRoute(url)?.route;assert.ok(r,url);
   for(const role of ['VIEWER','OWNER','TRAINER','ORGANIZER'])
    assert.equal(canAccessRoute(r,user(role)),false);

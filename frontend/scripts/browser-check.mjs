@@ -268,8 +268,8 @@ try {
   assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
-  assert.equal(await page.locator('.admin-sidebar-nav a').count(),4,'desktop navigation should contain four admin routes');
-  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),4,'desktop menu should retain its SVG icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(),7,'desktop navigation should contain seven admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),7,'desktop menu should retain its SVG icons');
   await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');
@@ -277,7 +277,7 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
   await page.locator('.admin-mobile-nav summary').click();
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),4);
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 7);
   const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
     const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
   }));
@@ -350,7 +350,28 @@ try {
   assert.equal(await page.locator('#admin-users-clear').isVisible(),true);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'user management mobile must not overflow');
   await page.screenshot({path:'test-results/admin-users-mobile.png',fullPage:true});
-  assert.deepEqual(errors,[], 'browser must not have unhandled errors');
+  // The two admin modules use production renderers, with isolated test-only data.
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(async()=>{
+    const {adminShell}=await import('/js/admin-console.js');
+    const {adminChallengesView,adminOrganizationsView}=await import('/js/admin-modules.js');
+    const orgs={content:[{organizationId:8,name:'Test Organization',region:'Muscat',description:'Test-only entry',contactEmail:'org@example.invalid',status:'ACTIVE',createdAt:'2030-01-01T00:00:00Z'}],page:0,size:20,totalElements:1,totalPages:1};
+    const ch={content:[{challengeId:4,title:'Test Challenge',status:'DRAFT',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:0,camels:[]}],page:0,size:20,totalElements:1,totalPages:1};
+    document.querySelector('#app').innerHTML=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/challenges',body:adminChallengesView({data:ch})});
+    window.__testOrgPage=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/organizations',body:adminOrganizationsView({data:orgs})});
+  });
+  assert.equal(await page.locator('[data-admin-challenge-camel]').count(),1);
+  assert.equal(await page.locator('.admin-module-item').count(),1);
+  await page.screenshot({path:'test-results/admin-challenges-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin challenges mobile must not overflow');
+  await page.screenshot({path:'test-results/admin-challenges-mobile.png',fullPage:true});
+  await page.evaluate(()=>{document.querySelector('#app').innerHTML=window.__testOrgPage;});
+  assert.equal(await page.locator('[data-admin-organization-edit]').count(),1);
+  assert.equal(await page.locator('#admin-organization-create').count(),1);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin organizations mobile must not overflow');
+  await page.screenshot({path:'test-results/admin-organizations-mobile.png',fullPage:true});
+    assert.deepEqual(errors,[], 'browser must not have unhandled errors');
   console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
 } finally {
   await browser?.close();
