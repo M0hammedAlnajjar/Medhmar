@@ -71,6 +71,19 @@ public class TrainingAgreement {
     @Column(name = "termination_reason", length = 1000)
     private String terminationReason;
 
+    @Column(name = "termination_request_status", length = 20)
+    private String terminationRequestStatus;
+
+    @Column(name = "termination_requested_at")
+    private Instant terminationRequestedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "termination_requested_by")
+    private User terminationRequestedBy;
+
+    @Column(name = "termination_decision_notes", length = 1000)
+    private String terminationDecisionNotes;
+
     @Column(name = "completed_at")
     private Instant completedAt;
 
