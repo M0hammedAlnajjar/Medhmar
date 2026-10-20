@@ -20,8 +20,28 @@ try {
   const mutations = [];
   page.on('request', request => { if (request.url().includes(':8080') && request.method() !== 'GET') mutations.push(request.url()); });
   let marketHasListings = false;
+  let recordedChallengeVotes = 0;
   await page.route('**/*:8080/**', route => {
     const path = new URL(route.request().url()).pathname;
+    const liveChallenge = {
+      challengeId:42,title:'Test Live Racing Challenge',status:'OPEN',creatorId:5,
+      opensAt:new Date(Date.now()-86400000).toISOString(),
+      closesAt:new Date(Date.now()+86400000).toISOString(),
+      totalVotes:recordedChallengeVotes,
+      camels:[
+        {camelId:1,name:'Al Barq',voteCount:recordedChallengeVotes,votePercent:recordedChallengeVotes?100:0,photoUrl:null},
+        {camelId:2,name:'Shaheen',voteCount:0,votePercent:0,photoUrl:null}
+      ]
+    };
+    if (path === '/api/auth/csrf') return route.fulfill({status:200,contentType:'application/json',
+      body:JSON.stringify({headerName:'X-XSRF-TOKEN',token:'browser-test-token'})});
+    if (path === '/api/challenges/42/votes' && route.request().method()==='POST') {
+      recordedChallengeVotes+=1;
+      return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({voteId:9,challengeId:42,camelId:1})});
+    }
+    if (path === '/api/challenges/42') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(liveChallenge)});
+    if (path === '/api/challenges') return route.fulfill({status:200,contentType:'application/json',
+      body:JSON.stringify({content:[liveChallenge],page:0,size:20,totalElements:1,totalPages:1})});
     if (path === '/marketplace/getAll') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content:marketHasListings?[{listingId:77,camelId:41,askingPriceOmr:'4000.125',status:'AVAILABLE'}]:[],page:0,totalPages:1,totalElements:marketHasListings?1:0})});
     if (path === '/camel/getById') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Recorded camel',breed:'Omani',gender:'MALE',birthDate:'2022-01-01',photoUrl:'/assets/marketplace-photos/wahiba-close.webp'})});
     if (path === '/camel/getAll') {
@@ -33,7 +53,7 @@ try {
     if (path === '/trainer-profile/active') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify([
       {userId:22,trainerName:'Mohammed Alnajjar',bio:'Experienced camel trainer',location:'Muscat',avatarUrl:null},
       {userId:23,trainerName:'Salim Al Rashidi',bio:'Trainer profile details',location:'Nizwa',avatarUrl:null}
-    ])});    const data = path === '/api/users/me'  ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : path === '/api/challenges' ? {content:[]} : [];
+    ])});    const data = path === '/api/users/me'  ? {userId:22,fullName:'Mohammed Alnajjar',roles:['TRAINER']} : [];
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
   });
   await mkdir('test-results',{recursive:true});
@@ -54,16 +74,26 @@ try {
   await page.screenshot({path:'test-results/auth-logo-transparent-mobile.png'});
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/challenges`);
-  await page.locator('.broadcast-preview').waitFor();
-  await page.locator('[data-preview-vote="0"]').click();
-  assert.match(await page.locator('.broadcast-voting').innerText(), /745 votes/);
-  assert.equal(await page.locator('[data-preview-vote="1"]').isDisabled(),true);
-  await page.locator('[data-preview-reset]').click();
-  assert.match(await page.locator('.broadcast-voting').innerText(), /744 votes/);
+  await page.locator('.broadcast-live-data').waitFor();
+  assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
+  assert.equal(await page.locator('.broadcast-candidate').count(),2);
+  assert.match(await page.locator('.broadcast-voting').innerText(),/Al Barq|Shaheen/);
+  assert.match(await page.locator('.broadcast-voting').innerText(),/0 votes/);
+  assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/744 votes|456 votes|1.2K watching|LIVE PREVIEW|Sample event/);
   await page.locator('[data-preview-tab="participants"]').click();
-  assert.match(await page.locator('#broadcast-info').innerText(), /Shaheen/);
-  assert.equal(mutations.length,0,'sample voting must never write to the backend');
+  assert.match(await page.locator('#broadcast-info').innerText(),/Shaheen/);
+  await page.locator('.broadcast-candidate .vote-btn').first().click();
+  await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
+  assert.equal(recordedChallengeVotes,1,'real featured vote must call backend');
+  assert.equal(mutations.filter(path=>path.includes('/api/challenges/42/votes')).length,1);
+  mutations.length=0;
+  await page.locator('#refresh-challenges').click();
+  await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'live challenges mobile must not overflow');
+  await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
+  await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/training`);
   await page.locator('.training-journal').waitFor();
   assert.equal(await page.locator('.journal-session').count(),3);
