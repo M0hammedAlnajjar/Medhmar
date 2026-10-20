@@ -1638,9 +1638,7 @@ export async function renderRaceParticipants(
                                             <div>
                                               <strong>
                                                 ${escapeHtml(
-                            demo
-                                ? participant.camelName
-                                : `Camel #${participant.camelId}`
+                            participant.camelName || `Camel #${participant.camelId}`
                         )}
                                               </strong>
 
@@ -1658,9 +1656,7 @@ export async function renderRaceParticipants(
                                         <td>
                                           <strong>
                                             ${escapeHtml(
-                            demo
-                                ? participant.registrantName
-                                : `Registrant #${participant.registrantId}`
+                            participant.registrantName || `Registrant #${participant.registrantId}`
                         )}
                                           </strong>
                                         </td>
