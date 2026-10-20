@@ -844,3 +844,189 @@
 .admin-console .admin-system-unavailable p{font-size:13px;color:#755546;line-height:1.6}
 .admin-console .admin-system-note{font-size:12px;line-height:1.6;color:#85776a;margin:21px 0 0}
 @media(max-width:750px){.admin-console .admin-system-hero{padding:23px;align-items:flex-start;flex-direction:column}.admin-console .admin-system-grid{grid-template-columns:1fr}.admin-console .admin-system-panel{padding:16px}}
+
+
+/* Challenges reference layout: compact metrics, tabs and directory left, editor right.
+   Scoped so Organizations, Users and the main Admin dashboard remain unchanged. */
+.admin-console:has(.mhch-page){background:#faf9f7}
+.admin-console:has(.mhch-page) .admin-topbar{height:52px;min-height:52px;padding-top:6px;padding-bottom:6px}
+.admin-console:has(.mhch-page) .admin-main{padding:9px 23px 28px}
+.admin-console .mhch-page{color:#211a18;min-width:0;width:100%;font-size:14px}
+.admin-console .mhch-page h1,.admin-console .mhch-page h2,.admin-console .mhch-page h3{font-family:Inter,"Segoe UI",Arial,sans-serif;letter-spacing:-.03em}
+.admin-console .mhch-heading{padding:2px 0 0;margin:0 0 16px}
+.admin-console .mhch-heading h1{margin:0 0 5px;color:#171717;font-size:38px;line-height:1.1;font-weight:800}
+.admin-console .mhch-heading p{margin:0;color:#716b69;font-size:15px;line-height:1.45}
+.admin-console .mhch-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;min-height:85px;background:#fff;border:1px solid #ece0d8;border-radius:10px;box-shadow:0 3px 14px #39251806;padding:18px 14px;margin-bottom:17px}
+.admin-console .mhch-metric{display:flex;align-items:center;min-width:0;gap:20px;padding:0 17px;border-right:1px solid #eee4dc}
+.admin-console .mhch-metric:last-child{border-right:0}
+.admin-console .mhch-metric-icon{width:45px;height:45px;flex-shrink:0;display:grid;place-items:center;background:#f7f0e8;border-radius:14px;color:#7b3d19}
+.admin-console .mhch-metric-green{background:#eaf6ed;color:#116b2c}
+.admin-console .mhch-metric>div:last-child{min-width:0;display:flex;flex-direction:column;gap:3px}
+.admin-console .mhch-metric span{font-size:13px;color:#434858;line-height:1.3;font-weight:500}
+.admin-console .mhch-metric strong{color:#151515;font-size:23px;line-height:1.25;font-weight:800;font-variant-numeric:tabular-nums}
+.admin-console .mhch-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(360px,1fr);align-items:start;gap:16px}
+.admin-console .mhch-directory,.admin-console .mhch-new{min-width:0;background:#fff;border:1px solid #eae2dc;border-radius:11px;box-shadow:0 3px 12px #34251b09}
+.admin-console .mhch-directory{padding:18px 23px 15px}
+.admin-console .mhch-list-tools{display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:1px solid #eee6df;padding:0 0 13px;margin-bottom:18px;min-width:0}
+.admin-console .mhch-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:15px;min-width:0}
+.admin-console .mhch-tabs button{display:inline-flex;align-items:center;gap:8px;position:relative;border:0;background:transparent;color:#485061;padding:8px 7px 12px;font-size:14px;font-weight:550;cursor:pointer;white-space:nowrap}
+.admin-console .mhch-tabs button[aria-selected="true"]{color:#c20730;font-weight:800}
+.admin-console .mhch-tabs button[aria-selected="true"]:after{content:"";position:absolute;height:4px;bottom:-14px;left:2px;right:2px;background:#c20730;border-radius:4px 4px 0 0}
+.admin-console .mhch-tabs button span{display:grid;place-items:center;min-width:26px;height:25px;padding:0 7px;border-radius:50px;background:#f0f0f1;color:#52535d;font-size:12px;font-weight:700}
+.admin-console .mhch-tabs button[aria-selected="true"] span{color:#b50b2e;background:#fbe9ee}
+.admin-console .mhch-search{height:38px;width:231px;max-width:42%;position:relative;flex-shrink:0;display:flex;align-items:center}
+.admin-console .mhch-search svg{position:absolute;left:13px;width:18px;height:18px;color:#535666;pointer-events:none}
+.admin-console .mhch-search input{height:38px;width:100%;min-width:0;border:1px solid #e2d8d1;border-radius:7px;background:#fff;padding:9px 10px 9px 37px;font:inherit;font-size:12px;color:#30251f}
+.admin-console .mhch-search input::placeholder{color:#999393}
+.admin-console .mhch-list{display:grid;gap:15px}
+.admin-console .mhch-card{background:#fff;border:1px solid #eadfd7;border-radius:10px;padding:16px 14px 17px;min-width:0;box-shadow:none}
+.admin-console .mhch-card[hidden],.admin-console .mhch-no-match[hidden]{display:none!important}
+.admin-console .mhch-card-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+.admin-console .mhch-card-overline{display:block;color:#717072;font-weight:800;letter-spacing:.028em;font-size:11px;margin:1px 0 5px}
+.admin-console .mhch-card-heading h3{color:#171717;font-size:20px;font-weight:850;line-height:1.25;margin:0;overflow-wrap:anywhere}
+.admin-console .mhch-status{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:30px;white-space:nowrap;font-size:12px;font-weight:750}
+.admin-console .mhch-status>span{display:inline-block;width:8px;height:8px;background:currentColor;border-radius:100%}
+.admin-console .mhch-status-open{color:#13752f;background:#e9f8ed}
+.admin-console .mhch-status-draft{color:#965714;background:#fff1e1}
+.admin-console .mhch-status-closed{color:#ba3042;background:#f9e8e9}
+.admin-console .mhch-duo{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
+.admin-console .mhch-camel{min-width:0;overflow:hidden;border:1px solid #ece4dd;border-radius:11px;background:#fff}
+.admin-console .mhch-camel-picture{width:100%;height:221px;background:#f2ede6;overflow:hidden}
+.admin-console .mhch-camel-picture>img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 36%}
+.admin-console .mhch-camel-caption{display:grid;gap:3px;text-align:center;background:#fff;padding:9px 8px;min-height:55px}
+.admin-console .mhch-camel-caption strong{font-size:14px;color:#1e1c1c;font-weight:800;overflow-wrap:anywhere}
+.admin-console .mhch-camel-caption span{font-size:12px;color:#81736f}
+.admin-console .mhch-photo-placeholder{display:grid;place-content:center;justify-items:center;gap:8px;height:100%;padding:18px;background:#f9f1e8;color:#897060;font-size:12px;text-align:center}
+.admin-console .mhch-photo-placeholder img{width:66px;height:66px;object-fit:contain;opacity:.5}
+.admin-console .mhch-vs{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:1;display:grid;place-items:center;height:61px;width:61px;border-radius:50%;background:#fff;color:#382016;border:4px solid #fff;box-shadow:0 0 0 2px #d8c5b4;font-weight:850;font-size:17px}
+.admin-console .mhch-card-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:14px 0;border-top:1px solid #ece3da;border-bottom:1px solid #ece3da;margin:15px 0 0;gap:0}
+.admin-console .mhch-card-stats>div{display:flex;gap:12px;min-width:0;align-items:flex-start;padding:0 14px;border-right:1px solid #ebdfd7;color:#85502c}
+.admin-console .mhch-card-stats>div:first-child{padding-left:3px}
+.admin-console .mhch-card-stats>div:last-child{border-right:0}
+.admin-console .mhch-card-stats svg{flex:none;width:25px;height:25px;margin-top:3px}
+.admin-console .mhch-card-stats dt{color:#858080;font-size:12px;line-height:1.25}
+.admin-console .mhch-card-stats dd{color:#25201d;font-size:12px;font-weight:800;line-height:1.45;margin:0;overflow-wrap:anywhere}
+.admin-console .mhch-card-stats small{font-size:11px;color:#817b76;white-space:normal}
+.admin-console .mhch-card-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-top:13px}
+.admin-console .mhch-card-footer>p{display:flex;align-items:center;gap:9px;margin:0;color:#7e7774;font-size:12px;flex:1 1 240px}
+.admin-console .mhch-card-footer>p svg{width:18px;height:18px;flex-shrink:0;color:#8a4a21}
+.admin-console .mhch-card-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.admin-console .mhch-details{position:relative}
+.admin-console .mhch-details>summary,.admin-console .mhch-outline-danger{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 19px;border:1px solid #e0d5cb;border-radius:7px;background:#fff;font-size:13px;color:#312b28;font-weight:650;cursor:pointer;list-style:none;white-space:nowrap}
+.admin-console .mhch-details>summary::-webkit-details-marker{display:none}
+.admin-console .mhch-outline-danger{border-color:#c90831;color:#be0c32;font-weight:750}
+.admin-console .mhch-outline-danger:hover{background:#fff4f5}
+.admin-console .mhch-details[open] .mhch-details-content{position:absolute;top:calc(100% + 9px);right:0;z-index:5;min-width:245px;width:max-content;max-width:min(350px,80vw);padding:16px;background:#fff;border:1px solid #e7d9ce;border-radius:8px;box-shadow:0 12px 28px #30211525;line-height:1.5}
+.admin-console .mhch-details-content p{margin:0 0 8px;color:#453b35;font-size:12px}
+.admin-console .mhch-details-content ul{margin:0;padding-left:17px;color:#574538;font-size:12px}
+.admin-console .mhch-draft-tools{display:grid;align-items:start;gap:12px;margin-top:15px;padding-top:14px;border-top:1px solid #f1e6dd}
+.admin-console .mhch-draft-tools .admin-module-edit{margin:0}
+.admin-console .mhch-draft-tools .admin-module-camel-form{margin:0}
+.admin-console .mhch-draft-tools>.admin-module-button{justify-self:start}
+.admin-console .mhch-empty,.admin-console .mhch-no-match{font-size:13px;color:#80766f;text-align:center;padding:34px 12px}
+.admin-console .mhch-pager{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:17px;color:#787579;font-size:12px}
+.admin-console .mhch-pager>div{display:flex;align-items:center;gap:8px}
+.admin-console .mhch-pager a,.admin-console .mhch-pager .is-current,.admin-console .mhch-pager .is-disabled{min-width:30px;height:30px;display:grid;place-items:center;border-radius:6px;text-decoration:none;background:#f5f4f3;color:#68636b;font-size:21px}
+.admin-console .mhch-pager .is-current{background:#c6092e;color:#fff;font-weight:800;font-size:13px}
+.admin-console .mhch-pager .is-disabled{opacity:.5}
+.admin-console .mhch-new{padding:20px 21px 25px;position:sticky;top:66px;min-height:680px}
+.admin-console .mhch-new h2{margin:0 0 6px;color:#1a1a1a;font-size:21px;font-weight:850;line-height:1.3}
+.admin-console .mhch-new-subtitle{font-size:14px;color:#898180;margin:0 0 26px}
+.admin-console .mhch-steps{display:flex;justify-content:space-between;align-items:center;list-style:none;padding:0;margin:0 0 34px;gap:8px}
+.admin-console .mhch-steps li{display:flex;align-items:center;gap:9px;flex:1;min-width:0;white-space:nowrap;color:#8a8181}
+.admin-console .mhch-steps li:not(:last-child):after{content:"";height:1px;background:#e5d7ce;flex:1;min-width:8px}
+.admin-console .mhch-steps li>span{width:35px;height:35px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;background:#f0efee;color:#5a5553;font-weight:800}
+.admin-console .mhch-steps li.is-active>span{background:#c90b32;color:#fff}
+.admin-console .mhch-steps strong{font-size:13px;font-weight:550}
+.admin-console .mhch-steps .is-active strong{color:#c40831;font-weight:750}
+.admin-console .mhch-form{display:grid;gap:25px}
+.admin-console .mhch-form>label{display:grid;gap:8px;color:#24201f;font-size:13px;font-weight:750}
+.admin-console .mhch-form input{font:inherit;font-size:13px;font-weight:450;color:#332822;width:100%;height:45px;min-width:0;padding:10px 13px;border:1px solid #dacfc8;border-radius:8px;background:#fff}
+.admin-console .mhch-form input::placeholder{color:#a8a3a2}
+.admin-console .mhch-form fieldset{border:0;margin:0;padding:0;min-width:0}
+.admin-console .mhch-form legend{padding:0;margin:0 0 9px;font-size:13px;font-weight:750;color:#29201c}
+.admin-console .mhch-datetime{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:12px}
+.admin-console .mhch-form input[type="date"],.admin-console .mhch-form input[type="time"]{color:#4e4845;min-width:0}
+.admin-console .mhch-timezone-note{color:#807974;font-size:12px;margin:-15px 0 0}
+.admin-console .mhch-form .admin-module-form-error{margin:-10px 0 0}
+.admin-console .mhch-save{width:100%;min-height:46px;background:#bf0830;color:white;border:0;border-radius:6px;font-size:14px;font-weight:750;cursor:pointer;margin-top:1px}
+.admin-console .mhch-save:hover{background:#a8072b}
+.admin-console .mhch-save:disabled{opacity:.6;cursor:not-allowed}
+.admin-console .mhch-next{display:flex;align-items:center;gap:14px;margin-top:21px;background:#f7efe7;border-radius:7px;padding:18px 16px;min-height:60px;color:#865024}
+.admin-console .mhch-next svg{flex-shrink:0;width:25px;height:25px}
+.admin-console .mhch-next p{font-size:12px;color:#694021;line-height:1.5;margin:0}
+.admin-console .mhch-page-note{color:#84766b;font-size:12px;margin:13px 2px}
+.admin-console .mhch-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.admin-console .mhch-form :is(input,button):focus-visible,.admin-console .mhch-search input:focus-visible,.admin-console .mhch-tabs button:focus-visible{outline:2px solid #c6092e;outline-offset:2px}
+@media(max-width:1380px){
+ .admin-console .mhch-metric{gap:12px;padding:0 10px}
+ .admin-console .mhch-layout{grid-template-columns:minmax(0,1.65fr) minmax(325px,1fr)}
+ .admin-console .mhch-directory{padding:16px}
+ .admin-console .mhch-card-stats>div{gap:7px;padding:0 8px}
+ .admin-console .mhch-tabs{gap:5px}
+}
+@media(max-width:1180px){
+ .admin-console .mhch-layout{grid-template-columns:minmax(0,1fr)}
+ .admin-console .mhch-new{position:static;min-height:0;grid-row:1}
+ .admin-console .mhch-directory{grid-row:2}
+ .admin-console .mhch-form{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+ .admin-console .mhch-form>label:first-child{grid-column:1/-1}
+ .admin-console .mhch-new-subtitle{margin-bottom:18px}
+ .admin-console .mhch-steps{margin-bottom:24px}
+ .admin-console .mhch-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .admin-console .mhch-metric:nth-child(2){border-right:0}
+}
+@media(max-width:700px){
+ .admin-console:has(.mhch-page) .admin-main{padding:12px 13px 28px}
+ .admin-console .mhch-heading h1{font-size:30px}
+ .admin-console .mhch-metrics{padding:12px;gap:8px}
+ .admin-console .mhch-metric{padding:7px;gap:9px}
+ .admin-console .mhch-metric-icon{width:37px;height:37px}
+ .admin-console .mhch-metric-icon svg{width:19px;height:19px}
+ .admin-console .mhch-metric span{font-size:11px}
+ .admin-console .mhch-metric strong{font-size:18px}
+ .admin-console .mhch-directory,.admin-console .mhch-new{padding:15px}
+ .admin-console .mhch-form{grid-template-columns:1fr}
+ .admin-console .mhch-form>label:first-child{grid-column:auto}
+ .admin-console .mhch-list-tools{align-items:stretch;flex-direction:column;gap:10px}
+ .admin-console .mhch-search{width:100%;max-width:none}
+ .admin-console .mhch-tabs{justify-content:space-between}
+ .admin-console .mhch-tabs button{font-size:12px;gap:5px;padding:8px 4px}
+ .admin-console .mhch-tabs button[aria-selected="true"]:after{bottom:-9px}
+ .admin-console .mhch-card-heading h3{font-size:17px}
+ .admin-console .mhch-camel-picture{height:165px}
+ .admin-console .mhch-vs{height:48px;width:48px;font-size:14px}
+ .admin-console .mhch-card-stats{grid-template-columns:1fr;gap:10px}
+ .admin-console .mhch-card-stats>div{border-right:0;padding:0}
+ .admin-console .mhch-card-footer{align-items:flex-start}
+}
+@media(max-width:390px){
+ .admin-console .mhch-duo{gap:7px}
+ .admin-console .mhch-camel-picture{height:136px}
+ .admin-console .mhch-camel-caption strong{font-size:12px}
+ .admin-console .mhch-camel-caption span{font-size:10px}
+ .admin-console .mhch-datetime{grid-template-columns:1fr}
+ .admin-console .mhch-steps li{gap:5px}
+ .admin-console .mhch-steps strong{font-size:11px}
+ .admin-console .mhch-steps li>span{width:28px;height:28px}
+}
+
+
+/* Reference header details, isolated to the Challenges workspace. */
+@media(min-width:871px){
+ .admin-console:has(.mhch-page){grid-template-columns:206px minmax(0,1fr)}
+ .admin-console:has(.mhch-page) .admin-sidebar{padding-left:10px;padding-right:10px}
+ .admin-console:has(.mhch-page) .admin-sidebar-nav a{min-height:52px;padding:0 12px;gap:10px;font-size:13px}
+ .admin-console:has(.mhch-page) .admin-nav-icon,
+ .admin-console:has(.mhch-page) .admin-nav-icon svg{width:25px;height:25px}
+}
+.admin-console .mhch-breadcrumb-home{display:flex;align-items:center;color:#7c7c7c}
+.admin-console .mhch-topbar-location{margin-left:auto;display:flex;align-items:center;gap:8px;color:#353237;white-space:nowrap;font-size:13px;font-weight:500}
+.admin-console:has(.mhch-page) .admin-user-chip{border-left:1px solid #e9e4e1;padding-left:20px}
+.admin-console:has(.mhch-page) .admin-user-avatar{background:#75472e;color:white;width:34px;height:34px;font-size:16px}
+.admin-console .mhch-topbar-admin{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
+.admin-console .mhch-topbar-admin strong{font-size:13px}
+@media(max-width:870px){
+ .admin-console .mhch-topbar-location{display:none}
+ .admin-console .mhch-breadcrumb-home{display:none}
+}
