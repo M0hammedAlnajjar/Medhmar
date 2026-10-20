@@ -858,9 +858,7 @@ export async function renderOrganizerDashboard(container, user) {
                 <h1>Organizer Dashboard</h1>
                 <p>Manage your races, registrations, and results.</p>
               </div>
-              <button type="button" class="medhmar-view-race" data-create-race>
-                + Create Race
-              </button>
+              <span class="medhmar-form-note">New races are created by administrators.</span>
             </div>
 
             <div class="medhmar-organizer-stats">
@@ -1075,11 +1073,11 @@ function racePayload(form) {
 }
 
 export async function renderCreateRace(container, user) {
-    if (!userIsOrganizer(user)) {
+    if (!userIsAdmin(user)) {
         pageState(
             container,
-            "Organizer Access Required",
-            "Only organizers and administrators can create races."
+            "Administrator Access Required",
+            "Only administrators can create races."
         );
         return;
     }
@@ -1218,8 +1216,8 @@ export async function renderManageRace(container, raceId, user) {
             <section class="medhmar-workflow-card">
               <div class="medhmar-participants-card-head">
                 <div>
-                  <h2>Registration Decisions</h2>
-                  <p>${pending.length} pending entr${pending.length === 1 ? "y" : "ies"}.</p>
+                  <h2>Registration Requests</h2>
+                  <p>${pending.length} pending entr${pending.length === 1 ? "y" : "ies"}. Administrators approve or reject requests.</p>
                 </div>
               </div>
 
@@ -1247,7 +1245,7 @@ export async function renderManageRace(container, raceId, user) {
                             </span>
                           </td>
                           <td>
-                            ${String(entry.entryStatus).toUpperCase() === "PENDING" ? `
+                            ${userIsAdmin(user) && String(entry.entryStatus).toUpperCase() === "PENDING" ? `
                               <div class="medhmar-row-actions">
                                 <button
                                   type="button"
