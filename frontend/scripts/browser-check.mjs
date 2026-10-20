@@ -128,6 +128,26 @@ try {
   assert.ok(desktopReferenceGeometry.overflow<=desktopReferenceGeometry.viewport+1,
     'Challenges widescreen must not overflow: '+JSON.stringify(desktopReferenceGeometry));
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
+  // The public Challenges content can be wide, but its navbar must be identical to Home.
+  const headerBounds=()=>page.evaluate(()=>{
+    const selectors=['.topbar','.topbar-inner','.brand-wordmark','.nav-desktop','.nav-actions'];
+    return Object.fromEntries(selectors.map(selector=>{
+      const box=document.querySelector(selector)?.getBoundingClientRect();
+      return [selector,box?{x:box.x,y:box.y,width:box.width,height:box.height}:null];
+    }));
+  });
+  const challengeHeaderDesktop=await headerBounds();
+  await page.goto('http://127.0.0.1:'+port+'/home');
+  await page.locator('.topbar-inner').waitFor();
+  const homeHeaderDesktop=await headerBounds();
+  for(const selector of Object.keys(homeHeaderDesktop))for(const key of ['x','y','width','height']){
+    assert.ok(Math.abs(challengeHeaderDesktop[selector][key]-homeHeaderDesktop[selector][key])<1.1,
+      'Challenges navbar must match Home at 1920px: '+selector+'.'+key+
+      ' '+challengeHeaderDesktop[selector][key]+' vs '+homeHeaderDesktop[selector][key]);
+  }
+  await page.goto('http://127.0.0.1:'+port+'/challenges');
+  await page.locator('.broadcast-live-data').waitFor();
+
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
   const mobileLayout=await page.evaluate(()=>({
@@ -142,6 +162,16 @@ try {
   }));
   assert.ok(mobileLayout.document<=mobileLayout.viewport+1,'live challenges mobile must not overflow: '+JSON.stringify(mobileLayout));
   await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
+  const challengeHeaderMobile=await headerBounds();
+  await page.goto('http://127.0.0.1:'+port+'/home');
+  await page.locator('.topbar-inner').waitFor();
+  const homeHeaderMobile=await headerBounds();
+  for(const selector of Object.keys(homeHeaderMobile))for(const key of ['x','y','width','height']){
+    assert.ok(Math.abs(challengeHeaderMobile[selector][key]-homeHeaderMobile[selector][key])<1.1,
+      'Challenges navbar must match Home at 390px: '+selector+'.'+key+
+      ' '+challengeHeaderMobile[selector][key]+' vs '+homeHeaderMobile[selector][key]);
+  }
+
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://localhost:${port}/training`);
   await page.locator('.training-journal').waitFor();
