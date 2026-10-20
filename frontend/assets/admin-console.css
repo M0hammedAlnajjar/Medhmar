@@ -758,3 +758,35 @@
 .admin-console .admin-module-form input:focus-visible,.admin-console .admin-module-form select:focus-visible,.admin-console .admin-module-create summary:focus-visible,.admin-console .admin-module-item button:focus-visible{outline:2px solid #bd0a2d;outline-offset:2px}
 @media(max-width:1100px){.admin-console .admin-module-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.admin-console .admin-module-hero{padding:24px;align-items:flex-start;flex-direction:column}.admin-console .admin-module-panel{padding:13px}.admin-console .admin-module-form,.admin-console .admin-module-facts{grid-template-columns:1fr}.admin-console .admin-module-item{padding:13px}.admin-console .admin-module-item-top{flex-wrap:wrap}.admin-console .admin-module-camel-form label{flex:1;min-width:0}}
+
+
+/* ADMIN-only health workspace: no fake uptime statuses or client-supplied counts. */
+.admin-console .admin-system-hero{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  padding:30px 32px;border-radius:14px;margin:20px 0 18px;
+  background:linear-gradient(120deg,#38271f,#8b5339);color:#fff;min-height:166px;
+}
+.admin-console .admin-system-eyebrow{display:block;color:#e9bb8b;font-size:11px;font-weight:850;letter-spacing:.12em}
+.admin-console .admin-system-hero h1{margin:12px 0 8px;font-size:clamp(27px,3vw,37px);line-height:1.2;color:#fff}
+.admin-console .admin-system-hero p{margin:0;font-size:13px;color:#f6e2d3}
+.admin-console .admin-system-refresh{border:1px solid #ffffff77;background:#ffffff12;color:white;padding:12px 18px;border-radius:9px;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:750}
+.admin-console .admin-system-refresh:hover{background:#ffffff24}
+.admin-console .admin-system-refresh:focus-visible{outline:3px solid #f4c179;outline-offset:3px}
+.admin-console .admin-system-panel{background:white;border:1px solid #eaded3;border-radius:14px;padding:25px;box-shadow:0 8px 18px #2b140a0b}
+.admin-console .admin-system-panel-top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.admin-console .admin-system-panel-top h2{margin:0 0 5px;color:#342319;font-size:21px}
+.admin-console .admin-system-panel-top p{margin:0;color:#867569;font-size:12px}
+.admin-console .admin-system-checked{color:#897b70;font-size:12px}
+.admin-console .admin-system-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.admin-console .admin-system-card{border:1px solid #e9dfd7;background:#fcfaf7;border-radius:12px;padding:23px;min-width:0}
+.admin-console .admin-system-label{display:block;font-size:13px;color:#6d5747;font-weight:750;margin-bottom:16px}
+.admin-console .admin-system-count{display:block;color:#2e2018;font-size:34px;font-weight:850;font-variant-numeric:tabular-nums}
+.admin-console .admin-system-card p{margin:14px 0 0;color:#85756a;font-size:12px;line-height:1.6}
+.admin-console .admin-health-state{display:inline-flex;align-items:center;border-radius:999px;padding:8px 13px;font-size:13px;font-weight:800}
+.admin-console .admin-health-state-ok{background:#e5f6ea;color:#176e41}
+.admin-console .admin-health-state-down{background:#ffebe9;color:#a42331}
+.admin-console .admin-system-unavailable{padding:27px;border:1px solid #e9b9a6;border-radius:10px;background:#fff6f2}
+.admin-console .admin-system-unavailable h2{font-size:18px;color:#713c2a;margin:0 0 8px}
+.admin-console .admin-system-unavailable p{font-size:13px;color:#755546;line-height:1.6}
+.admin-console .admin-system-note{font-size:12px;line-height:1.6;color:#85776a;margin:21px 0 0}
+@media(max-width:750px){.admin-console .admin-system-hero{padding:23px;align-items:flex-start;flex-direction:column}.admin-console .admin-system-grid{grid-template-columns:1fr}.admin-console .admin-system-panel{padding:16px}}
