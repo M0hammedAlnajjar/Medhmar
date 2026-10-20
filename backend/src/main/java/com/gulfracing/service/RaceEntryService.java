@@ -100,7 +100,7 @@ public class RaceEntryService {
             throw ApiException.badRequest("Decision must be ACCEPTED or REJECTED.");
         }
         var entry = lockedEntry(id);
-        requireOrganizer(entry.getRace(), actorId);
+        requireAdmin(actorId);
         if (entry.getEntryStatus() != RaceEntryStatus.PENDING) {
             throw ApiException.conflict("Only pending entries can be decided.");
         }
