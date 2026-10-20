@@ -2,6 +2,7 @@ package com.gulfracing.controller;
 
 import com.gulfracing.dto.RaceEntryDTO;
 import com.gulfracing.dto.RaceEntryRequests;
+import com.gulfracing.dto.RaceParticipantDTO;
 import com.gulfracing.security.AccountAccess;
 import com.gulfracing.service.RaceEntryService;
 import jakarta.validation.Valid;
@@ -44,9 +45,11 @@ public class RaceEntryController {
     }
 
     @GetMapping("/race/{raceId}/participants")
-    public List<RaceEntryDTO> publicParticipants(@PathVariable Long raceId) {
-        return RaceEntryDTO.convertToDTO(
-                raceEntryService.publicParticipants(raceId));
+    public List<RaceParticipantDTO> publicParticipants(@PathVariable Long raceId) {
+        return raceEntryService.publicParticipants(raceId)
+                .stream()
+                .map(RaceParticipantDTO::from)
+                .toList();
     }
 
     @GetMapping("/{id}")
