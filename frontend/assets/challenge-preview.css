@@ -157,8 +157,8 @@
 @media(prefers-reduced-motion:reduce){.broadcast-preview *,.broadcast-published *{scroll-behavior:auto}}
 
 
-/* Reference fidelity pass: reserve near-full desktop width for public Challenges only.
-   Previous global --max:1380px produced ~300px unused side gutters at 1920px. */
+/* Reference fidelity pass: keep the Challenges CONTENT near full width only.
+   The shared topbar retains the exact Home page container and responsive geometry. */
 .app-shell:has(.broadcast-preview){background:
  radial-gradient(ellipse 65% 360px at 0% 13%,rgba(206,171,130,.20),transparent 85%),
  radial-gradient(ellipse 60% 360px at 100% 10%,rgba(211,184,151,.22),transparent 86%),
@@ -168,10 +168,6 @@
  width:100%;
  padding:13px clamp(20px,4.25vw,82px) 65px;
  margin-inline:auto;
-}
-.app-shell:has(.broadcast-preview) .topbar-inner{
- max-width:none;
- padding-inline:clamp(20px,4.25vw,82px);
 }
 .app-shell:has(.broadcast-preview) .broadcast-grid{
  grid-template-columns:minmax(0,2.16fr) minmax(345px,1fr);
@@ -253,7 +249,6 @@
 .app-shell:has(.broadcast-preview) .broadcast-published-placeholder p{font-size:13px;line-height:1.6;margin:0;max-width:350px}
 @media(max-width:1250px){
  .app-shell:has(.broadcast-preview) .main{padding-inline:clamp(17px,3vw,40px)}
- .app-shell:has(.broadcast-preview) .topbar-inner{padding-inline:clamp(17px,3vw,40px)}
  .app-shell:has(.broadcast-preview) .broadcast-grid{
   grid-template-columns:minmax(0,1.7fr) minmax(305px,1fr);
  }
@@ -279,7 +274,6 @@
 }
 @media(max-width:660px){
  .app-shell:has(.broadcast-preview) .main{padding:12px 15px 45px}
- .app-shell:has(.broadcast-preview) .topbar-inner{padding-inline:12px}
  .app-shell:has(.broadcast-preview) .broadcast-player{
   aspect-ratio:auto;width:100%;height:clamp(395px,112vw,500px);
   min-height:0;
