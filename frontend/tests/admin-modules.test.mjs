@@ -34,6 +34,34 @@ test('challenges show real draft with safe data and backend-supported actions',(
  const closed=adminChallengesView({data:page([{...draft,status:'CLOSED',camels:[]}])});
  assert.doesNotMatch(closed,/data-admin-challenge-action="open"|data-admin-challenge-action="close"/);
 });
+test('challenge UI renders the three-stage lifecycle and Muscat dates',()=>{
+ const html=adminChallengesView({data:page([draft])});
+ assert.match(html,/Challenge management|MEDHMAR|Challenge directory/);
+ assert.match(html,/Details<\/span>|Camels<\/span>|Publish<\/span>/);
+ assert.match(html,/admin-challenge-step is-current/);
+ assert.match(html,/2030-01-01T13:00/);
+ assert.match(html,/01 Jan 2030|Jan 2030/);
+ assert.match(html,/Muscat|UTC\+04:00/);
+ assert.match(html,/id="admin-challenge-search"/);
+ assert.match(html,/id="admin-challenge-status"/);
+ assert.match(html,/data-challenge-status="DRAFT"/);
+ assert.match(html,/Search and status filters apply to this loaded page/);
+});
+test('live camel portraits and vote counts render without introducing unsafe sources or example data',()=>{
+ const c={...draft,status:'OPEN',totalVotes:5,camels:[
+   {camelId:33,name:'Al Barq',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:3,votePercent:60},
+   {camelId:34,name:'<Camel>',photoUrl:'javascript:alert(1)',voteCount:2,votePercent:40}
+ ]};
+ const html=adminChallengesView({data:page([c])});
+ assert.match(html,/admin-challenge-portrait/);
+ assert.match(html,/src="\/assets\/mock-camels\/camel-7.jpg"/);
+ assert.match(html,/3 votes · 60.0%/);
+ assert.match(html,/2 votes · 40.0%/);
+ assert.match(html,/&lt;Camel&gt;/);
+ assert.doesNotMatch(html,/javascript:alert|<Camel>/);
+ assert.match(html,/No photo available/);
+ assert.doesNotMatch(html,/data-admin-challenge-action="open"/);
+});
 test('organizations can be edited, status managed and input safely escaped',()=>{
  const html=adminOrganizationsView({data:page([org])});
  assert.match(html,/Test Club|INACTIVE|Add organization|Edit organization & status/);

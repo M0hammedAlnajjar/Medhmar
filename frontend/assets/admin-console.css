@@ -760,6 +760,60 @@
 @media(max-width:700px){.admin-console .admin-module-hero{padding:24px;align-items:flex-start;flex-direction:column}.admin-console .admin-module-panel{padding:13px}.admin-console .admin-module-form,.admin-console .admin-module-facts{grid-template-columns:1fr}.admin-console .admin-module-item{padding:13px}.admin-console .admin-module-item-top{flex-wrap:wrap}.admin-console .admin-module-camel-form label{flex:1;min-width:0}}
 
 
+/* Challenges management: approved Medhmar visual flow. All records come from the API. */
+.admin-console .admin-challenge-hero{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(115deg,#3c261c 0%,#673e2b 70%,#9a6341 100%);min-height:190px}
+.admin-console .admin-challenge-hero>div:first-child{position:relative;z-index:1;max-width:630px}
+.admin-console .admin-challenge-hero-caption{display:inline-block;color:#f1cfab;font-size:11px;font-weight:650;margin-top:15px}
+.admin-console .admin-challenge-hero-mark{display:flex;align-items:center;justify-content:center;width:175px;height:110px;flex-shrink:0;opacity:.95}
+.admin-console .admin-challenge-hero-mark img{max-width:100%;max-height:100%;object-fit:contain}
+.admin-console .admin-challenge-panel{padding:clamp(16px,2.5vw,28px)}
+.admin-console .admin-challenge-kicker{font-size:10px;font-weight:800;color:#a17555;letter-spacing:.16em;display:block;margin:0 0 6px}
+.admin-console .admin-challenge-create{background:#fdfaf6;border-color:#dbc5ae}
+.admin-console .admin-challenge-create>summary{background:#f5eadc;color:#583423;border-radius:10px}
+.admin-console .admin-challenge-create-intro{padding:16px 17px 3px}
+.admin-console .admin-challenge-create-intro strong{display:block;color:#352319;font-size:15px}
+.admin-console .admin-challenge-create-intro p{margin:6px 0;color:#7a6556;font-size:12px;line-height:1.5}
+.admin-console .admin-challenge-create>.admin-challenge-steps{margin:12px 17px 16px}
+.admin-console .admin-challenge-steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 18px;padding:0}
+.admin-console .admin-challenge-step{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:750;color:#99887a;min-width:0}
+.admin-console .admin-challenge-step-number{display:grid;place-items:center;flex-shrink:0;width:27px;height:27px;border-radius:50%;background:#ece6df;color:#806c5e;font-size:12px}
+.admin-console .admin-challenge-step.is-complete{color:#287044}
+.admin-console .admin-challenge-step.is-complete .admin-challenge-step-number{background:#e5f5e9;color:#287044}
+.admin-console .admin-challenge-step.is-current{color:#9e1835}
+.admin-console .admin-challenge-step.is-current .admin-challenge-step-number{background:#bd0a2d;color:#fff}
+.admin-console .admin-challenge-toolbar{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:25px 0 18px;padding:14px;background:#faf6f1;border:1px solid #eee0d3;border-radius:10px}
+.admin-console .admin-challenge-toolbar label{display:grid;gap:6px;font-size:11px;font-weight:750;color:#695348;flex:1 1 170px;min-width:0}
+.admin-console .admin-challenge-toolbar label:first-child{flex:2 1 260px}
+.admin-console .admin-challenge-toolbar input,.admin-console .admin-challenge-toolbar select{width:100%;min-width:0;min-height:41px;background:#fff;border:1px solid #d9c7b6;border-radius:8px;padding:9px 11px;font:inherit;font-size:12px;color:#38281e}
+.admin-console .admin-challenge-visible{font-size:11px;color:#8b7768;padding:8px 0}
+.admin-console .admin-challenge-card{padding:clamp(14px,2vw,23px);border-radius:12px;box-shadow:0 2px 11px #56372308}
+.admin-console .admin-challenge-card[hidden],.admin-console .admin-challenge-no-match[hidden]{display:none}
+.admin-console .admin-challenge-card h3{font-size:clamp(17px,2vw,21px);margin:6px 0 0}
+.admin-console .admin-challenge-content{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(250px,1fr);gap:16px;margin-bottom:12px}
+.admin-console .admin-challenge-camels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.admin-console .admin-challenge-contender{min-width:0;border:1px solid #ecdfd4;border-radius:10px;overflow:hidden;background:#fdfaf7}
+.admin-console .admin-challenge-portrait{height:clamp(130px,13vw,175px);width:100%;background:#f4ede5}
+.admin-console .admin-challenge-portrait>img{display:block;width:100%;height:100%;object-fit:cover}
+.admin-console .admin-challenge-photo-empty{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;width:100%;height:100%;color:#967e6b;font-size:11px}
+.admin-console .admin-challenge-photo-empty img{height:48px;width:48px;opacity:.68;object-fit:contain}
+.admin-console .admin-challenge-contender-info{display:grid;gap:3px;padding:11px}
+.admin-console .admin-challenge-contender-info strong{font-size:13px;overflow-wrap:anywhere;color:#342319}
+.admin-console .admin-challenge-contender-info span,.admin-console .admin-challenge-contender-info small{font-size:11px;color:#806d5e}
+.admin-console .admin-challenge-contender-empty{grid-column:1/-1;display:grid;place-items:center;text-align:center;min-height:164px;padding:18px;border:1px dashed #d8c4b2;border-radius:10px;background:#fbf8f4;color:#8c7667;font-size:12px}
+.admin-console .admin-challenge-facts{grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;margin:0}
+.admin-console .admin-challenge-facts>div{padding:12px}
+.admin-console .admin-challenge-facts dt{font-size:10px}
+.admin-console .admin-challenge-facts dd{font-size:12px;line-height:1.45}
+.admin-console .admin-challenge-card .admin-module-edit{margin-top:15px}
+.admin-console .admin-challenge-card .admin-module-camel-form{margin-top:12px}
+.admin-console .admin-challenge-no-match{font-size:13px;color:#796557;text-align:center;padding:24px 12px;border:1px dashed #e1d3c6;border-radius:9px}
+.admin-console .admin-challenge-page-hint{font-size:11px;color:#8b7d72;margin:12px 0}
+.admin-console .admin-challenge-card .admin-module-item-actions{border-top:1px solid #f0e5dc;padding-top:15px;margin-top:15px}
+.admin-console .admin-challenge-toolbar :is(input,select):focus-visible{outline:2px solid #bd0a2d;outline-offset:2px}
+@media(max-width:1050px){.admin-console .admin-challenge-content{grid-template-columns:1fr}.admin-console .admin-challenge-portrait{height:180px}}
+@media(max-width:700px){.admin-console .admin-challenge-hero-mark{width:110px;height:65px}.admin-console .admin-challenge-toolbar{padding:12px}.admin-console .admin-challenge-camels{gap:7px}.admin-console .admin-challenge-portrait{height:130px}.admin-console .admin-challenge-contender-info{padding:9px}.admin-console .admin-challenge-steps{gap:4px}.admin-console .admin-challenge-step{gap:5px;font-size:10px}.admin-console .admin-challenge-step-number{height:23px;width:23px}}
+@media(max-width:420px){.admin-console .admin-challenge-facts{grid-template-columns:1fr}.admin-console .admin-challenge-camels{grid-template-columns:1fr}.admin-console .admin-challenge-portrait{height:185px}.admin-console .admin-challenge-hero h1{font-size:27px}}
+
 /* ADMIN-only health workspace: no fake uptime statuses or client-supplied counts. */
 .admin-console .admin-system-hero{
   display:flex;justify-content:space-between;align-items:center;gap:20px;
