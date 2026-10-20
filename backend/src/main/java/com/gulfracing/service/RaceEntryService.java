@@ -83,6 +83,15 @@ public class RaceEntryService {
     }
 
     @Transactional(readOnly = true)
+    public List<RaceEntry> publicParticipants(Long raceId) {
+        raceById(raceId);
+        return entries.findByRace_RaceIdAndEntryStatusOrderByParticipantNumberAsc(
+                raceId,
+                RaceEntryStatus.ACCEPTED
+        );
+    }
+
+    @Transactional(readOnly = true)
     public RaceEntry getById(Long id, Long actorId) {
         var entry = entryById(id);
         users.getActive(actorId);
