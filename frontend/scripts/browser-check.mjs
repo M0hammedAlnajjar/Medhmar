@@ -86,6 +86,8 @@ try {
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
   assert.equal(await page.locator('.broadcast-grid').count(),1);
   assert.equal(await page.locator('.broadcast-published-card').count(),1);
+  assert.equal(await page.locator('.broadcast-published-placeholder').count(),1);
+  assert.match(await page.locator('.broadcast-published-placeholder').innerText(),/Only real challenge results/);
   assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
   const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
@@ -109,6 +111,22 @@ try {
   mutations.length=0;
   await page.locator('#refresh-challenges').click();
   await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
+  await page.setViewportSize({width:1920,height:1080});
+  const desktopReferenceGeometry=await page.evaluate(()=>{
+    const grid=document.querySelector('.broadcast-grid').getBoundingClientRect();
+    const hero=document.querySelector('.broadcast-player').getBoundingClientRect();
+    const voting=document.querySelector('.broadcast-voting').getBoundingClientRect();
+    return {viewport:innerWidth,gridWidth:grid.width,left:grid.left,
+      heroWidth:hero.width,votingWidth:voting.width,overflow:document.documentElement.scrollWidth};
+  });
+  assert.ok(desktopReferenceGeometry.gridWidth>=desktopReferenceGeometry.viewport*.85,
+    'Challenges reference must use at least 85% of widescreen: '+JSON.stringify(desktopReferenceGeometry));
+  assert.ok(desktopReferenceGeometry.left<120,
+    'Challenges left gutter should match reference spacing: '+JSON.stringify(desktopReferenceGeometry));
+  assert.ok(desktopReferenceGeometry.heroWidth>=desktopReferenceGeometry.votingWidth*1.95,
+    'Reference hero must be substantially wider than voting panel: '+JSON.stringify(desktopReferenceGeometry));
+  assert.ok(desktopReferenceGeometry.overflow<=desktopReferenceGeometry.viewport+1,
+    'Challenges widescreen must not overflow: '+JSON.stringify(desktopReferenceGeometry));
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
