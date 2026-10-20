@@ -117,6 +117,11 @@ public class ChallengeService {
         return PageResponse.from(challenges.findByStatusIn(List.of(ChallengeStatus.OPEN, ChallengeStatus.CLOSED),
             pageable(page, size)), this::response);
     }
+    // Administrative view includes drafts. Public list() deliberately excludes drafts.
+    @Transactional(readOnly = true)
+    public PageResponse<ChallengeResponse> adminList(int page, int size) {
+        return PageResponse.from(challenges.findAll(pageable(page, size)), this::response);
+    }
     @Transactional(readOnly = true)
     public PageResponse<ChallengeResponse> mine(Long userId, int page, int size) {
         return PageResponse.from(challenges.findByCreator_UserId(userId, pageable(page, size)), this::response);

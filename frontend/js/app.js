@@ -15,9 +15,10 @@ import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs } from './admin-console.js';
+import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
+import { authApi, challengeApi, adminApi, adminModulesApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockCamelId, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
@@ -32,6 +33,8 @@ const state = {
   adminSummary: null,
   adminError: '',
   adminPage: 0,
+  adminModuleData: null,
+  adminModuleError: '',
   adminAuditPageData: null,
   adminAuditDetail: null,
   adminAuditError: '',
@@ -297,6 +300,12 @@ function training(){ return shell(trainingJournal(), '/training'); }
 function admin() {
  if (!canAccessRoute(matchRoute('/admin').route,state.user)) return adminDenied();
  return shell(adminDashboard({user:state.user,summary:state.adminSummary,error:state.adminError}),'/admin');
+}
+function adminChallengesPage() {
+ return shell(adminChallengesView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/challenges');
+}
+function adminOrganizationsPage() {
+ return shell(adminOrganizationsView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/organizations');
 }
 function adminUsersPage() {
  if (!canAccessRoute(matchRoute('/admin/users').route,state.user)) return adminDenied();
@@ -723,7 +732,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
  'Audit Logs':adminAuditListPage,'Audit Log Details':adminAuditDetailPage,
- 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
+ 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Challenges':adminChallengesPage,'Admin Organizations':adminOrganizationsPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
@@ -748,6 +757,8 @@ async function render() {
  state.adminAuditPageData=null;
  state.adminAuditDetail=null;
  state.adminAuditError='';
+ state.adminModuleData=null;
+ state.adminModuleError='';
  $('#modal')?.remove();
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
@@ -839,6 +850,27 @@ async function render() {
      state.adminError='Could not load '+(path==='/admin'?'dashboard':'users')+' data. Please retry.';
     }
    }
+   if(adminRoute&&(path==='/admin/challenges'||path==='/admin/organizations')) {
+     try {
+       const rawPage=new URLSearchParams(location.search).get('page');
+       const page=Math.max(0,Math.min(100000,Number.parseInt(rawPage||'0',10)||0));
+       const data=path==='/admin/challenges'
+         ?await adminModulesApi.challenges(page):await adminModulesApi.organizations(page);
+       if(epoch!==renderEpoch)return;
+       if(!data||!Array.isArray(data.content)||!Number.isInteger(data.totalElements)||
+           !Number.isInteger(data.page)||!Number.isInteger(data.totalPages))
+         throw new Error('Invalid administration directory response.');
+       state.adminModuleData=data;
+     }catch(err){
+       if(epoch!==renderEpoch)return;
+       if(err.status===401)throw err;
+       if(err.status===403) {
+         state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};
+         denyAdminAccess();bind();return;
+       }
+       state.adminModuleError='Unable to load live '+(path==='/admin/challenges'?'challenges':'organizations')+'. Please retry.';
+     }
+   }
    if(adminRoute&&path.startsWith('/admin/audit-logs')) {
      try {
        if(match.route.name==='Audit Logs') {
@@ -869,6 +901,7 @@ async function render() {
    if(epoch!==renderEpoch)return;
    state.adminUsers=null;state.adminPageData=null;state.adminSummary=null;
    state.adminAuditPageData=null;state.adminAuditDetail=null;
+   state.adminModuleData=null;
    if(err.status===401||err.status===403){state.user={...guestUser};denyRoleAccess(match.route);}
    else {
     const body='<section class="card card-pad error"><h2>Account unavailable</h2><p>Unable to verify your session. Please retry.</p><button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>';
@@ -934,6 +967,19 @@ function bind(){
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  bindAdminChartTabs();
  bindAdminUserControls();
+ bindAdminModules(root,{
+   refresh:()=>render(),
+   createChallenge:async payload=>{await adminModulesApi.createChallenge(payload);toast('Challenge draft created.','success');await render();},
+   updateChallenge:async(id,payload)=>{await adminModulesApi.updateChallenge(id,payload);toast('Challenge updated.','success');await render();},
+   addCamel:async(id,camelId)=>{await adminModulesApi.addChallengeCamel(id,camelId);toast('Camel attached to challenge.','success');await render();},
+   transitionChallenge:async(action,id)=>{
+     if(action==='open')await adminModulesApi.openChallenge(id);
+     else await adminModulesApi.closeChallenge(id);
+     toast('Challenge status updated.','success');await render();
+   },
+   createOrganization:async payload=>{await adminModulesApi.createOrganization(payload);toast('Organization created.','success');await render();},
+   updateOrganization:async(id,payload)=>{await adminModulesApi.updateOrganization(id,payload);toast('Organization updated.','success');await render();}
+ });
  $('#admin-audit-filters')?.addEventListener('submit', event => {
    event.preventDefault();
    const values=Object.fromEntries(new FormData(event.currentTarget));

@@ -505,3 +505,25 @@ ownership (or the documented admin override); a fractional share is insufficient
 Prize-share terms are recorded, but prize payouts are outside the current API.
 SMTP retries across application restarts and shared rate limiting across multiple
 servers remain deployment extensions, not requirements for local operation.
+
+
+### Admin challenge & organization management
+
+The administrator workspace includes `/admin/challenges` and `/admin/organizations`
+(routes protected by ADMIN). Server-backed discovery endpoints:
+
+| Method | Path | Access | Notes |
+| --- | --- | --- | --- |
+| GET | /api/admin/challenges?page=0&size=20 | ADMIN | Includes DRAFT, OPEN and CLOSED challenges (public list excludes drafts) |
+| GET | /api/admin/organizations?page=0&size=20 | ADMIN | All organizations including INACTIVE, sorted by name |
+
+Both return `PageResponse` with `content`, `page`, `size`,
+`totalElements` and `totalPages`, and constrain `size` to 1–100.
+Mutations reuse existing business endpoints and validations:
+`POST /api/challenges`, `PUT /api/challenges/{id}`,
+`PUT /api/challenges/{id}/camels/{camelId}`,
+`POST /api/challenges/{id}/open`, `POST /api/challenges/{id}/close`,
+`POST /api/organizations`, and `PUT /api/organizations/{id}`.
+The service enforces draft-only editing, exactly two camels before opening,
+valid opening/closing timestamps, organizer membership, and ADMIN overrides.
+CSRF is sent by the shared authenticated frontend client.

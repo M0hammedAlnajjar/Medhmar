@@ -1,6 +1,9 @@
 package com.gulfracing.service;
 
 import com.gulfracing.dto.OrganizationDtos.*;
+import com.gulfracing.dto.PageResponse;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import com.gulfracing.entity.Organization;
 import com.gulfracing.entity.OrganizationMember;
 import com.gulfracing.enums.OrganizationStatus;
@@ -53,6 +56,13 @@ public class OrganizationService {
     @Transactional(readOnly = true)
     public List<View> list() {
         return organizations.findAllByOrderByNameAsc().stream().map(View::from).toList();
+    }
+
+    // The admin screen pages through organizations instead of loading the full public directory.
+    @Transactional(readOnly = true)
+    public PageResponse<View> adminList(int page, int size) {
+        return PageResponse.from(organizations.findAll(PageRequest.of(page, size,
+            Sort.by(Sort.Order.asc("name"), Sort.Order.asc("organizationId")))), View::from);
     }
 
     @Transactional(readOnly = true)
