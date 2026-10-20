@@ -259,13 +259,19 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
   const load = async () => {
     page.innerHTML = '<div class="admin-race-loading" role="status">Loading race management…</div>';
     try {
-      const [racePage, entries, userPage] = await Promise.all([
+      const [racePage, entries, firstUserPage] = await Promise.all([
         raceApi.getRaces("", "", 0, 100),
         raceEntryApi.getAll(),
         adminApi.users(0)
       ]);
       const races = Array.isArray(racePage) ? racePage : racePage?.content || [];
-      const users = Array.isArray(userPage) ? userPage : userPage?.content || [];
+      const additionalUserPages = Number.isInteger(firstUserPage?.totalPages) && firstUserPage.totalPages > 1
+        ? await Promise.all(Array.from({ length: firstUserPage.totalPages - 1 }, (_, index) => adminApi.users(index + 1)))
+        : [];
+      const users = [
+        ...(Array.isArray(firstUserPage) ? firstUserPage : firstUserPage?.content || []),
+        ...additionalUserPages.flatMap(page => Array.isArray(page) ? page : page?.content || [])
+      ];
       const organizers = users.filter(user => Array.isArray(user.roles) && (user.roles.includes("ORGANIZER") || user.roles.includes("ADMIN")));
       const pending = (entries || []).filter(entry => String(entry.entryStatus).toUpperCase() === "PENDING");
       const camelNames = new Map();
