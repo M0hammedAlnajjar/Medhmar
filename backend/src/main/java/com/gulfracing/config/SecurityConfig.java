@@ -140,6 +140,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/races").hasRole("ADMIN")
                         .requestMatchers("/api/races", "/api/races/**").hasAnyRole("ORGANIZER", "ADMIN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/race-entries/race/*/participants").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/race-entries", "/api/race-entries/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/race-entries").hasAnyRole("OWNER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/race-entries/*").hasRole("ADMIN")
