@@ -25,6 +25,7 @@ export const MOHAMMED_ROUTES = [
   { path: "/admin/settings", name: "Admin Settings", owner: "Mohammed", roles: ["ADMIN"] },
   { path: "/admin/audit-logs", name: "Audit Logs", owner: "auditLog", roles: ["ADMIN"] },
   { path: "/admin/audit-logs/:id", name: "Audit Log Details", owner: "auditLog", roles: ["ADMIN"] },
+  { path: "/admin/races", name: "Admin Races", owner: "Sulaiman", roles: ["ADMIN"] },
   { path: "/admin/termination-requests", name: "Termination Requests", owner: "TerminationRequests", roles: ["ADMIN"] },
   { path: "/pedigree", name: "Pedigree Directory", owner: "Mohammed" },
   { path: "/camels/:id", name: "Pedigree Section", owner: "Mohammed" },
