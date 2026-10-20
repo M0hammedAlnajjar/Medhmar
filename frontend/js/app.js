@@ -18,8 +18,9 @@ import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdmi
 import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
 import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
+import { adminMarketplaceView, bindAdminMarketplace } from './admin-marketplace.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
+import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, adminMarketplaceApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockCamelId, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
@@ -38,6 +39,10 @@ const state = {
   adminModuleError: '',
   adminHealthData: null,
   adminHealthError: '',
+  adminMarketData: null,
+  adminMarketAudit: [],
+  adminMarketError: '',
+  adminMarketAuditError: '',
   adminAuditPageData: null,
   adminAuditDetail: null,
   adminAuditError: '',
@@ -85,18 +90,18 @@ function topbar(active='', compact=false){
   const visiblePaths = compact ? corePaths : primaryDesktopPaths;
   const desktopItems = visiblePaths.map(path => items.find(([p]) => p === path)).filter(Boolean);
   const extraItems = items.filter(([path]) => !visiblePaths.includes(path));
-  const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
+  const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">Ã¢Å’â€ž</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
   const accountActions = signedIn
-    ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">⌄</span></a>`
+    ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">Ã¢Å’â€ž</span></a>`
     : `<a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a><a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a>`;
 
   const searchAction = `<a class="nav-search" href="/races" data-link aria-label="Search races" title="Search races"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg></a>`;
   const language = '<span class="nav-language-single" aria-label="English language">EN</span>';
-  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu"><nav class="nav-mobile-user" aria-label="User pages">${items.map(navLink).join('')}</nav></div></details>`;
+  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">Ã¢ËœÂ°</span></summary><div class="nav-mobile-menu"><nav class="nav-mobile-user" aria-label="User pages">${items.map(navLink).join('')}</nav></div></details>`;
 
   return `<header class="topbar"><div class="topbar-inner">
     ${mobileMenu}
-    <a class="brand brand-wordmark" href="/home" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
+    <a class="brand brand-wordmark" href="/home" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR Ã¢â‚¬â€ Oman Camel Racing"></a>
     <nav class="nav nav-desktop" aria-label="Primary navigation">${desktopItems.map(navLink).join('')}${moreMenu}</nav>
     <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
   </div></header>`;
@@ -124,10 +129,10 @@ function homeFooter() {
     + '<div class="mh-footer-topline" aria-hidden="true"></div>'
     + '<div class="mh-footer-inner">'
     + '<div class="mh-footer-brand">'
-    + '<a href="/home" data-link class="mh-footer-brand-link" aria-label="Medhmar — Home">'
-    + '<img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing" loading="lazy" width="225" height="60"></a>'
+    + '<a href="/home" data-link class="mh-footer-brand-link" aria-label="Medhmar Ã¢â‚¬â€ Home">'
+    + '<img src="/assets/medhmar-logo.svg" alt="MEDHMAR Ã¢â‚¬â€ Oman Camel Racing" loading="lazy" width="225" height="60"></a>'
     + '<h2 id="mh-footer-heading">Where heritage<br><em>moves forward.</em></h2>'
-    + '<p>A home for Oman&#39;s camel racing community — connecting races, champions, traditions and the people behind them.</p>'
+    + '<p>A home for Oman&#39;s camel racing community Ã¢â‚¬â€ connecting races, champions, traditions and the people behind them.</p>'
     + '<a href="/races" data-link class="mh-footer-cta">Explore Races</a>'
     + '</div>'
     + '<nav class="mh-footer-links" aria-label="Discover"><h3>Discover</h3>' + discover + '</nav>'
@@ -135,9 +140,9 @@ function homeFooter() {
     + '<nav class="mh-footer-links" aria-label="Account"><h3>Your Account</h3>' + account + '</nav>'
     + '</div>'
     + '<div class="mh-footer-bottom">'
-    + '<span>© ' + new Date().getFullYear() + ' MEDHMAR. Oman Camel Racing.</span>'
+    + '<span>Ã‚Â© ' + new Date().getFullYear() + ' MEDHMAR. Oman Camel Racing.</span>'
     + '<span>Rooted in tradition. Built for what&#39;s next.</span>'
-    + '<a href="#mh-home-top" class="mh-footer-backtop">Back to top <span aria-hidden="true">↑</span></a>'
+    + '<a href="#mh-home-top" class="mh-footer-backtop">Back to top <span aria-hidden="true">Ã¢â€ â€˜</span></a>'
     + '</div></footer>';
 }
 const shell = (body,active='', compact=false) => state.user?.userId && hasAnyRole(state.user,'ADMIN')
@@ -172,7 +177,7 @@ function home() {
     ['/pedigree','03 / THE LEGACY','Explore<br>their lineage.','Discover family trees and heritage.','/assets/mock-camels/camel-4.jpg','Camel and handler in open sand dunes','/assets/mock-camels/camel-4.jpg']
   ];
   const discoveryCards = discovery.filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user))
-    .map(([path,kicker,title,description,image,alt,fallback])=>'<a class="mh-story'+(path==='/camels'?' mh-story--champions':'')+'" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" data-mh-story-fallback="'+fallback+'" loading="lazy" decoding="async"><span class="mh-story-wash" aria-hidden="true"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">↗</span></span></a>').join('');
+    .map(([path,kicker,title,description,image,alt,fallback])=>'<a class="mh-story'+(path==='/camels'?' mh-story--champions':'')+'" href="'+path+'" data-link><img src="'+image+'" alt="'+esc(alt)+'" data-mh-story-fallback="'+fallback+'" loading="lazy" decoding="async"><span class="mh-story-wash" aria-hidden="true"></span><span class="mh-story-kicker">'+kicker+'</span><span class="mh-story-footer"><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="mh-round-arrow" aria-hidden="true">Ã¢â€ â€”</span></span></a>').join('');
   const modules = [
     {path:'/races',name:'Races',desc:'Schedules, participants and results.',photo:'/assets/home-racetrack.jpg',alt:'Camel racing on a flat sandy track',icon:'trophy'},
     {path:'/camels',name:'Camels',desc:'Profiles, ownership and records.',photo:'/assets/mock-camels/camel-7.jpg',alt:'Racing camel with colored harness',icon:'camel'},
@@ -180,12 +185,12 @@ function home() {
     {path:'/marketplace',name:'Marketplace',desc:'Buy, sell and exchange camels.',photo:'/assets/mock-camels/camel-2.jpg',alt:'Camels on open desert sand dunes',icon:'cart'}
   ];
   const moduleCards = modules.filter(m=>canAccessRoute(matchRoute(m.path)?.route,state.user))
-    .map(m=>'<a class="mh-module" href="'+m.path+'" data-link><img src="'+m.photo+'" alt="'+esc(m.alt)+'" loading="lazy" decoding="async"><span class="mh-module-details"><span class="mh-module-symbol">'+icon(m.icon,24)+'</span><span class="mh-module-text"><strong>'+m.name+'</strong><small>'+m.desc+'</small></span><span class="mh-module-arrow" aria-hidden="true">›</span></span></a>').join('');
+    .map(m=>'<a class="mh-module" href="'+m.path+'" data-link><img src="'+m.photo+'" alt="'+esc(m.alt)+'" loading="lazy" decoding="async"><span class="mh-module-details"><span class="mh-module-symbol">'+icon(m.icon,24)+'</span><span class="mh-module-text"><strong>'+m.name+'</strong><small>'+m.desc+'</small></span><span class="mh-module-arrow" aria-hidden="true">Ã¢â‚¬Âº</span></span></a>').join('');
   const additionalModules = [
     ['/challenges','Challenges'],['/training','Training'],['/organizations','Organizations'],
     ['/race-cards','Race Cards'],['/trainer-profile','Trainer']
   ].filter(([path])=>canAccessRoute(matchRoute(path)?.route,state.user));
-  const extraCards = additionalModules.map(([path,name])=>'<a href="'+path+'" data-link class="mh-extra-module">'+esc(name)+' <span aria-hidden="true">↗</span></a>').join('');
+  const extraCards = additionalModules.map(([path,name])=>'<a href="'+path+'" data-link class="mh-extra-module">'+esc(name)+' <span aria-hidden="true">Ã¢â€ â€”</span></a>').join('');
 
   const quickActions = [
     {id:'profile',label:'My Profile',path:'/settings',icon:'user'},
@@ -211,12 +216,12 @@ function home() {
    +'<div class="mh-page" id="mh-home-top" lang="en" dir="ltr">'
    +'<section class="mh-hero-band" aria-labelledby="mh-main-title">'
    +'<div class="mh-hero-photo" aria-hidden="true"></div>'
-   +'<a class="mh-hero-credit" href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer" title="Photo: Houssain tork, CC BY-SA 4.0">Photo: Houssain tork · CC BY-SA 4.0</a>'
+   +'<a class="mh-hero-credit" href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer" title="Photo: Houssain tork, CC BY-SA 4.0">Photo: Houssain tork Ã‚Â· CC BY-SA 4.0</a>'
    +'<div class="mh-container mh-hero-layout"><div class="mh-hero-copy">'
    +'<p class="mh-eyebrow"><span></span> OMAN CAMEL RACING</p>'
    +'<h1 id="mh-main-title"><span class="mh-hero-line">Where tradition</span><span class="mh-hero-line">races into</span><em class="mh-hero-line">the future.</em></h1>'
    +'<p class="mh-hero-lead">Races. Camels. Heritage. Community.<br>Experience Oman&#39;s living legacy and a new generation<br class="mh-lead-break"> of racing excellence.</p>'
-   +'<div class="mh-hero-buttons"><a class="mh-cta-primary" href="/races" data-link>Explore Races <span aria-hidden="true">→</span></a>'
+   +'<div class="mh-hero-buttons"><a class="mh-cta-primary" href="/races" data-link>Explore Races <span aria-hidden="true">Ã¢â€ â€™</span></a>'
    +'<a class="mh-cta-outline" href="/tourism" data-link>Discover Heritage</a></div>'
    +'<div class="mh-hero-traits"><span>'+icon('trophy',17)+' REAL RACES</span><span>'+icon('flag',17)+' CHAMPION CAMELS</span><span>'+icon('book',17)+' RICH HERITAGE</span><span>'+icon('group',17)+' GROWING COMMUNITY</span></div>'
    +'</div></div>'
@@ -228,18 +233,18 @@ function home() {
    +'<p>Races. Camels. Heritage. Explore the stories that connect<br class="mh-desktop-break"> Oman&#39;s past, present and future.</p>'
    +'</div>'
    +'<div class="mh-story-grid">'+discoveryCards+'</div>'
-   +'<div class="mh-photo-credits"><span>Illustrative photographs</span> · <a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer">Houssain tork / CC BY-SA 4.0</a> · <a href="https://www.rawpixel.com/image/6040166/camel-desert-free-public-domain-cc0-photo" target="_blank" rel="noopener noreferrer">Camel portrait / CC0</a></div>'
+   +'<div class="mh-photo-credits"><span>Illustrative photographs</span> Ã‚Â· <a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener noreferrer">Houssain tork / CC BY-SA 4.0</a> Ã‚Â· <a href="https://www.rawpixel.com/image/6040166/camel-desert-free-public-domain-cc0-photo" target="_blank" rel="noopener noreferrer">Camel portrait / CC0</a></div>'
    +'</div></section>'
    +'<section class="mh-modules-section" id="platform-modules" aria-labelledby="mh-modules-title"><div class="mh-container">'
    +'<div class="mh-section-head"><div><p class="mh-overline">OMAN CAMEL RACING</p><h2 id="mh-modules-title">Platform modules</h2><p>Your essential Medhmar tools in one place.</p></div>'
-   +(extraCards?'<details class="mh-expand-modules"><summary>View all modules <span aria-hidden="true">→</span></summary><div class="mh-extra-list">'+extraCards+'</div></details>':'')
+   +(extraCards?'<details class="mh-expand-modules"><summary>View all modules <span aria-hidden="true">Ã¢â€ â€™</span></summary><div class="mh-extra-list">'+extraCards+'</div></details>':'')
    +'</div><div class="mh-module-grid">'+moduleCards+'</div></div></section>'
    +'<section class="mh-workspace-section" id="your-workspace" aria-labelledby="mh-workspace-title"><div class="mh-container"><div class="mh-workspace-panel">'
    +'<div class="mh-workspace-header"><div><p class="mh-overline">YOUR WORKSPACE</p><h2 id="mh-workspace-title">Your Workspace</h2><p>Everything within reach.</p></div>'
-   +'<details class="mh-customizer"><summary>Customize <span aria-hidden="true">→</span></summary><div class="mh-customizer-pop"><strong>Show shortcuts</strong>'+config+'</div></details></div>'
+   +'<details class="mh-customizer"><summary>Customize <span aria-hidden="true">Ã¢â€ â€™</span></summary><div class="mh-customizer-pop"><strong>Show shortcuts</strong>'+config+'</div></details></div>'
    +'<div class="mh-workspace-layout"><div class="mh-quick-grid">'+quickActions.map(tile).join('')+'</div>'
-   +'<aside class="mh-join"><div><strong>Be part of<br>a greater community.</strong><a href="'+joinLink+'" data-link>Join Now <span aria-hidden="true">→</span></a></div></aside></div>'
-   +'<div class="mh-context-panel" id="mh-context-panel" hidden><button type="button" id="mh-context-close" aria-label="Close panel">×</button><h3 id="mh-context-title"></h3><p id="mh-context-copy"></p><a href="/races" data-link id="mh-context-browse">Explore races →</a></div>'
+   +'<aside class="mh-join"><div><strong>Be part of<br>a greater community.</strong><a href="'+joinLink+'" data-link>Join Now <span aria-hidden="true">Ã¢â€ â€™</span></a></div></aside></div>'
+   +'<div class="mh-context-panel" id="mh-context-panel" hidden><button type="button" id="mh-context-close" aria-label="Close panel">Ãƒâ€”</button><h3 id="mh-context-title"></h3><p id="mh-context-copy"></p><a href="/races" data-link id="mh-context-browse">Explore races Ã¢â€ â€™</a></div>'
    +'</div></div></section>'
    +'</div>','/home');
 }
@@ -260,7 +265,7 @@ function bindHomeControls() {
     document.getElementById('mh-context-copy').textContent = favorites
       ? 'Your saved items will appear here when the favorites feature is connected. Explore camels and races in the meantime.'
       : 'Live notifications are not connected to this homepage yet. You can explore current races and platform updates.';
-    document.getElementById('mh-context-browse').textContent = favorites ? 'Explore camels →' : 'Explore races →';
+    document.getElementById('mh-context-browse').textContent = favorites ? 'Explore camels Ã¢â€ â€™' : 'Explore races Ã¢â€ â€™';
     document.getElementById('mh-context-browse').setAttribute('href',favorites?'/camels':'/races');
     panel.hidden = false; panel.scrollIntoView({block:'nearest',behavior:'smooth'});
     document.getElementById('mh-context-close').focus({preventScroll:true});
@@ -313,6 +318,22 @@ function admin() {
 }
 function adminHealthPage() {
  return shell(adminSystemHealthView({data:state.adminHealthData,error:state.adminHealthError}),'/admin/system-health');
+}
+const MARKET_STATUSES = ['AVAILABLE','PENDING','REJECTED','SOLD','CANCELLED'];
+const MARKET_SORTS = ['newest','oldest','price_asc','price_desc'];
+const marketFilters = () => {
+  const q = qparams();
+  return {
+    page: Math.max(0, Math.min(100000, Number.parseInt(q.page, 10) || 0)),
+    search: String(q.search || '').slice(0, 100),
+    status: MARKET_STATUSES.includes(q.status) ? q.status : '',
+    category: String(q.category || '').slice(0, 100),
+    sort: MARKET_SORTS.includes(q.sort) ? q.sort : 'newest'
+  };
+};
+function adminMarketplacePage() {
+ return shell(adminMarketplaceView({data:state.adminMarketData,filters:marketFilters(),error:state.adminMarketError,
+   auditEvents:state.adminMarketAudit,auditError:state.adminMarketAuditError}),'/admin/marketplace');
 }
 function adminChallengesPage() {
  return shell(adminChallengesView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/challenges');
@@ -375,7 +396,7 @@ function publishRaceCard(id){ return shell(`${head('Race Card Publish Control','
 
 // ===== Camel / Ownership / Marketplace / Offers / Sale-completion (Camel & Marketplace scope) =====
 // Data is loaded per route (state.view), never at startup, and never falls back to fake business data.
-const sb = s => `<span class="badge ${statusTone(s)}">${esc(s ?? '—')}</span>`;
+const sb = s => `<span class="badge ${statusTone(s)}">${esc(s ?? 'Ã¢â‚¬â€')}</span>`;
 const qparams = () => Object.fromEntries(new URLSearchParams(location.search));
 const signedIn = () => Boolean(state.user?.userId);
 const isAdmin = () => hasAnyRole(state.user, 'ADMIN');
@@ -479,7 +500,7 @@ function loadView(match) {
 const tabs = (items, active) => `<nav class="subnav">${items.map(([p, l]) => `<a href="${p}" data-link class="${active === p ? 'active' : ''}">${l}</a>`).join('')}</nav>`;
 const camelTabs = a => tabs([['/camels', 'All camels'], ['/camels/my', 'My camels'], ...(canManageCamels(state.user) ? [['/camels/new', 'Add camel']] : [])], a);
 const marketTabs = a => tabs([['/marketplace', 'Browse'], ['/marketplace/my-listings', 'My listings'], ['/marketplace/history', 'Listing history'], ['/offers', 'My offers'], ...(canManageCamels(state.user) ? [['/marketplace/new', 'Create listing']] : [])], a);
-const loadingCard = () => `<section class="card empty"><h2>Loading…</h2><p>Fetching live data from the Medhmar API.</p></section>`;
+const loadingCard = () => `<section class="card empty"><h2>LoadingÃ¢â‚¬Â¦</h2><p>Fetching live data from the Medhmar API.</p></section>`;
 const emptyCard = (t, m, a = '') => `<section class="card empty"><h2>${t}</h2><p>${m}</p>${a}</section>`;
 function errorCard(err) {
   const s = err?.status, m = esc(err?.message || 'Unexpected error.');
@@ -497,7 +518,7 @@ function scr(active, tabsHtml, fallback, builder) {
 }
 const camelPhoto = c => { const fallback = "/assets/mock-camels/camel-" + ((((Number(c?.camelId) || 1) - 1) % 8) + 1) + ".jpg"; const src = isSafeImageSrc(c?.photoUrl) ? c.photoUrl : fallback; return '<img class="camel-thumb" src="' + esc(src) + '" alt="' + esc(c?.name || "Camel") + '" loading="lazy" referrerpolicy="no-referrer">'; };
 const row = (l, v) => `<div class="info-row"><span>${l}</span><strong>${v}</strong></div>`;
-const pager = pg => pg.totalPages > 1 ? `<div class="pager"><button class="small-btn" data-act="page" data-page="${pg.page - 1}" ${pg.page <= 0 ? 'disabled' : ''}>← Previous</button><span>Page ${pg.page + 1} of ${pg.totalPages} • ${pg.totalElements} results</span><button class="small-btn" data-act="page" data-page="${pg.page + 1}" ${pg.page + 1 >= pg.totalPages ? 'disabled' : ''}>Next →</button></div>` : '';
+const pager = pg => pg.totalPages > 1 ? `<div class="pager"><button class="small-btn" data-act="page" data-page="${pg.page - 1}" ${pg.page <= 0 ? 'disabled' : ''}>Ã¢â€ Â Previous</button><span>Page ${pg.page + 1} of ${pg.totalPages} Ã¢â‚¬Â¢ ${pg.totalElements} results</span><button class="small-btn" data-act="page" data-page="${pg.page + 1}" ${pg.page + 1 >= pg.totalPages ? 'disabled' : ''}>Next Ã¢â€ â€™</button></div>` : '';
 const opts = (list, cur, any) => `${any ? `<option value="">${any}</option>` : ''}${list.map(x => `<option ${x === cur ? 'selected' : ''}>${x}</option>`).join('')}`;
 
 const pedigreeParentOptions = (candidates, gender, selectedId, child) => {
@@ -508,7 +529,7 @@ const pedigreeParentOptions = (candidates, gender, selectedId, child) => {
     .filter(c => c.status === 'ACTIVE')
     .filter(c => !childBirth || !c.birthDate || new Date(c.birthDate).getTime() < childBirth)
     .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
-  return `<option value="">Not linked to a registered camel</option>${valid.map(c => `<option value="${esc(c.camelId)}" ${String(c.camelId) === String(selectedId ?? '') ? 'selected' : ''}>${esc(c.name)} — #${esc(c.camelId)}${c.breed ? ` · ${esc(c.breed)}` : ''}</option>`).join('')}`;
+  return `<option value="">Not linked to a registered camel</option>${valid.map(c => `<option value="${esc(c.camelId)}" ${String(c.camelId) === String(selectedId ?? '') ? 'selected' : ''}>${esc(c.name)} Ã¢â‚¬â€ #${esc(c.camelId)}${c.breed ? ` Ã‚Â· ${esc(c.breed)}` : ''}</option>`).join('')}`;
 };
 
 const pedigreeEditScreen = () => scr('/camels', camelTabs(''), 'Edit Pedigree', d => {
@@ -516,7 +537,7 @@ const pedigreeEditScreen = () => scr('/camels', camelTabs(''), 'Edit Pedigree', 
   const pedigree = d.pedigree || {};
   if (!d.canEdit) {
     return {
-      title: `Pedigree — ${esc(camel.name || `Camel #${camel.camelId || ''}`)}`,
+      title: `Pedigree Ã¢â‚¬â€ ${esc(camel.name || `Camel #${camel.camelId || ''}`)}`,
       sub: 'Registered parent links can only be changed by the camel owner or an administrator.',
       body: errorCard({ status: 403, message: 'You do not own this camel.' }),
     };
@@ -526,7 +547,7 @@ const pedigreeEditScreen = () => scr('/camels', camelTabs(''), 'Edit Pedigree', 
   const legacySire = !pedigree.sireCamelId && pedigree.sire ? `<p class="form-help">Current unregistered sire name: <strong>${esc(pedigree.sire)}</strong></p>` : '';
   const legacyDam = !pedigree.damCamelId && pedigree.dam ? `<p class="form-help">Current unregistered dam name: <strong>${esc(pedigree.dam)}</strong></p>` : '';
   return {
-    title: `Edit pedigree — ${esc(camel.name || `Camel #${camel.camelId}`)}`,
+    title: `Edit pedigree Ã¢â‚¬â€ ${esc(camel.name || `Camel #${camel.camelId}`)}`,
     sub: 'Link the camel to registered parents. The server validates gender, age, ownership and circular ancestry.',
     actions: `<a class="btn btn-secondary" href="/camels/${esc(camel.camelId)}" data-link>Back to pedigree</a>`,
     body: `<form class="form card card-pad" data-form="pedigree-edit" data-id="${esc(camel.camelId)}">
@@ -557,11 +578,11 @@ const isoInput = value => { if(!value) return ''; const d=new Date(value); d.set
 const agreementForm = (a = {}, edit = false) => `<form class="form card card-pad entity-form" data-form="agreement-${edit?'edit':'add'}" data-id="${esc(a.agreementId||'')}">
 <h2>Participants & schedule</h2>${!edit?`<div class="form-row"><div class="field"><label for="agreement-camel">Camel ID <span class="required">*</span></label><input id="agreement-camel" class="input" name="camelId" type="number" min="1" required placeholder="e.g. 204" value="${esc(a.camelId||'')}"></div><div class="field"><label for="agreement-trainer">Trainer user ID <span class="required">*</span></label><input id="agreement-trainer" class="input" name="trainerUserId" type="number" min="1" required placeholder="Trainer account ID" value="${esc(a.trainerUserId||'')}"></div></div>`:`<div class="form-row">${row('Camel',`#${esc(a.camelId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}</div>`}
 <div class="form-row"><div class="field"><label for="agreement-start">Start date <span class="required">*</span></label><input id="agreement-start" class="input" name="startsAt" type="datetime-local" required value="${isoInput(a.startsAt)}"></div><div class="field"><label for="agreement-end">End date <span class="required">*</span></label><input id="agreement-end" class="input" name="endsAt" type="datetime-local" required value="${isoInput(a.endsAt)}"></div></div>
-<h2>Compensation</h2><div class="form-row"><div class="field"><label for="agreement-fee">Training fee (OMR) <span class="required">*</span></label><input id="agreement-fee" class="input" name="feeOmr" type="number" min="0" step="0.001" required placeholder="0.000" value="${esc(a.feeOmr??'')}"></div><div class="field"><label for="agreement-prize">Prize share (%) <span class="required">*</span></label><input id="agreement-prize" class="input" name="prizeSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.prizeSharePct??'')}"></div></div><div class="field"><label for="agreement-sale">Sale share (%) <span class="required">*</span></label><input id="agreement-sale" class="input" name="saleSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.saleSharePct??'')}"></div><div class="field"><label for="agreement-terms">Terms</label><textarea id="agreement-terms" class="textarea" name="terms" maxlength="5000" placeholder="Describe the training arrangement and expectations">${esc(a.terms||'')}</textarea><span class="form-help">Optional · up to 5,000 characters</span></div><div class="form-feedback" aria-live="polite"></div><div class="modal-actions"><a class="btn btn-secondary" href="${edit?`/agreements/${esc(a.agreementId)}`:'/agreements'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${edit?'Save Changes':'Create Agreement'}</button></div></form>`;
-const agreementScreen = () => scr('/agreements', '', 'Training Agreements', d => { const q=qparams(), all=d.agreements||[], filtered=all.filter(a=>(!q.search||`${a.agreementId} ${a.camelId} ${a.trainerUserId} ${a.ownerUserId}`.toLowerCase().includes(q.search.toLowerCase()))&&(!q.status||a.status===q.status));filtered.sort((a,b)=>q.sort==='oldest'?Number(a.agreementId)-Number(b.agreementId):Number(b.agreementId)-Number(a.agreementId)); return {title:'Training Agreements',sub:'Manage camel training terms, participants and active periods.',actions:canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>+ Add Agreement</a>':'',body:`<form class="toolbar" data-form="agreement-filter"><input class="input" name="search" aria-label="Search agreements" placeholder="Search camel, trainer or agreement ID" value="${esc(q.search||'')}"><select class="select" name="status" aria-label="Filter by status">${opts(agreementStatuses,q.status,'All statuses')}</select><select class="select" name="sort" aria-label="Sort agreements"><option value="newest" ${q.sort!=='oldest'?'selected':''}>Newest first</option><option value="oldest" ${q.sort==='oldest'?'selected':''}>Oldest first</option></select><button type="submit" class="btn btn-primary">Filter</button></form>${filtered.length?`<div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Camel</th><th>Trainer</th><th>Period</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>${filtered.map(a=>`<tr><td><strong>#${esc(a.agreementId)}</strong></td><td>#${esc(a.camelId)}</td><td>#${esc(a.trainerUserId)}</td><td>${fmtDate(a.startsAt)} – ${fmtDate(a.endsAt)}</td><td>${fmtOmr(a.feeOmr)}</td><td>${sb(a.status)}</td><td class="table-actions"><a class="small-btn" href="/agreements/${a.agreementId}" data-link>View</a>${canAcceptAgreement(a)?`<button class="small-btn" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="small-btn" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyCard('No agreements found','No training agreements match this search or status.',canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>Add Agreement</a>':'')}`}; });
-const agreementDetailScreen = () => scr('/agreements','','Agreement details',d=>{const a=d.agreement;return {title:`Agreement #${esc(a.agreementId)}`,sub:'Training arrangement and lifecycle details.',actions:`${canAcceptAgreement(a)?`<button class="btn btn-primary" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept Agreement</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="btn btn-secondary" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}<a class="btn btn-ghost" href="/agreements" data-link>Back to Agreements</a>`,body:`<div class="grid grid-2"><section class="card card-pad"><h2>Participants & schedule</h2><div class="info-list">${row('Status',sb(a.status))}${row('Owner',`#${esc(a.ownerUserId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Starts',fmtDate(a.startsAt))}${row('Ends',fmtDate(a.endsAt))}${row('Proposed',fmtDate(a.proposedAt))}${row('Responded',fmtDate(a.respondedAt))}</div></section><section class="card card-pad"><h2>Compensation</h2><div class="info-list">${row('Training fee',fmtOmr(a.feeOmr))}${row('Prize share',`${esc(a.prizeSharePct)}%`)}${row('Sale share',`${esc(a.saleSharePct)}%`)}</div></section><section class="card card-pad"><h2>Terms</h2><p class="entity-copy">${esc(a.terms||'No additional terms recorded.')}</p></section><section class="card card-pad"><h2>Lifecycle</h2><div class="info-list">${row('Accepted',fmtDate(a.acceptedAt))}${row('Completed',fmtDate(a.completedAt))}${row('Expired',fmtDate(a.expiredAt))}${row('Terminated',fmtDate(a.terminatedAt))}${row('Rejection reason',esc(a.rejectionReason||'—'))}${row('Termination reason',esc(a.terminationReason||'—'))}</div></section></div>`};});
+<h2>Compensation</h2><div class="form-row"><div class="field"><label for="agreement-fee">Training fee (OMR) <span class="required">*</span></label><input id="agreement-fee" class="input" name="feeOmr" type="number" min="0" step="0.001" required placeholder="0.000" value="${esc(a.feeOmr??'')}"></div><div class="field"><label for="agreement-prize">Prize share (%) <span class="required">*</span></label><input id="agreement-prize" class="input" name="prizeSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.prizeSharePct??'')}"></div></div><div class="field"><label for="agreement-sale">Sale share (%) <span class="required">*</span></label><input id="agreement-sale" class="input" name="saleSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.saleSharePct??'')}"></div><div class="field"><label for="agreement-terms">Terms</label><textarea id="agreement-terms" class="textarea" name="terms" maxlength="5000" placeholder="Describe the training arrangement and expectations">${esc(a.terms||'')}</textarea><span class="form-help">Optional Ã‚Â· up to 5,000 characters</span></div><div class="form-feedback" aria-live="polite"></div><div class="modal-actions"><a class="btn btn-secondary" href="${edit?`/agreements/${esc(a.agreementId)}`:'/agreements'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${edit?'Save Changes':'Create Agreement'}</button></div></form>`;
+const agreementScreen = () => scr('/agreements', '', 'Training Agreements', d => { const q=qparams(), all=d.agreements||[], filtered=all.filter(a=>(!q.search||`${a.agreementId} ${a.camelId} ${a.trainerUserId} ${a.ownerUserId}`.toLowerCase().includes(q.search.toLowerCase()))&&(!q.status||a.status===q.status));filtered.sort((a,b)=>q.sort==='oldest'?Number(a.agreementId)-Number(b.agreementId):Number(b.agreementId)-Number(a.agreementId)); return {title:'Training Agreements',sub:'Manage camel training terms, participants and active periods.',actions:canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>+ Add Agreement</a>':'',body:`<form class="toolbar" data-form="agreement-filter"><input class="input" name="search" aria-label="Search agreements" placeholder="Search camel, trainer or agreement ID" value="${esc(q.search||'')}"><select class="select" name="status" aria-label="Filter by status">${opts(agreementStatuses,q.status,'All statuses')}</select><select class="select" name="sort" aria-label="Sort agreements"><option value="newest" ${q.sort!=='oldest'?'selected':''}>Newest first</option><option value="oldest" ${q.sort==='oldest'?'selected':''}>Oldest first</option></select><button type="submit" class="btn btn-primary">Filter</button></form>${filtered.length?`<div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Camel</th><th>Trainer</th><th>Period</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>${filtered.map(a=>`<tr><td><strong>#${esc(a.agreementId)}</strong></td><td>#${esc(a.camelId)}</td><td>#${esc(a.trainerUserId)}</td><td>${fmtDate(a.startsAt)} Ã¢â‚¬â€œ ${fmtDate(a.endsAt)}</td><td>${fmtOmr(a.feeOmr)}</td><td>${sb(a.status)}</td><td class="table-actions"><a class="small-btn" href="/agreements/${a.agreementId}" data-link>View</a>${canAcceptAgreement(a)?`<button class="small-btn" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="small-btn" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyCard('No agreements found','No training agreements match this search or status.',canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>Add Agreement</a>':'')}`}; });
+const agreementDetailScreen = () => scr('/agreements','','Agreement details',d=>{const a=d.agreement;return {title:`Agreement #${esc(a.agreementId)}`,sub:'Training arrangement and lifecycle details.',actions:`${canAcceptAgreement(a)?`<button class="btn btn-primary" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept Agreement</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="btn btn-secondary" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}<a class="btn btn-ghost" href="/agreements" data-link>Back to Agreements</a>`,body:`<div class="grid grid-2"><section class="card card-pad"><h2>Participants & schedule</h2><div class="info-list">${row('Status',sb(a.status))}${row('Owner',`#${esc(a.ownerUserId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Starts',fmtDate(a.startsAt))}${row('Ends',fmtDate(a.endsAt))}${row('Proposed',fmtDate(a.proposedAt))}${row('Responded',fmtDate(a.respondedAt))}</div></section><section class="card card-pad"><h2>Compensation</h2><div class="info-list">${row('Training fee',fmtOmr(a.feeOmr))}${row('Prize share',`${esc(a.prizeSharePct)}%`)}${row('Sale share',`${esc(a.saleSharePct)}%`)}</div></section><section class="card card-pad"><h2>Terms</h2><p class="entity-copy">${esc(a.terms||'No additional terms recorded.')}</p></section><section class="card card-pad"><h2>Lifecycle</h2><div class="info-list">${row('Accepted',fmtDate(a.acceptedAt))}${row('Completed',fmtDate(a.completedAt))}${row('Expired',fmtDate(a.expiredAt))}${row('Terminated',fmtDate(a.terminatedAt))}${row('Rejection reason',esc(a.rejectionReason||'Ã¢â‚¬â€'))}${row('Termination reason',esc(a.terminationReason||'Ã¢â‚¬â€'))}</div></section></div>`};});
 // ---- Camels ----
-const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || '—'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
+const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || 'Ã¢â‚¬â€'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
 const pedigreeDirectoryScreen = () => {
   const v = state.view;
   const data = v.status === 'ready' ? v.data : { q: qparams(), loadState: v.status, loadError: v.error };
@@ -571,7 +592,7 @@ const pedigreeDirectoryScreen = () => {
 const camelsScreen = () => scr('/camels', camelTabs('/camels'), 'Camels', d => ({
   title: 'Camels', sub: 'Registered camels from the Medhmar registry.',
   actions: canManageCamels(state.user) ? '<a class="btn btn-primary" href="/camels/new" data-link>+ Add Camel</a>' : '',
-  body: `<form class="toolbar" data-form="camel-filter"><input class="input" name="search" placeholder="Search by name…" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(camelCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No camels match these filters.')}`,
+  body: `<form class="toolbar" data-form="camel-filter"><input class="input" name="search" placeholder="Search by nameÃ¢â‚¬Â¦" value="${esc(d.q.search || '')}"><select class="select" name="gender">${opts(GENDERS, d.q.gender, 'Any gender')}</select><input class="input" name="breed" placeholder="Breed" value="${esc(d.q.breed || '')}"><input class="input" name="category" placeholder="Category" value="${esc(d.q.category || '')}"><select class="select" name="status">${opts(CAMEL_STATUSES, d.q.status, 'Any status')}</select><button class="btn btn-primary" type="submit">Filter</button></form>${d.page.content.length ? `<div class="grid grid-3">${d.page.content.map(camelCard).join('')}</div>${pager(d.page)}` : emptyCard('No camels found', 'No camels match these filters.')}`,
 }));
 const myCamelsScreen = () => scr('/camels', camelTabs('/camels/my'), 'My Camels', d => ({
   title: 'My Camels', sub: 'Camels you currently own.',
@@ -582,7 +603,7 @@ const camelForm = (c = {}) => `<form class="form card card-pad" data-form="${c.c
 <div class="form-row"><div class="field"><label>Gender</label><select class="select" name="gender" required>${opts(GENDERS, c.gender)}</select></div><div class="field"><label>Birth date</label><input class="input" type="date" name="birthDate" required max="${fmtDate(Date.now() - 86400000)}" value="${esc(c.birthDate ? fmtDate(c.birthDate) : '')}"></div></div>
 <div class="form-row"><div class="field"><label>Sire</label><input class="input" name="sire" maxlength="100" value="${esc(c.sire || '')}"></div><div class="field"><label>Dam</label><input class="input" name="dam" maxlength="100" value="${esc(c.dam || '')}"></div></div>
 <div class="form-row"><div class="field"><label>Category</label><input class="input" name="category" maxlength="50" value="${esc(c.category || '')}"></div><div class="field"><label>Status</label><select class="select" name="status" required>${opts(CAMEL_STATUSES, c.status || 'ACTIVE')}</select></div></div>
-<div class="field"><label>Photo URL</label><input class="input" type="url" name="photoUrl" placeholder="https://…" value="${esc(c.photoUrl || '')}"></div>
+<div class="field"><label>Photo URL</label><input class="input" type="url" name="photoUrl" placeholder="https://Ã¢â‚¬Â¦" value="${esc(c.photoUrl || '')}"></div>
 <div class="modal-actions"><a class="btn btn-secondary" href="${c.camelId ? `/camels/${c.camelId}/profile` : '/camels/my'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${c.camelId ? 'Save changes' : 'Register camel'}</button></div></form>`;
 const addCamelScreen = () => scr('/camels', camelTabs('/camels/new'), 'Add Camel', () => canManageCamels(state.user)
   ? { title: 'Add Camel', sub: 'You become the 100% owner of the camel you register.', body: camelForm() }
@@ -591,21 +612,21 @@ const editCamelScreen = () => scr('/camels', camelTabs(''), 'Edit Camel', d => (
 const camelProfileScreen = () => scr('/camels', camelTabs(''), 'Camel Profile', d => {
   const p = d.profile, ped = p.pedigree || {}, al = p.activeListing;
   const canEdit = canManageCamels(state.user) && (d.isOwner || isAdmin());
-  const parent = (name, id) => id ? `<a href="/camels/${id}/profile" data-link>${esc(name || `Camel #${id}`)}</a>` : esc(name || '—');
+  const parent = (name, id) => id ? `<a href="/camels/${id}/profile" data-link>${esc(name || `Camel #${id}`)}</a>` : esc(name || 'Ã¢â‚¬â€');
   const sell = canManageCamels(state.user) && d.isOwner && !al && isFullOwner(p.owners) && p.status !== 'SOLD' ? `<a class="btn btn-primary" href="/marketplace/new?camelId=${p.camelId}" data-link>List for sale</a>` : '';
   return {
-    title: esc(p.name), sub: `${esc(p.breed)} • ${esc(p.gender)} • ${esc(p.category || 'Uncategorised')}`,
+    title: esc(p.name), sub: `${esc(p.breed)} Ã¢â‚¬Â¢ ${esc(p.gender)} Ã¢â‚¬Â¢ ${esc(p.category || 'Uncategorised')}`,
     actions: `${sell}<a class="btn btn-secondary" href="/camels/${p.camelId}/ownership" data-link>Ownership history</a><a class="btn btn-secondary" href="/camels/${p.camelId}" data-link>View pedigree</a>${canEdit ? `<a class="btn btn-secondary" href="/camels/${p.camelId}/edit" data-link>Edit</a><button class="btn btn-danger" data-act="delete-camel" data-id="${p.camelId}" data-name="${esc(p.name)}">Delete</button>` : ''}`,
-    body: `<div class="two-pane"><section class="card card-pad">${camelPhoto(p)}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || '—'))}</div></section>
+    body: `<div class="two-pane"><section class="card card-pad">${camelPhoto(p)}<div class="section-title"><h2>Profile</h2>${sb(p.status)}</div><div class="info-list">${row('Born', fmtDate(p.birthDate))}${row('Breed', esc(p.breed))}${row('Gender', esc(p.gender))}${row('Category', esc(p.category || 'Ã¢â‚¬â€'))}</div></section>
 <aside><section class="card card-pad"><div class="section-title"><h2>Pedigree</h2><a class="small-btn" href="/camels/${p.camelId}" data-link>Open tree</a></div><div class="info-list">${row('Sire', parent(ped.sire, ped.sireCamelId))}${row('Dam', parent(ped.dam, ped.damCamelId))}${row('Recorded', fmtDate(ped.recordedAt))}</div>${canEdit ? `<div class="actions"><a class="btn btn-primary" href="/camels/${p.camelId}/pedigree/edit" data-link>Edit pedigree</a></div>` : ''}</section>
-<section class="card card-pad section"><h2>Current owners</h2>${p.owners.length ? `<div class="info-list">${p.owners.map(o => row(esc(o.name || '—'), `${esc(o.sharePercent)}%`)).join('')}</div>` : '<p class="form-help">No current owner recorded.</p>'}<p class="form-help">Owner names only — contact details are never shown.</p></section>
+<section class="card card-pad section"><h2>Current owners</h2>${p.owners.length ? `<div class="info-list">${p.owners.map(o => row(esc(o.name || 'Ã¢â‚¬â€'), `${esc(o.sharePercent)}%`)).join('')}</div>` : '<p class="form-help">No current owner recorded.</p>'}<p class="form-help">Owner names only Ã¢â‚¬â€ contact details are never shown.</p></section>
 <section class="card card-pad section"><h2>Marketplace</h2>${al ? `<div class="price">${fmtOmr(al.askingPriceOmr)}</div><p>${esc(al.description)}</p>${sb(al.status)} <a class="btn btn-secondary" href="/marketplace/${al.listingId}" data-link>View listing</a>` : '<p class="form-help">Not currently listed for sale.</p>'}</section></aside></div>`,
   };
 });
 const ownershipScreen = () => scr('/camels', camelTabs(''), 'Ownership History', d => ({
-  title: `Ownership — ${esc(d.camel.name)}`, sub: 'Every ownership period, newest first. Transfers happen only when a seller accepts an offer.',
+  title: `Ownership Ã¢â‚¬â€ ${esc(d.camel.name)}`, sub: 'Every ownership period, newest first. Transfers happen only when a seller accepts an offer.',
   actions: `<a class="btn btn-secondary" href="/camels/${d.camel.camelId}/profile" data-link>Back to profile</a>`,
-  body: d.history.length ? `<div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${[...d.history].sort((a, b) => new Date(b.startAt || 0) - new Date(a.startAt || 0)).map(h => `<tr><td><strong>${esc(h.ownerName || '—')}</strong></td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? sb('ACTIVE').replace('ACTIVE', 'CURRENT') : sb('PREVIOUS')}</td></tr>`).join('')}</tbody></table></div>` : emptyCard('No ownership records', 'This camel has no recorded ownership.'),
+  body: d.history.length ? `<div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${[...d.history].sort((a, b) => new Date(b.startAt || 0) - new Date(a.startAt || 0)).map(h => `<tr><td><strong>${esc(h.ownerName || 'Ã¢â‚¬â€')}</strong></td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? sb('ACTIVE').replace('ACTIVE', 'CURRENT') : sb('PREVIOUS')}</td></tr>`).join('')}</tbody></table></div>` : emptyCard('No ownership records', 'This camel has no recorded ownership.'),
 }));
 
 // ---- Marketplace ----
@@ -613,7 +634,7 @@ const marketScreen = () => scr('/marketplace', marketTabs('/marketplace'), 'Mark
   title: 'Marketplace', sub: 'Discover camels listed for sale. Prices in Omani Rial (OMR).',
   body: marketplaceBrowse(d) + pager(d.page),
 }));
-const listingTable = (listings, camels, withActions) => `<div class="table-wrap"><table><thead><tr><th>Camel</th><th>Asking price</th><th>Status</th><th>Listed</th><th>Description</th>${withActions ? '<th>Actions</th>' : ''}</tr></thead><tbody>${listings.map(l => { const c = camels[l.camelId]; return `<tr><td><a href="/camels/${l.camelId}/profile" data-link><strong>${esc(c?.name || `Camel #${l.camelId}`)}</strong></a></td><td>${fmtOmr(l.askingPriceOmr)}</td><td>${sb(l.status)}</td><td>${fmtDate(l.createdAt)}</td><td>${esc(l.description || '')}</td>${withActions ? `<td class="table-actions">${l.status === 'AVAILABLE' ? `<a class="small-btn" href="/marketplace/${l.listingId}" data-link>Open</a> <a class="small-btn" href="/marketplace/${l.listingId}/edit" data-link>Edit</a> <button class="small-btn" data-act="cancel-listing" data-id="${l.listingId}">Cancel</button>` : '—'}</td>` : ''}</tr>`; }).join('')}</tbody></table></div>`;
+const listingTable = (listings, camels, withActions) => `<div class="table-wrap"><table><thead><tr><th>Camel</th><th>Asking price</th><th>Status</th><th>Listed</th><th>Description</th>${withActions ? '<th>Actions</th>' : ''}</tr></thead><tbody>${listings.map(l => { const c = camels[l.camelId]; return `<tr><td><a href="/camels/${l.camelId}/profile" data-link><strong>${esc(c?.name || `Camel #${l.camelId}`)}</strong></a></td><td>${fmtOmr(l.askingPriceOmr)}</td><td>${sb(l.status)}</td><td>${fmtDate(l.createdAt)}</td><td>${esc(l.description || '')}</td>${withActions ? `<td class="table-actions">${l.status === 'AVAILABLE' ? `<a class="small-btn" href="/marketplace/${l.listingId}" data-link>Open</a> <a class="small-btn" href="/marketplace/${l.listingId}/edit" data-link>Edit</a> <button class="small-btn" data-act="cancel-listing" data-id="${l.listingId}">Cancel</button>` : 'Ã¢â‚¬â€'}</td>` : ''}</tr>`; }).join('')}</tbody></table></div>`;
 const myListingsScreen = () => scr('/marketplace', marketTabs('/marketplace/my-listings'), 'My Listings', d => ({
   title: 'My Listings', sub: 'Listings you created, including sold and cancelled ones.',
   actions: canManageCamels(state.user) ? '<a class="btn btn-primary" href="/marketplace/new" data-link>+ Create Listing</a>' : '',
@@ -624,7 +645,7 @@ const historyScreen = () => scr('/marketplace', marketTabs('/marketplace/history
   body: d.listings.length ? listingTable(d.listings, d.camels, false) : emptyCard('No history yet', 'Sold or cancelled listings will appear here.'),
 }));
 const listingForm = (camels, l = {}, camelId = '') => `<form class="form card card-pad" data-form="${l.listingId ? 'listing-edit' : 'listing-add'}" ${l.listingId ? `data-id="${l.listingId}"` : ''}>
-<div class="field"><label>Camel</label>${l.listingId ? `<input type="hidden" name="camelId" value="${esc(l.camelId)}"><input class="input" value="${esc(camels[0]?.name || `Camel #${l.camelId}`)}" disabled>` : `<select class="select" name="camelId" required><option value="">Select one of your camels…</option>${camels.filter(c => c.status !== 'SOLD').map(c => `<option value="${c.camelId}" ${String(c.camelId) === String(camelId) ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select><div class="form-help">Only the full (100%) owner can list a camel, and a camel can have one active listing.</div>`}</div>
+<div class="field"><label>Camel</label>${l.listingId ? `<input type="hidden" name="camelId" value="${esc(l.camelId)}"><input class="input" value="${esc(camels[0]?.name || `Camel #${l.camelId}`)}" disabled>` : `<select class="select" name="camelId" required><option value="">Select one of your camelsÃ¢â‚¬Â¦</option>${camels.filter(c => c.status !== 'SOLD').map(c => `<option value="${c.camelId}" ${String(c.camelId) === String(camelId) ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select><div class="form-help">Only the full (100%) owner can list a camel, and a camel can have one active listing.</div>`}</div>
 <div class="field"><label>Asking price (OMR)</label><input class="input" type="number" name="askingPriceOmr" required min="0.001" step="any" value="${esc(l.askingPriceOmr ?? '')}"></div>
 <div class="field"><label>Description</label><textarea class="textarea" name="description" required minlength="3" maxlength="255">${esc(l.description || '')}</textarea></div>
 <div class="modal-actions"><a class="btn btn-secondary" href="${l.listingId ? `/marketplace/${l.listingId}` : '/marketplace/my-listings'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${l.listingId ? 'Save changes' : 'Publish listing'}</button></div></form>`;
@@ -653,7 +674,7 @@ const offerScreen = () => scr('/marketplace', marketTabs('/offers'), 'Offer', d 
   const o = d.offer, l = d.listing, c = d.camel, me = String(state.user.userId);
   const seller = (l && String(l.userId) === me) || isAdmin(), buyer = String(o.userId) === me || isAdmin(), pending = o.status === 'PENDING';
   const done = qparams().completed === '1';
-  const sale = o.status === 'ACCEPTED' ? `<section class="card card-pad section"><div class="section-title"><h2>${done ? 'Sale completed' : 'Completed sale'}</h2>${sb('ACCEPTED')}</div><div class="info-list">${row('Sale price', fmtOmr(o.offeredPriceOmr))}${row('Accepted on', fmtDate(o.respondedAt))}${c ? row('Camel', `<a href="/camels/${c.camelId}/profile" data-link>${esc(c.name)}</a>`) : ''}</div>${d.ownership ? `<h3>Ownership after sale</h3><div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${d.ownership.map(h => `<tr><td>${esc(h.ownerName || '—')}</td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? 'Current' : 'Previous'}</td></tr>`).join('')}</tbody></table></div>` : `<p class="form-help">${String(o.userId) === me ? 'The camel is now in your collection.' : 'Ownership was transferred to the buyer.'}</p>`}<div class="actions">${String(o.userId) === me ? '<a class="btn btn-primary" href="/camels/my" data-link>Go to My Camels</a>' : '<a class="btn btn-secondary" href="/marketplace/history" data-link>Listing history</a>'}</div><div class="info-list">${d.saleReceipt ? row('Sale receipt', '#' + esc(d.saleReceipt.saleTransactionId)) : '<p class=form-help>Sale receipt unavailable.</p>'}${d.saleReceipt && (seller || isAdmin()) ? row('Trainer share', fmtOmr(d.saleReceipt.trainerShareOmr)) + row('Seller net', fmtOmr(d.saleReceipt.sellerNetOmr)) : ''}</div></section>` : '';
+  const sale = o.status === 'ACCEPTED' ? `<section class="card card-pad section"><div class="section-title"><h2>${done ? 'Sale completed' : 'Completed sale'}</h2>${sb('ACCEPTED')}</div><div class="info-list">${row('Sale price', fmtOmr(o.offeredPriceOmr))}${row('Accepted on', fmtDate(o.respondedAt))}${c ? row('Camel', `<a href="/camels/${c.camelId}/profile" data-link>${esc(c.name)}</a>`) : ''}</div>${d.ownership ? `<h3>Ownership after sale</h3><div class="table-wrap"><table><thead><tr><th>Owner</th><th>Share</th><th>From</th><th>To</th><th>Status</th></tr></thead><tbody>${d.ownership.map(h => `<tr><td>${esc(h.ownerName || 'Ã¢â‚¬â€')}</td><td>${esc(h.sharePercent)}%</td><td>${fmtDate(h.startAt)}</td><td>${fmtDate(h.endAt)}</td><td>${h.current ? 'Current' : 'Previous'}</td></tr>`).join('')}</tbody></table></div>` : `<p class="form-help">${String(o.userId) === me ? 'The camel is now in your collection.' : 'Ownership was transferred to the buyer.'}</p>`}<div class="actions">${String(o.userId) === me ? '<a class="btn btn-primary" href="/camels/my" data-link>Go to My Camels</a>' : '<a class="btn btn-secondary" href="/marketplace/history" data-link>Listing history</a>'}</div><div class="info-list">${d.saleReceipt ? row('Sale receipt', '#' + esc(d.saleReceipt.saleTransactionId)) : '<p class=form-help>Sale receipt unavailable.</p>'}${d.saleReceipt && (seller || isAdmin()) ? row('Trainer share', fmtOmr(d.saleReceipt.trainerShareOmr)) + row('Seller net', fmtOmr(d.saleReceipt.sellerNetOmr)) : ''}</div></section>` : '';
   return {
     title: `Offer #${o.offerId}`, sub: c ? `On ${esc(c.name)}` : `On listing #${esc(o.listingId)}`, actions: sb(o.status),
     body: `<div class="two-pane"><section class="card card-pad"><h2>Details</h2><div class="info-list">${row('Offered price', fmtOmr(o.offeredPriceOmr))}${row('Status', esc(o.status))}${row('Made on', fmtDate(o.createdAt))}${row('Responded on', fmtDate(o.respondedAt))}${row('Listing', l ? `<a href="/marketplace/${l.listingId}" data-link>#${l.listingId}</a>` : `#${esc(o.listingId)} (closed)`)}${l ? row('Asking price', fmtOmr(l.askingPriceOmr)) : ''}</div></section><aside class="card card-pad"><h2>Actions</h2>${pending ? `<div class="actions">${seller ? `<button class="btn btn-primary" data-act="accept-offer" data-id="${o.offerId}" data-price="${esc(o.offeredPriceOmr)}">Accept offer</button><button class="btn btn-secondary" data-act="decline-offer" data-id="${o.offerId}">Decline</button>` : ''}${buyer ? `<button class="btn btn-secondary" data-act="edit-offer" data-id="${o.offerId}" data-price="${esc(o.offeredPriceOmr)}">Edit price</button><button class="btn btn-danger" data-act="withdraw-offer" data-id="${o.offerId}">Withdraw</button>` : ''}</div>` : '<p class="form-help">This offer has been answered and can no longer be changed.</p>'}</aside></div>${sale}`,
@@ -745,7 +766,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
  'Audit Logs':adminAuditListPage,'Audit Log Details':adminAuditDetailPage,
- 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Challenges':adminChallengesPage,'Admin Organizations':adminOrganizationsPage,'Admin System Health':adminHealthPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
+ 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Marketplace':adminMarketplacePage,'Admin Challenges':adminChallengesPage,'Admin Organizations':adminOrganizationsPage,'Admin System Health':adminHealthPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
@@ -774,6 +795,7 @@ async function render() {
  state.adminModuleError='';
  state.adminHealthData=null;
  state.adminHealthError='';
+ state.adminMarketData=null;state.adminMarketAudit=[];state.adminMarketError='';state.adminMarketAuditError='';
  $('#modal')?.remove();
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
@@ -835,8 +857,8 @@ async function render() {
  if(match && (adminArea(path) || match.route.path==='/settings')) {
   const adminRoute=adminArea(path);
   root.innerHTML=adminRoute
-    ? adminShell({user:state.user,active:path,body:'<section class="card card-pad" role="status">Verifying administrator access…</section>'})
-    : shell('<section class="card card-pad" role="status">Checking your account…</section>');
+    ? adminShell({user:state.user,active:path,body:'<section class="card card-pad" role="status">Verifying administrator accessÃ¢â‚¬Â¦</section>'})
+    : shell('<section class="card card-pad" role="status">Checking your accountÃ¢â‚¬Â¦</section>');
   bind();
   try {
    const user=await authApi.me();
@@ -908,6 +930,33 @@ async function render() {
        state.adminModuleError='Unable to load live '+(path==='/admin/challenges'?'challenges':'organizations')+'. Please retry.';
      }
    }
+   if(adminRoute&&path==='/admin/marketplace') {
+     try {
+       const filters=marketFilters();
+       const [stats,page,categories]=await Promise.all([adminMarketplaceApi.stats(),adminMarketplaceApi.list(filters),adminMarketplaceApi.categories()]);
+       if(epoch!==renderEpoch)return;
+       if(!stats||!page||!Array.isArray(page.content)||!Number.isInteger(page.totalElements)||!Number.isInteger(page.page)||!Number.isInteger(page.totalPages))
+         throw new Error('Invalid marketplace response.');
+       state.adminMarketData={stats,page,categories:Array.isArray(categories)?categories:[]};
+       try {
+         const audit=await adminAuditApi.list({entityType:'Listing'});
+         if(epoch!==renderEpoch)return;
+         state.adminMarketAudit=Array.isArray(audit?.content)?audit.content:[];
+       } catch(auditErr) {
+         if(epoch!==renderEpoch)return;
+         if(auditErr.status===401||auditErr.status===403)throw auditErr;
+         state.adminMarketAuditError='Recent activity is temporarily unavailable.';
+       }
+     } catch(err) {
+       if(epoch!==renderEpoch)return;
+       if(err.status===401)throw err;
+       if(err.status===403) {
+         state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};
+         denyAdminAccess();bind();return;
+       }
+       state.adminMarketError='Unable to load live marketplace data. Please retry.';
+     }
+   }
    if(adminRoute&&path.startsWith('/admin/audit-logs')) {
      try {
        if(match.route.name==='Audit Logs') {
@@ -938,7 +987,7 @@ async function render() {
    if(epoch!==renderEpoch)return;
    state.adminUsers=null;state.adminPageData=null;state.adminSummary=null;
    state.adminAuditPageData=null;state.adminAuditDetail=null;
-   state.adminModuleData=null;
+   state.adminModuleData=null;state.adminMarketData=null;
    if(err.status===401||err.status===403){state.user={...guestUser};denyRoleAccess(match.route);}
    else {
     const body='<section class="card card-pad error"><h2>Account unavailable</h2><p>Unable to verify your session. Please retry.</p><button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>';
@@ -971,7 +1020,7 @@ function bindAdminUserControls() {
   }
   if(empty)empty.hidden=visible!==0||rows.length===0;
   if(count)count.textContent=term||role||status||days
-   ? 'Showing '+visible+' matching users on this page · '+originalCount:originalCount;
+   ? 'Showing '+visible+' matching users on this page Ã‚Â· '+originalCount:originalCount;
  };
  form.addEventListener('submit',e=>{e.preventDefault();apply();});
  // Native reset restores all four fields before reapplying the page-only filter.
@@ -985,7 +1034,7 @@ function bindAdminUserControls() {
   if(!u)return;
   const fields=[['User ID',u.userId],['Full name',u.fullName],['Email',u.email],['Roles',(u.roles||[]).join(', ')],['Status',u.accountStatus],['Joined',u.joinedAt||'Not available']];
   document.body.insertAdjacentHTML('beforeend','<div class="modal-backdrop" id="modal"><div class="modal admin-user-detail-modal">'+
-   '<h2>User Details</h2><dl>'+fields.map(([label,value])=>'<div><dt>'+esc(label)+'</dt><dd>'+esc(value??'—')+'</dd></div>').join('')+
+   '<h2>User Details</h2><dl>'+fields.map(([label,value])=>'<div><dt>'+esc(label)+'</dt><dd>'+esc(value??'Ã¢â‚¬â€')+'</dd></div>').join('')+
    '</dl><div class="modal-actions"><button type="button" id="close-modal" class="btn btn-secondary">Close</button></div></div></div>');
   $('#close-modal').onclick=()=>$('#modal')?.remove();
  }));
@@ -1032,6 +1081,16 @@ function bind(){
    },
    createOrganization:async payload=>{await adminModulesApi.createOrganization(payload);toast('Organization created.','success');await render();},
    updateOrganization:async(id,payload)=>{await adminModulesApi.updateOrganization(id,payload);toast('Organization updated.','success');await render();}
+ });
+ bindAdminMarketplace(root,{
+   get filters(){return marketFilters();},navigate:go,refresh:()=>render(),toast,
+   get:id=>adminMarketplaceApi.one(id),
+   update:(id,payload)=>adminMarketplaceApi.update(id,payload),
+   setStatus:(id,status)=>adminMarketplaceApi.setStatus(id,status),
+   approve:id=>adminMarketplaceApi.approve(id),
+   reject:(id,reason)=>adminMarketplaceApi.reject(id,reason),
+   remove:(id,reason)=>adminMarketplaceApi.remove(id,reason),
+   done:message=>{toast(message,'success');render();}
  });
  $('#admin-audit-filters')?.addEventListener('submit', event => {
    event.preventDefault();
