@@ -33,6 +33,8 @@ try {
         {camelId:2,name:'Shaheen',voteCount:0,votePercent:0,photoUrl:null}
       ]
     };
+    if (path === '/api/auth/csrf') return route.fulfill({status:200,contentType:'application/json',
+      body:JSON.stringify({headerName:'X-XSRF-TOKEN',token:'browser-test-token'})});
     if (path === '/api/challenges/42/votes' && route.request().method()==='POST') {
       recordedChallengeVotes+=1;
       return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({voteId:9,challengeId:42,camelId:1})});
