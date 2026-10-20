@@ -419,14 +419,30 @@ try {
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async()=>{
     const {adminShell}=await import('/js/admin-console.js');
-    const {adminChallengesView,adminOrganizationsView}=await import('/js/admin-modules.js');
+    const {adminChallengesView,adminOrganizationsView,bindAdminModules}=await import('/js/admin-modules.js');
     const orgs={content:[{organizationId:8,name:'Test Organization',region:'Muscat',description:'Test-only entry',contactEmail:'org@example.invalid',status:'ACTIVE',createdAt:'2030-01-01T00:00:00Z'}],page:0,size:20,totalElements:1,totalPages:1};
-    const ch={content:[{challengeId:4,title:'Test Challenge',status:'DRAFT',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:0,camels:[]}],page:0,size:20,totalElements:1,totalPages:1};
+    const ch={content:[
+      {challengeId:4,title:'Test Challenge',status:'DRAFT',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:0,camels:[]},
+      {challengeId:5,title:'Barq vs Shaheen',status:'OPEN',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:5,camels:[
+        {camelId:1,name:'Barq',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:3,votePercent:60},
+        {camelId:2,name:'Shaheen',photoUrl:null,voteCount:2,votePercent:40}]}],page:0,size:20,totalElements:2,totalPages:1};
     document.querySelector('#app').innerHTML=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/challenges',body:adminChallengesView({data:ch})});
+    bindAdminModules(document.querySelector('#app'),{});
     window.__testOrgPage=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/organizations',body:adminOrganizationsView({data:orgs})});
   });
   assert.equal(await page.locator('[data-admin-challenge-camel]').count(),1);
-  assert.equal(await page.locator('.admin-module-item').count(),1);
+  assert.equal(await page.locator('.admin-challenge-card').count(),2);
+  assert.equal(await page.locator('.admin-challenge-contender').count(),2);
+  assert.match(await page.locator('.admin-challenge-card').nth(1).innerText(),/3 votes/);
+  await page.locator('#admin-challenge-search').fill('Test Challenge');
+  assert.equal(await page.locator('.admin-challenge-card:visible').count(),1);
+  await page.locator('#admin-challenge-status').selectOption('OPEN');
+  assert.equal(await page.locator('.admin-challenge-card:visible').count(),0);
+  assert.equal(await page.locator('#admin-challenge-no-match').isVisible(),true);
+  await page.locator('#admin-challenge-search').fill('Barq');
+  assert.equal(await page.locator('.admin-challenge-card:visible').count(),1);
+  await page.locator('#admin-challenge-status').selectOption('ALL');
+  await page.locator('#admin-challenge-search').fill('');
   await page.screenshot({path:'test-results/admin-challenges-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin challenges mobile must not overflow');
