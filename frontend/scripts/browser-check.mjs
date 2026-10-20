@@ -298,8 +298,8 @@ try {
   assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
-  assert.equal(await page.locator('.admin-sidebar-nav a').count(),6,'desktop navigation should contain six admin routes');
-  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),6,'desktop menu should retain its SVG icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(),7,'desktop navigation should contain seven admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),7,'desktop menu should retain its SVG icons');
   await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');
@@ -307,7 +307,7 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
   await page.locator('.admin-mobile-nav summary').click();
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),6);
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),7);
   const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
     const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
   }));
@@ -317,6 +317,41 @@ try {
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin mobile must not overflow');
   await page.screenshot({path:'test-results/admin-nav-mobile.png',fullPage:true});
 
+  // Health page component with deterministic test-only status and a documented failure state.
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(async()=>{
+    const {adminShell}=await import('/js/admin-console.js');
+    const {adminSystemHealthView}=await import('/js/admin-system-health.js');
+    const admin={userId:1,fullName:'Test Administrator',roles:['ADMIN']};
+    const data={backendStatus:'RESPONDING',databaseStatus:'CONNECTED',
+      totalChallenges:7,totalVotes:12,checkedAt:'2026-10-20T07:00:00Z'};
+    document.querySelector('#app').innerHTML=adminShell({
+      user:admin,active:'/admin/system-health',body:adminSystemHealthView({data})
+    });
+  });
+  assert.equal(await page.locator('.admin-system-card').count(),4);
+  assert.match(await page.locator('.admin-system-panel').innerText(),/Connected|12|7/);
+  assert.equal(await page.locator('#admin-health-check').isVisible(),true);
+  await page.screenshot({path:'test-results/admin-system-health-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
+    'mobile admin health should not overflow');
+  await page.screenshot({path:'test-results/admin-system-health-mobile.png',fullPage:true});
+  await page.evaluate(async()=>{
+    const {adminShell}=await import('/js/admin-console.js');
+    const {adminSystemHealthView}=await import('/js/admin-system-health.js');
+    document.querySelector('#app').innerHTML=adminShell({
+      user:{userId:1,roles:['ADMIN']},active:'/admin/system-health',
+      body:adminSystemHealthView({data:{
+        backendStatus:'RESPONDING',databaseStatus:'DISCONNECTED',
+        totalChallenges:null,totalVotes:null,checkedAt:'2026-10-20T07:00:00Z'
+      }})
+    });
+  });
+  assert.match(await page.locator('.admin-system-panel').innerText(),/Disconnected|Counts are unavailable/);
+  assert.equal(await page.locator('.admin-system-count').count(),2);
+  assert.equal(await page.locator('.admin-system-count').first().innerText(),'—');
+  await page.setViewportSize({width:1440,height:900});
   // Real admin component and tab handler with clearly test-only data.
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async()=>{
