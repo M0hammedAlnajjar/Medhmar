@@ -1,41 +1,118 @@
-// Local presentation only. Never imports the API client or sends preview votes.
-let choice = null;
-export function broadcastPreview() {
-  const votes = [744 + (choice === 0 ? 1 : 0), 456 + (choice === 1 ? 1 : 0)];
-  const total = votes[0] + votes[1];
-  return `<section class="broadcast-preview" aria-label="Live challenge design preview">
-    <div class="broadcast-heading"><div><div class="kicker">MEDHMAR</div><h1>Live Camel Challenge</h1><p>Watch the race. Support your champion.</p></div><span class="broadcast-live">● LIVE PREVIEW<small>Al Bashaer · Oman</small></span></div>
-    <p class="broadcast-notice">Design preview · Sample race image and votes. No live stream is connected.</p>
-    <div class="broadcast-grid"><div><div class="broadcast-player" id="broadcast-player"><img src="/assets/home-racetrack.jpg" alt="Camels racing on a sandy track in Oman"><span class="broadcast-label">PREVIEW</span><span class="broadcast-watchers">1.2K watching · sample</span><div class="broadcast-toolbar"><span>Race image preview</span><button type="button" data-preview-fullscreen aria-label="Expand race preview">⛶ Full screen</button></div></div><h2>Al Bashaer Evening Challenge</h2><p>5 km · Two contenders · Exhibition preview</p><div class="broadcast-tabs" role="tablist" aria-label="Race preview information"><button type="button" role="tab" aria-selected="true" aria-controls="broadcast-info" id="preview-overview" data-preview-tab="overview">Overview</button><button type="button" role="tab" aria-selected="false" aria-controls="broadcast-info" id="preview-participants" data-preview-tab="participants">Participants</button></div><div id="broadcast-info" role="tabpanel" aria-labelledby="preview-overview"><p>Two champions on the Al Bashaer track. Explore the voting experience using sample data.</p></div></div>
-    <aside class="broadcast-voting"><h2>Choose your champion</h2><p>Voting window · preview</p>${['Al Barq','Shaheen'].map((name,i)=>`<article class="broadcast-candidate"><img src="/assets/mock-camels/camel-${i===0?7:2}.jpg" alt="${name}, sample camel portrait"><div><div class="broadcast-candidate-title"><h3>${name}</h3><span>#${i===0?'07':'12'}</span></div><div class="broadcast-count"><span>${votes[i]} votes</span><strong>${Math.round(votes[i]/total*100)}%</strong></div><div class="broadcast-meter"><span style="width:${votes[i]/total*100}%"></span></div><button type="button" data-preview-vote="${i}" ${choice!==null?'disabled':''}>${choice===i?'✓ Selected':`Vote for ${name}`}</button></div></article>`).join('')}<p id="preview-vote-status" role="status">${choice===null?'Try one sample vote. Nothing is saved to your account.':'Sample vote selected. Real challenge votes are unchanged.'}</p>${choice!==null?'<button class="broadcast-reset" type="button" data-preview-reset>Reset preview vote</button>':''}</aside></div>
-    <div class="broadcast-facts"><div><small>Distance</small><strong>5 km</strong></div><div><small>Venue</small><strong>Al Bashaer, Oman</strong></div><div><small>Category</small><strong>Open Challenge</strong></div><div><small>Broadcast</small><strong>Design preview</strong></div></div>
-    <h2>Upcoming Challenges</h2><div class="broadcast-upcoming">${[['Al Rustaq Morning Challenge','Al Rustaq · 3 km','camel-3.jpg'],['Ibri Heritage Challenge','Ibri · 6 km','camel-6.jpg']].map(([name,detail,img])=>`<article><img src="/assets/mock-camels/${img}" alt="Sample racing camel"><div><h3>${name}</h3><p>${detail}</p></div><span>Sample event</span></article>`).join('')}</div>
-  </section>`;
+// Real challenge feature: every title, contender and vote total originates from /api/challenges.
+// The hero photograph is illustrative, not a live stream or a source of vote results.
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+}[char]));
+const safeCount = value => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
+  ? value.toLocaleString('en-US') : '—';
+const percent = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100
+  ? value : null;
+const utc = value => {
+  const date = value ? new Date(value) : null;
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',
+        hour:'2-digit',minute:'2-digit',timeZone:'UTC'}) + ' UTC' : 'Unavailable';
+};
+const validPhoto = value => typeof value === 'string' && (
+  /^https?:\/\/[^\s]+$/i.test(value) || /^\/assets\/[a-z0-9/_-]+\.(?:webp|png|jpe?g)$/i.test(value)
+);
+const votingOpen = challenge => challenge?.status === 'OPEN' &&
+  Date.now() >= new Date(challenge.opensAt).getTime() &&
+  Date.now() < new Date(challenge.closesAt).getTime();
+const featureBadge = challenge => challenge.status === 'CLOSED' ? 'CLOSED · RESULTS' :
+  votingOpen(challenge) ? 'VOTING OPEN' : 'VOTING SCHEDULED';
+
+export function broadcastPreview(challenge=null, {signedIn=false,error=''}={}) {
+  if (error || !challenge) {
+    return '<section class="broadcast-preview broadcast-empty" aria-label="Challenge spotlight">'+
+      '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR</div><h1>Camel Challenges</h1>'+
+      '<p>Follow published competitions and support your champion.</p></div></div>'+
+      '<div class="broadcast-empty-content" role="status"><h2>'+
+      (error?'Challenges temporarily unavailable':'No published challenges yet')+'</h2><p>'+
+      (error?'Unable to load the challenge records. Please retry.':
+        'Challenges will appear here when an administrator publishes one.')+
+      '</p><button type="button" id="refresh-challenges" class="broadcast-refresh">Refresh challenges</button></div></section>';
+  }
+  const camels = Array.isArray(challenge.camels) ? challenge.camels : [];
+  const open = votingOpen(challenge);
+  const id = challenge.challengeId;
+  const totalVotes = safeCount(challenge.totalVotes);
+  const candidateCards = camels.length ? camels.map(camel => {
+    const share = percent(camel.votePercent);
+    const src = validPhoto(camel.photoUrl) ? escapeHtml(camel.photoUrl) : null;
+    const picture = src ? '<img src="'+src+'" alt="'+escapeHtml(camel.name||'Registered camel')+'" loading="lazy" referrerpolicy="no-referrer">' :
+      '<div class="broadcast-photo-placeholder" role="img" aria-label="No camel photograph available">No photo</div>';
+    let action = '';
+    if (open && signedIn) action = '<button type="button" class="vote-btn" data-challenge="'+escapeHtml(id)+
+      '" data-camel="'+escapeHtml(camel.camelId)+'">Vote for '+escapeHtml(camel.name||'Camel')+'</button>';
+    else if (open) action = '<a class="broadcast-vote-link" href="/signin" data-link>Sign in to vote</a>';
+    else action = '<button type="button" disabled>Voting unavailable</button>';
+    return '<article class="broadcast-candidate">'+picture+'<div><div class="broadcast-candidate-title">'+
+      '<h3>'+escapeHtml(camel.name||'Unnamed camel')+'</h3><span>#'+escapeHtml(camel.camelId)+'</span></div>'+
+      '<div class="broadcast-count"><span>'+safeCount(camel.voteCount)+' votes</span><strong>'+
+      (share===null?'—':share.toFixed(0)+'%')+'</strong></div><div class="broadcast-meter" role="meter" '+
+      'aria-label="Vote share for '+escapeHtml(camel.name||'Camel')+'" aria-valuemin="0" aria-valuemax="100" '+
+      'aria-valuenow="'+(share===null?0:share)+'"><span style="width:'+(share===null?0:share)+'%"></span></div>'+
+      action+'</div></article>';
+  }).join('') : '<p>No participating camels are available.</p>';
+  const votingNote = !open ? (challenge.status==='CLOSED'?'Voting has closed. These are the recorded results.':
+    'Voting will be available during the scheduled window.') :
+    signedIn ? 'One vote per account. Votes are saved to the platform and cannot be changed.' :
+    'Sign in to cast one recorded vote.';
+  return '<section class="broadcast-preview broadcast-live-data" aria-label="Featured published challenge">'+
+    '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR · CHALLENGE #'+escapeHtml(id)+'</div>'+
+    '<h1>'+escapeHtml(challenge.title||'Camel Challenge')+'</h1>'+
+    '<p>Support your champion. Results come from the Medhmar platform.</p></div>'+
+    '<span class="broadcast-live">'+escapeHtml(featureBadge(challenge))+'<small>'+
+    escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
+    '<p class="broadcast-notice">Real challenge data · Illustrative racetrack photograph. No live stream is connected.</p>'+
+    '<div class="broadcast-grid"><div><div class="broadcast-player" id="broadcast-player">'+
+    '<img src="/assets/home-racetrack.jpg" alt="Illustrative photograph of camels racing on a track">'+
+    '<span class="broadcast-label">RACE PHOTO</span>'+
+    '<div class="broadcast-toolbar"><span>Illustrative photo · Not a live broadcast</span>'+
+    '<button type="button" data-preview-fullscreen aria-label="Expand race photograph">⛶ Full screen</button></div></div>'+
+    '<div class="broadcast-feature-subheading"><h2>'+escapeHtml(challenge.title||'Camel Challenge')+'</h2>'+
+    '<button type="button" id="refresh-challenges" class="broadcast-refresh">Refresh results</button></div>'+
+    '<p>Challenge #'+escapeHtml(id)+' · '+escapeHtml(challenge.status)+
+    ' · '+escapeHtml(camels.length)+' registered contenders</p>'+
+    '<div class="broadcast-tabs" role="tablist" aria-label="Challenge information">'+
+    '<button type="button" role="tab" data-preview-tab="overview" id="challenge-overview" '+
+    'aria-selected="true" aria-controls="broadcast-info">Overview</button>'+
+    '<button type="button" role="tab" data-preview-tab="participants" id="challenge-participants" '+
+    'aria-selected="false" aria-controls="broadcast-info">Participants</button></div>'+
+    '<div id="broadcast-info" role="tabpanel" aria-labelledby="challenge-overview" '+
+    'data-overview="'+escapeHtml('Voting opens '+utc(challenge.opensAt)+'. Voting closes '+utc(challenge.closesAt)+'.')+'" '+
+    'data-participants="'+escapeHtml(camels.length?camels.map(c=>String(c.name||'Camel')+' (#'+c.camelId+')').join(' · '):'No participating camels')+'">'+
+    '<p>Voting opens '+escapeHtml(utc(challenge.opensAt))+'. Voting closes '+
+    escapeHtml(utc(challenge.closesAt))+'.</p></div></div>'+
+    '<aside class="broadcast-voting"><h2>Choose your champion</h2>'+
+    '<p>'+escapeHtml(votingNote)+'</p>'+candidateCards+
+    '<p class="broadcast-vote-note">Votes shown here are recorded results, not simulated votes.</p>'+
+    '<a data-link class="broadcast-challenge-link" href="/challenges/'+encodeURIComponent(String(id))+
+    '">View challenge details →</a></aside></div>'+
+    '<div class="broadcast-facts"><div><small>Challenge ID</small><strong>#'+escapeHtml(id)+'</strong></div>'+
+    '<div><small>Opens (UTC)</small><strong>'+escapeHtml(utc(challenge.opensAt))+'</strong></div>'+
+    '<div><small>Closes (UTC)</small><strong>'+escapeHtml(utc(challenge.closesAt))+'</strong></div>'+
+    '<div><small>Broadcast</small><strong>Not connected</strong></div></div></section>';
 }
+
+// Presentation interactions only; real voting is handled by the app's authenticated vote API.
 export function bindBroadcastPreview(root) {
   const section = root.querySelector('.broadcast-preview');
   if (!section) return;
-  section.querySelectorAll('[data-preview-vote]').forEach(button => button.addEventListener('click', () => {
-    if (choice !== null) return;
-    choice = Number(button.dataset.previewVote);
-    section.outerHTML = broadcastPreview();
-    bindBroadcastPreview(root);
-    root.querySelector('[data-preview-reset]')?.focus();
-  }));
-  section.querySelector('[data-preview-reset]')?.addEventListener('click', () => {
-    choice = null; section.outerHTML = broadcastPreview(); bindBroadcastPreview(root);
-    root.querySelector('[data-preview-vote]')?.focus();
-  });
   section.querySelector('[data-preview-fullscreen]')?.addEventListener('click', async () => {
     const player = section.querySelector('.broadcast-player');
-    try { if (player.requestFullscreen) await player.requestFullscreen(); }
-    catch { section.querySelector('#preview-vote-status').textContent = 'Full screen is unavailable in this browser.'; }
+    try { if (player?.requestFullscreen) await player.requestFullscreen(); }
+    catch { /* Fullscreen is optional; voting and data must remain unaffected. */ }
   });
   section.querySelectorAll('[data-preview-tab]').forEach(button => button.addEventListener('click', () => {
-    section.querySelectorAll('[data-preview-tab]').forEach(tab => tab.setAttribute('aria-selected', String(tab === button)));
-    const info = section.querySelector('#broadcast-info'); info.setAttribute('aria-labelledby', button.id);
-    info.innerHTML = button.dataset.previewTab === 'participants'
-      ? '<p><strong>#07 Al Barq</strong> and <strong>#12 Shaheen</strong> · Two sample contenders.</p>'
-      : '<p>Two champions on the Al Bashaer track. Explore the voting experience using sample data.</p>';
+    section.querySelectorAll('[data-preview-tab]').forEach(tab =>
+      tab.setAttribute('aria-selected', String(tab===button)));
+    const info = section.querySelector('#broadcast-info');
+    if (!info) return;
+    info.setAttribute('aria-labelledby',button.id);
+    const kind = button.dataset.previewTab==='participants'?'participants':'overview';
+    const text = info.dataset[kind] || '';
+    info.textContent = text;
   }));
 }
