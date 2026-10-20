@@ -59,9 +59,9 @@ public class MarketPlaceController {
     }
 
     @GetMapping("/getById")
-    public MarketPlaceDTO getById(@RequestParam Long id) {
+    public MarketPlaceDTO getById(@RequestParam Long id, Authentication auth) {
         return MarketPlaceDTO.convertToDTO(
-                marketPlaceService.getById(id)
+                marketPlaceService.getById(id, AccountAccess.optionalId(auth))
         );
     }
 

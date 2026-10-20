@@ -14,4 +14,3 @@ ALTER TABLE training_agreements
 ALTER TABLE training_agreements
     ADD CONSTRAINT fk_agreement_termination_requested_by
         FOREIGN KEY (termination_requested_by) REFERENCES users(user_id);
-

@@ -10,7 +10,7 @@ try {
   let ready = false;
   for (let i=0;i<100;i++) {
     if (server.exitCode !== null) throw new Error(`Preview server stopped: ${output}`);
-    try { const r = await fetch(`http://127.0.0.1:${port}/`); if (r.ok) { ready=true;break; } } catch {}
+    try { const r = await fetch(`http://localhost:${port}/`); if (r.ok) { ready=true;break; } } catch {}
     await new Promise(resolve=>setTimeout(resolve,100));
   }
   assert.ok(ready, `Preview server did not start: ${output}`);
@@ -65,7 +65,7 @@ try {
   });
   await mkdir('test-results',{recursive:true});
   // Authentication header uses the gold transparent mark directly on brown.
-  await page.goto('http://127.0.0.1:'+port+'/signin');
+  await page.goto('http://localhost:'+port+'/signin');
   await page.locator('.auth-brandbar .brand-wordmark').waitFor();
   const authLogoStyle=await page.locator('.auth-brandbar .brand-wordmark').evaluate(el=>{
     const css=getComputedStyle(el);
@@ -80,7 +80,7 @@ try {
   assert.equal(await page.locator('.auth-brandbar .brand-wordmark').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)');
   await page.screenshot({path:'test-results/auth-logo-transparent-mobile.png'});
   await page.setViewportSize({width:1440,height:900});
-  await page.goto(`http://127.0.0.1:${port}/challenges`);
+  await page.goto(`http://localhost:${port}/challenges`);
   await page.locator('.broadcast-live-data').waitFor();
   assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
@@ -143,7 +143,7 @@ try {
   assert.ok(mobileLayout.document<=mobileLayout.viewport+1,'live challenges mobile must not overflow: '+JSON.stringify(mobileLayout));
   await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:900});
-  await page.goto(`http://127.0.0.1:${port}/training`);
+  await page.goto(`http://localhost:${port}/training`);
   await page.locator('.training-journal').waitFor();
   assert.equal(await page.locator('.journal-session').count(),3);
   await page.locator('[data-journal-session="1"]').click();
@@ -158,7 +158,7 @@ try {
   await page.locator('#close-modal').click();
   assert.equal(mutations.length,0,'preview controls must not submit account data');
   await page.screenshot({path:'test-results/training-desktop.png',fullPage:true});
-  await page.goto(`http://127.0.0.1:${port}/organizations`);
+  await page.goto(`http://localhost:${port}/organizations`);
   await page.locator('.directory-card').first().waitFor();
   assert.equal(await page.locator('.directory-card').count(),3);
   await page.locator('#organization-search').fill('nizwa');
@@ -177,7 +177,7 @@ try {
   assert.equal(mutations.length,0,'directory preview must not write to the backend');
   await page.screenshot({path:'test-results/organizations-desktop.png',fullPage:true});
 
-  await page.goto(`http://127.0.0.1:${port}/tourism`);
+  await page.goto(`http://localhost:${port}/tourism`);
   await page.locator('.heritage-card').first().waitFor();
   assert.equal(await page.locator('.heritage-card').count(),3);
   assert.equal(await page.locator('.tourism-hero').count(),0);
@@ -196,7 +196,7 @@ try {
   assert.equal(mutations.length,0,'heritage sample actions must not write to backend');
   await page.screenshot({path:'test-results/heritage-desktop.png',fullPage:true});
 
-  await page.goto(`http://127.0.0.1:${port}/races`);
+  await page.goto(`http://localhost:${port}/races`);
   await page.locator('.medhmar-race-row').first().waitFor();
   await page.waitForFunction(()=>[...document.querySelectorAll('.medhmar-race-image img')].every(i=>i.complete && i.naturalWidth>0));
   const raceSources=await page.locator('.medhmar-race-image img').evaluateAll(images=>images.map(i=>i.getAttribute('src')));
@@ -204,7 +204,7 @@ try {
   assert.ok(raceSources.every(src=>src.startsWith('/assets/organization-photos/')));
   await page.screenshot({path:'test-results/races-desktop.png',fullPage:true});
 
-  await page.goto(`http://127.0.0.1:${port}/race-cards`);
+  await page.goto(`http://localhost:${port}/race-cards`);
   await page.locator('.drc-document').waitFor();
   assert.equal(await page.locator('.drc-table tbody tr').count(),4);
   await page.locator('#drc-version').selectOption('1');
@@ -228,7 +228,7 @@ try {
   assert.equal(mutations.length,0,'viewing sample race card versions must never publish');
   await page.screenshot({path:'test-results/race-cards-desktop.png',fullPage:true});
 
-  await page.goto(`http://127.0.0.1:${port}/pedigree`);
+  await page.goto(`http://localhost:${port}/pedigree`);
   await page.locator('.pedigree-search-form').waitFor();
   await page.locator('[data-pedigree-record]').waitFor();
   assert.match(await page.locator('.pedigree-inline').innerText(), /Al Zaeem/);
@@ -255,14 +255,14 @@ try {
   await page.screenshot({path:'test-results/pedigree-empty-permanent.png',fullPage:true});
   assert.equal(mutations.length,0,'pedigree search and selection must remain read only');
 
-  await page.goto(`http://127.0.0.1:${port}/marketplace`);
+  await page.goto(`http://localhost:${port}/marketplace`);
   await page.getByText('No live listings are available yet.',{exact:false}).waitFor();
   assert.equal(await page.locator('.market-listing-card').count(),3);
   await page.getByRole('link',{name:'View live marketplace'}).click();
   await page.locator('.market-empty').waitFor();
   assert.equal(await page.locator('[data-market-sample]').count(),0);
   marketHasListings=true;
-  await page.goto(`http://127.0.0.1:${port}/marketplace?preview=0`);
+  await page.goto(`http://localhost:${port}/marketplace?preview=0`);
   await page.locator('.market-listing-card').first().waitFor();
   assert.match(await page.locator('.market-listing-card').innerText(),/Recorded camel/);
   assert.equal(await page.getByRole('link',{name:'View Listing',exact:true}).getAttribute('href'),'/marketplace/77');
@@ -270,7 +270,7 @@ try {
   assert.equal(await page.locator('[data-market-sample]').count(),0);
   // Preview marketplace is explicit and all its actions remain local.
   await page.setViewportSize({width:1440,height:1100});
-  await page.goto(`http://127.0.0.1:${port}/marketplace?preview=1`);
+  await page.goto(`http://localhost:${port}/marketplace?preview=1`);
   await page.locator('.market-listing-card').first().waitFor();
   assert.equal(await page.locator('.market-listing-card').count(),3);
   await page.waitForFunction(()=>[...document.querySelectorAll('[data-market-photo]')].length===3&&[...document.querySelectorAll('[data-market-photo]')].every(i=>i.complete&&i.naturalWidth>0));
@@ -290,7 +290,7 @@ try {
   await page.locator('[name="search"]').fill('Barq');
   await page.locator('.market-browse-filters button').click();
   await page.waitForFunction(()=>document.querySelectorAll('.market-listing-card').length===1);
-  await page.goto(`http://127.0.0.1:${port}/marketplace?preview=1`);
+  await page.goto(`http://localhost:${port}/marketplace?preview=1`);
   await page.locator('.market-listing-card').first().waitFor();
   await page.locator('[name="minPrice"]').fill('5000');
   await page.locator('[name="maxPrice"]').fill('1000');
@@ -299,7 +299,7 @@ try {
   await page.locator('[name="maxPrice"]').fill('');
   await page.screenshot({path:'test-results/marketplace-desktop.png',fullPage:true});
   assert.equal(mutations.length,0,'sample marketplace must not send offers or purchases');
-  await page.goto(`http://127.0.0.1:${port}/trainer-profile`);
+  await page.goto(`http://localhost:${port}/trainer-profile`);
   await page.locator('.trainer-profile').waitFor();
   await page.locator('.trainer-directory-entry').first().waitFor();
   assert.equal(await page.locator('.trainer-directory-entry').count(),2);
@@ -313,7 +313,7 @@ try {
 
   for (const path of ['challenges','training','organizations','tourism','races','race-cards','marketplace?preview=1','trainer-profile']) {
     await page.setViewportSize({width:390,height:844});
-    await page.goto(`http://127.0.0.1:${port}/${path}`);
+    await page.goto(`http://localhost:${port}/${path}`);
     await page.locator(path === 'training'?'.training-journal':path === 'organizations'?'.organization-directory':path === 'tourism'?'.heritage-experiences':path === 'races'?'.medhmar-races-page':path === 'race-cards'?'.digital-race-cards':path.startsWith('marketplace')?'.marketplace-browse':path === 'trainer-profile'?'.trainer-profile':'.broadcast-preview').waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1), `${path} overflows on mobile`);
     if (path === 'training') assert.ok(await page.locator('.journal-session > div').first().evaluate(el=>el.getBoundingClientRect().width > 180), 'mobile session notes must retain readable width');
@@ -328,7 +328,7 @@ try {
   // Render the real admin shell using the same CSS loaded by the app. This
   // isolates responsive styling without bypassing the real ADMIN route guard.
   await page.setViewportSize({width:1440,height:900});
-  await page.goto(`http://127.0.0.1:${port}/home`);
+  await page.goto(`http://localhost:${port}/home`);
   // The SPA initializes asynchronously. Wait before injecting the shell, or
   // its delayed route render may replace this isolated visual fixture.
   await page.waitForLoadState('networkidle');
@@ -347,8 +347,8 @@ try {
   assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
-  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 9, 'desktop navigation should contain nine admin routes');
-  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),9,'desktop menu should retain its SVG icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 10, 'desktop navigation should contain ten admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),10,'desktop menu should retain its SVG icons');
   await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');
@@ -356,7 +356,7 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
   await page.locator('.admin-mobile-nav summary').click();
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 9, 'mobile navigation should contain nine admin routes');
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 10, 'mobile navigation should contain ten admin routes');
   const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
     const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
   }));

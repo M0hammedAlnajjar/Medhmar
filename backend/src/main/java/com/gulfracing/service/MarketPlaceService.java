@@ -6,6 +6,7 @@ import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.CamelRepository;
 import com.gulfracing.repository.MarketPlaceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,10 @@ public class MarketPlaceService {
     private final CamelAccessService camelAccess;
     private final UserService users;
     private final Clock clock;
+
+    // Opt-in moderation gate. Default false keeps the existing publish-immediately behaviour.
+    @Value("${app.marketplace.require-approval:false}")
+    private boolean requireApproval;
 
     @Transactional
     public Long addMarketPlace(
@@ -50,7 +55,7 @@ public class MarketPlaceService {
         var marketPlace = new MarketPlace();
         marketPlace.setAskingPriceOmr(askingPriceOmr);
         marketPlace.setCreatedAt(now);
-        marketPlace.setStatus(MarketPlaceStatus.AVAILABLE);
+        marketPlace.setStatus(requireApproval ? MarketPlaceStatus.PENDING : MarketPlaceStatus.AVAILABLE);
         marketPlace.setDescription(description.strip());
         marketPlace.setIsActive(true);
         marketPlace.setCreatedDate(now);
@@ -113,9 +118,25 @@ public class MarketPlaceService {
 
     @Transactional(readOnly = true)
     public MarketPlace getById(Long id) {
+        return getById(id, null);
+    }
+
+    // Moderation states (PENDING / REJECTED) are visible only to the seller and administrators.
+    @Transactional(readOnly = true)
+    public MarketPlace getById(Long id, Long viewerId) {
         validateId(id);
-        return marketPlaces.findByListingIdAndIsActiveTrue(id)
+        var listing = marketPlaces.findByListingIdAndIsActiveTrue(id)
                 .orElseThrow(() -> ApiException.notFound("Marketplace listing"));
+        boolean moderated = listing.getStatus() == MarketPlaceStatus.PENDING
+                || listing.getStatus() == MarketPlaceStatus.REJECTED;
+        if (moderated) {
+            boolean seller = viewerId != null && listing.getUser() != null
+                    && viewerId.equals(listing.getUser().getUserId());
+            if (!seller && !(viewerId != null && users.isAdmin(viewerId))) {
+                throw ApiException.notFound("Marketplace listing");
+            }
+        }
+        return listing;
     }
 
     @Transactional

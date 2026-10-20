@@ -20,7 +20,13 @@ public class AuditRecorder {
     // Joins the business transaction: neither operation nor its audit can commit alone.
     @Transactional
     public Long record(String action, String type, Long id, Long camelId, Long actorId) {
+        return record(action, type, id, camelId, actorId, null);
+    }
+
+    @Transactional
+    public Long record(String action, String type, Long id, Long camelId, Long actorId, String description) {
         var log = new AuditLog();
+        log.setDescription(description);
         log.setActionType(action);
         log.setEntityType(type);
         log.setEntityId(id);

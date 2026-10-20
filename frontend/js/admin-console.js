@@ -4,6 +4,7 @@ const esc = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const links = [
     ['/admin', 'Dashboard'],
     ['/admin/users', 'Manage Users'],
+    ['/admin/marketplace', 'Marketplace Management'],
     ['/admin/termination-requests', 'Termination requests'],
     ['/admin/heritage', 'Heritage'],
     ['/admin/challenges', 'Challenges'],
@@ -47,6 +48,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
     const icons = {
         '/admin': 'dashboard',
         '/admin/users': 'users',
+        '/admin/marketplace': 'market',
         '/admin/termination-requests': 'audit',
         '/admin/heritage': 'race',
         '/admin/challenges': 'challenge',
@@ -66,6 +68,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
     const titles = {
         '/admin': 'Overview',
         '/admin/users': 'Manage Users',
+        '/admin/marketplace': 'Marketplace Management',
         '/admin/termination-requests': 'Termination requests',
         '/admin/heritage': 'Heritage',
         '/admin/challenges': 'Challenges',

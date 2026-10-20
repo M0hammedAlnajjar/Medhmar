@@ -19,13 +19,13 @@ export function adminHeritageView({events=[],stories=[],organizations=[],error='
   const orgs=Array.isArray(organizations)?organizations:[];
   const intro='<header class="admin-heritage-hero"><span>CONTENT MANAGEMENT</span><h1>Heritage</h1><p>Add and update cultural stories and visitor events shown on the public Heritage page.</p></header>';
   if(error)return intro+`<section class="admin-heritage-panel" role="alert"><h2>Heritage content unavailable</h2><p>${esc(error)}</p><button type="button" class="admin-heritage-submit" data-heritage-retry>Try again</button></section>`;
-  
+
   const eventsList=Array.isArray(events)?events:[],storiesList=Array.isArray(stories)?stories:[];
   return intro+'<div class="admin-heritage-grid">'+
-    '<section class="admin-heritage-panel"><div class="admin-heritage-heading"><div><span>VISITOR EXPERIENCES</span><h2>Visitor events</h2></div><span>'+eventsList.length+' events</span></div>'+ 
+    '<section class="admin-heritage-panel"><div class="admin-heritage-heading"><div><span>VISITOR EXPERIENCES</span><h2>Visitor events</h2></div><span>'+eventsList.length+' events</span></div>'+
     '<details class="admin-heritage-create"><summary>+ Add visitor event</summary><form class="admin-heritage-form" data-heritage-create-event>'+eventFields(orgs)+errorBox+'<button class="admin-heritage-submit" type="submit">Create event</button></form></details>'+
     (eventsList.length?eventsList.map(event=>eventCard(event,orgs)).join(''):'<p class="admin-heritage-empty">No visitor events yet.</p>')+'</section>'+
-    '<section class="admin-heritage-panel"><div class="admin-heritage-heading"><div><span>OMANI CULTURE</span><h2>Cultural stories</h2></div><span>'+storiesList.length+' stories</span></div>'+ 
+    '<section class="admin-heritage-panel"><div class="admin-heritage-heading"><div><span>OMANI CULTURE</span><h2>Cultural stories</h2></div><span>'+storiesList.length+' stories</span></div>'+
     '<details class="admin-heritage-create"><summary>+ Add cultural story</summary><form class="admin-heritage-form" data-heritage-create-story>'+storyFields(orgs)+errorBox+'<button class="admin-heritage-submit" type="submit">Create and publish story</button></form></details>'+
     (storiesList.length?storiesList.map(story=>storyCard(story,orgs)).join(''):'<p class="admin-heritage-empty">No cultural stories yet.</p>')+'</section></div>';
 }

@@ -1,4 +1,4 @@
-/* Medhmar administration — single integrated layout based on the approved design.
+/* Medhmar administration â€” single integrated layout based on the approved design.
    No second static dashboard page. Only .admin-console is styled here. */
 .admin-console{color-scheme:light;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
 .admin-console,.admin-console *{box-sizing:border-box}
@@ -845,6 +845,47 @@
 .admin-console .admin-system-note{font-size:12px;line-height:1.6;color:#85776a;margin:21px 0 0}
 @media(max-width:750px){.admin-console .admin-system-hero{padding:23px;align-items:flex-start;flex-direction:column}.admin-console .admin-system-grid{grid-template-columns:1fr}.admin-console .admin-system-panel{padding:16px}}
 
+/* ---- Marketplace Management (extends the Manage Users visual language) ---- */
+.admin-console .mkt-hero-refresh{position:absolute;right:24px;top:25px}
+.admin-console .mkt-stat-total .admin-users-stat-icon{color:#c4092d;background:#fce6e7}
+.admin-console .mkt-stat-active .admin-users-stat-icon{color:#138951;background:#e7f9ef}
+.admin-console .mkt-stat-pending .admin-users-stat-icon{color:#b9760a;background:#fff4e0}
+.admin-console .mkt-stat-rejected .admin-users-stat-icon{color:#c22138;background:#ffebed}
+.admin-console .mkt-stat-sold .admin-users-stat-icon{color:#1d6fc4;background:#e5f2fe}
+.admin-console .mkt-stat-inactive .admin-users-stat-icon{color:#6b6470;background:#f1eff4}
+.admin-console .mkt-table{min-width:980px}
+.admin-console .mkt-thumb{display:block;width:56px;height:42px;border-radius:8px;object-fit:cover;background:#f1e6da}
+.admin-console .mkt-thumb-empty{display:grid;place-items:center;color:#7b4a2b;font-weight:800;font-size:16px}
+.admin-console .mkt-price{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+.admin-console .mkt-status-available{color:#138951;background:#e7f9ef}
+.admin-console .mkt-status-pending{color:#9a6208;background:#fff1d6}
+.admin-console .mkt-status-rejected{color:#c22138;background:#ffebed}
+.admin-console .mkt-status-sold{color:#1d6fc4;background:#e5f2fe}
+.admin-console .mkt-status-cancelled{color:#6b6470;background:#f1eff4}
+.admin-console .mkt-approve:hover{color:#138951;border-color:#9fd8b8;background:#f2fbf6}
+.admin-console .mkt-reject:hover,.admin-console .mkt-remove:hover{color:#c20b2c;border-color:#e5a7b4;background:#fff6f6}
+.admin-console .mkt-audit-link{display:inline-flex;align-items:center;text-decoration:none;white-space:nowrap}
+.admin-console .mkt-audit-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.admin-console .mkt-audit-list li{display:grid;gap:2px;padding:10px 12px;border:1px solid #efedf0;border-radius:9px;font-size:12px;color:#33384b}
+.admin-console .mkt-audit-list small{color:#818499;font-size:11px}
+.admin-console .mkt-audit-list em{color:#646b7e;font-style:normal;font-size:11px;overflow-wrap:anywhere}
+.admin-console .mkt-audit-note{margin:12px 0 0;font-size:12px;color:#727588}
+/* Dialogs are appended to <body>, so they are styled outside .admin-console. */
+.mkt-modal{max-height:90vh;overflow:auto}
+.mkt-modal .mkt-modal-sub{margin:0 0 14px;color:var(--muted)}
+.mkt-detail-photo{display:block;width:100%;max-height:240px;object-fit:cover;border-radius:12px;margin:0 0 14px}
+.mkt-description{margin:0 0 14px;overflow-wrap:anywhere}
+.mkt-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin:0}
+.mkt-facts div{min-width:0}.mkt-facts dt{font-size:11px;color:var(--muted);margin:0 0 2px}.mkt-facts dd{margin:0;font-size:13px;font-weight:650;overflow-wrap:anywhere}
+.mkt-modal .admin-users-status{display:inline-flex;gap:6px;align-items:center;border-radius:99px;padding:3px 9px;background:#f3f3f5;font-size:11px}
+.mkt-modal .mkt-status-available{color:#138951;background:#e7f9ef}.mkt-modal .mkt-status-pending{color:#9a6208;background:#fff1d6}
+.mkt-modal .mkt-status-rejected{color:#c22138;background:#ffebed}.mkt-modal .mkt-status-sold{color:#1d6fc4;background:#e5f2fe}
+.mkt-modal .mkt-status-cancelled{color:#6b6470;background:#f1eff4}
+.mkt-modal .mkt-error{color:#b3202f;margin:12px 0 0;font-size:13px}
+@media (max-width:760px){.admin-console .mkt-hero-refresh{position:static;margin-top:14px}.mkt-facts{grid-template-columns:1fr}}
+
+/* Allow Admin sidebar to scroll when navigation exceeds screen height */
+.admin-console .admin-sidebar { overflow-y: auto; }
 
 /* Challenges reference layout: compact metrics, tabs and directory left, editor right.
    Scoped so Organizations, Users and the main Admin dashboard remain unchanged. */
