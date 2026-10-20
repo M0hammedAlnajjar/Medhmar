@@ -522,7 +522,7 @@ export async function renderRaceRegistration(container, raceId) {
                 </fieldset>
 
                 <div class="medhmar-form-note">
-                  New registrations start with PENDING status and must be reviewed by the race organizer.
+                  New registrations start with PENDING status and must be reviewed by an administrator.
                 </div>
 
                 <div class="medhmar-form-feedback" id="race-registration-feedback" hidden></div>
