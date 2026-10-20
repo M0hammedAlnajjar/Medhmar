@@ -176,7 +176,6 @@ export function bindBroadcastPreview(root) {
  };
  tabs.forEach((button,i)=>{
    button.tabIndex=i? -1:0;
-   button.addEventListener('click',()=>activate(button));
    button.addEventListener('keydown',event=>{
      let next;
      if(event?.key==='ArrowRight')next=(i+1)%tabs.length;
@@ -186,5 +185,6 @@ export function bindBroadcastPreview(root) {
      else return;
      event.preventDefault();activate(tabs[next],true);
    });
+   button.addEventListener('click',()=>activate(button));
  });
 }
