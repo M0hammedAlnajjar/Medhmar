@@ -17,9 +17,19 @@ public interface RaceEntryRepository extends JpaRepository<RaceEntry, Long> {
 
     List<RaceEntry> findByRace_RaceIdOrderByEntryIdAsc(Long raceId);
 
-    List<RaceEntry> findByRace_RaceIdAndEntryStatusOrderByParticipantNumberAsc(
-            Long raceId,
-            com.gulfracing.enums.RaceEntryStatus entryStatus
+    @Query("""
+            SELECT e
+            FROM RaceEntry e
+            JOIN FETCH e.race r
+            JOIN FETCH e.camel c
+            JOIN FETCH e.registrant u
+            WHERE r.raceId = :raceId
+              AND e.entryStatus = :entryStatus
+            ORDER BY e.participantNumber ASC
+            """)
+    List<RaceEntry> findPublicParticipants(
+            @Param("raceId") Long raceId,
+            @Param("entryStatus") com.gulfracing.enums.RaceEntryStatus entryStatus
     );
 
     @Query("SELECT COALESCE(MAX(e.participantNumber), 0) FROM RaceEntry e WHERE e.race.raceId = :raceId")
