@@ -125,6 +125,19 @@ export const adminModulesApi = {
   updateOrganization: (id,payload) => api('/api/organizations/'+encodeURIComponent(id), {method:'PUT',body:JSON.stringify(payload)})
 };
 
+// Administrator moderation of the existing marketplace. Backend verifies the ADMIN role on every call.
+export const adminMarketplaceApi = {
+  list: (q = {}) => api('/api/admin/marketplace' + buildQuery({page: q.page || 0, size: 10, search: q.search, status: q.status, category: q.category, sort: q.sort})),
+  stats: () => api('/api/admin/marketplace/stats'),
+  categories: () => api('/api/admin/marketplace/categories'),
+  one: (id) => api('/api/admin/marketplace/' + encodeURIComponent(id)),
+  update: (id, payload) => api('/api/admin/marketplace/' + encodeURIComponent(id), {method:'PUT', body:JSON.stringify(payload)}),
+  approve: (id) => api('/api/admin/marketplace/' + encodeURIComponent(id) + '/approve', {method:'POST'}),
+  reject: (id, reason) => api('/api/admin/marketplace/' + encodeURIComponent(id) + '/reject', {method:'POST', body:JSON.stringify({reason: reason || null})}),
+  setStatus: (id, status) => api('/api/admin/marketplace/' + encodeURIComponent(id) + '/status', {method:'PUT', body:JSON.stringify({status})}),
+  remove: (id, reason) => api('/api/admin/marketplace/' + encodeURIComponent(id) + buildQuery({reason}), {method:'DELETE'})
+};
+
 export const adminApi = {
   dashboard: () => api("/api/admin/dashboard"),
   users: (page = 0) => api(`/api/admin/users?page=${Math.max(0, Math.trunc(Number(page) || 0))}&size=20`),
