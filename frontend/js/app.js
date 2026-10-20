@@ -360,7 +360,22 @@ function adminSettingsPage() {
 }
 
 function adminDenied() {
- return shell('<section class="card permission"><div class="state-icon">403</div><h1>Access denied</h1><p>This page is available only to administrators.</p><a class="btn btn-primary" href="/home" data-link>Back to Home</a></section>');
+ // Display only the authenticated account information already returned by /api/users/me.
+ // This is guidance, not authorization. All admin endpoints remain server-protected.
+ const name=esc(state.user?.fullName||'Signed-in account');
+ const roles=Array.isArray(state.user?.roles)
+   ?state.user.roles.map(role=>esc(String(role).replace(/^ROLE_/,''))).join(', ')||'No roles assigned'
+   :'No roles reported';
+ return shell('<section class="card permission" aria-labelledby="admin-access-denied-title">'+
+   '<div class="state-icon" aria-hidden="true">403</div>'+
+   '<h1 id="admin-access-denied-title">Access denied</h1>'+
+   '<p>Only accounts with the ADMIN role can access administration pages.</p>'+
+   '<p><strong>Signed in as:</strong> '+name+'</p>'+
+   '<p><strong>Current roles:</strong> '+roles+'</p>'+
+   '<p>If you believe this account should be an administrator, ask an existing administrator or trusted database operator to verify your roles. Sign out and sign in again after any authorized role change.</p>'+
+   '<div class="actions" style="justify-content:center;flex-wrap:wrap">'+
+   '<a class="btn btn-primary" href="/settings" data-link>View my account</a>'+
+   '<a class="btn btn-secondary" href="/home" data-link>Back to Home</a></div></section>');
 }
 function denyAdminAccess() {
  state.adminUsers=null;

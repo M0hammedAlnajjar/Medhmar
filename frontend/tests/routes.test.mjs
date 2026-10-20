@@ -50,6 +50,14 @@ test("agreement routes allow trainers to read and accept, while audit routes are
   assert.equal(canAccessRoute(auditList, admin), true);
 });
 
+test("prefixed Spring roles are normalized without admitting ordinary or guest users", () => {
+ const admin = matchRoute("/admin/challenges").route;
+ assert.equal(canAccessRoute(admin, { userId: 9, roles: ["ROLE_ADMIN"] }), true);
+ assert.equal(canAccessRoute(admin, { userId: 9, roles: ["ROLE_VIEWER"] }), false);
+ assert.equal(canAccessRoute(admin, { roles: ["ROLE_ADMIN"] }), false);
+ assert.equal(canAccessRoute(admin, { userId: 9, roles: "ROLE_ADMIN" }), false);
+});
+
 test("does not expose unimplemented teammate-owned standalone modules", () => {
   for (const path of ["/my-camels","/assigned"]) {
     assert.equal(matchRoute(path), null);
