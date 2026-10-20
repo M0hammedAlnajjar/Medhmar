@@ -209,7 +209,7 @@
 .trainer-photo-upload p { flex-basis: 100%; margin: 0; }
 .trainer-statistics {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(90px, .65fr) repeat(2, minmax(0, 1fr));
   padding: 19px 0;
   background: #faf5ed;
   border-radius: 12px;
@@ -233,6 +233,13 @@
   font-weight: 700;
   color: #301e13;
 }
+.trainer-statistics .trainer-statistic-text dd {
+  order: 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
 .trainer-statistics dt {
   font-size: 12px;
   color: #88796a;
@@ -245,6 +252,7 @@
   align-items: stretch;
   margin: 24px 0;
 }
+.trainer-about-row > .trainer-expertise { grid-column: 1 / -1; }
 .trainer-about {
   padding: 16px 24px 12px 0;
   border-inline-end: 1px solid #e6dacb;
@@ -596,6 +604,7 @@
   }
   .trainer-statistics {
     padding: 17px 0;
+    grid-template-columns: 1fr;
   }
   .trainer-statistics dd {
     font-size: 28px;

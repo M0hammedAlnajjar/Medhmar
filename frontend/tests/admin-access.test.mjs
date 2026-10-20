@@ -7,6 +7,7 @@ import { renderAccount } from '../js/account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from '../js/admin-console.js';
 import { adminAuditListView, adminAuditDetailView } from '../js/admin-audit.js';
 import { adminChallengesView, adminOrganizationsView } from '../js/admin-modules.js';
+import { adminSystemHealthView } from '../js/admin-system-health.js';
 import { hasAnyRole } from '../js/format.js';
 import { demo } from '../js/data.js';
 import { bindPedigreeImages } from '../js/pedigree-view.js';
@@ -15,13 +16,13 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace("window.addEventListener('popstate',render); init();", '');
 
-function harness(user, { me = async () => user, users, dashboard, audits, auditDetail, challengeList, organizationList } = {}) {
+function harness(user, { me = async () => user, users, dashboard, audits, auditDetail, challengeList, organizationList, health } = {}) {
   const root = { innerHTML: '', addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
     bindAdminChartTabs: () => {}, bindAdminModules: () => {}, bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
-    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, adminAuditListView, adminAuditDetailView, adminChallengesView, adminOrganizationsView,
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, adminAuditListView, adminAuditDetailView, adminChallengesView, adminOrganizationsView, adminSystemHealthView,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
@@ -38,6 +39,15 @@ function harness(user, { me = async () => user, users, dashboard, audits, auditD
           page:0,size:20,totalElements:1,totalPages:1 }; },
       one: async () => { requests.push('audit-detail'); return auditDetail ? auditDetail() :
         {auditId:1,actionType:'LOGIN',entityType:'User',entityId:1,createdAt:'2026-10-20T00:00:00Z'}; }
+    },
+    adminHealthApi: {
+      check: async () => {
+        requests.push('system-health');
+        return health ? health() : {
+          backendStatus:'RESPONDING',databaseStatus:'CONNECTED',
+          totalChallenges:1,totalVotes:1,checkedAt:'2026-10-20T08:00:00Z'
+        };
+      }
     },
     adminApi: { 
       dashboard: async () => {
@@ -207,4 +217,43 @@ test('admin module backend errors are shown without fabricated records',async()=
  assert.deepEqual(app.requests,['me','challenges']);
  assert.match(app.root.innerHTML,/Challenges unavailable/);
  assert.doesNotMatch(app.root.innerHTML,/Live test/);
+});
+
+test('authenticated admin sees live connection status and real vote counts',async()=>{
+ const app=harness({userId:10,roles:['ADMIN']});
+ app.location.pathname='/admin/system-health';
+ await app.render();
+ assert.deepEqual(app.requests,['me','system-health']);
+ assert.match(app.root.innerHTML,/Database &amp; API Health|Connected|Responding|Check Connection/);
+ assert.match(app.root.innerHTML,/Total saved votes across all challenges/);
+ assert.match(app.root.innerHTML,/Checked: 20 Oct 2026/);
+});
+test('revoked ADMIN role cannot query protected system connectivity',async()=>{
+ const app=harness({userId:10,roles:['ADMIN']},{me:async()=>({userId:10,roles:['OWNER']})});
+ app.location.pathname='/admin/system-health';
+ await app.render();
+ assert.deepEqual(app.requests,['me']);
+ assert.match(app.root.innerHTML,/Access denied/);
+});
+test('failed system health fetch never displays cached or invented counts',async()=>{
+ const app=harness({userId:10,roles:['ADMIN']},{health:async()=>{
+   throw Object.assign(new Error('backend offline'),{status:500});
+ }});
+ app.location.pathname='/admin/system-health';
+ await app.render();
+ assert.deepEqual(app.requests,['me','system-health']);
+ assert.match(app.root.innerHTML,/Health check unavailable/);
+ assert.doesNotMatch(app.root.innerHTML,/Connected|jdbc:secret-host/);
+});
+test('system health API rejects expired sessions and failed authorization',async()=>{
+ for(const status of [401,403]){
+  const app=harness({userId:10,roles:['ADMIN']},{health:async()=>{
+    throw Object.assign(new Error('No access'),{status});
+  }});
+  app.location.pathname='/admin/system-health';
+  await app.render();
+  assert.deepEqual(app.requests,['me','system-health']);
+  assert.doesNotMatch(app.root.innerHTML,/class="admin-system-count"|Total saved votes/);
+  assert.doesNotMatch(app.root.innerHTML,/class="admin-console"/);
+ }
 });

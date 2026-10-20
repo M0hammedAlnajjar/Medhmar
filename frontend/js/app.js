@@ -16,9 +16,10 @@ import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs } from './admin-console.js';
 import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
+import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, adminModulesApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
+import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockCamelId, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
@@ -35,6 +36,8 @@ const state = {
   adminPage: 0,
   adminModuleData: null,
   adminModuleError: '',
+  adminHealthData: null,
+  adminHealthError: '',
   adminAuditPageData: null,
   adminAuditDetail: null,
   adminAuditError: '',
@@ -279,12 +282,19 @@ function trainer(){ return shell(trainerProfile(),'/trainer-profile'); }
 const challengeCard = c => `<article class="card challenge-card"><div class="section-title"><div><div class="kicker">Camel Challenge</div><h2>${esc(c.title)}</h2></div>${badge(c.status)}</div><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h3>${esc(x.name)}</h3><strong>${x.votePercent}%</strong><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div></div>`).join('')}</div><a class="btn btn-primary" href="/challenges/${c.challengeId}" data-link>View Challenge</a></article>`;
 const votingOpen = c => c?.status === 'OPEN' && Date.now() >= new Date(c.opensAt).getTime() && Date.now() < new Date(c.closesAt).getTime();
 function challenges(){
+ const featured = state.challengeError ? null :
+   state.challenges.find(c=>c.status==='OPEN') || state.challenges.find(c=>c.status==='CLOSED') || null;
+ const other = featured ? state.challenges.filter(c=>String(c.challengeId)!==String(featured.challengeId)) : [];
  const body = state.challengeError
-   ? `<section class="card error"><h2>Unable to load live challenges</h2><p>${esc(state.challengeError)}</p></section>`
-   : state.challenges.length
-     ? `<div class="grid grid-2" id="challenges-grid">${state.challenges.map(challengeCard).join('')}</div>`
-     : '<section class="card card-pad"><h2>No published challenges yet</h2><p>Published challenges will appear here when available.</p></section>';
- return shell(`${broadcastPreview()}${head('Published Challenges','Explore community challenges and cast your vote.')}${body}`,'/challenges');
+   ? `<section class="card error"><h2>Unable to load published challenges</h2><p>Check the connection and retry.</p></section>`
+   : other.length
+     ? `<div class="grid grid-2" id="challenges-grid">${other.map(challengeCard).join('')}</div>`
+     : featured
+       ? '<section class="card card-pad"><p>The featured challenge is shown above. New published challenges will appear here.</p></section>'
+       : '';
+ return shell(`${broadcastPreview(featured,{signedIn:Boolean(state.user?.userId),error:state.challengeError})}`+
+   (state.challenges.length && !state.challengeError ? head('More Published Challenges','Other recorded challenges and their results.')+body : ''),
+   '/challenges');
 }
 function challenge(id){
  const c = (state.challengeDetail && String(state.challengeDetail.challengeId)===String(id))
@@ -302,6 +312,9 @@ function training(){ return shell(trainingJournal(), '/training'); }
 function admin() {
  if (!canAccessRoute(matchRoute('/admin').route,state.user)) return adminDenied();
  return shell(adminDashboard({user:state.user,summary:state.adminSummary,error:state.adminError}),'/admin');
+}
+function adminHealthPage() {
+ return shell(adminSystemHealthView({data:state.adminHealthData,error:state.adminHealthError}),'/admin/system-health');
 }
 function adminChallengesPage() {
  return shell(adminChallengesView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/challenges');
@@ -806,6 +819,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
   'Admin Users': adminUsersPage,
   'Admin Challenges': adminChallengesPage,
   'Admin Organizations': adminOrganizationsPage,
+  'Admin System Health': adminHealthPage,
   'Admin Settings': adminSettingsPage,
   'Pedigree Directory': pedigreeDirectoryScreen,
   'Pedigree Section': () => pedigree(p.id),
@@ -836,6 +850,8 @@ async function render() {
  state.adminAuditError='';
  state.adminModuleData=null;
  state.adminModuleError='';
+ state.adminHealthData=null;
+ state.adminHealthError='';
  $('#modal')?.remove();
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
@@ -926,6 +942,28 @@ async function render() {
      if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
      state.adminError='Could not load '+(path==='/admin'?'dashboard':'users')+' data. Please retry.';
     }
+   }
+   if(adminRoute && path==='/admin/system-health') {
+     try {
+       const result=await adminHealthApi.check();
+       if(epoch!==renderEpoch)return;
+       if(!result || result.backendStatus!=='RESPONDING' ||
+          !['CONNECTED','DISCONNECTED'].includes(result.databaseStatus) ||
+          typeof result.checkedAt!=='string' ||
+          (result.databaseStatus==='CONNECTED' &&
+            (!Number.isSafeInteger(result.totalChallenges) || result.totalChallenges<0 ||
+             !Number.isSafeInteger(result.totalVotes) || result.totalVotes<0)))
+         throw new Error('Invalid system health response.');
+       state.adminHealthData=result;
+     } catch(err) {
+       if(epoch!==renderEpoch)return;
+       if(err.status===401)throw err;
+       if(err.status===403) {
+         state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};
+         denyAdminAccess();bind();return;
+       }
+       state.adminHealthError='Unable to retrieve health data.';
+     }
    }
    if(adminRoute&&(path==='/admin/challenges'||path==='/admin/organizations')) {
      try {
@@ -1052,11 +1090,27 @@ function bind(){
  bindOrganizationDirectory(root);
  bindTrainingJournal(root);
  bindBroadcastPreview(root);
+ $('#refresh-challenges')?.addEventListener('click', async event=>{
+   const button=event.currentTarget;
+   button.disabled=true;
+   try {
+     const page=await challengeApi.list();
+     if(!Array.isArray(page?.content))throw new Error('Invalid challenge response.');
+     state.challenges=page.content;
+     state.challengeError='';
+     render();
+   }catch(err){
+     state.challengeError=err?.message||'Unable to connect to the challenge API.';
+     state.challenges=[];
+     render();
+   }
+ });
  bindPedigreeImages(root);
  // The dock lives outside #app and survives in-app route changes.
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  bindAdminChartTabs();
+ $('#admin-health-check')?.addEventListener('click',()=>render());
  bindAdminUserControls();
  bindAdminModules(root,{
    refresh:()=>render(),

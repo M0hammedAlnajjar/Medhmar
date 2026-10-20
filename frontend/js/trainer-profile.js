@@ -1,4 +1,4 @@
-import { adminApi, apiAssetUrl, authApi, trainerApi } from "./api.js";
+import { adminApi, agreementApi, apiAssetUrl, authApi, trainerApi } from "./api.js";
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
@@ -30,7 +30,7 @@ async function adminTrainerUsers() {
   return users.filter((user) => Array.isArray(user.roles) && user.roles.includes("TRAINER") && user.accountStatus === "ACTIVE");
 }
 
-function renderProfiles(container, users, profiles, uploadUserId = null) {
+function renderProfiles(container, users, profiles, assignedCamelCounts, uploadUserId = null) {
   const profileById = new Map(profiles.map((profile) => [String(profile.userId), profile]));
   const cards = users.map((user) => {
     const profile = profileById.get(String(user.userId)) || { userId: user.userId, bio: null, location: null };
@@ -42,14 +42,12 @@ function renderProfiles(container, users, profiles, uploadUserId = null) {
     return `<article class="trainer-directory-entry">
       <div class="trainer-profile-card" aria-label="Trainer profile for ${esc(name)}">
         ${photo(user.avatarUrl, name)}
-        <div class="trainer-profile-info"><div class="trainer-identity"><div><p class="trainer-eyebrow">Professional Camel Trainer</p><h2>${esc(name)}</h2><p class="trainer-id">Trainer ID: ${esc(profile.userId)}</p><p class="trainer-location" data-profile-location>${esc(profile.location || "Location not provided")}</p></div></div>
-          <div class="trainer-action-row"><p>Trainer profile information from Medhmar.</p></div>
+        <div class="trainer-profile-info"><div class="trainer-identity"><div><p class="trainer-eyebrow">Professional Camel Trainer</p><h2>${esc(name)}</h2><p class="trainer-id">Trainer ID: ${esc(profile.userId)}</p></div></div>
+          <dl class="trainer-statistics"><div><dt>Assigned Camels</dt><dd>${esc(assignedCamelCounts.get(String(profile.userId)) || 0)}</dd></div><div class="trainer-statistic-text"><dt>Location</dt><dd data-profile-location>${esc(profile.location || "Not provided")}</dd></div><div class="trainer-statistic-text"><dt>Bio</dt><dd data-profile-bio>${esc(profile.bio || "Not provided")}</dd></div></dl>
           ${isOwnTrainer ? `<form class="trainer-location-edit" data-trainer-location-edit data-trainer-user-id="${esc(profile.userId)}"><label>Location<input type="text" name="location" maxlength="150" value="${esc(profile.location || "")}" placeholder="Add your location"></label><label>Bio<textarea name="bio" maxlength="2000" rows="3" placeholder="Tell users about your training experience">${esc(profile.bio || "")}</textarea></label><button class="btn btn-secondary" type="submit">Save Profile Details</button><p data-location-status role="status"></p></form>` : ""}
           ${uploadForm}
         </div>
       </div>
-      <div class="trainer-about-row"><section class="trainer-about"><p class="trainer-eyebrow">The trainer</p><h2>Trainer Profile</h2><p data-trainer-bio>${esc(profile.bio || "Trainer profile details have not been added yet.")}</p></section>
-        <section class="trainer-expertise"><h2>Profile Details</h2><div class="trainer-expertise-grid"><article><span class="trainer-expertise-icon" aria-hidden="true">⌖</span><div><h3>Location</h3><p data-profile-location>${esc(profile.location || "Not provided")}</p></div></article><article><span class="trainer-expertise-icon" aria-hidden="true">ℹ</span><div><h3>Bio</h3><p data-profile-bio>${esc(profile.bio || "Not provided")}</p></div></article></div></section></div>
     </article>`;
   }).join("");
   container.innerHTML = cards || "<p>No trainer profiles are available.</p>";
@@ -93,8 +91,6 @@ export function bindTrainerProfile(root) {
         entry?.querySelectorAll("[data-profile-location]").forEach((el) => { el.textContent = location || "Location not provided"; });
         const bioDetails = entry?.querySelector("[data-profile-bio]");
         if (bioDetails) bioDetails.textContent = bio || "Not provided";
-        const aboutBio = entry?.querySelector("[data-trainer-bio]");
-        if (aboutBio) aboutBio.textContent = bio || "Trainer profile details have not been added yet.";
         if (!entry?.querySelector("[data-trainer-photo-upload]")) {
           const upload = document.createElement("form");
           upload.className = "trainer-photo-upload";
@@ -142,16 +138,26 @@ export function bindTrainerProfile(root) {
   });
   (async () => {
     try {
-      const [user, profiles] = await Promise.all([
+      const [user, profiles, assignments] = await Promise.all([
         authApi.me().catch(() => null),
         trainerApi.active(),
+        agreementApi.activeAssignments().catch(() => []),
       ]);
       if (!Array.isArray(profiles)) throw new Error("Trainer profiles could not be loaded.");
+      const camelIdsByTrainer = new Map();
+      if (Array.isArray(assignments)) {
+        assignments.forEach(({ trainerUserId, camelId }) => {
+          const trainerId = String(trainerUserId);
+          if (!camelIdsByTrainer.has(trainerId)) camelIdsByTrainer.set(trainerId, new Set());
+          camelIdsByTrainer.get(trainerId).add(String(camelId));
+        });
+      }
+      const assignedCamelCounts = new Map([...camelIdsByTrainer].map(([trainerId, camelIds]) => [trainerId, camelIds.size]));
       if (Array.isArray(user?.roles) && user.roles.includes("ADMIN")) {
         const users = await adminTrainerUsers();
         const uploadUserId = user.roles.includes("TRAINER") ? user.userId : null;
         profiles.forEach((profile) => { profile.trainerName ||= users.find((account) => String(account.userId) === String(profile.userId))?.fullName; });
-        renderProfiles(container, users, profiles, uploadUserId);
+        renderProfiles(container, users, profiles, assignedCamelCounts, uploadUserId);
       } else {
         const publicTrainers = profiles.map((profile) => {
           const isSelf = String(profile.userId) === String(user?.userId);
@@ -162,7 +168,7 @@ export function bindTrainerProfile(root) {
           };
         });
         const uploadUserId = user?.roles?.includes("TRAINER") ? user.userId : null;
-        renderProfiles(container, publicTrainers, profiles, uploadUserId);
+        renderProfiles(container, publicTrainers, profiles, assignedCamelCounts, uploadUserId);
       }
       container.querySelectorAll("[data-trainer-location-edit], [data-trainer-photo-upload]").forEach((form) => {
         const profile = profiles.find((item) => String(item.userId) === form.dataset.trainerUserId);

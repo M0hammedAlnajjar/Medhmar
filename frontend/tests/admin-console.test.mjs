@@ -35,7 +35,7 @@ test('dashboard renders real weekly activity, secure recent events and honest st
   assert.match(html,new RegExp(title.replaceAll('/','\\/')));
  assert.match(html,/OWNER_ROLE_GRANTED|Owner Role Granted/);
  assert.match(html,/admin-activity-svg/);
- assert.match(html,/Database queries/);
+ assert.match(html,/Database connectivity|Check database &amp; API/);
  assert.match(html,/Not monitored/);
  assert.doesNotMatch(html,new RegExp('<strong>(?:1,248|642|118)</strong>|All Systems Operational|Payment Service.+Online'));
 });

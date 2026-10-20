@@ -109,6 +109,10 @@ export const challengeApi = {
 
 // Administrator discovery includes drafts and inactive organizations. Mutations reuse
 // existing authenticated, server-authorized business endpoints and CSRF handling.
+export const adminHealthApi = {
+  check: () => api('/api/admin/system-health')
+};
+
 export const adminModulesApi = {
   challenges: (page = 0) => api('/api/admin/challenges' + buildQuery({page, size:20})),
   organizations: (page = 0) => api('/api/admin/organizations' + buildQuery({page, size:20})),

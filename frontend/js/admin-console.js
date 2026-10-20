@@ -1,11 +1,13 @@
 // A standalone administration UI; no site-wide community modules are shown here.
 const esc = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
 const links = [
     ['/admin', 'Dashboard'],
     ['/admin/users', 'Manage Users'],
     ['/admin/termination-requests', 'Termination requests'],
     ['/admin/challenges', 'Challenges'],
     ['/admin/organizations', 'Organizations'],
+    ['/admin/system-health', 'System Health'],
     ['/admin/audit-logs', 'Audit Logs'],
     ['/admin/settings', 'Admin Settings']
 ];
@@ -29,6 +31,8 @@ const adminIcon = key => ({
 
     "organization": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h2v2H9zm4 0h2v2h-2zM9 15h2v2H9zm4 0h2v2h-2z"/></svg>',
 
+    "database": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>',
+
     "logout": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
 
     "refresh": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2 6"/><path d="M20 4v7h-7"/></svg>'
@@ -45,6 +49,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin/termination-requests': 'audit',
         '/admin/challenges': 'challenge',
         '/admin/organizations': 'organization',
+        '/admin/system-health': 'database',
         '/admin/audit-logs': 'audit',
         '/admin/settings': 'settings'
     };
@@ -62,9 +67,11 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin/termination-requests': 'Termination requests',
         '/admin/challenges': 'Challenges',
         '/admin/organizations': 'Organizations',
+        '/admin/system-health': 'System Health',
         '/admin/audit-logs': 'Audit Logs',
         '/admin/settings': 'Admin Settings'
     };
+
  const section=titles[chosen]||'Administration';
  const name=String(user?.fullName||'Administrator').trim();
  const initial=name.charAt(0).toUpperCase()||'A';
@@ -206,9 +213,9 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    '<a href="/admin/audit-logs" data-link>View Audit Logs <span aria-hidden="true">→</span></a></div>'+
    '<ul class="admin-recent-list">'+activityList+'</ul></section></div>'+
    '<section class="admin-panel admin-panel-health"><div class="admin-status-heading">'+
-   '<div><h2>System Status</h2><p>Request-level indicators</p></div></div>'+
+   '<div><h2>System Status</h2><p>Request-level indicators · not a separate database probe</p></div><a data-link class="admin-health-shortcut" href="/admin/system-health">Check database &amp; API →</a></div>'+
    '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('settings')+'</span><strong>Backend API</strong>'+status+'</div>'+
-   '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('dashboard')+'</span><strong>Database queries</strong>'+status+'</div>'+
+   '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('dashboard')+'</span><strong>Database connectivity</strong><span class="admin-health-unknown">Check separately</span></div>'+
    '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('market')+'</span><strong>External services</strong><span class="admin-health-unknown">Not monitored</span></div>'+
    '</section>';
 }
