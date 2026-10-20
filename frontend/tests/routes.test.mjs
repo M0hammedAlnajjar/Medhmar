@@ -8,7 +8,7 @@ test("preserves Mohammed's assigned interfaces and registers the two scoped enti
   assert.equal(matchRoute("/index.html")?.route.name, "Home / Overview");
   assert.equal(new Set(MOHAMMED_ROUTES.map(route => route.path)).size, MOHAMMED_ROUTES.length);
   assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "TrainingAgreement").length, 4);
-  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "auditLog").length, 8);
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "auditLog").length, 4);
 });
 
 test("matches Mohammed dynamic routes", () => {
@@ -19,14 +19,16 @@ test("matches Mohammed dynamic routes", () => {
   assert.equal(matchRoute("/organizer/races/5/race-card").route.name, "Race Card Publish Control");
 });
 
-test("registers CRUD-oriented TrainingAgreement and auditLog routes", () => {
+test("registers training agreements and read-only administrator audit routes", () => {
   const expected = {
     "/agreements": "Training Agreements", "/agreements/new": "Add Training Agreement",
     "/agreements/17": "Training Agreement Details", "/agreements/17/edit": "Edit Training Agreement",
-    "/audit-logs": "Audit Logs", "/audit-logs/new": "Add Audit Log",
-    "/audit-logs/21": "Audit Log Details", "/audit-logs/21/edit": "Edit Audit Log",
+    "/audit-logs": "Audit Logs", "/audit-logs/21": "Audit Log Details",
+    "/admin/audit-logs": "Audit Logs", "/admin/audit-logs/21": "Audit Log Details",
   };
   for (const [path, name] of Object.entries(expected)) assert.equal(matchRoute(path)?.route.name, name, path);
+  for (const path of ["/audit-logs/new", "/audit-logs/21/edit", "/admin/audit-logs/new", "/admin/audit-logs/21/edit"])
+    assert.equal(matchRoute(path), null, path);
 });
 
 test("agreement routes allow trainers to read and accept, while audit routes are admin-only", () => {

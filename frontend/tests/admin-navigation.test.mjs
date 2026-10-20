@@ -41,7 +41,7 @@ test('admin uses a completely separate shell with no community navigation',()=>{
  assert.doesNotMatch(html,/class="topbar"|nav-mobile-user|href="\/home"|href="\/races"|href="\/marketplace"|href="\/camels"/);
 });
 test('admin routes are not accessible to regular users',()=>{
- for(const url of ['/admin','/admin/users','/admin/settings','/admin/audit-logs','/admin/audit-logs/1/edit']){
+ for(const url of ['/admin','/admin/users','/admin/settings','/admin/audit-logs','/admin/audit-logs/1']){
   const r=matchRoute(url)?.route;assert.ok(r,url);
   for(const role of ['VIEWER','OWNER','TRAINER','ORGANIZER'])
    assert.equal(canAccessRoute(r,user(role)),false);
