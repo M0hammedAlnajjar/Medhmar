@@ -16,9 +16,10 @@ import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs } from './admin-console.js';
 import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
+import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, adminModulesApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
+import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockCamelId, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
@@ -35,6 +36,8 @@ const state = {
   adminPage: 0,
   adminModuleData: null,
   adminModuleError: '',
+  adminHealthData: null,
+  adminHealthError: '',
   adminAuditPageData: null,
   adminAuditDetail: null,
   adminAuditError: '',
@@ -307,6 +310,9 @@ function training(){ return shell(trainingJournal(), '/training'); }
 function admin() {
  if (!canAccessRoute(matchRoute('/admin').route,state.user)) return adminDenied();
  return shell(adminDashboard({user:state.user,summary:state.adminSummary,error:state.adminError}),'/admin');
+}
+function adminHealthPage() {
+ return shell(adminSystemHealthView({data:state.adminHealthData,error:state.adminHealthError}),'/admin/system-health');
 }
 function adminChallengesPage() {
  return shell(adminChallengesView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/challenges');
@@ -739,7 +745,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
  'Audit Logs':adminAuditListPage,'Audit Log Details':adminAuditDetailPage,
- 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Challenges':adminChallengesPage,'Admin Organizations':adminOrganizationsPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
+ 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Challenges':adminChallengesPage,'Admin Organizations':adminOrganizationsPage,'Admin System Health':adminHealthPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
@@ -766,6 +772,8 @@ async function render() {
  state.adminAuditError='';
  state.adminModuleData=null;
  state.adminModuleError='';
+ state.adminHealthData=null;
+ state.adminHealthError='';
  $('#modal')?.remove();
  document.documentElement.lang=state.lang;
  document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';
@@ -856,6 +864,28 @@ async function render() {
      if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
      state.adminError='Could not load '+(path==='/admin'?'dashboard':'users')+' data. Please retry.';
     }
+   }
+   if(adminRoute && path==='/admin/system-health') {
+     try {
+       const result=await adminHealthApi.check();
+       if(epoch!==renderEpoch)return;
+       if(!result || result.backendStatus!=='RESPONDING' ||
+          !['CONNECTED','DISCONNECTED'].includes(result.databaseStatus) ||
+          typeof result.checkedAt!=='string' ||
+          (result.databaseStatus==='CONNECTED' &&
+            (!Number.isSafeInteger(result.totalChallenges) || result.totalChallenges<0 ||
+             !Number.isSafeInteger(result.totalVotes) || result.totalVotes<0)))
+         throw new Error('Invalid system health response.');
+       state.adminHealthData=result;
+     } catch(err) {
+       if(epoch!==renderEpoch)return;
+       if(err.status===401)throw err;
+       if(err.status===403) {
+         state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};
+         denyAdminAccess();bind();return;
+       }
+       state.adminHealthError='Unable to retrieve health data.';
+     }
    }
    if(adminRoute&&(path==='/admin/challenges'||path==='/admin/organizations')) {
      try {
@@ -988,6 +1018,7 @@ function bind(){
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  bindAdminChartTabs();
+ $('#admin-health-check')?.addEventListener('click',()=>render());
  bindAdminUserControls();
  bindAdminModules(root,{
    refresh:()=>render(),

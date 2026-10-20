@@ -527,3 +527,21 @@ Mutations reuse existing business endpoints and validations:
 The service enforces draft-only editing, exactly two camels before opening,
 valid opening/closing timestamps, organizer membership, and ADMIN overrides.
 CSRF is sent by the shared authenticated frontend client.
+
+
+### System Health — administrator only
+
+`GET /api/admin/system-health` requires an authenticated ADMIN session.
+Every request attempts a real database `SELECT 1` and then, only on success,
+counts all `challenges` and `votes` using their existing repositories.
+The response contains:
+`backendStatus: "RESPONDING"`, `databaseStatus: "CONNECTED" | "DISCONNECTED"`,
+`totalChallenges`, `totalVotes`, and `checkedAt` (UTC Instant).
+If the database probe or count query fails, both totals are **null** and the
+database status is `DISCONNECTED`. The response never contains JDBC host, URL,
+credentials or raw SQL exceptions. The endpoint responds to GET requests only
+and never modifies records.
+
+Admin page: `/admin/system-health`, with a **Check Connection** button.
+A successful backend response is distinct from the database being connected;
+if the backend is unreachable, the page displays an explicit unavailable state.
