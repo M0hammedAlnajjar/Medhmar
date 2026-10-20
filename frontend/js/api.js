@@ -139,7 +139,15 @@ export const organizationApi = {
 
 export const tourismApi = {
   events: () => api("/api/tourism/events"),
+  createEvent: (payload) => api("/api/tourism/events", { method: "POST", body: JSON.stringify(payload) }),
+  updateEvent: (id, payload) => api(`/api/tourism/events/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(payload) }),
   content: () => api("/api/tourism/content"),
+  manageContent: (organizationId) => api(`/api/tourism/content/manage/${encodeURIComponent(organizationId)}`),
+  manageAllContent: () => api("/api/tourism/content/manage"),
+  createContent: (payload) => api("/api/tourism/content", { method: "POST", body: JSON.stringify(payload) }),
+  updateContent: (id, payload) => api(`/api/tourism/content/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(payload) }),
+  approveContent: (id) => api(`/api/tourism/content/${encodeURIComponent(id)}/approve`, { method: "POST" }),
+  rejectContent: (id) => api(`/api/tourism/content/${encodeURIComponent(id)}/reject`, { method: "POST" }),
 };
 
 export const raceCardApi = {

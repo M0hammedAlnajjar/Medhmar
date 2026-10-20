@@ -41,7 +41,14 @@ try {
     }
     if (path === '/api/challenges/42') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(liveChallenge)});
     if (path === '/api/challenges') return route.fulfill({status:200,contentType:'application/json',
-      body:JSON.stringify({content:[liveChallenge],page:0,size:20,totalElements:1,totalPages:1})});
+      body:JSON.stringify({content:[liveChallenge,{
+        challengeId:41,title:'Recorded Heritage Challenge',status:'CLOSED',
+        opensAt:'2026-01-01T06:00:00Z',closesAt:'2026-01-02T06:00:00Z',
+        totalVotes:3,camels:[
+          {camelId:7,name:'Sahm',voteCount:2,votePercent:66.67,photoUrl:'/assets/mock-camels/camel-7.jpg'},
+          {camelId:8,name:'Hamdan',voteCount:1,votePercent:33.33,photoUrl:null}
+        ]
+      }],page:0,size:20,totalElements:2,totalPages:1})});
     if (path === '/marketplace/getAll') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content:marketHasListings?[{listingId:77,camelId:41,askingPriceOmr:'4000.125',status:'AVAILABLE'}]:[],page:0,totalPages:1,totalElements:marketHasListings?1:0})});
     if (path === '/camel/getById') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Recorded camel',breed:'Omani',gender:'MALE',birthDate:'2022-01-01',photoUrl:'/assets/marketplace-photos/wahiba-close.webp'})});
     if (path === '/camel/getAll') {
@@ -77,6 +84,19 @@ try {
   await page.locator('.broadcast-live-data').waitFor();
   assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
+  assert.equal(await page.locator('.broadcast-grid').count(),1);
+  assert.equal(await page.locator('.broadcast-published-card').count(),1);
+  assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
+  assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
+  const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  assert.equal(desktopCols,2,'desktop challenges must have hero and voting columns');
+  const imageBefore=await page.locator('.broadcast-scene-image').getAttribute('src');
+  await page.locator('[data-preview-image="next"]').click();
+  assert.notEqual(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
+  await page.locator('[data-preview-image="prev"]').click();
+  assert.equal(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
+  await page.locator('[data-preview-tab="results"]').click();
+  assert.match(await page.locator('#broadcast-info').innerText(),/Al Barq|Shaheen/);
   assert.match(await page.locator('.broadcast-voting').innerText(),/Al Barq|Shaheen/);
   assert.match(await page.locator('.broadcast-voting').innerText(),/0 votes/);
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/744 votes|456 votes|1.2K watching|LIVE PREVIEW|Sample event/);
@@ -91,7 +111,18 @@ try {
   await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'live challenges mobile must not overflow');
+  assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
+  const mobileLayout=await page.evaluate(()=>({
+    viewport:innerWidth,document:document.documentElement.scrollWidth,
+    overflow:[...document.querySelectorAll('body *')].filter(el=>{
+      const box=el.getBoundingClientRect();
+      return box.width>0&&(box.right>innerWidth+2||box.left<-2);
+    }).slice(0,12).map(el=>({
+      tag:el.tagName,cls:typeof el.className==='string'?el.className:'',width:el.getBoundingClientRect().width,
+      right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left
+    }))
+  }));
+  assert.ok(mobileLayout.document<=mobileLayout.viewport+1,'live challenges mobile must not overflow: '+JSON.stringify(mobileLayout));
   await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/training`);
@@ -298,8 +329,8 @@ try {
   assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
-  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 8, 'desktop navigation should contain eight admin routes');
-  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),8,'desktop menu should retain its SVG icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 9, 'desktop navigation should contain nine admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),9,'desktop menu should retain its SVG icons');
   await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');
@@ -307,7 +338,7 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
   await page.locator('.admin-mobile-nav summary').click();
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 8);
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 9, 'mobile navigation should contain nine admin routes');
   const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
     const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
   }));
@@ -419,16 +450,48 @@ try {
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async()=>{
     const {adminShell}=await import('/js/admin-console.js');
-    const {adminChallengesView,adminOrganizationsView}=await import('/js/admin-modules.js');
+    const {adminChallengesView,adminOrganizationsView,bindAdminModules}=await import('/js/admin-modules.js');
     const orgs={content:[{organizationId:8,name:'Test Organization',region:'Muscat',description:'Test-only entry',contactEmail:'org@example.invalid',status:'ACTIVE',createdAt:'2030-01-01T00:00:00Z'}],page:0,size:20,totalElements:1,totalPages:1};
-    const ch={content:[{challengeId:4,title:'Test Challenge',status:'DRAFT',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:0,camels:[]}],page:0,size:20,totalElements:1,totalPages:1};
+    const ch={content:[
+      {challengeId:5,title:'Barq vs Shaheen',status:'OPEN',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:5,camels:[
+        {camelId:1,name:'Barq',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:3,votePercent:60},
+        {camelId:2,name:'Shaheen',photoUrl:'/assets/mock-camels/camel-4.jpg',voteCount:2,votePercent:40}]},
+      {challengeId:4,title:'Test Challenge',status:'DRAFT',creatorId:10,opensAt:'2030-01-01T09:00:00Z',closesAt:'2030-01-02T09:00:00Z',totalVotes:0,camels:[]}],page:0,size:20,totalElements:2,totalPages:1};
     document.querySelector('#app').innerHTML=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/challenges',body:adminChallengesView({data:ch})});
+    bindAdminModules(document.querySelector('#app'),{createChallenge:async payload=>{window.__createdChallenge=payload;}});
     window.__testOrgPage=adminShell({user:{userId:1,roles:['ADMIN']},active:'/admin/organizations',body:adminOrganizationsView({data:orgs})});
   });
   assert.equal(await page.locator('[data-admin-challenge-camel]').count(),1);
-  assert.equal(await page.locator('.admin-module-item').count(),1);
+  assert.equal(await page.locator('.admin-challenge-card').count(),2);
+  assert.equal(await page.locator('.mhch-new').count(),1);
+  assert.equal(await page.locator('.mhch-metric').count(),4);
+  assert.equal(await page.locator('.mhch-camel').count(),4);
+  assert.equal(await page.locator('.mhch-vs').count(),1);
+  assert.equal(await page.locator('[data-admin-challenge-filter]').count(),4);
+  await page.locator('.mhch-details>summary').first().click();
+  assert.match(await page.locator('.mhch-details-content').first().innerText(),/3 votes/);
+  await page.locator('.mhch-details>summary').first().click();
+  await page.locator('#admin-challenge-search').fill('Test Challenge');
+  assert.equal(await page.locator('.admin-challenge-card:visible').count(),1);
+  await page.locator('[data-admin-challenge-filter="OPEN"]').click();
+  assert.equal(await page.locator('.admin-challenge-card:visible').count(),0);
+  assert.equal(await page.locator('#admin-challenge-no-match').isVisible(),true);
+  await page.locator('#admin-challenge-search').fill('Barq');
+  assert.equal(await page.locator('.admin-challenge-card:visible').count(),1);
+  await page.locator('[data-admin-challenge-filter="ALL"]').click();
+  await page.locator('#admin-challenge-search').fill('');
+  await page.locator('#admin-challenge-create [name="title"]').fill('Morning Cup');
+  await page.locator('#admin-challenge-create [name="opensDate"]').fill('2030-01-01');
+  await page.locator('#admin-challenge-create [name="closesDate"]').fill('2030-01-02');
+  await page.locator('#admin-challenge-create .mhch-save').click();
+  await page.waitForFunction(()=>Boolean(window.__createdChallenge));
+  assert.deepEqual(await page.evaluate(()=>window.__createdChallenge),{
+    title:'Morning Cup',opensAt:'2030-01-01T05:30:00.000Z',closesAt:'2030-01-02T05:30:00.000Z'
+  });
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin challenges desktop must not overflow');
   await page.screenshot({path:'test-results/admin-challenges-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.locator('.mhch-new').isVisible(),true);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin challenges mobile must not overflow');
   await page.screenshot({path:'test-results/admin-challenges-mobile.png',fullPage:true});
   await page.evaluate(()=>{document.querySelector('#app').innerHTML=window.__testOrgPage;});

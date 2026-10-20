@@ -5,6 +5,7 @@ const links = [
     ['/admin', 'Dashboard'],
     ['/admin/users', 'Manage Users'],
     ['/admin/termination-requests', 'Termination requests'],
+    ['/admin/heritage', 'Heritage'],
     ['/admin/challenges', 'Challenges'],
     ['/admin/organizations', 'Organizations'],
     ['/admin/system-health', 'System Health'],
@@ -48,6 +49,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin': 'dashboard',
         '/admin/users': 'users',
         '/admin/termination-requests': 'audit',
+        '/admin/heritage': 'race',
         '/admin/challenges': 'challenge',
         '/admin/organizations': 'organization',
         '/admin/system-health': 'database',
@@ -67,6 +69,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin': 'Overview',
         '/admin/users': 'Manage Users',
         '/admin/termination-requests': 'Termination requests',
+        '/admin/heritage': 'Heritage',
         '/admin/challenges': 'Challenges',
         '/admin/organizations': 'Organizations',
         '/admin/system-health': 'System Health',
@@ -84,13 +87,14 @@ export function adminShell({ user, active = '/admin', body = '' }) {
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+nav+'</nav>'+
    '<div class="admin-sidebar-bottom"><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
    '<div class="admin-workspace"><header class="admin-topbar">'+
+   (chosen==='/admin/challenges'?'<span class="mhch-breadcrumb-home" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/></svg></span>':'')+
    '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+
    '<a href="/admin" class="admin-mobile-brand" data-link aria-label="Medhmar administration home"><img src="/assets/medhmar-admin-logo-compact.webp" alt="Medhmar Camel Racing Platform" width="154" height="39"></a>'+
    '<details class="admin-mobile-nav"><summary aria-label="Open administration navigation">☰ Menu</summary>'+
    '<nav aria-label="Mobile administration">'+nav+'</nav></details>'+
-   '<span class="admin-topbar-pill">Administrator workspace</span>'+
+   (chosen==='/admin/challenges'?'<span class="mhch-topbar-location"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Muscat · GMT+4</span>':'<span class="admin-topbar-pill">Administrator workspace</span>')+
    '<div class="admin-user-chip"><span class="admin-user-avatar" aria-hidden="true">'+esc(initial)+'</span>'+
-   '<span><strong>'+esc(name)+'</strong><small>Administrator</small></span></div>'+
+   (chosen==='/admin/challenges'?'<span class="mhch-topbar-admin"><strong>Admin</strong><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>':'<span><strong>'+esc(name)+'</strong><small>Administrator</small></span>')+'</div>'+
    '<button type="button" id="admin-mobile-signout" class="admin-mobile-signout" aria-label="Sign out">Sign Out</button>'+
    '</header><main class="admin-main">'+body+'</main>'+
    '<footer class="admin-footer">© '+new Date().getFullYear()+' Medhmar. All rights reserved.</footer></div></div>';

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +64,12 @@ public class TourismController {
     @GetMapping("/content/manage/{organizationId}")
     public List<ContentView> manageContent(@PathVariable Long organizationId, Authentication auth) {
         return tourism.manageContent(organizationId, AccountAccess.requiredId(auth));
+    }
+
+    @GetMapping("/content/manage")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<ContentView> manageAllContent(Authentication auth) {
+        return tourism.manageAllContent(AccountAccess.requiredId(auth));
     }
 
     @PutMapping("/content/{id}")

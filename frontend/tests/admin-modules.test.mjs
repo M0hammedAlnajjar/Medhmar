@@ -34,6 +34,55 @@ test('challenges show real draft with safe data and backend-supported actions',(
  const closed=adminChallengesView({data:page([{...draft,status:'CLOSED',camels:[]}])});
  assert.doesNotMatch(closed,/data-admin-challenge-action="open"|data-admin-challenge-action="close"/);
 });
+test('reference layout has summary metrics, filter tabs, paired camels and visible editor',()=>{
+ const html=adminChallengesView({data:page([draft])});
+ assert.match(html,/<h1>Challenges<\/h1>/);
+ assert.match(html,/Total challenges|Open for voting|Drafts|Total votes/);
+ assert.match(html,/role="tablist" aria-label="Challenge status"/);
+ assert.match(html,/data-admin-challenge-filter="OPEN"/);
+ assert.match(html,/class="mhch-layout"/);
+ assert.match(html,/class="mhch-duo"/);
+ assert.match(html,/id="mhch-new-title">New challenge/);
+ assert.match(html,/id="admin-challenge-create"/);
+ assert.match(html,/name="opensDate"|name="opensTime"/);
+ assert.match(html,/name="closesDate"|name="closesTime"/);
+ assert.match(html,/Details<\/strong>|Camels<\/strong>|Publish<\/strong>/);
+ assert.match(html,/2030-01-01T13:00/);
+ assert.match(html,/01 Jan 2030/);
+ assert.match(html,/Muscat|GMT\+4/);
+ assert.match(html,/id="admin-challenge-search"/);
+ assert.match(html,/data-challenge-status="DRAFT"/);
+ assert.match(html,/Create challenge/);
+ assert.doesNotMatch(html,/admin-challenge-hero|admin-challenge-toolbar|admin-module-create/);
+});
+test('real camel portraits, votes and status are safely rendered',()=>{
+ const c={...draft,status:'OPEN',totalVotes:5,camels:[
+   {camelId:33,name:'Al Barq',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:3,votePercent:60},
+   {camelId:34,name:'<Camel>',photoUrl:'javascript:alert(1)',voteCount:2,votePercent:40}
+ ]};
+ const html=adminChallengesView({data:page([c])});
+ assert.match(html,/class="mhch-vs"/);
+ assert.match(html,/class="mhch-camel-picture"/);
+ assert.match(html,/src="\/assets\/mock-camels\/camel-7.jpg"/);
+ assert.match(html,/3 votes · 60.0%/);
+ assert.match(html,/2 votes · 40.0%/);
+ assert.match(html,/&lt;Camel&gt;/);
+ assert.doesNotMatch(html,/javascript:alert|<Camel>/);
+ assert.match(html,/Photo unavailable/);
+ assert.match(html,/Voting open/);
+ assert.match(html,/View details/);
+ assert.doesNotMatch(html,/data-admin-challenge-action="open"/);
+});
+test('summary distinguishes current page counts from total counts',()=>{
+ const part={content:[draft],page:1,size:1,totalElements:5,totalPages:5};
+ const html=adminChallengesView({data:part});
+ assert.match(html,/Total challenges/);
+ assert.match(html,/Open \(this page\)|Drafts \(this page\)/);
+ assert.match(html,/Votes \(this page\)/);
+ assert.match(html,/current page of API results/);
+ assert.match(html,/href="\/admin\/challenges\?page=0"/);
+ assert.match(html,/href="\/admin\/challenges\?page=2"/);
+});
 test('organizations can be edited, status managed and input safely escaped',()=>{
  const html=adminOrganizationsView({data:page([org])});
  assert.match(html,/Test Club|INACTIVE|Add organization|Edit organization & status/);

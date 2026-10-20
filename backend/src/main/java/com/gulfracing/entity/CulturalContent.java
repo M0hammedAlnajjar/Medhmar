@@ -21,8 +21,8 @@ public class CulturalContent {
     @Column(name = "content_id")
     private Long contentId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "organization_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
     private Organization organization;
 
     @Column(name = "title", nullable = false, length = 180)
@@ -33,6 +33,9 @@ public class CulturalContent {
 
     @Column(name = "content_url", nullable = false, length = 2048)
     private String contentUrl;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
     @Column(name = "category", nullable = false, length = 100)
     private String category;
