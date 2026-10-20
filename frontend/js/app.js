@@ -5,6 +5,7 @@ import { digitalRaceCards, bindDigitalRaceCards } from './digital-race-cards.js'
 import { heritageExperiences, bindHeritageExperiences } from './heritage-experiences.js';
 import { organizationDirectory, bindOrganizationDirectory } from './organization-directory.js';
 import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
+import { adminHeritageView, bindAdminHeritage } from './admin-heritage.js';
 import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
 import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
@@ -19,7 +20,7 @@ import { adminChallengesView, adminOrganizationsView, bindAdminModules } from '.
 import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
 import { demo } from './data.js';
-import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
+import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi, organizationApi, tourismApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
 import { ENABLE_MOCK_MARKETPLACE, MOCK_CAMELS, getMockListing, isMockCamelId, isMockListingId, mockMarketplacePage } from './mock-marketplace.js';
 
@@ -41,6 +42,8 @@ const state = {
   adminAuditPageData: null,
   adminAuditDetail: null,
   adminAuditError: '',
+  adminHeritageData: null,
+  adminHeritageError: '',
   terminationRequests: null,
   terminationRequestsError: '',
   user: guestUser,
@@ -377,7 +380,8 @@ function denyRoleAccess(route) {
 function pedigree(){ return shell(pedigreeView(state.view), '/pedigree', true); }
 
 function organizations(){ return shell(organizationDirectory(demo.organizations),'/organizations'); }
-function tourism(){ return shell(heritageExperiences(),'/tourism'); }
+function tourism(){ return scr('/tourism','','Camel Racing Heritage',d=>({title:'Camel Racing Heritage',sub:'Explore cultural stories and visitor events.',body:heritageExperiences(d)})); }
+function adminHeritagePage(){return adminShell({user:state.user,active:'/admin/heritage',body:adminHeritageView({...state.adminHeritageData,error:state.adminHeritageError})});}
 
 const raceRows = () => `<table><thead><tr><th>No.</th><th>Camel</th><th>Owner</th><th>Trainer</th><th>Category</th></tr></thead><tbody>${[['01','Barq','Ahmed Al Balushi','Salim Al Rashidi','Racing'],['02','Shahin','Khalid Al Maamari','Nasser Al Hinai','Racing'],['03','Al Sahab','Mohammed Al Naqbi','Rashid Al Kindi','Racing'],['04','Najm','Saif Al Busaidi','Khalid Al Harthy','Racing']].map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 function raceCards(){ return shell(digitalRaceCards(),'/race-cards'); }
@@ -406,6 +410,10 @@ async function camelMap(ids) {
 }
 
 const loaders = {
+  'Tourism / Cultural Content UI': async () => {
+    const [events,content]=await Promise.all([tourismApi.events(),tourismApi.content()]);
+    return {events,content};
+  },
   'Pedigree Directory': () => loadPedigreeFinder(qparams(), camelApi, pedigreeApi),
   'Pedigree Section': async p => {
     const tree = await pedigreeApi.tree(p.id);
@@ -815,6 +823,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
   'Audit Logs': adminAuditListPage,
   'Audit Log Details': adminAuditDetailPage,
   'Termination Requests': terminationRequestsPage,
+  'Admin Heritage': adminHeritagePage,
   'Admin Dashboard': admin,
   'Admin Users': adminUsersPage,
   'Admin Challenges': adminChallengesPage,
@@ -848,6 +857,8 @@ async function render() {
  state.adminAuditPageData=null;
  state.adminAuditDetail=null;
  state.adminAuditError='';
+ state.adminHeritageData=null;
+ state.adminHeritageError='';
  state.adminModuleData=null;
  state.adminModuleError='';
  state.adminHealthData=null;
@@ -1025,6 +1036,19 @@ async function render() {
      state.terminationRequestsError='Unable to load termination requests. Please retry.';
     }
    }
+   if(adminRoute&&path==='/admin/heritage') {
+    try {
+     const [organizations,events,stories]=await Promise.all([organizationApi.list(),tourismApi.events(),tourismApi.manageAllContent()]);
+     if(epoch!==renderEpoch)return;
+     if(!Array.isArray(organizations)||!Array.isArray(events)||!Array.isArray(stories))throw new Error('Invalid Heritage response.');
+     state.adminHeritageData={organizations,events,stories};
+    } catch(err) {
+     if(epoch!==renderEpoch)return;
+     if(err.status===401)throw err;
+     if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
+     state.adminHeritageError='Unable to load organizations, stories, or visitor events. Please retry.';
+    }
+   }
    root.innerHTML=adminRoute?screen(match)():settings();
   }catch(err){
    if(epoch!==renderEpoch)return;
@@ -1086,7 +1110,15 @@ function bind(){
  bindTrainerProfile(root);
  bindMarketplaceBrowse(root);
  bindDigitalRaceCards(root);
- bindHeritageExperiences(root);
+ bindHeritageExperiences(root, state.view.status==='ready'&&normalizePath()==='/tourism'?state.view.data:null);
+ if(normalizePath()==='/admin/heritage')bindAdminHeritage(root,{
+   createEvent:payload=>tourismApi.createEvent(payload),
+   updateEvent:(id,payload)=>tourismApi.updateEvent(id,payload),
+   createStory:async payload=>{const story=await tourismApi.createContent(payload);await tourismApi.approveContent(story.contentId);},
+   updateStory:async(id,payload)=>{await tourismApi.updateContent(id,payload);await tourismApi.approveContent(id);},
+   approveStory:id=>tourismApi.approveContent(id),
+   refresh:()=>render()
+ });
  bindOrganizationDirectory(root);
  bindTrainingJournal(root);
  bindBroadcastPreview(root);
