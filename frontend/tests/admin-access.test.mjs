@@ -6,6 +6,7 @@ import { matchRoute, canAccessRoute } from '../js/routes.js';
 import { renderAccount } from '../js/account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from '../js/admin-console.js';
 import { adminAuditListView, adminAuditDetailView } from '../js/admin-audit.js';
+import { adminChallengesView, adminOrganizationsView } from '../js/admin-modules.js';
 import { hasAnyRole } from '../js/format.js';
 import { demo } from '../js/data.js';
 import { bindPedigreeImages } from '../js/pedigree-view.js';
@@ -14,16 +15,23 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace("window.addEventListener('popstate',render); init();", '');
 
-function harness(user, { me = async () => user, users, dashboard, audits, auditDetail } = {}) {
+function harness(user, { me = async () => user, users, dashboard, audits, auditDetail, challengeList, organizationList } = {}) {
   const root = { innerHTML: '', addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
-    bindAdminChartTabs: () => {}, bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
-    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, adminAuditListView, adminAuditDetailView,
+    bindAdminChartTabs: () => {}, bindAdminModules: () => {}, bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, adminAuditListView, adminAuditDetailView, adminChallengesView, adminOrganizationsView,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
+    adminModulesApi: {
+      challenges:async () => {requests.push('challenges');return challengeList
+        ?challengeList():{content:[],page:0,size:20,totalElements:0,totalPages:0};},
+      organizations:async () => {requests.push('organizations');return organizationList
+        ?organizationList():{content:[],page:0,size:20,totalElements:0,totalPages:0};}
+    },
+    URLSearchParams,
     adminAuditApi: {
       list: async () => { requests.push('audit-list'); return audits ? audits() :
         { content:[{auditId:1,actionType:'LOGIN',entityType:'User',entityId:1,createdAt:'2026-10-20T00:00:00Z'}],
@@ -166,4 +174,37 @@ test('audit API failure does not show stale records or mock records', async () =
   await app.render();
   assert.match(app.root.innerHTML,/Audit history unavailable/);
   assert.doesNotMatch(app.root.innerHTML,/View details|LOGIN/);
+});
+
+test('admin-only challenge and organization screens fetch authenticated data',async()=>{
+ const account={userId:1,roles:['ADMIN']};
+ const app=harness(account,{challengeList:async()=>({content:[{
+   challengeId:44,title:'Live test',status:'DRAFT',creatorId:1,camels:[],totalVotes:0,
+   opensAt:'2030-01-01T10:00:00Z',closesAt:'2030-01-02T10:00:00Z'
+ }],page:0,size:20,totalElements:1,totalPages:1})});
+ app.location.pathname='/admin/challenges';
+ await app.render();
+ assert.deepEqual(app.requests,['me','challenges']);
+ assert.match(app.root.innerHTML,/Live test|Create challenge/);
+ assert.doesNotMatch(app.root.innerHTML,/Sample challenge/);
+ app.location.pathname='/admin/organizations';
+ await app.render();
+ assert.deepEqual(app.requests,['me','challenges','me','organizations']);
+ assert.match(app.root.innerHTML,/Add organization|No organizations/);
+});
+test('revoked admin cannot request protected organization directory',async()=>{
+ const app=harness({userId:1,roles:['ADMIN']},{me:async()=>({userId:1,roles:['VIEWER']})});
+ app.location.pathname='/admin/organizations';
+ await app.render();
+ assert.deepEqual(app.requests,['me']);
+ assert.match(app.root.innerHTML,/Access denied/);
+});
+test('admin module backend errors are shown without fabricated records',async()=>{
+ const app=harness({userId:1,roles:['ADMIN']},
+   {challengeList:async()=>{throw Object.assign(new Error('Unavailable'),{status:500})}});
+ app.location.pathname='/admin/challenges';
+ await app.render();
+ assert.deepEqual(app.requests,['me','challenges']);
+ assert.match(app.root.innerHTML,/Challenges unavailable/);
+ assert.doesNotMatch(app.root.innerHTML,/Live test/);
 });

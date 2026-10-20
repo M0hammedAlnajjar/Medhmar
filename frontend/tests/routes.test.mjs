@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { MOHAMMED_ROUTES, CAMEL_MARKET_ROUTES, matchRoute, canAccessRoute } from "../js/routes.js";
 
 test("preserves Mohammed's assigned interfaces and registers the two scoped entities", () => {
-  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 20);
+  assert.equal(MOHAMMED_ROUTES.filter((r) => r.owner === "Mohammed").length, 22);
   assert.equal(matchRoute("/")?.route.name, "Home / Overview");
   assert.equal(matchRoute("/index.html")?.route.name, "Home / Overview");
   assert.equal(new Set(MOHAMMED_ROUTES.map(route => route.path)).size, MOHAMMED_ROUTES.length);
