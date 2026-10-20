@@ -1,15 +1,80 @@
 // A standalone administration UI; no site-wide community modules are shown here.
 const esc = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const links=[['/admin','Dashboard'],['/admin/users','Manage Users'],['/admin/marketplace','Marketplace Management'],['/admin/challenges','Challenges'],['/admin/organizations','Organizations'],['/admin/system-health','System Health'],['/admin/audit-logs','Audit Logs'],['/admin/settings','Admin Settings']];
-const extraIcons={store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9 5.5 4h13L20 9M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9M4 9v11h16V9M10 20v-5h4v5"/></svg>'};
-const adminIcon = key => ({"dashboard":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/></svg>","users":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/></svg>","audit":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 8h6M9 12h6M9 16h4\"/></svg>","settings":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1.1 1.5V21h-3v-.9a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.5-1.1H4v-3h1.5A1.7 1.7 0 0 0 7 9.8a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-2 .1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 11.7 4V3h3v1a1.7 1.7 0 0 0 1.1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1H22v3h-1.1a1.7 1.7 0 0 0-1.5 1.1Z\"/></svg>","camel":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 17h3l2-5 4-2 2 2h5l2-4M8 12V8l2-3 4 1 1 4M7 17v4m11-7v7M2 14l1 3\"/></svg>","race":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 21h10M12 17v4M5 4h14v7a7 7 0 0 1-14 0V4Zm0 3H3v3a3 3 0 0 0 3 3m13-6h2v3a3 3 0 0 1-3 3\"/></svg>","market":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2.5\"/><path d=\"M6.5 7.4h4.5M6.5 17.6h11M7 14.6h1.4l1.2-3.1 2.1-1 1.5 1.8 2-1 1.6 3.3h1M9 14.6v3m7 0v-3\"/></svg>","challenge":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 3l14 18M19 3L5 21M7 3l-4 4m14-4 4 4M7 21l-4-4m14 4 4-4\"/></svg>","organization":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 21h18M5 21V7l7-4 7 4v14M9 10h2v2H9zm4 0h2v2h-2zM9 15h2v2H9zm4 0h2v2h-2z\"/></svg>","database":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><ellipse cx=\"12\" cy=\"5\" rx=\"9\" ry=\"3\"/><path d=\"M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3\"/></svg>","logout":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9\"/></svg>","refresh":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 11a8 8 0 1 0-2 6\"/><path d=\"M20 4v7h-7\"/></svg>"})[key]||extraIcons[key]||"";
 
-export function adminShell({user,active='/admin',body=''}) {
- const chosen=active.startsWith('/admin/audit-logs')?'/admin/audit-logs':active;
- const icons={ '/admin':'dashboard','/admin/users':'users','/admin/marketplace':'store','/admin/challenges':'challenge','/admin/organizations':'organization','/admin/system-health':'database','/admin/audit-logs':'audit','/admin/settings':'settings' };
- const nav=links.map(([path,label])=>'<a href="'+path+'" data-link'+(chosen===path?' class="active" aria-current="page"':'')+
-   '><span class="admin-nav-icon">'+adminIcon(icons[path])+'</span><span>'+label+'</span></a>').join('');
- const titles={'/admin':'Overview','/admin/users':'Manage Users','/admin/marketplace':'Marketplace Management','/admin/challenges':'Challenges','/admin/organizations':'Organizations','/admin/system-health':'System Health','/admin/audit-logs':'Audit Logs','/admin/settings':'Admin Settings'};
+const links = [
+    ['/admin', 'Dashboard'],
+    ['/admin/users', 'Manage Users'],
+    ['/admin/marketplace', 'Marketplace Management'],
+    ['/admin/termination-requests', 'Termination requests'],
+    ['/admin/challenges', 'Challenges'],
+    ['/admin/organizations', 'Organizations'],
+    ['/admin/system-health', 'System Health'],
+    ['/admin/audit-logs', 'Audit Logs'],
+    ['/admin/settings', 'Admin Settings']
+];
+
+const adminIcon = key => ({
+    "dashboard": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+
+    "users": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+
+    "audit": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
+
+    "settings": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 2-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1.1 1.5V21h-3v-.9a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2-2 .1-.1A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.5-1.1H4v-3h1.5A1.7 1.7 0 0 0 7 9.8a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-2 .1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 11.7 4V3h3v1a1.7 1.7 0 0 0 1.1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2 2-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1H22v3h-1.1a1.7 1.7 0 0 0-1.5 1.1Z"/></svg>',
+
+    "camel": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17h3l2-5 4-2 2 2h5l2-4M8 12V8l2-3 4 1 1 4M7 17v4m11-7v7M2 14l1 3"/></svg>',
+
+    "race": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 21h10M12 17v4M5 4h14v7a7 7 0 0 1-14 0V4Zm0 3H3v3a3 3 0 0 0 3 3m13-6h2v3a3 3 0 0 1-3 3"/></svg>',
+
+    "market": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M6.5 7.4h4.5M6.5 17.6h11M7 14.6h1.4l1.2-3.1 2.1-1 1.5 1.8 2-1 1.6 3.3h1M9 14.6v3m7 0v-3"/></svg>',
+
+    "challenge": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 18M19 3L5 21M7 3l-4 4m14-4 4 4M7 21l-4-4m14 4 4-4"/></svg>',
+
+    "organization": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h2v2H9zm4 0h2v2h-2zM9 15h2v2H9zm4 0h2v2h-2z"/></svg>',
+
+    "database": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>',
+
+    "logout": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+
+    "refresh": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2 6"/><path d="M20 4v7h-7"/></svg>'
+})[key] || "";
+
+export function adminShell({ user, active = '/admin', body = '' }) {
+    const chosen = active.startsWith('/admin/audit-logs')
+        ? '/admin/audit-logs'
+        : active;
+
+    const icons = {
+        '/admin': 'dashboard',
+        '/admin/users': 'users',
+        '/admin/marketplace': 'market',
+        '/admin/termination-requests': 'audit',
+        '/admin/challenges': 'challenge',
+        '/admin/organizations': 'organization',
+        '/admin/system-health': 'database',
+        '/admin/audit-logs': 'audit',
+        '/admin/settings': 'settings'
+    };
+
+    const nav = links.map(([path, label]) =>
+        '<a href="' + path + '" data-link' +
+        (chosen === path ? ' class="active" aria-current="page"' : '') +
+        '><span class="admin-nav-icon">' + adminIcon(icons[path]) +
+        '</span><span>' + label + '</span></a>'
+    ).join('');
+
+    const titles = {
+        '/admin': 'Overview',
+        '/admin/users': 'Manage Users',
+        '/admin/marketplace': 'Marketplace Management',
+        '/admin/termination-requests': 'Termination requests',
+        '/admin/challenges': 'Challenges',
+        '/admin/organizations': 'Organizations',
+        '/admin/system-health': 'System Health',
+        '/admin/audit-logs': 'Audit Logs',
+        '/admin/settings': 'Admin Settings'
+    };
+
  const section=titles[chosen]||'Administration';
  const name=String(user?.fullName||'Administrator').trim();
  const initial=name.charAt(0).toUpperCase()||'A';
@@ -19,19 +84,20 @@ export function adminShell({user,active='/admin',body=''}) {
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+nav+'</nav>'+
    '<div class="admin-sidebar-bottom"><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
    '<div class="admin-workspace"><header class="admin-topbar">'+
+   (chosen==='/admin/challenges'?'<span class="mhch-breadcrumb-home" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/></svg></span>':'')+
    '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+
    '<a href="/admin" class="admin-mobile-brand" data-link aria-label="Medhmar administration home"><img src="/assets/medhmar-admin-logo-compact.webp" alt="Medhmar Camel Racing Platform" width="154" height="39"></a>'+
-   '<details class="admin-mobile-nav"><summary aria-label="Open administration navigation">â˜° Menu</summary>'+
+   '<details class="admin-mobile-nav"><summary aria-label="Open administration navigation">☰ Menu</summary>'+
    '<nav aria-label="Mobile administration">'+nav+'</nav></details>'+
-   '<span class="admin-topbar-pill">Administrator workspace</span>'+
+   (chosen==='/admin/challenges'?'<span class="mhch-topbar-location"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Muscat · GMT+4</span>':'<span class="admin-topbar-pill">Administrator workspace</span>')+
    '<div class="admin-user-chip"><span class="admin-user-avatar" aria-hidden="true">'+esc(initial)+'</span>'+
-   '<span><strong>'+esc(name)+'</strong><small>Administrator</small></span></div>'+
+   (chosen==='/admin/challenges'?'<span class="mhch-topbar-admin"><strong>Admin</strong><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>':'<span><strong>'+esc(name)+'</strong><small>Administrator</small></span>')+'</div>'+
    '<button type="button" id="admin-mobile-signout" class="admin-mobile-signout" aria-label="Sign out">Sign Out</button>'+
    '</header><main class="admin-main">'+body+'</main>'+
-   '<footer class="admin-footer">Â© '+new Date().getFullYear()+' Medhmar. All rights reserved.</footer></div></div>';
+   '<footer class="admin-footer">© '+new Date().getFullYear()+' Medhmar. All rights reserved.</footer></div></div>';
 }
 const validCount=value => typeof value==='number' && Number.isSafeInteger(value) && value>=0;
-const number=value => validCount(value) ? value.toLocaleString('en-US') : 'â€”';
+const number=value => validCount(value) ? value.toLocaleString('en-US') : '—';
 const safeLabel=value => String(value||'').replace(/_/g,' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 function dateTime(value) {
  const date = value ? new Date(value) : null;
@@ -129,8 +195,8 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
      /LISTING|MARKET|OFFER/.test(search)?'market':'users';
    const tone=kind==='camel'||kind==='market'?'camels':'users';
    return '<li class="admin-recent-event"><span class="admin-event-icon admin-tone-'+tone+'">'+adminIcon(kind)+'</span>'+
-     '<div><strong>'+esc(safeLabel(action))+'</strong><small>'+esc(entity)+' #'+esc(a.entityId??'â€”')+
-     (a.actorUserId?' Â· Actor #'+esc(a.actorUserId):'')+'</small></div>'+
+     '<div><strong>'+esc(safeLabel(action))+'</strong><small>'+esc(entity)+' #'+esc(a.entityId??'—')+
+     (a.actorUserId?' · Actor #'+esc(a.actorUserId):'')+'</small></div>'+
      '<time datetime="'+esc(a.createdAt||'')+'">'+esc(dateTime(a.createdAt))+'</time></li>';
  }).join(''):'<li class="admin-empty-state">'+(live?'No audit events recorded yet.':'Recent activity unavailable.')+'</li>';
  const updated=live?.generatedAt?dateTime(live.generatedAt):'Not available';
@@ -148,10 +214,10 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    '<div><h2>Platform Activity</h2><p>Daily platform records</p></div><span class="admin-chart-period">Last 7 days · UTC</span></div>'+
    weeklyChart(live?.activity)+'</section>'+
    '<section class="admin-panel admin-panel-events"><div class="admin-panel-heading"><h2>Recent Activity</h2>'+
-   '<a href="/admin/audit-logs" data-link>View Audit Logs <span aria-hidden="true">â†’</span></a></div>'+
+   '<a href="/admin/audit-logs" data-link>View Audit Logs <span aria-hidden="true">→</span></a></div>'+
    '<ul class="admin-recent-list">'+activityList+'</ul></section></div>'+
    '<section class="admin-panel admin-panel-health"><div class="admin-status-heading">'+
-   '<div><h2>System Status</h2><p>Request-level indicators Â· not a separate database probe</p></div><a data-link class="admin-health-shortcut" href="/admin/system-health">Check database &amp; API â†’</a></div>'+
+   '<div><h2>System Status</h2><p>Request-level indicators · not a separate database probe</p></div><a data-link class="admin-health-shortcut" href="/admin/system-health">Check database &amp; API →</a></div>'+
    '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('settings')+'</span><strong>Backend API</strong>'+status+'</div>'+
    '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('dashboard')+'</span><strong>Database connectivity</strong><span class="admin-health-unknown">Check separately</span></div>'+
    '<div class="admin-status-check"><span class="admin-status-icon" aria-hidden="true">'+adminIcon('market')+'</span><strong>External services</strong><span class="admin-health-unknown">Not monitored</span></div>'+
@@ -175,9 +241,9 @@ const usersIcon = key => ({
 })[key] || '';
 const iconUser = key => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+usersIcon(key)+'</svg>';
 const safeDate = v => {
-  if (!v) return 'â€”';
+  if (!v) return '—';
   const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? 'â€”' : d.toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric',timeZone:'UTC'});
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric',timeZone:'UTC'});
 };
 const initials = name => String(name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
 const safeRole = value => ['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].includes(value) ? value : 'OTHER';
@@ -201,7 +267,7 @@ export function adminUsersView({users,page,error=''}) {
  const rows=all.map((u,i)=>{
   const roles=Array.isArray(u.roles)?u.roles:[];
   const status=String(u.accountStatus||'UNKNOWN').toUpperCase();
-  const roleBadges=roles.length?roles.map(r=>'<span class="admin-users-role role-'+safeRole(r).toLowerCase()+'">'+esc(r)+'</span>').join(' '):'<span class="admin-users-role">â€”</span>';
+  const roleBadges=roles.length?roles.map(r=>'<span class="admin-users-role role-'+safeRole(r).toLowerCase()+'">'+esc(r)+'</span>').join(' '):'<span class="admin-users-role">—</span>';
   const date=u.joinedAt?new Date(u.joinedAt):null;
   const joined=date&&!Number.isNaN(date.valueOf())?date.toISOString().slice(0,10):'';
   return '<tr class="admin-user-row" data-user-search="'+esc(String(u.fullName||'')+' '+String(u.email||'')+' '+String(u.userId??''))+
@@ -209,10 +275,10 @@ export function adminUsersView({users,page,error=''}) {
     '<td class="admin-users-rownum">'+(current*pageSize+i+1)+'</td>'+
     '<td><span class="admin-users-person"><span class="admin-users-initials" aria-hidden="true">'+esc(initials(u.fullName))+'</span>'+
     '<span class="admin-users-identity"><strong>'+esc(u.fullName||'Unnamed account')+'</strong>'+
-    '<small>#USR-'+esc(u.userId??'â€”')+'</small></span></span></td>'+
-    '<td class="admin-users-email">'+esc(u.email||'â€”')+'</td>'+
+    '<small>#USR-'+esc(u.userId??'—')+'</small></span></span></td>'+
+    '<td class="admin-users-email">'+esc(u.email||'—')+'</td>'+
     '<td><span class="admin-users-badges">'+roleBadges+'</span></td>'+
-    '<td><span class="admin-users-status status-'+esc(status.toLowerCase())+'"><span aria-hidden="true">â—</span>'+esc(status)+'</span></td>'+
+    '<td><span class="admin-users-status status-'+esc(status.toLowerCase())+'"><span aria-hidden="true">●</span>'+esc(status)+'</span></td>'+
     '<td><time'+(joined?' datetime="'+joined+'"':'')+'>'+safeDate(u.joinedAt)+'</time></td>'+
     '<td class="admin-users-actions">'+
     '<button class="admin-users-action view-admin-user" type="button" data-user="'+esc(u.userId)+'" aria-label="View '+esc(u.fullName||'user')+'">'+iconUser('eye')+'</button>'+
@@ -220,9 +286,9 @@ export function adminUsersView({users,page,error=''}) {
  }).join('');
  const from=totalElements===null?null:totalElements===0?0:current*pageSize+1;
  const to=totalElements===null?null:Math.min(current*pageSize+all.length,totalElements);
- const nav='<div class="admin-users-pagination"><button class="admin-page" type="button" data-page="'+(current-1)+'"'+(current===0?' disabled':'')+' aria-label="Previous page">â€¹</button>'+
+ const nav='<div class="admin-users-pagination"><button class="admin-page" type="button" data-page="'+(current-1)+'"'+(current===0?' disabled':'')+' aria-label="Previous page">‹</button>'+
  '<span>Page '+(current+1)+' of '+total+'</span>'+
- '<button class="admin-page" type="button" data-page="'+(current+1)+'"'+(current+1>=total?' disabled':'')+' aria-label="Next page">â€º</button></div>';
+ '<button class="admin-page" type="button" data-page="'+(current+1)+'"'+(current+1>=total?' disabled':'')+' aria-label="Next page">›</button></div>';
  return '<div class="admin-users-view">'+
  '<section class="admin-users-hero" aria-labelledby="admin-users-title">'+
  '<span class="admin-users-kicker">ACCOUNT ADMINISTRATION</span>'+

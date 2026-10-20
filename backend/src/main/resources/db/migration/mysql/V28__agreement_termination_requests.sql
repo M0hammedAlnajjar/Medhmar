@@ -1,0 +1,9 @@
+ALTER TABLE training_agreements
+    ADD COLUMN termination_request_status VARCHAR(20) NULL,
+    ADD COLUMN termination_requested_at TIMESTAMP NULL,
+    ADD COLUMN termination_requested_by BIGINT NULL,
+    ADD COLUMN termination_decision_notes VARCHAR(1000) NULL;
+
+ALTER TABLE training_agreements
+    ADD CONSTRAINT fk_agreement_termination_requested_by
+        FOREIGN KEY (termination_requested_by) REFERENCES users(user_id);

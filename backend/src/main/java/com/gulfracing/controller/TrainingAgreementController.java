@@ -6,6 +6,7 @@ import com.gulfracing.service.TrainingAgreementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,5 +82,22 @@ public class TrainingAgreementController {
             Authentication auth
     ) {
         return agreements.terminate(id, request, AccountAccess.requiredId(auth));
+    }
+
+    @GetMapping("/termination-requests")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<AgreementDtos.TerminationRequest> pendingTerminationRequests(Authentication auth) {
+        return agreements.pendingTerminationRequests(AccountAccess.requiredId(auth));
+    }
+
+    @PostMapping("/{id}/termination-decision")
+    @PreAuthorize("hasRole('ADMIN')")
+    public AgreementDtos.View decideTermination(
+            @PathVariable Long id,
+            @RequestParam boolean approve,
+            @Valid @RequestBody(required = false) AgreementDtos.TerminationDecision request,
+            Authentication auth
+    ) {
+        return agreements.decideTermination(id, approve, request, AccountAccess.requiredId(auth));
     }
 }

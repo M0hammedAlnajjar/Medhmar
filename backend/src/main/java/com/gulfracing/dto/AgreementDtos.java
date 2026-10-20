@@ -36,6 +36,17 @@ public final class AgreementDtos {
             @Size(max = 1000) String reason
     ) {}
 
+    public record TerminationDecision(
+            @Size(max = 1000) String notes
+    ) {}
+
+    public record TerminationRequest(
+            View agreement,
+            String ownerName,
+            String trainerName,
+            String camelName
+    ) {}
+
     public record View(
             Long agreementId,
             Long ownerUserId,
@@ -55,6 +66,10 @@ public final class AgreementDtos {
             String terms,
             String rejectionReason,
             String terminationReason,
+            String terminationRequestStatus,
+            Instant terminationRequestedAt,
+            Long terminationRequestedByUserId,
+            String terminationDecisionNotes,
             Long rejectedByUserId,
             Long terminatedByUserId,
             AgreementStatus status,
@@ -80,6 +95,10 @@ public final class AgreementDtos {
                     entity.getTerms(),
                     entity.getRejectionReason(),
                     entity.getTerminationReason(),
+                    entity.getTerminationRequestStatus(),
+                    entity.getTerminationRequestedAt(),
+                    entity.getTerminationRequestedBy() == null ? null : entity.getTerminationRequestedBy().getUserId(),
+                    entity.getTerminationDecisionNotes(),
                     entity.getRejectedBy() == null ? null : entity.getRejectedBy().getUserId(),
                     entity.getTerminatedBy() == null ? null : entity.getTerminatedBy().getUserId(),
                     entity.getStatus(),

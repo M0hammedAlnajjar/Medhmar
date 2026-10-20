@@ -188,6 +188,10 @@ export const agreementApi = {
   add: (payload) => api("/api/agreements", { method: "POST", body: JSON.stringify(payload) }),
   update: (id, payload) => api(`/api/agreements/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(payload) }),
   accept: (id) => api(`/api/agreements/${encodeURIComponent(id)}/accept`, { method: "POST" }),
+  reject: (id, reason = null) => api(`/api/agreements/${encodeURIComponent(id)}/reject`, { method: "POST", body: JSON.stringify({ reason }) }),
+  requestTermination: (id, reason) => api(`/api/agreements/${encodeURIComponent(id)}/terminate`, { method: "POST", body: JSON.stringify({ reason }) }),
+  terminationRequests: () => api("/api/agreements/termination-requests"),
+  decideTermination: (id, approve, notes = null) => api(`/api/agreements/${encodeURIComponent(id)}/termination-decision?approve=${approve}`, { method: "POST", body: JSON.stringify({ notes }) }),
 };
 
 // Audit history is read-only and only accessible to authenticated administrators.

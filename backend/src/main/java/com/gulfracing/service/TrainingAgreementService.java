@@ -214,24 +214,53 @@ public class TrainingAgreementService {
         var agreement = locked(id);
         refreshLifecycle(agreement);
         requireParticipant(agreement, actorId);
-
-        if (agreement.getStatus() == AgreementStatus.PENDING_APPROVAL
-                && !actorId.equals(agreement.getOwner().getUserId())
-                && !users.isAdmin(actorId)) {
-            throw ApiException.forbidden();
+        if (agreement.getStatus() != AgreementStatus.ACTIVE) {
+            throw ApiException.conflict("Only active agreements may have a termination request.");
         }
-
-        if (agreement.getStatus() != AgreementStatus.ACTIVE
-                && agreement.getStatus() != AgreementStatus.PENDING_APPROVAL) {
-            throw ApiException.conflict("This agreement can no longer be terminated.");
+        if ("REQUESTED".equals(agreement.getTerminationRequestStatus())) {
+            throw ApiException.conflict("A termination request is already awaiting review.");
         }
+        String reason = cleanReason(request == null ? null : request.reason());
+        if (reason == null) throw ApiException.badRequest("A termination reason is required.");
+        agreement.setTerminationRequestStatus("REQUESTED");
+        agreement.setTerminationRequestedAt(clock.instant());
+        agreement.setTerminationRequestedBy(users.getActive(actorId));
+        agreement.setTerminationReason(reason);
+        agreement.setTerminationDecisionNotes(null);
+        audit.record("TERMINATION_REQUESTED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
+        return AgreementDtos.View.from(agreement);
+    }
 
-        agreement.setStatus(AgreementStatus.TERMINATED);
-        agreement.setTerminatedAt(clock.instant());
-        agreement.setTerminatedBy(users.getActive(actorId));
-        agreement.setTerminationReason(cleanReason(request == null ? null : request.reason()));
+    @Transactional(readOnly = true)
+    public List<AgreementDtos.TerminationRequest> pendingTerminationRequests(Long actorId) {
+        if (!users.isAdmin(actorId)) throw ApiException.forbidden();
+        return agreements.findByTerminationRequestStatusOrderByAgreementIdDesc("REQUESTED").stream()
+                .map(a -> new AgreementDtos.TerminationRequest(AgreementDtos.View.from(a),
+                        a.getOwner().getFullName(), a.getTrainer().getUser().getFullName(), a.getCamel().getName()))
+                .toList();
+    }
 
-        audit.record("TERMINATED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
+    @Transactional
+    public AgreementDtos.View decideTermination(Long id, boolean approve,
+            AgreementDtos.TerminationDecision request, Long actorId) {
+        if (!users.isAdmin(actorId)) throw ApiException.forbidden();
+        var agreement = locked(id);
+        refreshLifecycle(agreement);
+        if (!"REQUESTED".equals(agreement.getTerminationRequestStatus())) {
+            throw ApiException.conflict("This agreement has no pending termination request.");
+        }
+        agreement.setTerminationRequestStatus(approve ? "APPROVED" : "REJECTED");
+        agreement.setTerminationDecisionNotes(cleanReason(request == null ? null : request.notes()));
+        if (approve) {
+            if (agreement.getStatus() != AgreementStatus.ACTIVE) {
+                throw ApiException.conflict("Only active agreements can be terminated.");
+            }
+            agreement.setStatus(AgreementStatus.TERMINATED);
+            agreement.setTerminatedAt(clock.instant());
+            agreement.setTerminatedBy(users.getActive(actorId));
+        }
+        audit.record(approve ? "TERMINATION_APPROVED" : "TERMINATION_REJECTED",
+                "Agreement", id, agreement.getCamel().getCamelId(), actorId);
         return AgreementDtos.View.from(agreement);
     }
 

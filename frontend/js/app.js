@@ -46,6 +46,8 @@ const state = {
   adminAuditPageData: null,
   adminAuditDetail: null,
   adminAuditError: '',
+  terminationRequests: null,
+  terminationRequestsError: '',
   user: guestUser,
   challenges: [],
   challengeDetail: null,
@@ -364,6 +366,14 @@ function adminAuditDetailPage() {
     record: state.adminAuditDetail, error: state.adminAuditError
   }), '/admin/audit-logs');
 }
+function terminationRequestsPage() {
+ const rows=state.terminationRequests;
+ const content=state.terminationRequestsError
+  ? `<section class="card card-pad error"><h2>Termination requests unavailable</h2><p>${esc(state.terminationRequestsError)}</p><button class="btn btn-primary" data-act="retry">Try again</button></section>`
+  : !rows?.length ? emptyCard('No pending termination requests','There are no termination requests awaiting review.')
+  : `<div class="grid grid-2">${rows.map(item=>{const a=item.agreement;return `<article class="card card-pad"><div class="section-title"><h2>Agreement #${esc(a.agreementId)}</h2>${sb(a.status)}</div><div class="info-list">${row('Camel',esc(item.camelName||`#${a.camelId}`))}${row('Owner',esc(item.ownerName||`#${a.ownerUserId}`))}${row('Trainer',esc(item.trainerName||`#${a.trainerUserId}`))}${row('Period',`${fmtDate(a.startsAt)} – ${fmtDate(a.endsAt)}`)}${row('Requested by',String(a.terminationRequestedByUserId)===String(a.ownerUserId)?'Owner':String(a.terminationRequestedByUserId)===String(a.trainerUserId)?'Trainer':`#${esc(a.terminationRequestedByUserId)}`)}${row('Requested at',fmtDate(a.terminationRequestedAt))}</div><h3>Termination reason</h3><p class="entity-copy">${esc(a.terminationReason||'—')}</p><div class="actions"><button class="btn btn-primary" data-act="termination-decision" data-id="${esc(a.agreementId)}" data-approve="true">Approve termination</button><button class="btn btn-danger" data-act="termination-decision" data-id="${esc(a.agreementId)}" data-approve="false">Reject request</button></div></article>`}).join('')}</div>`;
+ return adminShell({user:state.user,active:'/admin/termination-requests',body:`<section class="admin-audit-hero"><div><p class="admin-audit-eyebrow">AGREEMENT REVIEW</p><h1>Termination requests</h1><p>Review requests submitted by agreement owners and trainers.</p></div></section>${content}`});
+}
 
 function adminSettingsPage() {
  if (!canAccessRoute(matchRoute('/admin/settings').route,state.user)) return adminDenied();
@@ -404,6 +414,9 @@ const canManageAgreements = () => isAdmin() || hasAnyRole(state.user, 'OWNER');
 const canAcceptAgreement = agreement => hasAnyRole(state.user, 'TRAINER')
   && String(state.user?.userId) === String(agreement?.trainerUserId)
   && agreement?.status === 'PENDING_APPROVAL';
+const canRequestTermination = agreement => ['OWNER','TRAINER'].some(role => hasAnyRole(state.user, role))
+  && [String(agreement?.ownerUserId), String(agreement?.trainerUserId)].includes(String(state.user?.userId))
+  && agreement?.status === 'ACTIVE' && agreement?.terminationRequestStatus !== 'REQUESTED';
 const blankView = () => ({ key: '', status: 'idle', data: null, error: null });
 const refresh = () => { state.view = blankView(); render(); };
 const needAuth = () => { if (!signedIn()) throw Object.assign(new Error('Sign in to continue.'), { status: 401 }); };
@@ -574,13 +587,20 @@ const pedigreeEditScreen = () => scr('/camels', camelTabs(''), 'Edit Pedigree', 
 
 // ---- TrainingAgreement and auditLog entity screens ----
 const agreementStatuses = ['DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','REJECTED','TERMINATED','COMPLETED','EXPIRED'];
-const isoInput = value => { if(!value) return ''; const d=new Date(value); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
+const isoDateInput = value => { if(!value) return ''; const d=new Date(value); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const agreementDateRange = (startDate, endDate) => {
+  const startsAt = new Date(`${startDate}T00:00:00`);
+  const now = new Date();
+  if (startsAt.toDateString() === now.toDateString()) startsAt.setTime(now.getTime() + 60_000);
+  const endsAt = new Date(`${endDate}T23:59:59.999`);
+  return { startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() };
+};
 const agreementForm = (a = {}, edit = false) => `<form class="form card card-pad entity-form" data-form="agreement-${edit?'edit':'add'}" data-id="${esc(a.agreementId||'')}">
 <h2>Participants & schedule</h2>${!edit?`<div class="form-row"><div class="field"><label for="agreement-camel">Camel ID <span class="required">*</span></label><input id="agreement-camel" class="input" name="camelId" type="number" min="1" required placeholder="e.g. 204" value="${esc(a.camelId||'')}"></div><div class="field"><label for="agreement-trainer">Trainer user ID <span class="required">*</span></label><input id="agreement-trainer" class="input" name="trainerUserId" type="number" min="1" required placeholder="Trainer account ID" value="${esc(a.trainerUserId||'')}"></div></div>`:`<div class="form-row">${row('Camel',`#${esc(a.camelId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}</div>`}
-<div class="form-row"><div class="field"><label for="agreement-start">Start date <span class="required">*</span></label><input id="agreement-start" class="input" name="startsAt" type="datetime-local" required value="${isoInput(a.startsAt)}"></div><div class="field"><label for="agreement-end">End date <span class="required">*</span></label><input id="agreement-end" class="input" name="endsAt" type="datetime-local" required value="${isoInput(a.endsAt)}"></div></div>
-<h2>Compensation</h2><div class="form-row"><div class="field"><label for="agreement-fee">Training fee (OMR) <span class="required">*</span></label><input id="agreement-fee" class="input" name="feeOmr" type="number" min="0" step="0.001" required placeholder="0.000" value="${esc(a.feeOmr??'')}"></div><div class="field"><label for="agreement-prize">Prize share (%) <span class="required">*</span></label><input id="agreement-prize" class="input" name="prizeSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.prizeSharePct??'')}"></div></div><div class="field"><label for="agreement-sale">Sale share (%) <span class="required">*</span></label><input id="agreement-sale" class="input" name="saleSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.saleSharePct??'')}"></div><div class="field"><label for="agreement-terms">Terms</label><textarea id="agreement-terms" class="textarea" name="terms" maxlength="5000" placeholder="Describe the training arrangement and expectations">${esc(a.terms||'')}</textarea><span class="form-help">Optional Ã‚Â· up to 5,000 characters</span></div><div class="form-feedback" aria-live="polite"></div><div class="modal-actions"><a class="btn btn-secondary" href="${edit?`/agreements/${esc(a.agreementId)}`:'/agreements'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${edit?'Save Changes':'Create Agreement'}</button></div></form>`;
-const agreementScreen = () => scr('/agreements', '', 'Training Agreements', d => { const q=qparams(), all=d.agreements||[], filtered=all.filter(a=>(!q.search||`${a.agreementId} ${a.camelId} ${a.trainerUserId} ${a.ownerUserId}`.toLowerCase().includes(q.search.toLowerCase()))&&(!q.status||a.status===q.status));filtered.sort((a,b)=>q.sort==='oldest'?Number(a.agreementId)-Number(b.agreementId):Number(b.agreementId)-Number(a.agreementId)); return {title:'Training Agreements',sub:'Manage camel training terms, participants and active periods.',actions:canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>+ Add Agreement</a>':'',body:`<form class="toolbar" data-form="agreement-filter"><input class="input" name="search" aria-label="Search agreements" placeholder="Search camel, trainer or agreement ID" value="${esc(q.search||'')}"><select class="select" name="status" aria-label="Filter by status">${opts(agreementStatuses,q.status,'All statuses')}</select><select class="select" name="sort" aria-label="Sort agreements"><option value="newest" ${q.sort!=='oldest'?'selected':''}>Newest first</option><option value="oldest" ${q.sort==='oldest'?'selected':''}>Oldest first</option></select><button type="submit" class="btn btn-primary">Filter</button></form>${filtered.length?`<div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Camel</th><th>Trainer</th><th>Period</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>${filtered.map(a=>`<tr><td><strong>#${esc(a.agreementId)}</strong></td><td>#${esc(a.camelId)}</td><td>#${esc(a.trainerUserId)}</td><td>${fmtDate(a.startsAt)} Ã¢â‚¬â€œ ${fmtDate(a.endsAt)}</td><td>${fmtOmr(a.feeOmr)}</td><td>${sb(a.status)}</td><td class="table-actions"><a class="small-btn" href="/agreements/${a.agreementId}" data-link>View</a>${canAcceptAgreement(a)?`<button class="small-btn" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="small-btn" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyCard('No agreements found','No training agreements match this search or status.',canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>Add Agreement</a>':'')}`}; });
-const agreementDetailScreen = () => scr('/agreements','','Agreement details',d=>{const a=d.agreement;return {title:`Agreement #${esc(a.agreementId)}`,sub:'Training arrangement and lifecycle details.',actions:`${canAcceptAgreement(a)?`<button class="btn btn-primary" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept Agreement</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="btn btn-secondary" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}<a class="btn btn-ghost" href="/agreements" data-link>Back to Agreements</a>`,body:`<div class="grid grid-2"><section class="card card-pad"><h2>Participants & schedule</h2><div class="info-list">${row('Status',sb(a.status))}${row('Owner',`#${esc(a.ownerUserId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Starts',fmtDate(a.startsAt))}${row('Ends',fmtDate(a.endsAt))}${row('Proposed',fmtDate(a.proposedAt))}${row('Responded',fmtDate(a.respondedAt))}</div></section><section class="card card-pad"><h2>Compensation</h2><div class="info-list">${row('Training fee',fmtOmr(a.feeOmr))}${row('Prize share',`${esc(a.prizeSharePct)}%`)}${row('Sale share',`${esc(a.saleSharePct)}%`)}</div></section><section class="card card-pad"><h2>Terms</h2><p class="entity-copy">${esc(a.terms||'No additional terms recorded.')}</p></section><section class="card card-pad"><h2>Lifecycle</h2><div class="info-list">${row('Accepted',fmtDate(a.acceptedAt))}${row('Completed',fmtDate(a.completedAt))}${row('Expired',fmtDate(a.expiredAt))}${row('Terminated',fmtDate(a.terminatedAt))}${row('Rejection reason',esc(a.rejectionReason||'Ã¢â‚¬â€'))}${row('Termination reason',esc(a.terminationReason||'Ã¢â‚¬â€'))}</div></section></div>`};});
+<div class="form-row"><div class="field"><label for="agreement-start">Start date <span class="required">*</span></label><input id="agreement-start" class="input" name="startsAt" type="date" required value="${isoDateInput(a.startsAt)}"></div><div class="field"><label for="agreement-end">End date <span class="required">*</span></label><input id="agreement-end" class="input" name="endsAt" type="date" required value="${isoDateInput(a.endsAt)}"></div></div>
+<h2>Compensation</h2><div class="form-row"><div class="field"><label for="agreement-fee">Training fee (OMR) <span class="required">*</span></label><input id="agreement-fee" class="input" name="feeOmr" type="number" min="0" step="0.001" required placeholder="0.000" value="${esc(a.feeOmr??'')}"></div><div class="field"><label for="agreement-prize">Prize share (%) <span class="required">*</span></label><input id="agreement-prize" class="input" name="prizeSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.prizeSharePct??'')}"></div></div><div class="field"><label for="agreement-sale">Sale share (%) <span class="required">*</span></label><input id="agreement-sale" class="input" name="saleSharePct" type="number" min="0" max="100" step="0.01" required placeholder="0.00" value="${esc(a.saleSharePct??'')}"></div><div class="field"><label for="agreement-terms">Terms</label><textarea id="agreement-terms" class="textarea" name="terms" maxlength="5000" placeholder="Describe the training arrangement and expectations">${esc(a.terms||'')}</textarea><span class="form-help">Optional · up to 5,000 characters</span></div><div class="form-feedback" aria-live="polite"></div><div class="modal-actions"><a class="btn btn-secondary" href="${edit?`/agreements/${esc(a.agreementId)}`:'/agreements'}" data-link>Cancel</a><button class="btn btn-primary" type="submit">${edit?'Save Changes':'Create Agreement'}</button></div></form>`;
+const agreementScreen = () => scr('/agreements', '', 'Training Agreements', d => { const q=qparams(), all=d.agreements||[], filtered=all.filter(a=>(!q.search||`${a.agreementId} ${a.camelId} ${a.trainerUserId} ${a.ownerUserId}`.toLowerCase().includes(q.search.toLowerCase()))&&(!q.status||a.status===q.status));filtered.sort((a,b)=>q.sort==='oldest'?Number(a.agreementId)-Number(b.agreementId):Number(b.agreementId)-Number(a.agreementId)); return {title:'Training Agreements',sub:'Manage camel training terms, participants and active periods.',actions:canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>+ Add Agreement</a>':'',body:`<form class="toolbar" data-form="agreement-filter"><input class="input" name="search" aria-label="Search agreements" placeholder="Search camel, trainer or agreement ID" value="${esc(q.search||'')}"><select class="select" name="status" aria-label="Filter by status">${opts(agreementStatuses,q.status,'All statuses')}</select><select class="select" name="sort" aria-label="Sort agreements"><option value="newest" ${q.sort!=='oldest'?'selected':''}>Newest first</option><option value="oldest" ${q.sort==='oldest'?'selected':''}>Oldest first</option></select><button type="submit" class="btn btn-primary">Filter</button></form>${filtered.length?`<div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Camel</th><th>Trainer</th><th>Period</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>${filtered.map(a=>`<tr><td><strong>#${esc(a.agreementId)}</strong></td><td>#${esc(a.camelId)}</td><td>#${esc(a.trainerUserId)}</td><td>${fmtDate(a.startsAt)} – ${fmtDate(a.endsAt)}</td><td>${fmtOmr(a.feeOmr)}</td><td>${sb(a.status)}${a.terminationRequestStatus?`<small>Termination ${esc(a.terminationRequestStatus.toLowerCase())}${a.terminationDecisionNotes?` · ${esc(a.terminationDecisionNotes)}`:''}</small>`:''}</td><td class="table-actions"><a class="small-btn" href="/agreements/${a.agreementId}" data-link>View</a>${canAcceptAgreement(a)?`<button class="small-btn" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept</button><button class="small-btn" data-act="reject-agreement" data-id="${esc(a.agreementId)}">Reject</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="small-btn" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}</td></tr>`).join('')}</tbody></table></div>`:emptyCard('No agreements found','No training agreements match this search or status.',canManageAgreements()?'<a class="btn btn-primary" href="/agreements/new" data-link>Add Agreement</a>':'')}`}; });
+const agreementDetailScreen = () => scr('/agreements','','Agreement details',d=>{const a=d.agreement;return {title:`Agreement #${esc(a.agreementId)}`,sub:'Training arrangement and lifecycle details.',actions:`${canAcceptAgreement(a)?`<button class="btn btn-primary" data-act="accept-agreement" data-id="${esc(a.agreementId)}">Accept Agreement</button><button class="btn btn-secondary" data-act="reject-agreement" data-id="${esc(a.agreementId)}">Reject Agreement</button>`:''}${canManageAgreements()&&a.status==='PENDING_APPROVAL'?`<a class="btn btn-secondary" href="/agreements/${a.agreementId}/edit" data-link>Edit</a>`:''}<a class="btn btn-ghost" href="/agreements" data-link>Back to Agreements</a>`,body:`<div class="grid grid-2"><section class="card card-pad"><h2>Participants & schedule</h2><div class="info-list">${row('Status',sb(a.status))}${row('Owner',`#${esc(a.ownerUserId)}`)}${row('Trainer',`#${esc(a.trainerUserId)}`)}${row('Camel',`#${esc(a.camelId)}`)}${row('Starts',fmtDate(a.startsAt))}${row('Ends',fmtDate(a.endsAt))}${row('Proposed',fmtDate(a.proposedAt))}${row('Responded',fmtDate(a.respondedAt))}</div>${canRequestTermination(a)?`<button class="btn btn-danger" data-act="request-termination" data-id="${esc(a.agreementId)}">Request termination</button>`:''}</section><section class="card card-pad"><h2>Compensation</h2><div class="info-list">${row('Training fee',fmtOmr(a.feeOmr))}${row('Prize share',`${esc(a.prizeSharePct)}%`)}${row('Sale share',`${esc(a.saleSharePct)}%`)}</div></section><section class="card card-pad"><h2>Terms</h2><p class="entity-copy">${esc(a.terms||'No additional terms recorded.')}</p></section><section class="card card-pad"><h2>Lifecycle</h2><div class="info-list">${row('Accepted',fmtDate(a.acceptedAt))}${row('Completed',fmtDate(a.completedAt))}${row('Expired',fmtDate(a.expiredAt))}${row('Terminated',fmtDate(a.terminatedAt))}${row('Rejection reason',esc(a.rejectionReason||'—'))}${row('Termination reason',esc(a.terminationReason||'—'))}${a.terminationRequestStatus?row('Termination request',esc(a.terminationRequestStatus)):''}${a.terminationDecisionNotes?row('Admin notes',esc(a.terminationDecisionNotes)):''}</div></section></div>`};});
 // ---- Camels ----
 const camelCard = c => `<article class="card card-pad">${camelPhoto(c)}<div class="section-title"><h3>${esc(c.name)}</h3>${sb(c.status)}</div><div class="info-list">${row('Breed', esc(c.breed))}${row('Gender', esc(c.gender))}${row('Born', fmtDate(c.birthDate))}${row('Category', esc(c.category || 'Ã¢â‚¬â€'))}</div><div class="actions"><a class="btn btn-primary" href="/camels/${c.camelId}/profile" data-link>View profile</a><a class="btn btn-secondary" href="/camels/${c.camelId}" data-link>View pedigree</a></div></article>`;
 const pedigreeDirectoryScreen = () => {
@@ -696,6 +716,51 @@ function confirmModal(title, msg, label, danger, run) {
   openModal(`<h2>${title}</h2><p>${msg}</p><div class="modal-actions"><button class="btn btn-secondary" id="close-modal" type="button">Cancel</button><button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" id="confirm-btn" type="button">${label}</button></div>`);
   $('#confirm-btn').addEventListener('click', async e => { e.currentTarget.disabled = true; try { await run(); closeModal(); } catch (err) { failure(err); e.currentTarget.disabled = false; } });
 }
+function rejectAgreementModal(id) {
+  openModal(`<h2>Reject training agreement?</h2><p>You can optionally provide a reason for rejecting agreement #${esc(id)}.</p><form class="form" data-form="agreement-reject" data-id="${esc(id)}"><div class="field"><label for="agreement-rejection-reason">Rejection reason (optional)</label><textarea id="agreement-rejection-reason" class="textarea" name="reason" maxlength="1000" placeholder="Add a reason for the owner"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" id="close-modal" type="button">Cancel</button><button class="btn btn-danger" type="submit">Reject Agreement</button></div></form>`);
+  const form = $('#modal form[data-form="agreement-reject"]');
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = form.querySelector('[type="submit"]');
+    if (button) button.disabled = true;
+    try {
+      const reason = new FormData(form).get('reason')?.trim() || null;
+      await agreementApi.reject(id, reason);
+      toast('Training agreement rejected.', 'success');
+      closeModal();
+      refresh();
+    } catch (err) {
+      failure(err);
+      if (button) button.disabled = false;
+    }
+  });
+}
+function terminationActionModal(id, approve = null) {
+  const request = approve === null;
+  const heading = request ? 'Request agreement termination' : approve ? 'Approve termination?' : 'Reject termination request?';
+  const label = request ? 'Termination reason' : 'Admin notes (optional)';
+  const field = request ? 'reason' : 'notes';
+  const required = request ? 'required' : '';
+  openModal(`<h2>${heading}</h2><form class="form" data-form="termination-action" data-id="${esc(id)}" data-approve="${request ? '' : String(approve)}"><div class="field"><label for="termination-action-reason">${label}</label><textarea id="termination-action-reason" class="textarea" name="${field}" maxlength="1000" ${required}></textarea></div><div class="modal-actions"><button class="btn btn-secondary" id="close-modal" type="button">Cancel</button><button class="btn ${request || approve ? 'btn-primary' : 'btn-danger'}" type="submit">${request ? 'Send request' : approve ? 'Approve termination' : 'Reject request'}</button></div></form>`);
+  const form = $('#modal form[data-form="termination-action"]');
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const button = form.querySelector('[type="submit"]');
+    if (button) button.disabled = true;
+    try {
+      const value = new FormData(form).get(field)?.trim() || null;
+      if (request) await agreementApi.requestTermination(id, value);
+      else await agreementApi.decideTermination(id, approve, value);
+      toast(request ? 'Termination request sent for admin review.' : approve ? 'Termination approved.' : 'Termination request rejected.', 'success');
+      closeModal();
+      if (request) refresh(); else render();
+    } catch (err) {
+      failure(err);
+      if (button) button.disabled = false;
+    }
+  });
+}
 function offerModal(kind, id, price) {
   openModal(`<h2>${kind === 'add' ? 'Make an offer' : 'Edit your offer'}</h2><p>Enter your price in OMR. The seller can accept or decline.</p><form class="form" data-form="offer-${kind}" data-id="${id}"><div class="field"><label>Offered price (OMR)</label><input class="input" type="number" name="offeredPriceOmr" required min="0.001" step="any" value="${esc(price || '')}"></div><div class="modal-actions"><button class="btn btn-secondary" id="close-modal" type="button">Cancel</button><button class="btn btn-primary" type="submit">${kind === 'add' ? 'Submit offer' : 'Save'}</button></div></form>`);
 }
@@ -734,7 +799,7 @@ async function onMineSubmit(e) {
     else if (kind === 'offer-add') { if (isMockListingId(id)) throw new Error('Demo listings do not accept offers.'); await offerApi.add(toOfferCreatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer submitted.', 'success'); go('/offers'); }
     else if (kind === 'offer-edit') { await offerApi.update(toOfferUpdatePayload(f.offeredPriceOmr, id)); closeModal(); toast('Offer updated.', 'success'); refresh(); }
     else if (kind === 'agreement-add' || kind === 'agreement-edit') {
-      const payload={feeOmr:Number(f.feeOmr),prizeSharePct:Number(f.prizeSharePct),saleSharePct:Number(f.saleSharePct),startsAt:new Date(f.startsAt).toISOString(),endsAt:new Date(f.endsAt).toISOString(),terms:f.terms||null};
+      const payload={feeOmr:Number(f.feeOmr),prizeSharePct:Number(f.prizeSharePct),saleSharePct:Number(f.saleSharePct),...agreementDateRange(f.startsAt,f.endsAt),terms:f.terms||null};
       if(kind==='agreement-add') { payload.camelId=Number(f.camelId);payload.trainerUserId=Number(f.trainerUserId);await agreementApi.add(payload);toast('Training agreement proposed.','success');go('/agreements'); }
       else { await agreementApi.update(id,payload);toast('Training agreement updated.','success');go(`/agreements/${id}`); }
     }
@@ -747,6 +812,9 @@ function onMineClick(e) {
   if (act === 'page') return go(withQuery({ page }));
   if (act === 'make-offer' && isMockListingId(listing)) return toast('Demo listings do not accept offers.', 'error');
   if (act === 'make-offer') return signedIn() ? offerModal('add', listing, price) : (toast('Sign in to make an offer.', 'error'), go('/signin'));
+  if (act === 'reject-agreement') return rejectAgreementModal(id);
+  if (act === 'request-termination') return terminationActionModal(id);
+  if (act === 'termination-decision') return terminationActionModal(id, el.dataset.approve === 'true');
   if (act === 'edit-offer') return offerModal('edit', id, price);
   if (act === 'accept-agreement') return confirmModal('Accept training agreement?', `Accept agreement #${esc(id)} and begin the training period?`, 'Accept agreement', false, async () => { await agreementApi.accept(id);toast('Training agreement accepted.','success');refresh(); });
   if (act === 'delete-camel') return confirmModal('Delete camel?', `This removes ${esc(el.dataset.name)} from the registry. Only the full owner can do this.`, 'Delete', true, async () => { await camelApi.remove(id); toast('Camel deleted.', 'success'); go('/camels/my'); });
@@ -765,8 +833,19 @@ function screen(match){ const {name}=match.route, p=match.params; return {
  'Sign In':()=>auth('signin'),'Create Account':()=>auth('signup'),'Forgot Password':()=>auth('forgot'),'Reset Password':()=>auth('reset'),
  'Home / Overview':home,'Settings / User Profile':settings,'Trainer Profile':trainer,'Challenges':challenges,
  'Challenge Detail + Voting':()=>challenge(p.id),'Training Log':training,'Training Agreements':agreementScreen,'Add Training Agreement':()=>mineScreens()[name](),'Edit Training Agreement':()=>mineScreens()[name](),'Training Agreement Details':agreementDetailScreen,
- 'Audit Logs':adminAuditListPage,'Audit Log Details':adminAuditDetailPage,
- 'Admin Dashboard':admin,'Admin Users':adminUsersPage,'Admin Marketplace':adminMarketplacePage,'Admin Challenges':adminChallengesPage,'Admin Organizations':adminOrganizationsPage,'Admin System Health':adminHealthPage,'Admin Settings':adminSettingsPage,'Pedigree Directory':pedigreeDirectoryScreen,'Pedigree Section':()=>pedigree(p.id),'Edit Pedigree':pedigreeEditScreen,
+  'Audit Logs': adminAuditListPage,
+  'Audit Log Details': adminAuditDetailPage,
+  'Termination Requests': terminationRequestsPage,
+  'Admin Dashboard': admin,
+  'Admin Users': adminUsersPage,
+  'Admin Marketplace':adminMarketplacePage,
+   'Admin Challenges': adminChallengesPage,
+  'Admin Organizations': adminOrganizationsPage,
+  'Admin System Health': adminHealthPage,
+  'Admin Settings': adminSettingsPage,
+  'Pedigree Directory': pedigreeDirectoryScreen,
+  'Pedigree Section': () => pedigree(p.id),
+  'Edit Pedigree': pedigreeEditScreen,
  'Race Card Publish Control':()=>publishRaceCard(p.id),'Organizations UI':organizations,'Tourism / Cultural Content UI':tourism,
  'Race Card Public / History UI':raceCards,
  ...mineScreens()
@@ -979,8 +1058,22 @@ async function render() {
          state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};
          denyAdminAccess();bind();return;
        }
-       state.adminAuditError='Unable to load audit history. Please retry.';
-     }
+     state.adminAuditError='Unable to load audit history. Please retry.';
+    }
+   }
+   if(adminRoute&&path==='/admin/termination-requests') {
+    try {
+     state.terminationRequests=await agreementApi.terminationRequests();
+     state.terminationRequestsError='';
+     if(epoch!==renderEpoch)return;
+     if(!Array.isArray(state.terminationRequests))throw new Error('Invalid termination request response.');
+    } catch(err) {
+     if(epoch!==renderEpoch)return;
+     if(err.status===401)throw err;
+     if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
+     state.terminationRequests=null;
+     state.terminationRequestsError='Unable to load termination requests. Please retry.';
+    }
    }
    root.innerHTML=adminRoute?screen(match)():settings();
   }catch(err){

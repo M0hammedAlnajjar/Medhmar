@@ -91,14 +91,27 @@ class TrainingAgreementIntegrationTests extends IntegrationSupport {
                 .andExpect(status().isForbidden());
         mvc.perform(post("/api/agreements/" + id + "/accept").session(otherSession).with(csrf()))
                 .andExpect(status().isForbidden());
-        mvc.perform(post("/api/agreements/" + id + "/accept").session(trainerSession).with(csrf()))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("ACTIVE"));
+        mvc.perform(post("/api/agreements/" + id + "/accept")
+                        .session(trainerSession).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
         mvc.perform(post("/api/agreements/" + id + "/accept").session(trainerSession).with(csrf()))
                 .andExpect(status().isConflict());
-        mvc.perform(post("/api/agreements/" + id + "/terminate").session(ownerSession).with(csrf()))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("TERMINATED"));
+
+        mvc.perform(post("/api/agreements/" + id + "/terminate")
+                        .session(ownerSession)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(payload(Map.of("reason", "Owner requested termination"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.terminationRequestStatus").value("REQUESTED"));
+
         mvc.perform(get("/api/agreements/" + id).session(trainerSession))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("TERMINATED"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.terminationRequestStatus").value("REQUESTED"));
+
     }
 
     @Test
@@ -219,22 +232,30 @@ class TrainingAgreementIntegrationTests extends IntegrationSupport {
                 .andExpect(status().isConflict());
     }
 
+
     @Test
     void rejectionAndTerminationReasonsAreRecorded() throws Exception {
         var owner = register("agreement-reason-owner@example.com");
         var trainer = register("agreement-reason-trainer@example.com");
+        var admin = register("agreement-reason-admin@example.com");
+
         users.updateRoles(owner.userId(), Set.of("OWNER"));
         users.updateRoles(trainer.userId(), Set.of("TRAINER"));
+        users.updateRoles(admin.userId(), Set.of("ADMIN"));
         trainerProfile(trainer.userId());
 
         Long camelId = ownedCamel(owner.userId());
         var ownerSession = login(owner.email());
         var trainerSession = login(trainer.email());
+        var adminSession = login(admin.email());
 
-        var rejectedBody = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
-                        .contentType("application/json").content(proposal(camelId, trainer.userId())))
+        var rejectedBody = mvc.perform(post("/api/agreements")
+                        .session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(proposal(camelId, trainer.userId())))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
+
         Long rejectedId = json.readTree(rejectedBody).get("agreementId").asLong();
 
         mvc.perform(post("/api/agreements/" + rejectedId + "/reject")
@@ -246,25 +267,40 @@ class TrainingAgreementIntegrationTests extends IntegrationSupport {
                 .andExpect(jsonPath("$.rejectionReason").value("Schedule conflict"))
                 .andExpect(jsonPath("$.rejectedByUserId").value(trainer.userId()));
 
-        var activeBody = mvc.perform(post("/api/agreements").session(ownerSession).with(csrf())
-                        .contentType("application/json").content(proposal(camelId, trainer.userId())))
+        var activeBody = mvc.perform(post("/api/agreements")
+                        .session(ownerSession).with(csrf())
+                        .contentType("application/json")
+                        .content(proposal(camelId, trainer.userId())))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
+
         Long activeId = json.readTree(activeBody).get("agreementId").asLong();
 
         mvc.perform(post("/api/agreements/" + activeId + "/accept")
                         .session(trainerSession).with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
 
+        // Owner requests termination; the agreement remains active pending approval.
         mvc.perform(post("/api/agreements/" + activeId + "/terminate")
                         .session(ownerSession).with(csrf())
                         .contentType("application/json")
                         .content(payload(Map.of("reason", "Owner requested termination"))))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.terminationRequestStatus").value("REQUESTED"))
+                .andExpect(jsonPath("$.terminationReason").value("Owner requested termination"));
+
+        // Admin approves the request and terminates the agreement.
+        mvc.perform(post("/api/agreements/" + activeId + "/termination-decision")
+                        .param("approve", "true")
+                        .session(adminSession).with(csrf()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("TERMINATED"))
                 .andExpect(jsonPath("$.terminationReason").value("Owner requested termination"))
-                .andExpect(jsonPath("$.terminatedByUserId").value(owner.userId()));
+                .andExpect(jsonPath("$.terminatedByUserId").value(admin.userId()));
     }
+
 
     @Test
     void staleAgreementsAutomaticallyExpireOrComplete() throws Exception {
