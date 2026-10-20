@@ -904,7 +904,8 @@ function bindAdminUserControls() {
    ? 'Showing '+visible+' matching users on this page · '+originalCount:originalCount;
  };
  form.addEventListener('submit',e=>{e.preventDefault();apply();});
- form.addEventListener('reset',()=>{form.reset();apply();});
+ // Native reset restores all four fields before reapplying the page-only filter.
+ form.addEventListener('reset',()=>setTimeout(apply,0));
  form.elements.search?.addEventListener('input',apply);
  for(const key of ['role','status','joined'])form.elements[key]?.addEventListener('change',apply);
  $('#admin-users-refresh')?.addEventListener('click',()=>render());
