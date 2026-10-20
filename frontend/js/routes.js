@@ -93,6 +93,10 @@ export function canAccessRoute(route, user) {
   if (!route) return false;
   if (route.auth && !user?.userId) return false;
   if (!route.roles) return true;
+  // API roles are normally plain (ADMIN); normalize optional Spring authorities
+  // consistently with the shared hasAnyRole() helper, never grant anonymous access.
   return Boolean(user?.userId) && Array.isArray(user.roles)
-    && route.roles.some(role => user.roles.includes(role));
+    && route.roles.some(role => user.roles.some(value =>
+      typeof value === "string" && value.replace(/^ROLE_/, "") === role
+    ));
 }
