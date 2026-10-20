@@ -332,11 +332,22 @@ try {
   assert.equal(await page.locator('.admin-user-row').count(),2,'real user table component renders test records');
   assert.equal(await page.locator('.admin-users-hero h1').innerText(),'Manage Users');
   assert.equal(await page.locator('#admin-user-filters').isVisible(),true);
+  const formLayout = await page.locator('.admin-users-field').evaluateAll(fields =>
+    fields.map(field => ({ label:field.querySelector('span')?.textContent?.trim(),
+      rect:field.getBoundingClientRect().toJSON() })));
+  assert.ok(formLayout.every(f=>f.label&&f.rect.width>100),'every admin filter has a readable label and usable width');
+  assert.ok(formLayout[1].rect.x>=formLayout[0].rect.right-1 ||
+    formLayout[1].rect.y>=formLayout[0].rect.bottom-1,'role control must not overlap search');
+  assert.equal(await page.locator('#admin-users-clear').isVisible(),true);
+
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'user management desktop must not overflow');
   await page.screenshot({path:'test-results/admin-users-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-users-hero').isVisible(),true);
   assert.equal(await page.locator('.admin-users-stat').count(),6);
+  const compactFilters=await page.locator('.admin-users-field').evaluateAll(fields=>fields.map(f=>f.getBoundingClientRect().toJSON()));
+  assert.ok(compactFilters.every(rect=>rect.width>160),'mobile filters must retain usable widths');
+  assert.equal(await page.locator('#admin-users-clear').isVisible(),true);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'user management mobile must not overflow');
   await page.screenshot({path:'test-results/admin-users-mobile.png',fullPage:true});
   assert.deepEqual(errors,[], 'browser must not have unhandled errors');

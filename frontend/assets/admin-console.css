@@ -612,3 +612,91 @@
 .admin-console .admin-audit-message p{font-size:13px;color:#76594c}
 @media(max-width:950px){.admin-console .admin-audit-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.admin-console .admin-audit-hero{margin:15px 0;padding:22px;align-items:flex-start;flex-direction:column}.admin-console .admin-audit-panel{padding:15px}.admin-console .admin-audit-filters{grid-template-columns:1fr}.admin-console .admin-audit-detail dl{grid-template-columns:1fr}}
+
+
+/* Manage Users layout refinement: grouped controls, labelled filters, and readable density.
+   Keep changes scoped to the administrator workspace only. */
+.admin-console .admin-users-toolbar{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ flex-wrap:wrap;margin-bottom:18px;
+}
+.admin-console .admin-users-toolbar h2{margin:0 0 4px;font-size:18px;line-height:1.3;font-weight:750;color:#2a1d17}
+.admin-console .admin-users-toolbar p{margin:0;font-size:12px;line-height:1.5;color:#76717b}
+.admin-console .admin-users-live-count{
+ border-radius:999px;background:#f7eee7;border:1px solid #e8d7c8;
+ color:#80502c;font-size:11px;font-weight:750;padding:7px 11px;white-space:nowrap;
+}
+.admin-console .admin-users-filters{
+ display:grid;grid-template-columns:minmax(250px,2.25fr) repeat(3,minmax(120px,1fr)) minmax(176px,auto);
+ align-items:end;gap:12px;padding:17px;background:#faf8f6;border:1px solid #efe7df;border-radius:11px;
+}
+.admin-console .admin-users-field{
+ display:flex;flex-direction:column;align-items:stretch;gap:7px;
+ min-width:0;min-height:65px;
+}
+.admin-console .admin-users-field>span:first-child{
+ display:block;font-size:11px;font-weight:750;line-height:1.25;color:#5a4b41;
+}
+.admin-console .admin-users-field>select,.admin-console .admin-users-field input{
+ height:43px;font-size:12px;border-radius:8px;min-width:0;
+}
+.admin-console .admin-users-field>select{padding:0 12px;border-color:#d9d0ca}
+.admin-console .admin-users-search{
+ display:flex;align-items:center;gap:9px;min-width:0;width:100%;
+ height:43px;border:1px solid #d9d0ca;border-radius:8px;background:#fff;padding:0 12px;
+}
+.admin-console .admin-users-search input{
+ background:transparent;border:0!important;padding:0;width:100%;height:100%;min-width:0;
+ outline:none;font-size:12px;line-height:1.4;
+}
+.admin-console .admin-users-search input::placeholder{color:#89838d;opacity:1}
+.admin-console .admin-users-filter-actions{
+ display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:43px;white-space:nowrap;
+}
+.admin-console .admin-users-clear-btn,.admin-console .admin-users-refresh-btn{
+ min-height:43px;padding:0 12px;border-radius:8px;font-size:12px;font-weight:750;
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;
+}
+.admin-console .admin-users-clear-btn{background:#fff;border:1px solid #d7c7b9;color:#674633}
+.admin-console .admin-users-clear-btn:hover{background:#f3eae3}
+.admin-console .admin-users-refresh-btn{background:#bb0b2c;color:#fff;border:1px solid #bb0b2c}
+.admin-console .admin-users-refresh-btn:hover{background:#9f0824}
+.admin-console .admin-users-page-hint{
+ padding:10px 3px;margin:0 0 10px;line-height:1.5;font-size:11px;color:#6c6570;
+}
+.admin-console .admin-users-table th{
+ background:#faf7f4;color:#5d514b;font-size:11px;letter-spacing:.035em;
+ border-bottom:1px solid #e9ded6;
+}
+.admin-console .admin-users-table td{padding:12px 12px}
+.admin-console .admin-users-table tbody tr:hover{background:#fffaf5}
+.admin-console .admin-users-table tbody tr:focus-within{background:#fff7ef}
+.admin-console .admin-users-action{
+ width:36px;height:36px;margin-right:6px;
+}
+.admin-console .admin-users-actions{min-width:90px}
+.admin-console .admin-users-search:focus-within{outline:2px solid #bf3552;outline-offset:2px}
+.admin-console .admin-users-filters select:focus-visible,
+.admin-console .admin-users-filter-actions button:focus-visible,
+.admin-console .admin-users-action:focus-visible{
+ outline:2px solid #bf3552;outline-offset:2px;
+}
+@media(max-width:1450px){
+ .admin-console .admin-users-filters{grid-template-columns:minmax(235px,2fr) repeat(3,minmax(112px,1fr))}
+ .admin-console .admin-users-filter-actions{grid-column:1/-1;justify-content:flex-end}
+}
+@media(max-width:1000px){
+ .admin-console .admin-users-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .admin-console .admin-users-field-search{grid-column:1/-1}
+ .admin-console .admin-users-filter-actions{grid-column:1/-1}
+}
+@media(max-width:580px){
+ .admin-console .admin-users-toolbar{align-items:flex-start;gap:10px}
+ .admin-console .admin-users-filters{grid-template-columns:1fr;padding:12px;gap:12px}
+ .admin-console .admin-users-field-search,.admin-console .admin-users-filter-actions{grid-column:1}
+ .admin-console .admin-users-filter-actions{justify-content:stretch}
+ .admin-console .admin-users-filter-actions button{flex:1;white-space:normal}
+ .admin-console .admin-users-stats{margin-top:-18px}
+ .admin-console .admin-users-toolbar h2{font-size:17px}
+ .admin-console .admin-users-table{min-width:760px}
+}
