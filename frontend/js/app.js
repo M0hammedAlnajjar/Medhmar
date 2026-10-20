@@ -18,6 +18,7 @@ import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdmi
 import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
 import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
+import { adminRacesView, bindAdminRaces } from './admin-races.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
@@ -821,6 +822,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
   'Admin Organizations': adminOrganizationsPage,
   'Admin System Health': adminHealthPage,
   'Admin Settings': adminSettingsPage,
+  'Admin Races': adminRacesView,
   'Pedigree Directory': pedigreeDirectoryScreen,
   'Pedigree Section': () => pedigree(p.id),
   'Edit Pedigree': pedigreeEditScreen,
@@ -1110,6 +1112,7 @@ function bind(){
  if (document.body) syncAssistantDock({ user: state.user, preferredLanguage: state.lang,
     path: adminArea(normalizePath()) ? '/signin' : normalizePath() });
  bindAdminChartTabs();
+ bindAdminRaces(root,{notify:toast});
  $('#admin-health-check')?.addEventListener('click',()=>render());
  bindAdminUserControls();
  bindAdminModules(root,{
