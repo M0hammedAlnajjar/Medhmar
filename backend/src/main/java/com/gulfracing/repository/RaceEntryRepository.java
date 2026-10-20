@@ -17,6 +17,11 @@ public interface RaceEntryRepository extends JpaRepository<RaceEntry, Long> {
 
     List<RaceEntry> findByRace_RaceIdOrderByEntryIdAsc(Long raceId);
 
+    List<RaceEntry> findByRace_RaceIdAndEntryStatusOrderByParticipantNumberAsc(
+            Long raceId,
+            com.gulfracing.enums.RaceEntryStatus entryStatus
+    );
+
     @Query("SELECT COALESCE(MAX(e.participantNumber), 0) FROM RaceEntry e WHERE e.race.raceId = :raceId")
     Integer maxParticipantNumber(@Param("raceId") Long raceId);
 
