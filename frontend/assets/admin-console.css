@@ -1010,3 +1010,23 @@
  .admin-console .mhch-steps strong{font-size:11px}
  .admin-console .mhch-steps li>span{width:28px;height:28px}
 }
+
+
+/* Reference header details, isolated to the Challenges workspace. */
+@media(min-width:871px){
+ .admin-console:has(.mhch-page){grid-template-columns:206px minmax(0,1fr)}
+ .admin-console:has(.mhch-page) .admin-sidebar{padding-left:10px;padding-right:10px}
+ .admin-console:has(.mhch-page) .admin-sidebar-nav a{min-height:52px;padding:0 12px;gap:10px;font-size:13px}
+ .admin-console:has(.mhch-page) .admin-nav-icon,
+ .admin-console:has(.mhch-page) .admin-nav-icon svg{width:25px;height:25px}
+}
+.admin-console .mhch-breadcrumb-home{display:flex;align-items:center;color:#7c7c7c}
+.admin-console .mhch-topbar-location{margin-left:auto;display:flex;align-items:center;gap:8px;color:#353237;white-space:nowrap;font-size:13px;font-weight:500}
+.admin-console:has(.mhch-page) .admin-user-chip{border-left:1px solid #e9e4e1;padding-left:20px}
+.admin-console:has(.mhch-page) .admin-user-avatar{background:#75472e;color:white;width:34px;height:34px;font-size:16px}
+.admin-console .mhch-topbar-admin{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
+.admin-console .mhch-topbar-admin strong{font-size:13px}
+@media(max-width:870px){
+ .admin-console .mhch-topbar-location{display:none}
+ .admin-console .mhch-breadcrumb-home{display:none}
+}
