@@ -91,7 +91,7 @@ class BackendIntegrityIntegrationTests extends IntegrationSupport {
         var actor = register("audit-pagination@example.com");
         recorder.record("AUDIT_PAGE_TEST", "Camel", actor.userId(), null, actor.userId());
         recorder.record("AUDIT_PAGE_TEST", "User", actor.userId(), null, actor.userId());
-        recorder.record("AUDIT_PAGE_TEST", "User", actor.userId(), null, null);
+        recorder.record("AUDIT_PAGE_TEST", "User", actor.userId(), null, actor.userId());
 
         var first = auditLogs.list(0, 1, "AUDIT_PAGE_TEST", "User", actor.userId(),
                 NOW.minusSeconds(60), NOW.plusSeconds(60));

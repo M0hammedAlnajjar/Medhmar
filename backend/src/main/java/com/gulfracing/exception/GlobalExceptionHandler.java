@@ -12,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.*;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -47,6 +48,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ApiError> forbidden(AccessDeniedException ex) {
         return ResponseEntity.status(403).body(ApiError.of(403, "FORBIDDEN", "You cannot perform this action."));
+    }
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    ResponseEntity<ApiError> methodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(405).body(ApiError.of(405, "METHOD_NOT_ALLOWED",
+            "This endpoint does not support the requested method."));
     }
     @ExceptionHandler(NoResourceFoundException.class)
     ResponseEntity<ApiError> missing(NoResourceFoundException ex) {

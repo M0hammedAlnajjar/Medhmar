@@ -47,7 +47,7 @@ function harness(user, { me = async () => user, users, dashboard, audits, auditD
       querySelector: selector => selector === '#app' ? root : null,
       querySelectorAll: () => [], documentElement: {},
     },
-    localStorage: { getItem: () => null }, location,
+    localStorage: { getItem: () => null }, URLSearchParams, location,
     history: { replaceState: (_, __, path) => { location.pathname = path; } },
   });
   vm.runInContext(source, context);

@@ -70,6 +70,8 @@ export function normalizePath() {
 
 export function matchRoute(path) {
   const requestedPath = path === "/" || path === "/index.html" ? "/home" : path;
+  // The obsolete audit creation form must not be treated as an event ID.
+  if (/^\/(?:admin\/)?audit-logs\/new\/?$/.test(requestedPath)) return null;
   for (const route of ALL_ROUTES) {
     const pattern = route.path
       .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
