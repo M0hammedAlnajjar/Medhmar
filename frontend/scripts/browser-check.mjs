@@ -41,7 +41,14 @@ try {
     }
     if (path === '/api/challenges/42') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(liveChallenge)});
     if (path === '/api/challenges') return route.fulfill({status:200,contentType:'application/json',
-      body:JSON.stringify({content:[liveChallenge],page:0,size:20,totalElements:1,totalPages:1})});
+      body:JSON.stringify({content:[liveChallenge,{
+        challengeId:41,title:'Recorded Heritage Challenge',status:'CLOSED',
+        opensAt:'2026-01-01T06:00:00Z',closesAt:'2026-01-02T06:00:00Z',
+        totalVotes:3,camels:[
+          {camelId:7,name:'Sahm',voteCount:2,votePercent:66.67,photoUrl:'/assets/mock-camels/camel-7.jpg'},
+          {camelId:8,name:'Hamdan',voteCount:1,votePercent:33.33,photoUrl:null}
+        ]
+      }],page:0,size:20,totalElements:2,totalPages:1})});
     if (path === '/marketplace/getAll') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content:marketHasListings?[{listingId:77,camelId:41,askingPriceOmr:'4000.125',status:'AVAILABLE'}]:[],page:0,totalPages:1,totalElements:marketHasListings?1:0})});
     if (path === '/camel/getById') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({camelId:41,name:'Recorded camel',breed:'Omani',gender:'MALE',birthDate:'2022-01-01',photoUrl:'/assets/marketplace-photos/wahiba-close.webp'})});
     if (path === '/camel/getAll') {
@@ -77,6 +84,19 @@ try {
   await page.locator('.broadcast-live-data').waitFor();
   assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
+  assert.equal(await page.locator('.broadcast-grid').count(),1);
+  assert.equal(await page.locator('.broadcast-published-card').count(),1);
+  assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
+  assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
+  const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  assert.equal(desktopCols,2,'desktop challenges must have hero and voting columns');
+  const imageBefore=await page.locator('.broadcast-scene-image').getAttribute('src');
+  await page.locator('[data-preview-image="next"]').click();
+  assert.notEqual(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
+  await page.locator('[data-preview-image="prev"]').click();
+  assert.equal(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
+  await page.locator('[data-preview-tab="results"]').click();
+  assert.match(await page.locator('#broadcast-info').innerText(),/Al Barq|Shaheen/);
   assert.match(await page.locator('.broadcast-voting').innerText(),/Al Barq|Shaheen/);
   assert.match(await page.locator('.broadcast-voting').innerText(),/0 votes/);
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/744 votes|456 votes|1.2K watching|LIVE PREVIEW|Sample event/);
@@ -91,7 +111,18 @@ try {
   await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'live challenges mobile must not overflow');
+  assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
+  const mobileLayout=await page.evaluate(()=>({
+    viewport:innerWidth,document:document.documentElement.scrollWidth,
+    overflow:[...document.querySelectorAll('body *')].filter(el=>{
+      const box=el.getBoundingClientRect();
+      return box.width>0&&(box.right>innerWidth+2||box.left<-2);
+    }).slice(0,12).map(el=>({
+      tag:el.tagName,cls:typeof el.className==='string'?el.className:'',width:el.getBoundingClientRect().width,
+      right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left
+    }))
+  }));
+  assert.ok(mobileLayout.document<=mobileLayout.viewport+1,'live challenges mobile must not overflow: '+JSON.stringify(mobileLayout));
   await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://127.0.0.1:${port}/training`);
