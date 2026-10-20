@@ -37,7 +37,10 @@ public class RaceController {
             @Valid @RequestBody RaceDTO raceDTO,
             Authentication auth) {
 
-        requireManager(null, raceDTO, auth);
+        Long actorId = AccountAccess.requiredId(auth);
+        if (!users.isAdmin(actorId)) {
+            throw ApiException.forbidden();
+        }
 
         return RaceDTO.convertToDTO(
                 raceService.addRace(
