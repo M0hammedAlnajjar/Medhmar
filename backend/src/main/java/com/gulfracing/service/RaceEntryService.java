@@ -85,7 +85,7 @@ public class RaceEntryService {
     @Transactional(readOnly = true)
     public List<RaceEntry> publicParticipants(Long raceId) {
         raceById(raceId);
-        return entries.findByRace_RaceIdAndEntryStatusOrderByParticipantNumberAsc(
+        return entries.findPublicParticipants(
                 raceId,
                 RaceEntryStatus.ACCEPTED
         );
