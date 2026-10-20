@@ -327,6 +327,10 @@ function adminUsersPage() {
  if (!canAccessRoute(matchRoute('/admin/users').route,state.user)) return adminDenied();
  return shell(adminUsersView({users:state.adminUsers,page:state.adminPageData,error:state.adminError}),'/admin/users');
 }
+function adminRacesPage() {
+ if (!canAccessRoute(matchRoute('/admin/races').route,state.user)) return adminDenied();
+ return shell(adminRacesView(),'/admin/races');
+}
 // Audit pages use the dedicated Admin shell and server-side paginated data.
 const auditFilters = () => {
   const q = qparams();
@@ -822,7 +826,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
   'Admin Organizations': adminOrganizationsPage,
   'Admin System Health': adminHealthPage,
   'Admin Settings': adminSettingsPage,
-  'Admin Races': adminRacesView,
+  'Admin Races': adminRacesPage,
   'Pedigree Directory': pedigreeDirectoryScreen,
   'Pedigree Section': () => pedigree(p.id),
   'Edit Pedigree': pedigreeEditScreen,
