@@ -193,8 +193,6 @@ public class SecurityConfig {
                                 "/api/challenges/**"
                         ).authenticated()
 
-                        .requestMatchers("/audit-log/**").hasRole("ADMIN")
-
                         .anyRequest().denyAll()
                 )
                 .exceptionHandling(ex -> ex

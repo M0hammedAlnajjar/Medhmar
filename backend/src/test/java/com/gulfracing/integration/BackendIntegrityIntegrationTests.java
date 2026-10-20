@@ -87,6 +87,33 @@ class BackendIntegrityIntegrationTests extends IntegrationSupport {
     }
 
     @Test
+    void auditHistoryIsFilteredAndPaginatedOnTheServer() {
+        var actor = register("audit-pagination@example.com");
+        recorder.record("AUDIT_PAGE_TEST", "Camel", actor.userId(), null, actor.userId());
+        recorder.record("AUDIT_PAGE_TEST", "User", actor.userId(), null, actor.userId());
+        recorder.record("AUDIT_PAGE_TEST", "User", actor.userId(), null, null);
+
+        var first = auditLogs.list(0, 1, "AUDIT_PAGE_TEST", "User", actor.userId(),
+                NOW.minusSeconds(60), NOW.plusSeconds(60));
+        assertThat(first.totalElements()).isEqualTo(2);
+        assertThat(first.totalPages()).isEqualTo(2);
+        assertThat(first.content()).hasSize(1);
+        assertThat(first.content().getFirst().getActorUserId()).isEqualTo(actor.userId());
+        assertThat(first.content().getFirst().getEntityType()).isEqualTo("User");
+
+        var next = auditLogs.list(1, 1, "AUDIT_PAGE_TEST", "User", actor.userId(), null, null);
+        assertThat(next.content()).hasSize(1);
+        assertThat(next.content().getFirst().getAuditId())
+                .isLessThan(first.content().getFirst().getAuditId());
+
+        assertThat(auditLogs.list(0, 20, "NO_SUCH_ACTION", null, null, null, null)
+                .totalElements()).isZero();
+        assertThatThrownBy(() -> auditLogs.list(0, 20, null, null, null,
+                NOW.plusSeconds(60), NOW.minusSeconds(60)))
+                .isInstanceOf(ApiException.class);
+    }
+
+    @Test
     void auditIsRolledBackWithBusinessTransaction() {
         var actor = register("rollback@example.com");
         long before = auditRepository.count();

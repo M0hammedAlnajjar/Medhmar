@@ -1,61 +1,42 @@
 package com.gulfracing.controller;
 
 import com.gulfracing.dto.AuditLogDTO;
+import com.gulfracing.dto.PageResponse;
 import com.gulfracing.service.AuditLogService;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.Instant;
 
+// Append-only audit history: only server-side AuditRecorder writes events.
+// No API routes allow clients (including administrators) to alter or delete audit events.
 @RestController
-@RequestMapping("/audit-log")
+@RequestMapping("/api/admin/audit-logs")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class AuditLogController {
-
     private final AuditLogService auditLogService;
 
-    @PostMapping("/add")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Long addAuditLog(@Valid @RequestBody AuditLogDTO dto) {
-        return auditLogService.create(
-                dto.getActionType(),
-                dto.getEntityType(),
-                dto.getEntityId(),
-                dto.getDescription(),
-                dto.getCamelId()
-        );
+    @GetMapping
+    public PageResponse<AuditLogDTO> list(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestParam(required = false) @Size(max = 50) String actionType,
+            @RequestParam(required = false) @Size(max = 50) String entityType,
+            @RequestParam(required = false) @Positive Long actorUserId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
+        return auditLogService.list(page, size, actionType, entityType, actorUserId, from, to);
     }
 
-    @GetMapping("/getAll")
-    public List<AuditLogDTO> getAllAuditLogs() {
-        return AuditLogDTO.convertToDTO(auditLogService.getAll());
-    }
-
-    @GetMapping("/getById")
-    public AuditLogDTO getById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public AuditLogDTO detail(@PathVariable @Positive Long id) {
         return AuditLogDTO.convertToDTO(auditLogService.getById(id));
-    }
-
-    @PutMapping("/update")
-    public AuditLogDTO updateAuditLog(
-            @Valid @RequestBody AuditLogDTO dto
-    ) {
-        return AuditLogDTO.convertToDTO(
-                auditLogService.update(
-                        dto.getAuditId(),
-                        dto.getActionType(),
-                        dto.getEntityType(),
-                        dto.getEntityId(),
-                        dto.getDescription(),
-                        dto.getCamelId()
-                )
-        );
-    }
-
-    @DeleteMapping("/deleteById")
-    public Boolean deleteAuditLog(@RequestParam Long id) {
-        return auditLogService.delete(id);
     }
 }

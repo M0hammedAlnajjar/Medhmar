@@ -1,15 +1,19 @@
 package com.gulfracing.service;
 
 import com.gulfracing.entity.AuditLog;
+import com.gulfracing.dto.AuditLogDTO;
+import com.gulfracing.dto.PageResponse;
 import com.gulfracing.exception.ApiException;
 import com.gulfracing.repository.AuditLogRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +37,31 @@ public class AuditLogService {
         return id;
     }
 
+    // Server-side pagination prevents loading the entire audit history into the browser.
+    // Filters and sort are evaluated in the database, with stable ordering for ties.
     @Transactional(readOnly = true)
-    public List<AuditLog> getAll() {
-        return auditLogRepository.findAll(Sort.by("createdAt"));
+    public PageResponse<AuditLogDTO> list(int page, int size, String actionType,
+            String entityType, Long actorUserId, Instant from, Instant to) {
+        if (from != null && to != null && from.isAfter(to))
+            throw ApiException.badRequest("From timestamp must be on or before To timestamp.");
+        var conditions = (org.springframework.data.jpa.domain.Specification<AuditLog>) (root, query, cb) -> {
+            var predicates = new ArrayList<Predicate>();
+            if (actionType != null && !actionType.isBlank())
+                predicates.add(cb.equal(root.get("actionType"), actionType.trim()));
+            if (entityType != null && !entityType.isBlank())
+                predicates.add(cb.equal(root.get("entityType"), entityType.trim()));
+            if (actorUserId != null)
+                predicates.add(cb.equal(root.get("actorUserId"), actorUserId));
+            if (from != null)
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
+            if (to != null)
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), to));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        var records = auditLogRepository.findAll(conditions,
+            PageRequest.of(page, size, Sort.by(
+                Sort.Order.desc("createdAt"), Sort.Order.desc("auditId"))));
+        return PageResponse.from(records, AuditLogDTO::convertToDTO);
     }
 
     @Transactional(readOnly = true)
