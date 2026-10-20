@@ -145,7 +145,7 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    (error?'<div class="admin-summary-error" role="status">Could not load dashboard data: '+esc(error)+
      ' <button type="button" id="admin-retry" class="btn btn-secondary">Retry</button></div>':'')+
    '<div class="admin-overview-grid"><section class="admin-panel admin-panel-chart"><div class="admin-panel-heading">'+
-   '<div><h2>Platform Activity</h2><p>Daily platform records</p></div><span class="admin-chart-period">Last 7 days Â· UTC</span></div>'+
+   '<div><h2>Platform Activity</h2><p>Daily platform records</p></div><span class="admin-chart-period">Last 7 days · UTC</span></div>'+
    weeklyChart(live?.activity)+'</section>'+
    '<section class="admin-panel admin-panel-events"><div class="admin-panel-heading"><h2>Recent Activity</h2>'+
    '<a href="/admin/audit-logs" data-link>View Audit Logs <span aria-hidden="true">â†’</span></a></div>'+
