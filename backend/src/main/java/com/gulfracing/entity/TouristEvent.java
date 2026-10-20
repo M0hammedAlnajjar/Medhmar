@@ -20,8 +20,8 @@ public class TouristEvent {
     @Column(name = "event_id")
     private Long eventId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "organization_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
     private Organization organization;
 
     @Column(name = "name", nullable = false, length = 180)

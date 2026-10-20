@@ -298,8 +298,8 @@ try {
   assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
-  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 8, 'desktop navigation should contain eight admin routes');
-  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),8,'desktop menu should retain its SVG icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 9, 'desktop navigation should contain nine admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),9,'desktop menu should retain its SVG icons');
   await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');
@@ -307,7 +307,7 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
   await page.locator('.admin-mobile-nav summary').click();
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 8);
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 9, 'mobile navigation should contain nine admin routes');
   const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
     const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
   }));

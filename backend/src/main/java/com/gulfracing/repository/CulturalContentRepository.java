@@ -8,4 +8,5 @@ import java.util.List;
 public interface CulturalContentRepository extends JpaRepository<CulturalContent, Long> {
     List<CulturalContent> findByApprovedStatusOrderByContentIdDesc(ContentApprovalStatus status);
     List<CulturalContent> findByOrganization_OrganizationIdOrderByContentIdDesc(Long organizationId);
+    List<CulturalContent> findAllByOrderByContentIdDesc();
 }
