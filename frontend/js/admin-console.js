@@ -9,6 +9,7 @@ const links = [
     ['/admin/organizations', 'Organizations'],
     ['/admin/system-health', 'System Health'],
     ['/admin/audit-logs', 'Audit Logs'],
+    ['/admin/races', 'Races'],
     ['/admin/settings', 'Admin Settings']
 ];
 
@@ -51,6 +52,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin/organizations': 'organization',
         '/admin/system-health': 'database',
         '/admin/audit-logs': 'audit',
+        '/admin/races': 'race',
         '/admin/settings': 'settings'
     };
 
@@ -69,6 +71,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin/organizations': 'Organizations',
         '/admin/system-health': 'System Health',
         '/admin/audit-logs': 'Audit Logs',
+        '/admin/races': 'Races',
         '/admin/settings': 'Admin Settings'
     };
 
