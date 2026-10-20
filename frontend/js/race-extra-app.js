@@ -290,19 +290,7 @@ async function loadRaceResults(raceId) {
         };
     }
 
-    let entries;
-    try {
-        entries = await raceEntryApi.getForRace(raceId);
-    } catch (error) {
-        if (error?.status === 401 || error?.status === 403) {
-            return { rows: [], restricted: true };
-        }
-        throw error;
-    }
-
-    const accepted = (entries || []).filter(
-        entry => String(entry.entryStatus).toUpperCase() === "ACCEPTED"
-    );
+    const accepted = await raceEntryApi.getPublicParticipants(raceId);
 
     const rows = (
         await Promise.all(
@@ -396,7 +384,7 @@ export async function renderRaceResults(container, raceId) {
                   <h3>${restricted ? "Detailed Results Restricted" : "No Results Yet"}</h3>
                   <p>
                     ${restricted
-                        ? "Detailed result rows require organizer access with the current backend API."
+                        ? "Detailed result rows are unavailable."
                         : "Official results have not been recorded for this race yet."}
                   </p>
                 </div>
