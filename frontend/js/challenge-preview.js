@@ -138,7 +138,13 @@ export function publishedChallengeCards(challenges=[]) {
        '<p>'+ico('group',15)+camels.length+' contenders</p></div></div>'+
        '<div class="broadcast-card-bottom">'+shares+
        '<a href="/challenges/'+safeId(c.challengeId)+'" class="broadcast-card-button" data-link>View Challenge '+ico('chevron',15)+'</a></div></article>';
-   }).join('')+'</div>':
+   }).join('')+
+   (challenges.length===1?
+    '<aside class="broadcast-published-placeholder" aria-label="Upcoming published challenges">'+
+     '<span class="broadcast-section-kicker">MEDHMAR</span>'+
+     '<strong>More challenges on the way</strong>'+
+     '<p>Additional recorded competitions will appear here when the platform publishes them. Only real challenge results are shown.</p></aside>':'')+
+   '</div>':
    '<div class="broadcast-upcoming-empty">The featured challenge is shown above. More published challenges will appear here when available.</div>')+
    '</section>';
 }
