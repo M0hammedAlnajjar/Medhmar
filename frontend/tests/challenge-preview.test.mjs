@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {broadcastPreview, bindBroadcastPreview} from '../js/challenge-preview.js';
+import {broadcastPreview, publishedChallengeCards, bindBroadcastPreview} from '../js/challenge-preview.js';
 
 const challenge = {
   challengeId: 42,title: 'TEST - Camel Racing Challenge',
@@ -69,4 +69,72 @@ test('tabs and fullscreen only change presentation, never mutate votes',()=>{
  assert.match(info.textContent,/Shaheen/);
  assert.equal(info.label,'challenge-participants');
  assert.ok(labels.some(([k,v])=>k==='aria-selected'&&v==='true'));
+});
+
+
+test('approved hero renders photograph, working gallery controls, results tab and real facts',()=>{
+ const html=broadcastPreview(challenge,{signedIn:true});
+ assert.match(html,/class="broadcast-grid"/);
+ assert.match(html,/class="broadcast-player"/);
+ assert.match(html,/class="broadcast-heading"/);
+ assert.match(html,/class="broadcast-voting"/);
+ assert.match(html,/data-preview-image="next"/);
+ assert.match(html,/data-preview-image="prev"/);
+ assert.match(html,/data-preview-fullscreen/);
+ assert.match(html,/data-preview-tab="results"/);
+ assert.match(html,/data-results="Al Barq: 3 votes \(75%\) · Shaheen: 1 votes \(25%\)"/);
+ assert.match(html,/class="broadcast-facts"/);
+ assert.match(html,/CLOSED · RESULTS|VOTING OPEN|VOTING SCHEDULED/);
+ assert.match(html,/Illustrative racetrack photograph\. No live stream is connected/);
+ assert.doesNotMatch(html,/2,300 viewers|Live broadcast connected|1234 votes/);
+});
+test('published cards show only API data and use safe fallback illustration',()=>{
+ const html=publishedChallengeCards([{
+  ...challenge,status:'CLOSED',title:'<script>unsafe</script>',
+  camels:[
+   {camelId:1,name:'Al Barq',voteCount:3,votePercent:75,photoUrl:'javascript:alert(1)'},
+   {camelId:2,name:'Shaheen',voteCount:1,votePercent:25,photoUrl:null}
+  ]
+ }]);
+ assert.match(html,/More Published Challenges/);
+ assert.match(html,/broadcast-published-card/);
+ assert.match(html,/&lt;script&gt;unsafe&lt;\/script&gt;/);
+ assert.match(html,/Al Barq|Shaheen|75%|25%/);
+ assert.match(html,/href="\/challenges\/42"/);
+ assert.doesNotMatch(html,/<script>|src="javascript:|Desert Speed Challenge|Winter Racing Cup/);
+ const empty=publishedChallengeCards([]);
+ assert.match(empty,/More published challenges will appear here/);
+ assert.doesNotMatch(empty,/broadcast-published-card|Desert Speed Challenge/);
+});
+test('gallery and result tab update visual state without writing votes',()=>{
+ let changes=[],text='',gallerySource='/assets/home-racetrack.jpg';
+ const info={dataset:{overview:'Opening times',participants:'Two contenders',results:'Al Barq 3 votes'},
+  setAttribute(k,v){changes.push([k,v]);},set textContent(v){text=v;},get textContent(){return text;}};
+ const photo={get src(){return gallerySource;},set src(v){gallerySource=v;}};
+ const buttons=['prev','next'].map(id=>({dataset:{previewImage:id},addEventListener(_,cb){this.cb=cb;}}));
+ const tabs=['overview','participants','results'].map((kind,i)=>({
+   id:'challenge-'+kind,dataset:{previewTab:kind},
+   addEventListener(_,cb){this.cb=cb;},setAttribute(k,v){changes.push([k,v]);},
+   focus(){},tabIndex:i? -1:0
+ }));
+ const section={
+  querySelector(sel){
+   if(sel==='#broadcast-info')return info;
+   if(sel==='.broadcast-scene-image')return photo;
+   return null;
+  },
+  querySelectorAll(sel){
+   if(sel==='[data-preview-image]')return buttons;
+   if(sel==='[data-preview-tab]')return tabs;
+   return [];
+  }
+ };
+ bindBroadcastPreview({querySelector:sel=>sel==='.broadcast-preview'?section:null});
+ buttons[1].cb();
+ assert.equal(gallerySource,'/assets/racing-hero.webp');
+ buttons[0].cb();
+ assert.equal(gallerySource,'/assets/home-racetrack.jpg');
+ tabs[2].cb();
+ assert.equal(text,'Al Barq 3 votes');
+ assert.ok(changes.some(([k,v])=>k==='aria-labelledby'&&v==='challenge-results'));
 });

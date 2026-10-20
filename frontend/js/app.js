@@ -7,7 +7,7 @@ import { organizationDirectory, bindOrganizationDirectory } from './organization
 import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
 import { adminHeritageView, bindAdminHeritage } from './admin-heritage.js';
 import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
-import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
+import { broadcastPreview, publishedChallengeCards, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView, requireRegisteredRole } from './auth-view.js';
@@ -282,22 +282,13 @@ function settings() {
 
 function trainer(){ return shell(trainerProfile(),'/trainer-profile'); }
 
-const challengeCard = c => `<article class="card challenge-card"><div class="section-title"><div><div class="kicker">Camel Challenge</div><h2>${esc(c.title)}</h2></div>${badge(c.status)}</div><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h3>${esc(x.name)}</h3><strong>${x.votePercent}%</strong><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div></div>`).join('')}</div><a class="btn btn-primary" href="/challenges/${c.challengeId}" data-link>View Challenge</a></article>`;
 const votingOpen = c => c?.status === 'OPEN' && Date.now() >= new Date(c.opensAt).getTime() && Date.now() < new Date(c.closesAt).getTime();
 function challenges(){
  const featured = state.challengeError ? null :
    state.challenges.find(c=>c.status==='OPEN') || state.challenges.find(c=>c.status==='CLOSED') || null;
  const other = featured ? state.challenges.filter(c=>String(c.challengeId)!==String(featured.challengeId)) : [];
- const body = state.challengeError
-   ? `<section class="card error"><h2>Unable to load published challenges</h2><p>Check the connection and retry.</p></section>`
-   : other.length
-     ? `<div class="grid grid-2" id="challenges-grid">${other.map(challengeCard).join('')}</div>`
-     : featured
-       ? '<section class="card card-pad"><p>The featured challenge is shown above. New published challenges will appear here.</p></section>'
-       : '';
- return shell(`${broadcastPreview(featured,{signedIn:Boolean(state.user?.userId),error:state.challengeError})}`+
-   (state.challenges.length && !state.challengeError ? head('More Published Challenges','Other recorded challenges and their results.')+body : ''),
-   '/challenges');
+ return shell(broadcastPreview(featured,{signedIn:Boolean(state.user?.userId),error:state.challengeError})+
+   (state.challenges.length && !state.challengeError ? publishedChallengeCards(other) : ''),'/challenges');
 }
 function challenge(id){
  const c = (state.challengeDetail && String(state.challengeDetail.challengeId)===String(id))
