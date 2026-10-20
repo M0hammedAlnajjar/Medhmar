@@ -152,10 +152,17 @@ test('Manage Users implements the approved admin theme with live, page-scoped ro
  assert.match(html,/status-suspended/);
  assert.match(html,/id="admin-user-filters"/);
  assert.match(html,/id="admin-users-refresh"/);
+ assert.match(html,/class="admin-users-toolbar"/);
+ assert.match(html,/class="admin-users-field admin-users-field-search"/);
+ assert.match(html,/id="admin-users-clear"/);
+ assert.match(html,/Total Users includes all registered accounts/);
+ assert.doesNotMatch(html,/admin-users-filter-btn/);
  assert.match(html,/data-user-search="/);
  assert.match(html,/view-admin-user/);
  assert.match(html,/small-btn manage-user/);
  assert.match(html,/On this page/);
+ assert.match(html,/name="role"/);
+ assert.match(html,/name="joined"/);
  assert.doesNotMatch(html,/1,248|892|214|Add User|last month|\+12%/);
 });
 test('User directory escapes malicious content, has safe placeholders and no pretend totals',()=>{

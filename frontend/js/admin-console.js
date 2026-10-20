@@ -182,6 +182,7 @@ const initials = name => String(name||'?').trim().split(/\s+/).slice(0,2).map(x=
 const safeRole = value => ['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].includes(value) ? value : 'OTHER';
 export function adminUsersView({users,page,error=''}) {
  const current=Math.max(0,Number(page?.page)||0),total=Math.max(1,Number(page?.totalPages)||1);
+ const pageSize=Number.isInteger(page?.size)&&page.size>0?page.size:20;
  const totalElements=validCount(page?.totalElements)?page.totalElements:null;
  const live=Array.isArray(users), all=live?users:[];
  const cards=[
@@ -204,7 +205,7 @@ export function adminUsersView({users,page,error=''}) {
   const joined=date&&!Number.isNaN(date.valueOf())?date.toISOString().slice(0,10):'';
   return '<tr class="admin-user-row" data-user-search="'+esc(String(u.fullName||'')+' '+String(u.email||'')+' '+String(u.userId??''))+
     '" data-user-roles="'+esc(roles.join(' '))+'" data-user-status="'+esc(status)+'" data-user-joined="'+joined+'">'+
-    '<td class="admin-users-rownum">'+(current*20+i+1)+'</td>'+
+    '<td class="admin-users-rownum">'+(current*pageSize+i+1)+'</td>'+
     '<td><span class="admin-users-person"><span class="admin-users-initials" aria-hidden="true">'+esc(initials(u.fullName))+'</span>'+
     '<span class="admin-users-identity"><strong>'+esc(u.fullName||'Unnamed account')+'</strong>'+
     '<small>#USR-'+esc(u.userId??'—')+'</small></span></span></td>'+
@@ -216,8 +217,8 @@ export function adminUsersView({users,page,error=''}) {
     '<button class="admin-users-action view-admin-user" type="button" data-user="'+esc(u.userId)+'" aria-label="View '+esc(u.fullName||'user')+'">'+iconUser('eye')+'</button>'+
     '<button class="small-btn manage-user admin-users-action" type="button" data-user="'+esc(u.userId)+'" aria-label="Manage '+esc(u.fullName||'user')+'">'+iconUser('edit')+'</button></td></tr>';
  }).join('');
- const from=totalElements===null?null:totalElements===0?0:current*20+1;
- const to=totalElements===null?null:Math.min((current+1)*20,totalElements);
+ const from=totalElements===null?null:totalElements===0?0:current*pageSize+1;
+ const to=totalElements===null?null:Math.min(current*pageSize+all.length,totalElements);
  const nav='<div class="admin-users-pagination"><button class="admin-page" type="button" data-page="'+(current-1)+'"'+(current===0?' disabled':'')+' aria-label="Previous page">‹</button>'+
  '<span>Page '+(current+1)+' of '+total+'</span>'+
  '<button class="admin-page" type="button" data-page="'+(current+1)+'"'+(current+1>=total?' disabled':'')+' aria-label="Next page">›</button></div>';
@@ -229,14 +230,20 @@ export function adminUsersView({users,page,error=''}) {
  '<div class="admin-users-date">'+iconUser('calendar')+'<span>'+esc(new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}))+'</span></div></section>'+
  '<section class="admin-users-stats" aria-label="Account statistics">'+stats+'</section>'+
  (!live?'<section class="admin-users-error" role="alert"><h2>Administrator access unavailable</h2><p>'+esc(error||'Unable to load accounts.')+'</p><button type="button" id="admin-retry" class="btn btn-secondary">Retry</button></section>':
- '<section class="admin-users-panel" aria-label="User directory"><form class="admin-users-filters" id="admin-user-filters" autocomplete="off">'+
- '<label class="admin-users-search">'+iconUser('search')+'<span class="sr-only">Search users on this page</span><input type="search" name="search" placeholder="Search users on this page by name, email or ID"></label>'+
- '<label class="sr-only" for="admin-role-filter">Role</label><select id="admin-role-filter" name="role"><option value="">All Roles</option>'+['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(r=>'<option value="'+r+'">'+r.charAt(0)+r.slice(1).toLowerCase()+'</option>').join('')+'</select>'+
- '<label class="sr-only" for="admin-status-filter">Status</label><select id="admin-status-filter" name="status"><option value="">All Status</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option><option value="SUSPENDED">Suspended</option></select>'+
- '<label class="sr-only" for="admin-joined-filter">Joined</label><select id="admin-joined-filter" name="joined"><option value="">Joined: All Time</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select>'+
- '<button class="admin-users-filter-btn" type="submit">'+iconUser('filter')+' Filter</button>'+
- '<button class="admin-users-refresh-btn" type="button" id="admin-users-refresh">'+iconUser('refresh')+' Refresh Users</button></form>'+
- '<p class="admin-users-page-hint">Search and filters apply to the '+all.length+' accounts loaded on this page. Role cards show page counts, not platform-wide totals.</p>'+
+ '<section class="admin-users-panel" aria-label="User directory">'+
+ '<div class="admin-users-toolbar"><div><h2>User directory</h2><p>Search, review, and manage registered accounts.</p></div>'+
+ '<span class="admin-users-live-count">'+esc(String(all.length))+' accounts loaded</span></div>'+
+ '<form class="admin-users-filters" id="admin-user-filters" autocomplete="off" role="search">'+
+ '<label class="admin-users-field admin-users-field-search"><span>Search users</span>'+
+ '<span class="admin-users-search">'+iconUser('search')+'<input type="search" name="search" placeholder="Name, email or user ID" autocomplete="off"></span></label>'+
+ '<label class="admin-users-field"><span>Role</span><select id="admin-role-filter" name="role"><option value="">All roles</option>'+
+ ['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(r=>'<option value="'+r+'">'+r.charAt(0)+r.slice(1).toLowerCase()+'</option>').join('')+'</select></label>'+
+ '<label class="admin-users-field"><span>Status</span><select id="admin-status-filter" name="status"><option value="">All statuses</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option><option value="SUSPENDED">Suspended</option></select></label>'+
+ '<label class="admin-users-field"><span>Joined</span><select id="admin-joined-filter" name="joined"><option value="">Any time</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label>'+
+ '<div class="admin-users-filter-actions"><button class="admin-users-clear-btn" type="reset" id="admin-users-clear">Clear filters</button>'+
+ '<button class="admin-users-refresh-btn" type="button" id="admin-users-refresh">'+iconUser('refresh')+' Refresh</button></div></form>'+
+ '<p class="admin-users-page-hint" id="admin-users-filter-note">Filtering is instant and applies to this page only. '+
+ 'Total Users includes all registered accounts; role counts are from this page and may overlap.</p>'+
  '<div class="admin-users-scroll"><table class="admin-users-table"><thead><tr><th>#</th><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>'+
  '<tbody>'+rows+(rows?'':'<tr><td colspan="7" class="admin-users-no-data">No registered users found.</td></tr>')+
  '</tbody></table></div>'+
