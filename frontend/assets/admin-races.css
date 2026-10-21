@@ -10,8 +10,10 @@
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
 /* Shared admin hero design language: dark brown and gold vector illustration, matching Audit Logs. */
-.admin-race-hero { min-height: 178px; margin: 20px 18px 0; border: 1px solid #947057; border-radius: 14px; padding: 27px 32px; display: flex; align-items: center; justify-content: space-between; gap: 18px; color: #fff; isolation: isolate; background-color: #38271f; background-image: linear-gradient(90deg, rgba(34,22,18,.76) 0%, rgba(34,22,18,.49) 35%, rgba(34,22,18,.06) 62%, rgba(34,22,18,0) 82%), url('/assets/admin-races/race-operations-hero.svg'); background-position: center; background-size: cover; background-repeat: no-repeat; }
-.admin-race-hero-copy { min-width: 0; max-width: min(55%, 650px); position: relative; z-index: 1; }
+.admin-race-hero { min-height: 198px; margin: 20px 18px 0; border: 1px solid #947057; border-radius: 14px; padding: 20px 32px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: center; gap: 24px; color: #fff; isolation: isolate; background: radial-gradient(ellipse at 88% 70%, #ad78452b, transparent 65%), linear-gradient(110deg, #291c16, #4b3022 70%, #664229); }
+.admin-race-hero-copy { min-width: 0; max-width: 580px; }
+/* Keep the complete track scene in its own column instead of cropping a wide background. */
+.admin-race-hero-art { display: block; width: 100%; height: 168px; min-width: 0; object-fit: contain; }
 .admin-race-hero-copy > span:first-child { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #f0c8a4; }
 .admin-race-modal-head > div > span { font-size: 12px; font-weight: 650; letter-spacing: .16em; color: #a45708; }
 .admin-console .admin-race-hero h1 { margin: 10px 0 7px; font: 750 clamp(28px, 3vw, 38px)/1.15 'Segoe UI', Arial, sans-serif; letter-spacing: -.035em; color: #fff; }
@@ -173,7 +175,7 @@
   .admin-race-controls-title { grid-column: 1 / -1; }
   .admin-race-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .admin-race-hero { padding: 24px 27px; }
-  .admin-race-hero-copy p { max-width: 440px; font-size: 14px; }
+  .admin-race-hero-copy p { max-width: 440px; }
   .admin-race-desktop-break { display: none; }
 }
 @media (max-width: 920px) {
@@ -183,11 +185,13 @@
   .admin-console[data-admin-layout="races"] .admin-topbar-breadcrumb, .admin-console[data-admin-layout="races"] .admin-topbar-section, .admin-console[data-admin-layout="races"] .admin-breadcrumb-separator, .admin-console[data-admin-layout="races"] .admin-topbar-pill { display: none; }
   .admin-console[data-admin-layout="races"] .admin-mobile-nav nav { max-height: 75vh; overflow: auto; }
   .admin-race-content { padding: 14px; }
-  .admin-race-hero { min-height: 180px; background-position: 63% center; }
+  .admin-race-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); padding: 22px 24px; gap: 18px; }
+  .admin-race-hero-art { height: 150px; }
 }
 @media (max-width: 650px) {
-  .admin-race-hero { display: block; min-height: 230px; margin: 15px 12px 0; padding: 24px 20px; background-image: linear-gradient(90deg, rgba(34,22,18,.96) 0%, rgba(34,22,18,.88) 58%, rgba(34,22,18,.66) 100%), url('/assets/admin-races/race-operations-hero.svg'); background-position: 76% center; background-size: cover; background-repeat: no-repeat; }
-  .admin-console .admin-race-hero h1 { font-size: 30px; }
+  .admin-race-hero { grid-template-columns: minmax(0, 1fr); min-height: 0; margin: 15px 12px 0; padding: 24px 20px 16px; gap: 16px; }
+  .admin-race-hero-art { height: auto; aspect-ratio: 900 / 240; }
+  .admin-console .admin-race-hero h1 { font-size: clamp(24px, 7vw, 30px); }
   .admin-race-hero-copy p { max-width: 340px; }
   .admin-race-create-toolbar { justify-content: stretch; }
   .admin-race-create-toolbar .admin-race-primary { width: 100%; }
@@ -211,5 +215,3 @@
   .admin-race-form .span-2 { grid-column: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .admin-races-page * { scroll-behavior: auto; } }
-
-@media (max-width: 650px) { .admin-race-hero-copy { max-width: 100%; } }

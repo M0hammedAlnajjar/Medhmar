@@ -73,7 +73,7 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator(".admin-sidebar-bottom a").count(), 0);
     assert.equal(await page.locator("#admin-signout").isVisible(), true);
     assert.equal(await page.locator("[data-admin-race-create]").count(), 1, "Race Management still has an editable Create Race button");
-    assert.equal(await page.locator(".admin-race-hero [data-admin-race-create]").count(), 0, "the photo banner no longer overlays the primary button");
+    assert.equal(await page.locator(".admin-race-hero [data-admin-race-create]").count(), 0, "the banner does not overlay the primary button");
     assert.equal(await page.locator(".admin-race-create-toolbar [data-admin-race-create]").count(), 1, "create button lives in its own toolbar");
     const controlNames = await page.locator(".admin-race-controls-panel [data-admin-race-control]").evaluateAll(items => items.map(item => item.dataset.adminRaceControl));
     assert.deepEqual(controlNames, ["organizerId", "requests", "status", "view"], "Admin Controls shows only four non-duplicate actions");
@@ -104,8 +104,12 @@ export async function checkAdminRaces(browser, origin) {
         height: hero.getBoundingClientRect().height
       };
     });
-    assert.ok(bannerStyles.background.includes("/assets/admin-races/race-operations-hero.svg"), "Race Management banner uses the new audit-style vector artwork");
-    assert.ok(!bannerStyles.background.includes("medhmar-race-banner.avif"), "old photographic banner is removed");
+    assert.ok(!bannerStyles.background.includes("url("), "the banner background must not crop the racing artwork");
+    const heroArt = page.locator(".admin-race-hero-art");
+    assert.equal(await heroArt.count(), 1, "one decorative SVG scene accompanies the title");
+    assert.equal(await heroArt.getAttribute("alt"), "", "decorative artwork must not repeat the heading for screen readers");
+    assert.match(await heroArt.getAttribute("src"), /\/assets\/admin-races\/race-operations-hero\.svg$/);
+    await heroArt.evaluate(img => img.decode());
     assert.equal(bannerStyles.headingColor, "rgb(255, 255, 255)", "title is white on the dark hero");
     assert.equal(bannerStyles.cornerRadius, "14px", "hero corners match the Audit Logs design");
     assert.ok(bannerStyles.height >= 165 && bannerStyles.height <= 225, "hero proportions match other admin banners");
@@ -114,13 +118,41 @@ export async function checkAdminRaces(browser, origin) {
       return {ok:response.ok, type:response.headers.get("content-type")||"", text:await response.text()};
     });
     assert.ok(vectorArtwork.ok && vectorArtwork.type.includes("image/svg+xml"), "new vector asset loads as SVG");
-    assert.match(vectorArtwork.text, /viewBox="0 0 1600 220"/, "SVG is designed for the admin banner");
+    assert.match(vectorArtwork.text, /viewBox="0 0 900 240"/, "SVG contains only the scene, without an empty text region");
     assert.match(vectorArtwork.text, /racetrack|racing track|racing lanes/i, "vector design represents a real racing track");
     assert.match(vectorArtwork.text, /finish flag/i, "vector design includes finish flag");
-    assert.equal((vectorArtwork.text.match(/Single-humped dromedaries/g)||[]).length, 3, "three racing camels are represented, not a lone static emblem");
+    const vectorScene = await page.evaluate(text => {
+      const svg = new DOMParser().parseFromString(text, "image/svg+xml");
+      return { camels: svg.querySelectorAll('use[href="#racing-camel"]').length,
+        parseErrors: svg.querySelectorAll("parsererror").length };
+    }, vectorArtwork.text);
+    assert.equal(vectorScene.parseErrors, 0, "racing SVG must parse without errors");
+    assert.equal(vectorScene.camels, 3, "three racing camels appear in the scene");
     assert.match(vectorArtwork.text, /Track barriers and lane markings/, "racing track railings and lanes are present");
     assert.match(vectorArtwork.text, /Finish post and checkered flag/, "finish line is part of the scene");
     assert.ok(!vectorArtwork.text.includes('rx="78"') && !vectorArtwork.text.includes('width="156" height="169"'), "previous oval track and separate flag card are gone");
+    for (const width of [1920, 1672, 1440, 1024, 870, 768, 651, 650, 390, 320]) {
+      await page.setViewportSize({ width, height: 941 });
+      const layout = await page.locator(".admin-race-hero").evaluate(hero => {
+        const banner = hero.getBoundingClientRect();
+        const copy = hero.querySelector(".admin-race-hero-copy").getBoundingClientRect();
+        const img = hero.querySelector(".admin-race-hero-art");
+        const art = img.getBoundingClientRect();
+        const inside = box => box.left >= banner.left && box.right <= banner.right
+          && box.top >= banner.top && box.bottom <= banner.bottom;
+        return { copyFits: inside(copy), artFits: inside(art),
+          noOverlap: copy.right <= art.left || copy.bottom <= art.top,
+          fit: getComputedStyle(img).objectFit,
+          loaded: img.complete && img.naturalWidth > 0 && img.naturalHeight > 0,
+          horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1 };
+      });
+      assert.ok(layout.copyFits && layout.artFits, `banner content stays inside its border at ${width}px`);
+      assert.ok(layout.noOverlap, `racing scene must not overlap the copy at ${width}px`);
+      assert.equal(layout.fit, "contain", `complete racing scene must stay visible at ${width}px`);
+      assert.ok(layout.loaded, `SVG must load at ${width}px`);
+      assert.ok(!layout.horizontalOverflow, `page must not scroll sideways at ${width}px`);
+    }
+    await page.setViewportSize({ width: 1672, height: 941 });
     assert.equal(await page.locator(".admin-race-hero").innerText().then(text => text.includes("GREATER HERITAGE")), false, "hero contains no old decorative tagline");
     assert.equal(await page.locator(".admin-race-list-panel .admin-race-heading-icon").count(), 0, "Race List heading should have no camel badge");
     assert.equal(await page.locator(".admin-race-requests-panel .admin-race-heading-icon").count(), 1, "Requests heading keeps its icon");
@@ -164,7 +196,7 @@ export async function checkAdminRaces(browser, origin) {
     });
     assert.ok(Math.abs(mobileActionLayout.toolbarWidth - mobileActionLayout.buttonWidth) < 2, "mobile action occupies full toolbar width");
     assert.ok(mobileActionLayout.buttonTop >= mobileActionLayout.heroBottom, "mobile action stays below the racing banner");
-    assert.ok(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("race-operations-hero.svg")), "mobile uses the same Audit-style SVG artwork");
+    assert.ok(await heroArt.isVisible(), "mobile displays the complete racing scene below the copy");
     await page.screenshot({ path: "test-results/admin-races-mobile.png", fullPage: true });
     await page.setViewportSize({ width: 1672, height: 941 });
     await page.locator("[data-race-search]").fill("championship");
