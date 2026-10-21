@@ -75,6 +75,9 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator("[data-admin-race-create]").count(), 1, "Race Management still has an editable Create Race button");
     assert.equal(await page.locator(".admin-race-hero [data-admin-race-create]").count(), 0, "the photo banner no longer overlays the primary button");
     assert.equal(await page.locator(".admin-race-create-toolbar [data-admin-race-create]").count(), 1, "create button lives in its own toolbar");
+    const controlNames = await page.locator(".admin-race-controls-panel [data-admin-race-control]").evaluateAll(items => items.map(item => item.dataset.adminRaceControl));
+    assert.deepEqual(controlNames, ["organizerId", "requests", "status", "view"], "Admin Controls shows only four non-duplicate actions");
+    assert.equal(await page.locator('.admin-race-controls-panel [data-admin-race-control="create"]').count(), 0, "create is offered only in the primary toolbar");
     const actionPlacement = await page.evaluate(() => {
       const bounds = selector => document.querySelector(selector).getBoundingClientRect();
       const hero = bounds(".admin-race-hero");
