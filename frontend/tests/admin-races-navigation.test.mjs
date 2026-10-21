@@ -46,7 +46,10 @@ test("admin sidebar stays identical when navigating from Dashboard to Races", ()
   assert.deepEqual(sidebarHrefs(dashboard), expected);
   assert.deepEqual(sidebarHrefs(races), expected);
   assert.match(races, /href="\/admin\/races" data-link class="active"/);
-  assert.match(races, /data-admin-layout="races"/);
+  assert.doesNotMatch(races, /data-admin-layout="races"/);
+  assert.match(races, /<header class="admin-topbar">/);
+  assert.match(races, /<footer class="admin-footer">/);
+  assert.match(dashboard, /<header class="admin-topbar">/);
   assert.doesNotMatch(races, /Back to Website/);
   assert.equal((races.match(/href="\/admin\/settings"/g) || []).length, 2);
 });
