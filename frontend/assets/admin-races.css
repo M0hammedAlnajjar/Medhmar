@@ -129,7 +129,6 @@
 .admin-race-requests-panel .admin-race-table th { font-size: 9px; padding-top: 9px; padding-bottom: 9px; }
 .admin-race-empty { text-align: center !important; padding: 9px 15px 7px !important; height: auto !important; }
 .admin-race-empty-state { box-sizing: border-box; min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px 22px; background: none; }
-.admin-race-empty-state > svg { box-sizing: content-box; flex: 0 0 auto; width: 38px; height: 30px; padding: 10px 12px; color: #a66a2b; background: #fff5e6; border: 1px solid #f0dfc7; border-radius: 14px; filter: none; }
 .admin-race-table .admin-race-empty-state strong { margin-top: 3px; font: 700 15px/1.4 'Segoe UI', Arial, sans-serif; color: #30271d; }
 .admin-race-empty-state small { max-width: 360px; font-size: 12px !important; line-height: 1.4; color: #6c6256; margin-top: 0 !important; }
 .admin-race-modal, .admin-race-view-modal { width: min(760px, calc(100vw - 32px)); max-height: 90vh; overflow: auto; padding: 0; border: 1px solid #e6d9c6; border-radius: 14px; background: #fffcf7; color: #1c2339; }
