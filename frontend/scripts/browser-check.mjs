@@ -591,8 +591,8 @@ try {
     refresh: !!hero.querySelector('#admin-health-check'),
     toolsVisible: hero.querySelector('.admin-sys-hero-tools')?.getBoundingClientRect().width > 0
   }));
-  assert.match(healthHero.background, /admin-system-health-hero\\.svg/, 'system hero uses the illustrated SVG');
-  assert.doesNotMatch(healthHero.background, /admin-dashboard-race\\.webp/, 'system hero must not show the racing photo');
+  assert.ok(healthHero.background.includes('admin-system-health-hero.svg'), 'system hero uses the illustrated SVG');
+  assert.ok(!healthHero.background.includes('admin-dashboard-race.webp'), 'system hero must not show the racing photo');
   assert.equal(healthHero.title,'System Health');
   assert.ok(healthHero.refresh && healthHero.toolsVisible,'health controls stay in the accessible HTML overlay');
   const svgAsset = await page.evaluate(async () => {
@@ -601,7 +601,7 @@ try {
     return {ok:response.ok, contentType:response.headers.get('content-type')||'', body};
   });
   assert.equal(svgAsset.ok,true,'system hero SVG asset loads');
-  assert.match(svgAsset.contentType,/image\\/svg\\+xml/i,'SVG is served as an SVG image');
+  assert.ok(svgAsset.contentType.includes('image/svg+xml'), 'SVG is served as an SVG image');
   assert.match(svgAsset.body,/<svg[^>]+viewBox="0 0 1600 240"/,'SVG artwork contains scalable vector markup');
   assert.match(svgAsset.body,/Decorative illustration, not live system status/,'SVG does not pretend to show a live health reading');
   await page.screenshot({path:'test-results/admin-system-health-desktop.png',fullPage:true});
