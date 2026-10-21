@@ -591,3 +591,15 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
   display:block;
   object-fit:contain;
 }
+
+/* Keep the same centered navigation rhythm on standard and display-scaled desktops.
+   Some 1920px monitors expose ~1536 CSS pixels at 125% display scaling;
+   the old 1480px container then appeared virtually edge-to-edge.
+   Shared between Home and Challenges rather than route-specific. */
+@media (min-width:1500px) {
+  .app-shell > .topbar > .topbar-inner {
+    width:84%;
+    max-width:1480px;
+    margin-inline:auto;
+  }
+}
