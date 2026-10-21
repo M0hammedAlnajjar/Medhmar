@@ -9,8 +9,8 @@
 .admin-race-hero, .admin-race-content { position: relative; z-index: 1; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
-/* Original vector racing scene: actual SVG artwork, stored locally with no third-party image dependency. */
-.admin-race-hero { min-height: 235px; border-radius: 0 0 14px 14px; padding: 35px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background: #f3e4cf url('/assets/admin-races/race-track-hero.svg') center center / cover no-repeat; }
+/* Photorealistic racecourse artwork stored locally as an optimized AVIF. Vector art is a no-network fallback. */
+.admin-race-hero { min-height: 235px; border-radius: 0 0 14px 14px; padding: 35px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background-color: #f3e4cf; background-image: linear-gradient(90deg, #fffbf5b8 0%, #fffbf566 36%, #fffbf500 69%), url('/assets/admin-races/medhmar-race-banner.avif'), url('/assets/admin-races/race-track-hero.svg'); background-position: center, center 40%, center; background-size: cover; background-repeat: no-repeat; }
 .admin-race-hero-copy { min-width: 0; max-width: min(55%, 650px); position: relative; z-index: 1; }
 .admin-race-hero-copy > span:first-child, .admin-race-modal-head > div > span { font-size: 12px; font-weight: 650; letter-spacing: .16em; color: #a45708; }
 .admin-console .admin-race-hero h1 { margin: 10px 0 3px; font: 700 clamp(35px, 3vw, 50px)/1.08 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; color: #28180d; }
@@ -182,10 +182,10 @@
   .admin-console[data-admin-layout="races"] .admin-topbar-breadcrumb, .admin-console[data-admin-layout="races"] .admin-topbar-section, .admin-console[data-admin-layout="races"] .admin-breadcrumb-separator, .admin-console[data-admin-layout="races"] .admin-topbar-pill { display: none; }
   .admin-console[data-admin-layout="races"] .admin-mobile-nav nav { max-height: 75vh; overflow: auto; }
   .admin-race-content { padding: 14px; }
-  .admin-race-hero { min-height: 230px; background-position: 62% center; }
+  .admin-race-hero { min-height: 230px; background-position: center, 63% 40%, 63% center; }
 }
 @media (max-width: 650px) {
-  .admin-race-hero { display: block; min-height: 290px; padding: 24px 20px; background-image: linear-gradient(90deg, #fffbf5f5 0%, #fffbf5e8 56%, #fffbf590 100%), url('/assets/admin-races/race-track-hero.svg'); background-position: center, 72% center; background-size: cover; background-repeat: no-repeat; }
+  .admin-race-hero { display: block; min-height: 290px; padding: 24px 20px; background-image: linear-gradient(90deg, #fffbf5fa 0%, #fffbf5e9 58%, #fffbf576 100%), url('/assets/admin-races/medhmar-race-banner.avif'), url('/assets/admin-races/race-track-hero.svg'); background-position: center, 72% 40%, 72% center; background-size: cover; background-repeat: no-repeat; }
   .admin-console .admin-race-hero h1 { font-size: 35px; }
   .admin-race-hero-copy p { max-width: 340px; }
   .admin-race-create-toolbar { justify-content: stretch; }
