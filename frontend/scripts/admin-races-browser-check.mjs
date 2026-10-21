@@ -101,7 +101,7 @@ export async function checkAdminRaces(browser, origin) {
       return {ok:response.ok, type:response.headers.get("content-type") || "", source:await response.text()};
     });
     assert.ok(bannerArtwork.ok, "original banner SVG loads from frontend assets");
-    assert.match(bannerArtwork.type, /image\\/svg\\+xml/i, "racing banner served as genuine SVG");
+    assert.ok(bannerArtwork.type.toLowerCase().includes("image/svg+xml"), "racing banner served as genuine SVG");
     assert.match(bannerArtwork.source, /<svg[^>]+viewBox="0 0 1600 260"/, "racing banner is vector art");
     assert.match(bannerArtwork.source, /racecourse|racetrack|racing-camel/i, "banner depicts a camel racing track");
     assert.equal((bannerArtwork.source.match(/class="racing-camel"/g)||[]).length,3, "three racing camels are illustrated");
