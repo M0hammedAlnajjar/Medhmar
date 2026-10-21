@@ -72,6 +72,8 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator('.admin-sidebar-nav a[href="/admin/races"]').getAttribute("aria-current"), "page");
     assert.equal(await page.locator(".admin-sidebar-bottom a").count(), 0);
     assert.equal(await page.locator("#admin-signout").isVisible(), true);
+    assert.equal(await page.locator(".admin-race-list-panel .admin-race-heading-icon").count(), 0, "Race List heading should have no camel badge");
+    assert.equal(await page.locator(".admin-race-requests-panel .admin-race-heading-icon").count(), 1, "Requests heading keeps its icon");
     assert.equal(await page.locator(".admin-race-metric-total strong").innerText(), "3");
     assert.equal(await page.locator(".admin-race-metric-open strong").innerText(), "1");
     assert.deepEqual([...racePages], [0, 1]);
