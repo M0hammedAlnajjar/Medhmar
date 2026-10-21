@@ -46,7 +46,7 @@ export const SULAIMAN_RACE_ROUTES = [
         path: "/organizer/races/new",
         name: "Add Race",
         owner: "Sulaiman",
-        roles: ["ORGANIZER", "ADMIN"]
+        roles: ["ADMIN"]
     },
     {
         path: "/organizer/races/:id",

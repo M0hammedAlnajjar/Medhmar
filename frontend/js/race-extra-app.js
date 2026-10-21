@@ -290,19 +290,7 @@ async function loadRaceResults(raceId) {
         };
     }
 
-    let entries;
-    try {
-        entries = await raceEntryApi.getForRace(raceId);
-    } catch (error) {
-        if (error?.status === 401 || error?.status === 403) {
-            return { rows: [], restricted: true };
-        }
-        throw error;
-    }
-
-    const accepted = (entries || []).filter(
-        entry => String(entry.entryStatus).toUpperCase() === "ACCEPTED"
-    );
+    const accepted = await raceEntryApi.getPublicParticipants(raceId);
 
     const rows = (
         await Promise.all(
@@ -396,7 +384,7 @@ export async function renderRaceResults(container, raceId) {
                   <h3>${restricted ? "Detailed Results Restricted" : "No Results Yet"}</h3>
                   <p>
                     ${restricted
-                        ? "Detailed result rows require organizer access with the current backend API."
+                        ? "Detailed result rows are unavailable."
                         : "Official results have not been recorded for this race yet."}
                   </p>
                 </div>
@@ -522,7 +510,7 @@ export async function renderRaceRegistration(container, raceId) {
                 </fieldset>
 
                 <div class="medhmar-form-note">
-                  New registrations start with PENDING status and must be reviewed by the race organizer.
+                  New registrations start with PENDING status and must be reviewed by an administrator.
                 </div>
 
                 <div class="medhmar-form-feedback" id="race-registration-feedback" hidden></div>
@@ -858,9 +846,7 @@ export async function renderOrganizerDashboard(container, user) {
                 <h1>Organizer Dashboard</h1>
                 <p>Manage your races, registrations, and results.</p>
               </div>
-              <button type="button" class="medhmar-view-race" data-create-race>
-                + Create Race
-              </button>
+              <span class="medhmar-form-note">New races are created by administrators.</span>
             </div>
 
             <div class="medhmar-organizer-stats">
@@ -1075,11 +1061,11 @@ function racePayload(form) {
 }
 
 export async function renderCreateRace(container, user) {
-    if (!userIsOrganizer(user)) {
+    if (!userIsAdmin(user)) {
         pageState(
             container,
-            "Organizer Access Required",
-            "Only organizers and administrators can create races."
+            "Administrator Access Required",
+            "Only administrators can create races."
         );
         return;
     }
@@ -1218,8 +1204,8 @@ export async function renderManageRace(container, raceId, user) {
             <section class="medhmar-workflow-card">
               <div class="medhmar-participants-card-head">
                 <div>
-                  <h2>Registration Decisions</h2>
-                  <p>${pending.length} pending entr${pending.length === 1 ? "y" : "ies"}.</p>
+                  <h2>Registration Requests</h2>
+                  <p>${pending.length} pending entr${pending.length === 1 ? "y" : "ies"}. Administrators approve or reject requests.</p>
                 </div>
               </div>
 
@@ -1247,7 +1233,7 @@ export async function renderManageRace(container, raceId, user) {
                             </span>
                           </td>
                           <td>
-                            ${String(entry.entryStatus).toUpperCase() === "PENDING" ? `
+                            ${userIsAdmin(user) && String(entry.entryStatus).toUpperCase() === "PENDING" ? `
                               <div class="medhmar-row-actions">
                                 <button
                                   type="button"

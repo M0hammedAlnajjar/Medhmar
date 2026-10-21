@@ -51,19 +51,22 @@ class RaceEntryIntegrationTests extends IntegrationSupport {
     }
 
     @Test
-    void ownerRegistrationAssignsTrustedFieldsAndOrganizerDecides() throws Exception {
+    void ownerRegistrationAssignsTrustedFieldsAndAdminDecides() throws Exception {
         var owner = register("race-entry-owner@example.com");
         var other = register("race-entry-other@example.com");
         var organizer = register("race-entry-organizer@example.com");
         var unrelatedOrganizer = register("race-entry-unrelated@example.com");
+        var admin = register("race-entry-admin@example.com");
         users.updateRoles(owner.userId(), Set.of("OWNER"));
         users.updateRoles(other.userId(), Set.of("OWNER"));
         users.updateRoles(organizer.userId(), Set.of("ORGANIZER"));
         users.updateRoles(unrelatedOrganizer.userId(), Set.of("ORGANIZER"));
+        users.updateRoles(admin.userId(), Set.of("ADMIN"));
         var ownerSession = login(owner.email());
         var otherSession = login(other.email());
         var organizerSession = login(organizer.email());
         var unrelatedSession = login(unrelatedOrganizer.email());
+        var adminSession = login(admin.email());
         var race = race(organizer.userId(), RaceStatus.OPEN);
         Long firstCamel = ownedCamel(owner.userId());
         Long secondCamel = ownedCamel(other.userId());
@@ -106,12 +109,14 @@ class RaceEntryIntegrationTests extends IntegrationSupport {
         mvc.perform(put("/api/race-entries/" + id).session(unrelatedSession).with(csrf())
                 .contentType("application/json").content(decision)).andExpect(status().isForbidden());
         mvc.perform(put("/api/race-entries/" + id).session(organizerSession).with(csrf())
+                .contentType("application/json").content(decision)).andExpect(status().isForbidden());
+        mvc.perform(put("/api/race-entries/" + id).session(adminSession).with(csrf())
                 .contentType("application/json").content(payload(Map.of("entryStatus", "PENDING"))))
                 .andExpect(status().isBadRequest());
-        mvc.perform(put("/api/race-entries/" + id).session(organizerSession).with(csrf())
+        mvc.perform(put("/api/race-entries/" + id).session(adminSession).with(csrf())
                 .contentType("application/json").content(decision))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.entryStatus").value("ACCEPTED"));
-        mvc.perform(put("/api/race-entries/" + id).session(organizerSession).with(csrf())
+        mvc.perform(put("/api/race-entries/" + id).session(adminSession).with(csrf())
                 .contentType("application/json").content(decision)).andExpect(status().isConflict());
         mvc.perform(delete("/api/race-entries/" + id).session(ownerSession).with(csrf()))
                 .andExpect(status().isConflict());
