@@ -148,6 +148,28 @@ try {
   await page.goto('http://127.0.0.1:'+port+'/challenges');
   await page.locator('.broadcast-live-data').waitFor();
 
+  // 1920px monitors at 125% desktop scaling often expose ~1536 CSS px.
+  // This viewport previously let the header approach the screen edges.
+  await page.setViewportSize({width:1536,height:900});
+  const scaledChallengesHeader=await headerBounds();
+  const scaledContainer=scaledChallengesHeader['.topbar-inner'];
+  assert.ok(scaledContainer.x>=90 && scaledContainer.width<=1310,
+    'scaled desktop navbar should be centered: '+JSON.stringify(scaledContainer));
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
+    'scaled Challenges desktop must not overflow');
+  await page.screenshot({path:'test-results/challenges-navbar-scaled-desktop.png'});
+  await page.goto('http://127.0.0.1:'+port+'/home');
+  await page.locator('.topbar-inner').waitFor();
+  const scaledHomeHeader=await headerBounds();
+  for(const selector of Object.keys(scaledHomeHeader))for(const key of ['x','y','width','height']){
+    assert.ok(Math.abs(scaledChallengesHeader[selector][key]-scaledHomeHeader[selector][key])<1.1,
+      'scaled desktop mismatch between Home and Challenges: '+selector+'.'+key);
+  }
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
+    'scaled Home desktop must not overflow');
+  await page.screenshot({path:'test-results/home-navbar-scaled-desktop.png'});
+  await page.goto('http://127.0.0.1:'+port+'/challenges');
+  await page.locator('.broadcast-live-data').waitFor();
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
   const mobileLayout=await page.evaluate(()=>({
