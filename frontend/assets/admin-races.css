@@ -5,7 +5,7 @@
   --race-border: #eae2d8;
 }
 .admin-races-page { min-height: 100vh; background: linear-gradient(180deg, #fbf7ef 0%, #f8f3ea 100%); position: relative; overflow: hidden; }
-.admin-races-page::after { content: ''; position: absolute; z-index: 0; right: 0; bottom: 0; width: min(430px, 35vw); height: 165px; pointer-events: none; background: url('/assets/admin-races/mountains.svg') right bottom / contain no-repeat; opacity: .96; }
+.admin-races-page::after { display: none; }
 .admin-race-hero, .admin-race-content { position: relative; z-index: 1; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
@@ -31,7 +31,7 @@
 .admin-race-secondary { background: #fffdfa; color: #4f3d32; padding: 10px 15px; border: 1px solid #d9cabc; }
 .admin-races-page button:disabled, [data-admin-race-dialog] button:disabled { opacity: .55; cursor: not-allowed; }
 .admin-race-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
-.admin-race-metrics article { min-width: 0; min-height: 109px; border: 1px solid var(--race-border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 18px; background-color: #fffdfa; background-repeat: no-repeat; background-position: right bottom; background-size: auto 100%; box-shadow: 0 3px 12px #3f2c1308, inset 0 1px #fff; overflow: hidden; }
+.admin-race-metrics article { min-width: 0; min-height: 109px; border: 1px solid var(--race-border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 18px; background-color: #fffdfa; background-repeat: no-repeat; background-position: center, right bottom; background-size: 100% 100%, auto 88px; box-shadow: 0 3px 12px #3f2c1308, inset 0 1px #fff; overflow: hidden; }
 .admin-race-metrics article.admin-race-metric-total { background-image: linear-gradient(90deg, #ffffff, #ffffffd9 55%, #ffffff18), url('/assets/admin-races/caravan.svg'); }
 .admin-race-metrics article.admin-race-metric-open { background-image: linear-gradient(90deg, #ffffff, #ffffffa6 55%, #ffffff18), url('/assets/admin-races/dunes.svg'); }
 .admin-race-metrics article.admin-race-metric-pending { background-image: linear-gradient(90deg, #ffffff, #ffffffce 60%, #ffffff18), url('/assets/admin-races/people.svg'); }
@@ -44,8 +44,8 @@
 .admin-race-metrics small { display: block; margin-top: 3px; font-size: 11px; color: #4f5c76; line-height: 1.35; }
 .admin-race-count { display: flex; align-items: center; gap: 12px; }
 .admin-race-open-note { background: #eaf6e9; color: #146a3a; font-size: 10px; font-weight: 600; border-radius: 15px; padding: 3px 7px; white-space: nowrap; }
-.admin-race-metric-icon { width: 65px; height: 65px; flex: 0 0 65px; border-radius: 18px; display: grid; place-items: center; }
-.admin-race-metric-icon svg { width: 35px; height: 35px; filter: drop-shadow(1px 1px white); }
+.admin-race-metric-icon { width: 60px; height: 60px; flex: 0 0 60px; border-radius: 15px; display: grid; place-items: center; }
+.admin-race-metric-icon svg { display: block; width: 28px; height: 28px; filter: none; }
 .admin-race-metric-icon.red, .admin-race-heading-icon.red { background: #fce6e8; color: #a6001d; }
 .admin-race-metric-icon.gold { background: #fcf0d7; color: #aa6104; }
 .admin-race-metric-icon.green { background: #e6f4e8; color: #006a36; }
@@ -56,7 +56,7 @@
 .admin-race-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .admin-race-heading { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .admin-race-heading-icon { flex: 0 0 54px; width: 54px; height: 54px; border-radius: 15px; background: #fff5df; color: #a66a1b; display: grid; place-items: center; }
-.admin-race-heading-icon svg { width: 37px; height: 37px; }
+.admin-race-heading-icon svg { display: block; width: 30px; height: 30px; }
 .admin-race-panel-head h2, .admin-race-controls-title h2 { margin: 0 0 4px; color: #11172d; font: 700 23px/1.15 Georgia, serif; letter-spacing: -.035em; }
 .admin-race-panel-head p, .admin-race-controls-title p { margin: 0; color: var(--race-muted); font-size: 12px; line-height: 1.35; }
 .admin-race-toolbar { display: flex; gap: 10px; align-items: center; flex: 0 1 370px; justify-content: flex-end; min-width: 0; }
@@ -110,7 +110,7 @@
 .admin-race-controls-title { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0ebe5; }
 .admin-race-controls-title > span, .admin-race-control-item > span:first-child { width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center; border-radius: 12px; background: #fff6e2; color: #a35b06; }
 .admin-race-controls-title > span { width: 42px; height: 42px; flex-basis: 42px; }
-.admin-race-controls-title svg, .admin-race-control-item > span:first-child svg { width: 29px; height: 29px; }
+.admin-race-controls-title svg, .admin-race-control-item > span:first-child svg { display: block; width: 24px; height: 24px; }
 .admin-race-controls-title h2 { font-size: 21px; }
 .admin-race-controls-title p { font-size: 10px; }
 .admin-race-control-item { width: 100%; display: flex; align-items: flex-start; gap: 12px; padding: 13px 0; border: 0; border-bottom: 1px solid #f0ebe5; background: transparent; text-align: left; cursor: pointer; }
@@ -128,10 +128,10 @@
 .admin-race-requests-panel .admin-race-table { min-width: 760px; }
 .admin-race-requests-panel .admin-race-table th { font-size: 9px; padding-top: 9px; padding-bottom: 9px; }
 .admin-race-empty { text-align: center !important; padding: 9px 15px 7px !important; height: auto !important; }
-.admin-race-empty-state { min-height: 88px; display: grid; justify-items: center; align-content: end; padding: 0 10px 5px; background: linear-gradient(90deg, #fffdfa, #fffdfa00 22%, #fffdfa00 78%, #fffdfa), url('/assets/admin-races/empty-desert.svg') center bottom / min(760px, 92%) 88px no-repeat; }
-.admin-race-empty-state > svg { width: 47px; height: 38px; color: #bc8450; filter: drop-shadow(0 1px #fff5e5); }
-.admin-race-table .admin-race-empty-state strong { font: 600 13px/1.4 'Segoe UI', Arial, sans-serif; }
-.admin-race-empty-state small { font-size: 10px !important; margin-top: 0 !important; }
+.admin-race-empty-state { box-sizing: border-box; min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; padding: 16px 12px 22px; background-image: linear-gradient(180deg, #fffefd 0%, #fffefdf2 58%, #fffefd33 100%), url('/assets/admin-races/empty-desert.svg'); background-position: center, center bottom; background-size: 100% 100%, min(560px, 92%) auto; background-repeat: no-repeat; }
+.admin-race-empty-state > svg { box-sizing: content-box; flex: 0 0 auto; width: 38px; height: 30px; padding: 10px 12px; color: #a66a2b; background: #fff5e6; border: 1px solid #f0dfc7; border-radius: 14px; filter: none; }
+.admin-race-table .admin-race-empty-state strong { margin-top: 3px; font: 700 15px/1.4 'Segoe UI', Arial, sans-serif; color: #30271d; }
+.admin-race-empty-state small { max-width: 360px; font-size: 12px !important; line-height: 1.4; color: #6c6256; margin-top: 0 !important; }
 .admin-race-modal, .admin-race-view-modal { width: min(760px, calc(100vw - 32px)); max-height: 90vh; overflow: auto; padding: 0; border: 1px solid #e6d9c6; border-radius: 14px; background: #fffcf7; color: #1c2339; }
 .admin-race-view-modal { width: min(650px, calc(100vw - 32px)); }
 .admin-race-modal-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; padding: 22px 24px; border-bottom: 1px solid #eadfce; }
@@ -211,7 +211,7 @@
   .admin-race-controls-panel { grid-template-columns: 1fr; padding: 14px; }
   .admin-race-requests-panel .admin-race-table:has(.admin-race-empty) { min-width: 0; table-layout: fixed; }
   .admin-race-requests-panel .admin-race-table:has(.admin-race-empty) th { white-space: normal; padding: 8px 4px; font-size: 8px; }
-  .admin-race-table .admin-race-empty-state { background-size: 500px 75px; }
+  .admin-race-table .admin-race-empty-state { min-height: 170px; background-size: 100% 100%, min(460px, 96%) auto; }
   .admin-race-form, .admin-race-view-grid { grid-template-columns: 1fr; }
   .admin-race-form .span-2 { grid-column: auto; }
 }
