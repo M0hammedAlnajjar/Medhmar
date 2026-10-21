@@ -93,8 +93,18 @@ export async function checkAdminRaces(browser, origin) {
     assert.ok(Math.abs(actionPlacement.toolbarRight - actionPlacement.buttonRight) <= 2, "desktop button aligns to toolbar right edge");
     assert.ok(actionPlacement.buttonCenter > actionPlacement.toolbarCenter, "desktop button is on right");
     assert.equal(await page.locator(".admin-race-photo-credit").count(), 0, "banner should not show a photo source badge");
-    assert.equal(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg")), true, "banner uses the selected ONA photo");
-    assert.equal(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("/assets/admin-races/hero.webp")), true, "banner preserves a local fallback");
+    const bannerBackground = await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage);
+    assert.ok(bannerBackground.includes("/assets/admin-races/race-track-hero.svg"), "banner uses the local vector camel racing illustration");
+    assert.ok(!bannerBackground.includes("omannews.gov.om") && !bannerBackground.includes("hero.webp"), "no old photographic background or fallback");
+    const bannerArtwork = await page.evaluate(async () => {
+      const response = await fetch("/assets/admin-races/race-track-hero.svg");
+      return {ok:response.ok, type:response.headers.get("content-type") || "", source:await response.text()};
+    });
+    assert.ok(bannerArtwork.ok, "original banner SVG loads from frontend assets");
+    assert.match(bannerArtwork.type, /image\\/svg\\+xml/i, "racing banner served as genuine SVG");
+    assert.match(bannerArtwork.source, /<svg[^>]+viewBox="0 0 1600 260"/, "racing banner is vector art");
+    assert.match(bannerArtwork.source, /racecourse|racetrack|racing-camel/i, "banner depicts a camel racing track");
+    assert.equal((bannerArtwork.source.match(/class="racing-camel"/g)||[]).length,3, "three racing camels are illustrated");
     assert.equal(await page.locator(".admin-race-hero").innerText().then(text => text.includes("GREATER HERITAGE")), false, "hero contains no old decorative tagline");
     assert.equal(await page.locator(".admin-race-list-panel .admin-race-heading-icon").count(), 0, "Race List heading should have no camel badge");
     assert.equal(await page.locator(".admin-race-requests-panel .admin-race-heading-icon").count(), 1, "Requests heading keeps its icon");
@@ -137,7 +147,8 @@ export async function checkAdminRaces(browser, origin) {
       return { toolbarWidth: toolbar.width, buttonWidth: button.width, buttonTop: button.top, heroBottom: hero.bottom };
     });
     assert.ok(Math.abs(mobileActionLayout.toolbarWidth - mobileActionLayout.buttonWidth) < 2, "mobile action occupies full toolbar width");
-    assert.ok(mobileActionLayout.buttonTop >= mobileActionLayout.heroBottom, "mobile action stays below the photo");
+    assert.ok(mobileActionLayout.buttonTop >= mobileActionLayout.heroBottom, "mobile action stays below the racing banner");
+    assert.ok(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("race-track-hero.svg")), "mobile uses the same SVG race-track artwork");
     await page.screenshot({ path: "test-results/admin-races-mobile.png", fullPage: true });
     await page.setViewportSize({ width: 1672, height: 941 });
     await page.locator("[data-race-search]").fill("championship");
