@@ -21,7 +21,13 @@ public interface TrainingAgreementRepository extends JpaRepository<TrainingAgree
             Long trainerUserId, AgreementStatus status
     );
 
+    List<TrainingAgreement> findByTrainer_UserIdAndStatusInOrderByAgreementIdDesc(
+            Long trainerUserId, Collection<AgreementStatus> statuses
+    );
+
     List<TrainingAgreement> findByStatusOrderByAgreementIdDesc(AgreementStatus status);
+
+    List<TrainingAgreement> findByStatusInOrderByAgreementIdDesc(Collection<AgreementStatus> statuses);
 
     List<TrainingAgreement> findByTerminationRequestStatusOrderByAgreementIdDesc(String status);
 

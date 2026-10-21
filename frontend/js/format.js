@@ -30,8 +30,8 @@ export function fmtDate(value) {
 }
 
 export const statusTone = (s) =>
-  ["ACTIVE", "AVAILABLE", "ACCEPTED"].includes(s) ? "success"
-  : ["PENDING"].includes(s) ? "warning"
+  ["ACTIVE", "APPROVED", "AVAILABLE", "ACCEPTED"].includes(s) ? "success"
+  : ["PENDING", "PENDING_APPROVAL"].includes(s) ? "warning"
   : ["DECLINED", "CANCELLED"].includes(s) ? "danger"
   : "neutral";
 

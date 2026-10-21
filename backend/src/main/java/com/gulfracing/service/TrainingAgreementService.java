@@ -22,7 +22,7 @@ import java.util.List;
 public class TrainingAgreementService {
     private final AuditRecorder audit;
     private static final List<AgreementStatus> OPEN_STATES =
-            List.of(AgreementStatus.PENDING_APPROVAL, AgreementStatus.ACTIVE);
+            List.of(AgreementStatus.PENDING_APPROVAL, AgreementStatus.APPROVED, AgreementStatus.ACTIVE);
 
     private final TrainingAgreementRepository agreements;
     private final TrainerProfileRepository trainerProfiles;
@@ -123,8 +123,8 @@ public class TrainingAgreementService {
             throw ApiException.forbidden();
         }
 
-        var result = agreements.findByTrainer_UserIdAndStatusOrderByAgreementIdDesc(
-                actorId, AgreementStatus.ACTIVE
+        var result = agreements.findByTrainer_UserIdAndStatusInOrderByAgreementIdDesc(
+                actorId, List.of(AgreementStatus.APPROVED, AgreementStatus.ACTIVE)
         );
         result.forEach(this::refreshLifecycle);
 
@@ -136,7 +136,9 @@ public class TrainingAgreementService {
 
     @Transactional
     public List<AgreementDtos.ActiveAssignment> activeAssignments() {
-        var result = agreements.findByStatusOrderByAgreementIdDesc(AgreementStatus.ACTIVE);
+        var result = agreements.findByStatusInOrderByAgreementIdDesc(
+                List.of(AgreementStatus.APPROVED, AgreementStatus.ACTIVE)
+        );
         result.forEach(this::refreshLifecycle);
         return result.stream()
                 .filter(a -> a.getStatus() == AgreementStatus.ACTIVE)
@@ -180,11 +182,12 @@ public class TrainingAgreementService {
         );
 
         var now = clock.instant();
-        agreement.setStatus(AgreementStatus.ACTIVE);
+        agreement.setStatus(AgreementStatus.APPROVED);
         agreement.setRespondedAt(now);
         agreement.setAcceptedAt(now);
         agreement.setRejectionReason(null);
         agreement.setRejectedBy(null);
+        refreshLifecycle(agreement);
 
         audit.record("ACCEPTED", "Agreement", id, agreement.getCamel().getCamelId(), actorId);
         return AgreementDtos.View.from(agreement);
@@ -269,7 +272,7 @@ public class TrainingAgreementService {
         validateId(camelId);
         var candidates = agreements.findActiveForCamelForUpdate(
                 camelId,
-                List.of(AgreementStatus.ACTIVE)
+                List.of(AgreementStatus.APPROVED, AgreementStatus.ACTIVE)
         );
         candidates.forEach(this::refreshLifecycle);
 
@@ -357,6 +360,25 @@ public class TrainingAgreementService {
             if (agreement.getExpiredAt() == null) {
                 agreement.setExpiredAt(now);
             }
+            return;
+        }
+
+        if (agreement.getStatus() == AgreementStatus.APPROVED) {
+            if (!agreement.getEndsAt().isAfter(now)) {
+                agreement.setStatus(AgreementStatus.EXPIRED);
+                if (agreement.getExpiredAt() == null) agreement.setExpiredAt(now);
+                return;
+            }
+            if (!agreement.getStartsAt().isAfter(now)) {
+                agreement.setStatus(AgreementStatus.ACTIVE);
+            }
+        }
+
+        // Older accepted agreements were marked ACTIVE immediately, even when
+        // their training start date was still in the future.
+        if (agreement.getStatus() == AgreementStatus.ACTIVE
+                && agreement.getStartsAt().isAfter(now)) {
+            agreement.setStatus(AgreementStatus.APPROVED);
             return;
         }
 
