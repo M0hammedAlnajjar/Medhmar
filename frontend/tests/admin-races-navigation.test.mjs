@@ -15,7 +15,7 @@ test("admin races route is restricted to admins", () => {
   }
 });
 
-test("admin shell exposes Races below Audit Logs", () => {
+test("race workspace places Races first in Management and keeps website navigation", () => {
   const html = adminShell({
     user: user("ADMIN"),
     active: "/admin/races",
@@ -23,6 +23,8 @@ test("admin shell exposes Races below Audit Logs", () => {
   });
   assert.match(html, /href="\/admin\/audit-logs"/);
   assert.match(html, /href="\/admin\/races" data-link class="active"/);
-  assert.ok(html.indexOf('href="/admin/audit-logs"') < html.indexOf('href="/admin/races"'));
+  assert.ok(html.indexOf('href="/admin/races"') < html.indexOf('href="/admin/users"'));
+  assert.match(html, /data-admin-layout="races"/);
+  assert.match(html, /href="\/home\?view=website"/);
   assert.ok(html.indexOf('href="/admin/races"') < html.indexOf('href="/admin/settings"'));
 });
