@@ -93,7 +93,7 @@ export async function checkAdminRaces(browser, origin) {
     assert.match(artwork.open, /dunes\.svg/);
     assert.match(artwork.pending, /people\.svg/);
     assert.match(artwork.completed, /pavilion\.svg/);
-    assert.match(artwork.empty, /empty-desert\.svg/);
+    assert.equal(artwork.empty, "none", "pending requests empty state has no desert artwork");
     const placement = await page.evaluate(() => {
       const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
       return { list: box(".admin-race-list-panel"), requests: box(".admin-race-requests-panel"), controls: box(".admin-race-controls-panel") };
@@ -109,6 +109,7 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator("[data-race-rows] tr").count(), 1);
     await page.locator("[data-race-status-filter]").selectOption("CLOSED");
     assert.match(await page.locator("[data-race-rows]").innerText(), /No races found/);
+    assert.equal(await page.locator("[data-race-rows] .admin-race-empty-state").evaluate(el => getComputedStyle(el).backgroundImage), "none", "race list empty state has no desert artwork");
     await page.locator("[data-race-search]").fill("");
     await page.locator("[data-race-status-filter]").selectOption("");
     await page.locator('[data-race-sort="startsAt"]').click();
