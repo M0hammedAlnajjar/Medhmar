@@ -15,16 +15,38 @@ test("admin races route is restricted to admins", () => {
   }
 });
 
-test("race workspace places Races first in Management and keeps website navigation", () => {
-  const html = adminShell({
+test("admin sidebar stays identical when navigating from Dashboard to Races", () => {
+  const dashboard = adminShell({
+    user: user("ADMIN"),
+    active: "/admin",
+    body: "<p>Dashboard</p>"
+  });
+  const races = adminShell({
     user: user("ADMIN"),
     active: "/admin/races",
     body: "<p>Race management</p>"
   });
-  assert.match(html, /href="\/admin\/audit-logs"/);
-  assert.match(html, /href="\/admin\/races" data-link class="active"/);
-  assert.ok(html.indexOf('href="/admin/races"') < html.indexOf('href="/admin/users"'));
-  assert.match(html, /data-admin-layout="races"/);
-  assert.match(html, /href="\/home\?view=website"/);
-  assert.ok(html.indexOf('href="/admin/races"') < html.indexOf('href="/admin/settings"'));
+  const sidebarHrefs = html => {
+    const nav = html.match(/<nav class="admin-sidebar-nav"[^>]*>([\s\S]*?)<\/nav>/)?.[1] || "";
+    return [...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
+  };
+  const expected = [
+    "/admin",
+    "/admin/users",
+    "/admin/marketplace",
+    "/admin/termination-requests",
+    "/admin/heritage",
+    "/admin/challenges",
+    "/admin/organizations",
+    "/admin/system-health",
+    "/admin/audit-logs",
+    "/admin/races",
+    "/admin/settings"
+  ];
+  assert.deepEqual(sidebarHrefs(dashboard), expected);
+  assert.deepEqual(sidebarHrefs(races), expected);
+  assert.match(races, /href="\/admin\/races" data-link class="active"/);
+  assert.match(races, /data-admin-layout="races"/);
+  assert.doesNotMatch(races, /Back to Website/);
+  assert.equal((races.match(/href="\/admin\/settings"/g) || []).length, 2);
 });

@@ -55,6 +55,23 @@ export async function checkAdminRaces(browser, origin) {
   try {
     await load();
     assert.equal(await page.locator("[data-race-rows] tr").count(), 3);
+    const adminNavHrefs = await page.locator(".admin-sidebar-nav a").evaluateAll(nodes => nodes.map(node => node.getAttribute("href")));
+    assert.deepEqual(adminNavHrefs, [
+      "/admin",
+      "/admin/users",
+      "/admin/marketplace",
+      "/admin/termination-requests",
+      "/admin/heritage",
+      "/admin/challenges",
+      "/admin/organizations",
+      "/admin/system-health",
+      "/admin/audit-logs",
+      "/admin/races",
+      "/admin/settings"
+    ]);
+    assert.equal(await page.locator('.admin-sidebar-nav a[href="/admin/races"]').getAttribute("aria-current"), "page");
+    assert.equal(await page.locator(".admin-sidebar-bottom a").count(), 0);
+    assert.equal(await page.locator("#admin-signout").isVisible(), true);
     assert.equal(await page.locator(".admin-race-metric-total strong").innerText(), "3");
     assert.equal(await page.locator(".admin-race-metric-open strong").innerText(), "1");
     assert.deepEqual([...racePages], [0, 1]);
