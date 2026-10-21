@@ -465,7 +465,10 @@ try {
     };
   });
   const originalSidebar = await adminSidebarGeometry();
-  assert.equal(originalSidebar.width,224,'desktop sidebar should use one width');
+  assert.equal(originalSidebar.width,254,'desktop sidebar should use the wider unified width');
+  assert.ok(Number.parseFloat(originalSidebar.fontSize)>=15,'desktop navigation text should be easy to read');
+  assert.equal(await page.locator('.admin-sidebar-brand img').evaluate(el=>Math.round(el.getBoundingClientRect().width)),183,'logo should be larger on normal desktop heights');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').first().evaluate(el=>Math.round(el.getBoundingClientRect().width)),24,'navigation icons should be larger');
   for (const active of ['/admin/challenges','/admin/races','/admin/users']) {
     await page.evaluate(async selected => {
       const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
@@ -514,8 +517,16 @@ try {
           viewportBottom:innerHeight
         };
       });
-      assert.equal(fit.width,224,active+' sidebar width must remain fixed at '+height+'px height');
+      assert.equal(fit.width,254,active+' sidebar width must remain fixed at '+height+'px height');
       assert.equal(fit.links,11,'all admin navigation links are present');
+      if(height===900) {
+        assert.ok(await page.locator('.admin-sidebar-nav a').first().evaluate(el=>Number.parseFloat(getComputedStyle(el).fontSize)>=15),
+          'normal laptop sidebar text must stay at least 15px');
+      }
+      if(height===800) {
+        assert.ok(await page.locator('.admin-sidebar-nav a').first().evaluate(el=>Number.parseFloat(getComputedStyle(el).fontSize)>=14),
+          'short laptop sidebar text must stay at least 14px');
+      }
       assert.ok(fit.scrollHeight<=fit.clientHeight+1,
         active+' menu must fit at '+height+'px without an inner scrollbar: '+JSON.stringify(fit));
       assert.notEqual(fit.overflow,'auto','navigation should not expose an inner scrollbar');
