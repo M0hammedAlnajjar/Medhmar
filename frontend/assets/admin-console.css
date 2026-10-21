@@ -1296,7 +1296,7 @@ html:has(.admin-console){scrollbar-gutter:stable}
 .admin-console .admin-sys-hero{
  /* Decorative SVG illustrates infrastructure, not a live health reading. */
  background-color:#281b17;
- background-image:linear-gradient(90deg,rgba(25,17,15,.72) 0%,rgba(25,17,15,.28) 42%,rgba(25,17,15,0) 74%),url('/assets/admin-system-health-hero.svg');
+ background-image:linear-gradient(90deg,rgba(25,17,15,.80) 0%,rgba(25,17,15,.53) 34%,rgba(25,17,15,.07) 54%,rgba(25,17,15,0) 77%),url('/assets/admin-system-health-hero.svg');
  background-size:cover;background-repeat:no-repeat;background-position:center;
  border:1px solid #936e51;
  display:flex;justify-content:space-between;align-items:center;min-height:178px;padding:27px 30px;
@@ -1307,7 +1307,7 @@ html:has(.admin-console){scrollbar-gutter:stable}
 .admin-console .admin-sys-hero p{font-size:14px;max-width:530px;line-height:1.45;color:#fff3ea}
 .admin-console .admin-sys-hero-tools{align-self:stretch;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px;min-width:200px}
 .admin-console .admin-sys-checked{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:#fff;
- padding:11px 13px;border-radius:9px;background:#37251bcc;white-space:nowrap}
+ padding:11px 13px;border:1px solid #f1d5ae66;border-radius:9px;background:#241915ed;white-space:nowrap;box-shadow:0 2px 10px #1d110b29}
 .admin-console .admin-sys-checked svg{width:16px;height:16px}
 .admin-console .admin-sys-hero .admin-system-refresh{display:inline-flex;gap:9px;align-items:center;
  background:#fff;color:#38241a;border:1px solid #e2c7ae;border-radius:8px;padding:10px 15px;box-shadow:0 3px 8px #30170d18}
@@ -1396,7 +1396,7 @@ html:has(.admin-console){scrollbar-gutter:stable}
  .admin-console .admin-sys-hero{padding:24px}
 }
 @media(max-width:700px){
- .admin-console .admin-sys-hero{height:auto;min-height:235px;flex-direction:column;align-items:flex-start;gap:12px;background-position:center;background-image:linear-gradient(90deg,rgba(25,17,15,.88),rgba(25,17,15,.46)),url("/assets/admin-system-health-hero.svg")}
+ .admin-console .admin-sys-hero{height:auto;min-height:235px;flex-direction:column;align-items:flex-start;gap:12px;background-position:center;background-image:linear-gradient(90deg,rgba(25,17,15,.93),rgba(25,17,15,.73) 65%,rgba(25,17,15,.44)),url("/assets/admin-system-health-hero.svg")}
  .admin-console .admin-sys-hero-tools{min-width:0;align-self:stretch;align-items:flex-start}
  .admin-console .admin-sys-bottom-row{grid-template-columns:1fr}
  .admin-console .admin-sys-bottom-row>.admin-system-panel:last-child{grid-column:auto}
