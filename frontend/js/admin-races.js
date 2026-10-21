@@ -54,7 +54,7 @@ const statusTone = value => {
 const validStatuses = ["SCHEDULED","OPEN","CLOSED","COMPLETED","CANCELLED"];
 
 const camelMark = '<svg viewBox="0 0 64 48" fill="currentColor" aria-hidden="true"><path d="m5 30 3-9 5-4 7-1 4-5 5 1 5 5 10 1 4-9 1-6 5-1 3 2 5 1-2 4-7 1-2 14-5 8 2 12h-3l-5-12-13-1-3 13h-3l1-15-6 1-5 14H8l3-17-3-1-3 10H3Z"/></svg>';
-const emptyState = (title, detail) => `<div class="admin-race-empty-state">${camelMark}<strong>${title}</strong><small>${detail}</small></div>`;
+const emptyState = (title, detail) => `<div class="admin-race-empty-state"><strong>${title}</strong><small>${detail}</small></div>`;
 const imageUrl = value => {
   const url = apiAssetUrl(value);
   return /^https?:\/\//i.test(url) ? url : "";
