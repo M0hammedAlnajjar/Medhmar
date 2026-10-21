@@ -263,7 +263,7 @@ test('admin chart tabs bind inside the existing SPA',async()=>{
  const {readFile}=await import('node:fs/promises');
  const code=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
  assert.ok(code.includes('bindAdminChartTabs();'));
- assert.match(code, /import \\{[^}]*bindAdminChartTabs[^}]*\\} from ['"]\\.\\/admin-console\\.js['"]/);
+ assert.match(code, /import \{[^}]*bindAdminChartTabs[^}]*\} from ['"]\.\/admin-console\.js['"]/);
 });
 
 
