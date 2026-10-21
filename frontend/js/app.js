@@ -1016,7 +1016,8 @@ async function render() {
     }
    }
    if(adminRoute && path==='/admin/system-health') {
-     const checkStarted=performance.now();
+     const nowMs=()=>typeof performance!=='undefined' && performance?.now ? performance.now() : Date.now();
+     const checkStarted=nowMs();
      try {
        const result=await adminHealthApi.check();
        if(epoch!==renderEpoch)return;
@@ -1030,7 +1031,7 @@ async function render() {
        state.adminHealthData=result;
        state.adminHealthSamples=[...state.adminHealthSamples,{
          checkedAt:result.checkedAt,
-         durationMs:Math.max(0,Math.round(performance.now()-checkStarted)),
+         durationMs:Math.max(0,Math.round(nowMs()-checkStarted)),
          result:result.databaseStatus
        }].slice(-16);
      } catch(err) {
@@ -1043,7 +1044,7 @@ async function render() {
        state.adminHealthError='Unable to retrieve health data.';
        state.adminHealthSamples=[...state.adminHealthSamples,{
          checkedAt:new Date().toISOString(),
-         durationMs:Math.max(0,Math.round(performance.now()-checkStarted)),
+         durationMs:Math.max(0,Math.round(nowMs()-checkStarted)),
          result:'UNAVAILABLE'
        }].slice(-16);
      }
