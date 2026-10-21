@@ -154,3 +154,27 @@ test('challenge overview no longer renders the redundant four-column facts bar',
  assert.match(html,/data-preview-tab="results"/);
  assert.match(html,/No live stream is connected/);
 });
+
+test('approved compact challenge layout uses only existing photos and keeps vote/refresh controls',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
+ const html=broadcastPreview(challenge,{signedIn:false});
+ for(const selector of [
+  '.app-shell:has(.broadcast-preview) .broadcast-grid',
+  '.app-shell:has(.broadcast-preview) .broadcast-voting',
+  '.app-shell:has(.broadcast-preview) .broadcast-tabs',
+  '.app-shell:has(.broadcast-preview) .broadcast-published-card',
+  '.app-shell:has(.broadcast-preview) .broadcast-published-placeholder',
+  '@media(max-width:970px)','@media(max-width:660px)'
+ ])assert.ok(css.includes(selector),selector);
+ assert.match(css,/border-left:1px solid #e9dfd2/);
+ assert.match(css,/display:contents/);
+ assert.match(css,/grid-template-columns:minmax\(0,33%\) minmax\(0,1fr\)/);
+ assert.doesNotMatch(css,/fonts\.googleapis\.com|https?:\/\/|@import/);
+ assert.match(css,/url\('\/assets\/racing-hero\.webp'\)/);
+ for(const label of ['data-preview-tab="overview"','data-preview-tab="participants"',
+   'data-preview-tab="results"','id="refresh-challenges"','data-preview-fullscreen',
+   'data-preview-image="prev"','data-preview-image="next"'])assert.ok(html.includes(label),label);
+ assert.match(html,/Sign in to vote/);
+ assert.doesNotMatch(html,/broadcast-facts/);
+});
