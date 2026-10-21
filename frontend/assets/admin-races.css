@@ -109,7 +109,7 @@
 .admin-race-controls-title svg, .admin-race-control-item > span:first-child svg { display: block; width: 24px; height: 24px; }
 .admin-race-controls-title h2 { font-size: 21px; }
 .admin-race-controls-title p { font-size: 10px; }
-.admin-race-control-item { width: 100%; display: flex; align-items: flex-start; gap: 12px; padding: 13px 0; border: 0; border-bottom: 1px solid #f0ebe5; background: transparent; text-align: left; cursor: pointer; }
+.admin-race-control-item { width: 100%; display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border: 0; border-bottom: 1px solid #f0ebe5; background: transparent; text-align: left; cursor: pointer; }
 .admin-race-control-item:last-child { border-bottom: 0; }
 .admin-race-control-item:hover .admin-race-control-copy strong { color: #9c5610; text-decoration: underline; }
 .admin-race-control-copy { flex: 1; min-width: 0; padding-top: 5px; }
