@@ -85,6 +85,20 @@ try {
   await page.locator('.broadcast-live-data').waitFor();
   assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
+
+  // The voting artwork must be an actual packaged image, not a CSS-only gradient.
+  const championArtwork=await page.locator('.broadcast-voting').evaluate(async panel=>{
+    const background=getComputedStyle(panel).backgroundImage;
+    const url=background.match(/url\(["']?([^"')]+)/)?.[1]||'';
+    if (!url) return {url,loaded:false};
+    const artwork=new Image();
+    artwork.src=new URL(url,location.href).href;
+    try {await artwork.decode()} catch {return {url,loaded:false}}
+    return {url,loaded:artwork.naturalWidth>0&&artwork.naturalHeight>0};
+  });
+  assert.match(championArtwork.url,/\/assets\/champion-vote-landscape\.webp/,'vote hero must reference packaged landscape');
+  assert.ok(championArtwork.loaded,'champion voting backdrop must load successfully');
+
   assert.equal(await page.locator('.broadcast-grid').count(),1);
   assert.equal(await page.locator('.broadcast-published-card').count(),1);
   assert.equal(await page.locator('.broadcast-published-placeholder').count(),1);
