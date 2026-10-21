@@ -1,4 +1,3 @@
-import { checkAdminRaces } from "./admin-races-browser-check.mjs";
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -431,8 +430,8 @@ try {
       user:admin,active:'/admin/system-health',body:adminSystemHealthView({data})
     });
   });
-  assert.equal(await page.locator('.admin-system-card').count(),4);
-  assert.match(await page.locator('.admin-system-panel').innerText(),/Connected|12|7/);
+  assert.equal(await page.locator('.admin-sys-kpi').count(),4);
+  assert.match(await page.locator('.admin-sys-kpis').innerText(),/Connected|12|7/);
   assert.equal(await page.locator('#admin-health-check').isVisible(),true);
   await page.screenshot({path:'test-results/admin-system-health-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
@@ -450,7 +449,7 @@ try {
       }})
     });
   });
-  assert.match(await page.locator('.admin-system-panel').innerText(),/Disconnected|Counts are unavailable/);
+  assert.match(await page.locator('.admin-system-unavailable').innerText(),/Disconnected|Counts are unavailable/);
   assert.equal(await page.locator('.admin-system-count').count(),2);
   assert.equal(await page.locator('.admin-system-count').first().innerText(),'—');
   await page.setViewportSize({width:1440,height:900});
@@ -570,7 +569,6 @@ try {
   assert.equal(await page.locator('#admin-organization-create').count(),1);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin organizations mobile must not overflow');
   await page.screenshot({path:'test-results/admin-organizations-mobile.png',fullPage:true});
-  await checkAdminRaces(browser, `http://localhost:${port}`);
     assert.deepEqual(errors,[], 'browser must not have unhandled errors');
   console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
 } finally {

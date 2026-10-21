@@ -41,6 +41,7 @@ const state = {
   adminModuleData: null,
   adminModuleError: '',
   adminHealthData: null,
+  adminHealthSamples: [],
   adminHealthError: '',
   adminMarketData: null,
   adminMarketAudit: [],
@@ -326,7 +327,7 @@ function admin() {
  return shell(adminDashboard({user:state.user,summary:state.adminSummary,error:state.adminError}),'/admin');
 }
 function adminHealthPage() {
- return shell(adminSystemHealthView({data:state.adminHealthData,error:state.adminHealthError}),'/admin/system-health');
+ return shell(adminSystemHealthView({data:state.adminHealthData,error:state.adminHealthError,samples:state.adminHealthSamples}),'/admin/system-health');
 }
 const MARKET_STATUSES = ['AVAILABLE','PENDING','REJECTED','SOLD','CANCELLED'];
 const MARKET_SORTS = ['newest','oldest','price_asc','price_desc'];
@@ -1015,6 +1016,8 @@ async function render() {
     }
    }
    if(adminRoute && path==='/admin/system-health') {
+     const nowMs=()=>typeof performance!=='undefined' && performance?.now ? performance.now() : Date.now();
+     const checkStarted=nowMs();
      try {
        const result=await adminHealthApi.check();
        if(epoch!==renderEpoch)return;
@@ -1026,6 +1029,11 @@ async function render() {
              !Number.isSafeInteger(result.totalVotes) || result.totalVotes<0)))
          throw new Error('Invalid system health response.');
        state.adminHealthData=result;
+       state.adminHealthSamples=[...state.adminHealthSamples,{
+         checkedAt:result.checkedAt,
+         durationMs:Math.max(0,Math.round(nowMs()-checkStarted)),
+         result:result.databaseStatus
+       }].slice(-16);
      } catch(err) {
        if(epoch!==renderEpoch)return;
        if(err.status===401)throw err;
@@ -1034,6 +1042,11 @@ async function render() {
          denyAdminAccess();bind();return;
        }
        state.adminHealthError='Unable to retrieve health data.';
+       state.adminHealthSamples=[...state.adminHealthSamples,{
+         checkedAt:new Date().toISOString(),
+         durationMs:Math.max(0,Math.round(nowMs()-checkStarted)),
+         result:'UNAVAILABLE'
+       }].slice(-16);
      }
    }
    if(adminRoute&&(path==='/admin/challenges'||path==='/admin/organizations')) {
