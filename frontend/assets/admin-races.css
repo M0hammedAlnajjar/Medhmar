@@ -15,18 +15,14 @@
 .admin-race-hero-copy > span:first-child, .admin-race-modal-head > div > span { font-size: 12px; font-weight: 650; letter-spacing: .16em; color: #a45708; }
 .admin-console .admin-race-hero h1 { margin: 10px 0 3px; font: 700 clamp(35px, 3vw, 50px)/1.08 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; color: #28180d; }
 .admin-race-hero-copy p { margin: 0; color: #35261e; font-size: 16px; line-height: 1.3; }
-.admin-race-hero-action { position: relative; z-index: 1; flex: 0 0 auto; display: grid; justify-items: end; }
-.admin-race-flourish { display: block; width: 84px; height: 2px; background: #cd8a2c; position: relative; margin-top: 19px; }
-.admin-race-flourish::before, .admin-race-flourish::after { content: ''; position: absolute; width: 5px; height: 5px; top: -2px; transform: rotate(45deg); background: #d69a3e; }
-.admin-race-flourish::before { left: 0; border: 1px solid #b7771e; background: #fff4da; }
-.admin-race-flourish::after { right: 0; }
-.admin-race-hero-action .admin-race-flourish { width: 56px; margin-top: 0; background: #e4b257; }
 .admin-race-content { padding: 14px 18px 16px 22px; }
+.admin-race-create-toolbar { display: flex; align-items: center; justify-content: flex-end; min-height: 44px; margin-bottom: 14px; }
+.admin-race-create-toolbar .admin-race-primary { min-height: 44px; padding: 10px 18px; font: 650 15px/1.25 'Segoe UI', Arial, sans-serif; white-space: nowrap; }
+.admin-race-create-toolbar .admin-race-primary > span:first-child { font: 21px/1 Arial, sans-serif; }
+.admin-race-create-toolbar .admin-race-primary:focus-visible { outline: 3px solid #d79b37; outline-offset: 3px; }
 .admin-race-primary, .admin-race-secondary, .admin-race-action, .admin-race-approve, .admin-race-reject { border-radius: 9px; font: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
 .admin-race-primary { border: 1px solid #c63b4c; background: linear-gradient(#b70725, #950017); color: #fff; padding: 11px 17px; box-shadow: 0 3px 7px #75152816; font-weight: 600; }
 .admin-race-primary:hover { background: #8b071c; }
-.admin-race-hero-action .admin-race-primary { min-height: 45px; padding: 9px 20px; font: 650 16px/1.25 'Segoe UI', sans-serif; }
-.admin-race-hero-action .admin-race-primary > span:first-child { font: 24px/1 Arial, sans-serif; }
 .admin-race-primary svg, .admin-race-action svg { width: 16px; height: 16px; }
 .admin-race-secondary { background: #fffdfa; color: #4f3d32; padding: 10px 15px; border: 1px solid #d9cabc; }
 .admin-races-page button:disabled, [data-admin-race-dialog] button:disabled { opacity: .55; cursor: not-allowed; }
@@ -178,7 +174,6 @@
   .admin-race-hero { padding: 28px; }
   .admin-race-hero-copy p { max-width: 440px; font-size: 14px; }
   .admin-race-desktop-break { display: none; }
-  .admin-race-hero-action .admin-race-primary { font-size: 17px; padding-inline: 15px; }
 }
 @media (max-width: 920px) {
   .admin-console[data-admin-layout="races"] { display: block; }
@@ -193,8 +188,8 @@
   .admin-race-hero { display: block; min-height: 290px; padding: 24px 20px; background-image: linear-gradient(90deg, #fffbf5fa 0%, #fffbf5ea 55%, #fffbf596 100%), url('https://omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg'), url('/assets/admin-races/hero.webp'); background-position: center, 64% 40%, 64% 40%; }
   .admin-console .admin-race-hero h1 { font-size: 35px; }
   .admin-race-hero-copy p { max-width: 340px; }
-  .admin-race-hero-action { display: block; margin-top: 20px; }
-  .admin-race-hero-action p, .admin-race-hero-action .admin-race-flourish { display: none; }
+  .admin-race-create-toolbar { justify-content: stretch; }
+  .admin-race-create-toolbar .admin-race-primary { width: 100%; }
   .admin-race-metrics { gap: 9px; }
   .admin-race-metrics article { min-height: 112px; padding: 12px 10px; gap: 8px; }
   .admin-race-metric-icon { width: 37px; height: 42px; flex-basis: 37px; border-radius: 11px; }
