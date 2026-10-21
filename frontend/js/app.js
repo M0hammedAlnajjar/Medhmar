@@ -60,7 +60,17 @@ const state = {
 };
 const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const badge = s => `<span class="badge ${['ACTIVE','OPEN','APPROVED','OFFICIAL'].includes(s)?'success':['PENDING','UPCOMING'].includes(s)?'warning':['SUSPENDED','REJECTED','CLOSED'].includes(s)?'danger':'neutral'}">${esc(s)}</span>`;
-const go = p => { history.pushState({},'',p); render(); };
+// Explicit public-site browsing is carried across SPA links and browser history.
+// This is a presentation choice only; all API and role checks remain enforced.
+const publicWebsiteMode = () => history.state?.publicWebsite === true ||
+  /(?:^|[?&])view=website(?:&|$)/.test(location.search);
+const go = p => {
+  const path = String(p).split(/[?#]/, 1)[0];
+  const isPublic = !/^\/admin(?:\/|$)/.test(path) &&
+    (publicWebsiteMode() || /(?:^|[?&])view=website(?:&|$)/.test(p));
+  history.pushState(isPublic ? {publicWebsite:true} : {}, '', p);
+  render();
+};
 function toast(msg,type=''){ const el=document.createElement('div'); el.className=`toast ${type}`; el.textContent=msg; toastRoot.append(el); setTimeout(()=>el.remove(),3200); }
 
 
@@ -150,7 +160,8 @@ function homeFooter() {
     + '<a href="#mh-home-top" class="mh-footer-backtop">Back to top <span aria-hidden="true">↑</span></a>'
     + '</div></footer>';
 }
-const shell = (body,active='', compact=false) => state.user?.userId && hasAnyRole(state.user,'ADMIN')
+const shell = (body,active='', compact=false) => state.user?.userId && hasAnyRole(state.user,'ADMIN') &&
+  (adminArea(normalizePath()) || !publicWebsiteMode())
   ? adminShell({user:state.user,active:normalizePath(),body})
   : `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main>${active === "/home" ? homeFooter() : ""}</div>`;
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
@@ -869,7 +880,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
 async function render() {
  const epoch=++renderEpoch;
  let path=normalizePath();
- if(state.user?.userId && hasAnyRole(state.user,'ADMIN') && !authPaths.has(path)) {
+ if(state.user?.userId && hasAnyRole(state.user,'ADMIN') && !authPaths.has(path) && !publicWebsiteMode()) {
   const target=toAdminPath(path);
   if(target!==path || location.hash==='#account-administration') {
    history.replaceState({},'',target+location.search);
