@@ -144,7 +144,7 @@ function pageDataMarkup({ races, entries, users, camelNames }) {
       </section>
       <div class="admin-race-main-grid">
         <section class="admin-race-panel admin-race-list-panel" aria-labelledby="admin-race-list-title">
-          <div class="admin-race-panel-head"><div class="admin-race-heading"><span class="admin-race-heading-icon">${camelMark}</span><div><h2 id="admin-race-list-title">Race List</h2><p>Manage all camel races on the platform.</p></div></div>
+          <div class="admin-race-panel-head"><div class="admin-race-heading"><div><h2 id="admin-race-list-title">Race List</h2><p>Manage all camel races on the platform.</p></div></div>
             <div class="admin-race-toolbar"><label class="admin-race-search">${icon("search")}<input type="search" data-race-search placeholder="Search races..." aria-label="Search races"></label><select data-race-status-filter aria-label="Filter races by status"><option value="">All Statuses</option>${validStatuses.map(status => `<option value="${status}">${status}</option>`).join("")}</select></div>
           </div>
           <div class="admin-race-table-wrap" role="region" aria-label="Race list" tabindex="0"><table class="admin-race-table"><thead><tr><th scope="col">Race Name</th>${sortHeader("startsAt", "Date")}${sortHeader("location", "Location")}${sortHeader("status", "Status")}${sortHeader("organizerId", "Organizer")}<th scope="col">Actions</th></tr></thead><tbody data-race-rows>${raceRowsMarkup(races, userName)}</tbody></table></div>
