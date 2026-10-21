@@ -46,3 +46,16 @@ test('audit route and API contain no client mutation actions', async () => {
   assert.doesNotMatch(api,/\/audit-log\/add|\/audit-log\/update|\/audit-log\/deleteById/);
   assert.doesNotMatch(routes,/Add Audit Log|Edit Audit Log/);
 });
+
+test('audit banner uses symbolic SVG without changing read-only audit behavior', async () => {
+  const css = await readFile(new URL('../assets/admin-console.css', import.meta.url), 'utf8');
+  const svg = await readFile(new URL('../assets/admin-audit-hero.svg', import.meta.url), 'utf8');
+  const html = adminAuditListView({data:page});
+  assert.match(css, /url\(['"]\/assets\/admin-audit-hero\.svg['"]\)/);
+  assert.match(svg, /<svg[^>]+viewBox="0 0 1600 220"/);
+  assert.match(svg, /Decorative audit illustration/);
+  assert.match(svg, /shield\/lock/);
+  assert.match(html, /class="admin-audit-hero"/);
+  assert.match(html, /class="admin-audit-readonly"[^>]*>Read only<\/span>/);
+  assert.doesNotMatch(html, /Add Audit|Edit Audit|Delete Audit/);
+});
