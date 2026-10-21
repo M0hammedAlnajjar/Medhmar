@@ -73,6 +73,22 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator(".admin-sidebar-bottom a").count(), 0);
     assert.equal(await page.locator("#admin-signout").isVisible(), true);
     assert.equal(await page.locator("[data-admin-race-create]").count(), 1, "Race Management still has an editable Create Race button");
+    assert.equal(await page.locator(".admin-race-hero [data-admin-race-create]").count(), 0, "the photo banner no longer overlays the primary button");
+    assert.equal(await page.locator(".admin-race-create-toolbar [data-admin-race-create]").count(), 1, "create button lives in its own toolbar");
+    const actionPlacement = await page.evaluate(() => {
+      const bounds = selector => document.querySelector(selector).getBoundingClientRect();
+      const hero = bounds(".admin-race-hero");
+      const toolbar = bounds(".admin-race-create-toolbar");
+      const button = bounds(".admin-race-create-toolbar button");
+      const metrics = bounds(".admin-race-metrics");
+      return { heroBottom: hero.bottom, toolbarTop: toolbar.top, toolbarBottom: toolbar.bottom,
+        metricsTop: metrics.top, toolbarRight: toolbar.right, buttonRight: button.right,
+        buttonCenter: button.left + button.width / 2, toolbarCenter: toolbar.left + toolbar.width / 2 };
+    });
+    assert.ok(actionPlacement.heroBottom <= actionPlacement.toolbarTop + 1, "toolbar appears after hero");
+    assert.ok(actionPlacement.toolbarBottom <= actionPlacement.metricsTop + 1, "toolbar appears before metrics");
+    assert.ok(Math.abs(actionPlacement.toolbarRight - actionPlacement.buttonRight) <= 2, "desktop button aligns to toolbar right edge");
+    assert.ok(actionPlacement.buttonCenter > actionPlacement.toolbarCenter, "desktop button is on right");
     assert.equal(await page.locator(".admin-race-photo-credit").count(), 0, "banner should not show a photo source badge");
     assert.equal(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg")), true, "banner uses the selected ONA photo");
     assert.equal(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("/assets/admin-races/hero.webp")), true, "banner preserves a local fallback");
@@ -111,6 +127,14 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(placement.list.y, placement.controls.y);
     await page.screenshot({ path: "test-results/admin-races-desktop.png", fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
+    const mobileActionLayout = await page.evaluate(() => {
+      const toolbar = document.querySelector(".admin-race-create-toolbar").getBoundingClientRect();
+      const button = document.querySelector(".admin-race-create-toolbar button").getBoundingClientRect();
+      const hero = document.querySelector(".admin-race-hero").getBoundingClientRect();
+      return { toolbarWidth: toolbar.width, buttonWidth: button.width, buttonTop: button.top, heroBottom: hero.bottom };
+    });
+    assert.ok(Math.abs(mobileActionLayout.toolbarWidth - mobileActionLayout.buttonWidth) < 2, "mobile action occupies full toolbar width");
+    assert.ok(mobileActionLayout.buttonTop >= mobileActionLayout.heroBottom, "mobile action stays below the photo");
     await page.screenshot({ path: "test-results/admin-races-mobile.png", fullPage: true });
     await page.setViewportSize({ width: 1672, height: 941 });
     await page.locator("[data-race-search]").fill("championship");
