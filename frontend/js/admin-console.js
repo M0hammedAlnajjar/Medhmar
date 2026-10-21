@@ -73,7 +73,6 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         (chosen === path ? ' class="active" aria-current="page"' : '') +
         '><span class="admin-nav-icon">' + adminIcon(icons[path]) +
         '</span><span>' + label + '</span></a>';
-    const raceLayout = chosen === '/admin/races';
     const nav = links.map(navLink).join('');
     const groups = [
         ['OVERVIEW', links.slice(0, 1)],
@@ -102,7 +101,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
  const section=titles[chosen]||'Administration';
  const name=String(user?.fullName||'Administrator').trim();
  const initial=name.charAt(0).toUpperCase()||'A';
- return '<div class="admin-console"'+(raceLayout?' data-admin-layout="races"':'')+' lang="en" dir="ltr"><aside class="admin-sidebar" aria-label="Administrator workspace">'+
+ return '<div class="admin-console"'+' lang="en" dir="ltr"><aside class="admin-sidebar" aria-label="Administrator workspace">'+
    '<a class="admin-sidebar-brand" href="/admin" data-link aria-label="Medhmar administration home">'+
    '<img src="/assets/medhmar-admin-logo-approved.webp" alt="Medhmar Camel Racing Platform" width="210" height="124"></a>'+
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+groupedNav+'</nav>'+
