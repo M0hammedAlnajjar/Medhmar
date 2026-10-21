@@ -1,3 +1,4 @@
+import { checkAdminRaces } from "./admin-races-browser-check.mjs";
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
@@ -569,6 +570,7 @@ try {
   assert.equal(await page.locator('#admin-organization-create').count(),1);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'admin organizations mobile must not overflow');
   await page.screenshot({path:'test-results/admin-organizations-mobile.png',fullPage:true});
+  await checkAdminRaces(browser, `http://localhost:${port}`);
     assert.deepEqual(errors,[], 'browser must not have unhandled errors');
   console.log('Browser checks passed: preview votes, session dialogs, filters, backend modal binding and mobile layout.');
 } finally {
