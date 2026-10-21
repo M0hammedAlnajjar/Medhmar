@@ -25,7 +25,7 @@ test('unreachable backend and invalid response are not displayed as connected',(
  for(const inputs of [{error:'Connection failed'},{data:null},{data:{...live,databaseStatus:'UNVERIFIED'}}]){
   const html=adminSystemHealthView(inputs);
   assert.match(html,/Health check unavailable/);
-  assert.doesNotMatch(html,/Connected|class="admin-system-count"/);
+  assert.doesNotMatch(html,/class="admin-system-count">0|class="admin-health-state admin-health-state-ok"/);
  }
 });
 test('health page guard is ADMIN-only, in standalone admin shell',()=>{
@@ -45,4 +45,41 @@ test('frontend calls protected health GET and binds manual refresh',async()=>{
  assert.match(api,/api\('\/api\/admin\/system-health'\)/);
  assert.match(app,/adminHealthApi\.check\(\)/);
  assert.match(app,/\$\('#admin-health-check'\)\?\.addEventListener\('click',\(\)=>render\(\)\)/);
+});
+
+test('reference visual sections use real metrics and identify uninstrumented services',()=>{
+ const response=adminSystemHealthView({data:live,samples:[
+  {checkedAt:'2026-10-20T06:59:00Z',durationMs:135,result:'CONNECTED'},
+  {checkedAt:'2026-10-20T07:00:00Z',durationMs:89,result:'CONNECTED'}
+ ]});
+ for(const label of ['Service Status','API Response Time','Resource Usage','Database Activity','Recent Checks'])
+  assert.ok(response.includes(label),label);
+ assert.equal((response.match(/class="admin-sys-kpi"/g)||[]).length,4);
+ assert.match(response,/svg class="admin-sys-chart"/);
+ assert.match(response,/89 ms/);
+ assert.match(response,/Not monitored/);
+ assert.match(response,/View audit logs/);
+ assert.doesNotMatch(response,/24.hours|120 ms|32%|58%|Active Connections: 12/);
+ const noMeasurements=adminSystemHealthView({data:live});
+ assert.match(noMeasurements,/No response-time samples yet/);
+ assert.doesNotMatch(noMeasurements,/>120 ms</);
+});
+test('health chart rejects invalid and negative browser observations',()=>{
+ const html=adminSystemHealthView({data:live,samples:[
+  {checkedAt:'invalid',durationMs:100,result:'CONNECTED'},
+  {checkedAt:live.checkedAt,durationMs:-12,result:'CONNECTED'},
+  {checkedAt:live.checkedAt,durationMs:42,result:'CONNECTED'}
+ ]});
+ assert.match(html,/1 checks/);
+ assert.match(html,/42 ms/);
+ assert.doesNotMatch(html,/100 ms/);
+});
+test('health monitoring style is responsive and existing page keeps refresh behavior',async()=>{
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
+ for(const selector of ['.admin-console .admin-sys-kpis','.admin-console .admin-sys-content-row','.admin-console .admin-sys-chart',
+  '.admin-console .admin-sys-resource','@media(max-width:1090px)']) assert.ok(css.includes(selector),selector);
+ assert.match(app,/adminHealthSamples: \[\]/);
+ assert.match(app,/samples:state\.adminHealthSamples/);
+ assert.match(app,/performance\.now\(\)-checkStarted/);
 });

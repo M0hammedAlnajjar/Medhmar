@@ -73,20 +73,12 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         (chosen === path ? ' class="active" aria-current="page"' : '') +
         '><span class="admin-nav-icon">' + adminIcon(icons[path]) +
         '</span><span>' + label + '</span></a>';
-    const raceLayout = chosen === '/admin/races';
-    const raceLink = links.find(([path]) => path === '/admin/races');
-    const orderedLinks = raceLayout ? [links[0], raceLink, ...links.slice(1).filter(([path]) => path !== '/admin/races')] : links;
-    const nav = orderedLinks.map(navLink).join('');
-    const groups = raceLayout ? [
-        ['OVERVIEW', [links[0]]],
-        ['MANAGEMENT', [raceLink, ...links.slice(1, 7)]],
-        ['SYSTEM', links.slice(7, 9)]
-    ] : [
+    const nav = links.map(navLink).join('');
+    const groupedNav = [
         ['OVERVIEW', links.slice(0, 1)],
         ['MANAGEMENT', links.slice(1, 7)],
         ['SYSTEM', links.slice(7)]
-    ];
-    const groupedNav = groups.map(([heading, items]) =>
+    ].map(([heading, items]) =>
         '<div class="admin-sidebar-group"><p class="admin-sidebar-label">' + heading +
         '</p>' + items.map(navLink).join('') + '</div>'
     ).join('');
@@ -108,11 +100,11 @@ export function adminShell({ user, active = '/admin', body = '' }) {
  const section=titles[chosen]||'Administration';
  const name=String(user?.fullName||'Administrator').trim();
  const initial=name.charAt(0).toUpperCase()||'A';
- return '<div class="admin-console"'+(raceLayout?' data-admin-layout="races"':'')+' lang="en" dir="ltr"><aside class="admin-sidebar" aria-label="Administrator workspace">'+
+ return '<div class="admin-console" lang="en" dir="ltr"><aside class="admin-sidebar" aria-label="Administrator workspace">'+
    '<a class="admin-sidebar-brand" href="/admin" data-link aria-label="Medhmar administration home">'+
    '<img src="/assets/medhmar-admin-logo-approved.webp" alt="Medhmar Camel Racing Platform" width="210" height="124"></a>'+
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+groupedNav+'</nav>'+
-   '<div class="admin-sidebar-bottom">'+(raceLayout?navLink(links[10])+'<a href="/home?view=website" data-link class="admin-race-back-link"><span class="admin-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 4H4v17h17v-7"/></svg></span><span>Back to Website</span></a>':'')+'<button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
+   '<div class="admin-sidebar-bottom"><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
    '<div class="admin-workspace"><header class="admin-topbar">'+
    (chosen==='/admin/challenges'?'<span class="mhch-breadcrumb-home" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/></svg></span>':'')+
    '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+

@@ -1285,3 +1285,121 @@
 @media(max-width:395px){
  .admin-console .admin-users-stats{grid-template-columns:1fr}
 }
+
+
+/* System Health visual redesign: all selectors are scoped to the existing admin workspace.
+   Decorative rings are explicitly NOT telemetry; values stay unknown until instrumented. */
+.admin-console .admin-sys-hero{
+ background-image:linear-gradient(90deg,rgba(47,25,17,.94),rgba(74,34,17,.69) 44%,rgba(72,35,17,.18) 100%),url('/assets/admin-dashboard-race.webp');
+ background-size:cover;background-position:center 43%;border:1px solid #d7b899;
+ display:flex;justify-content:space-between;align-items:center;min-height:178px;padding:27px 30px;
+ margin:16px 0 13px;border-radius:12px;gap:22px;
+}
+.admin-console .admin-sys-hero>div:first-child{max-width:600px;position:relative;z-index:1}
+.admin-console .admin-sys-hero h1{margin:12px 0 7px;font-size:clamp(29px,2.8vw,38px);letter-spacing:-.035em}
+.admin-console .admin-sys-hero p{font-size:14px;max-width:530px;line-height:1.45;color:#fff3ea}
+.admin-console .admin-sys-hero-tools{align-self:stretch;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px;min-width:200px}
+.admin-console .admin-sys-checked{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:#fff;
+ padding:11px 13px;border-radius:9px;background:#37251bcc;white-space:nowrap}
+.admin-console .admin-sys-checked svg{width:16px;height:16px}
+.admin-console .admin-sys-hero .admin-system-refresh{display:inline-flex;gap:9px;align-items:center;
+ background:#fff;color:#38241a;border:1px solid #e2c7ae;border-radius:8px;padding:10px 15px;box-shadow:0 3px 8px #30170d18}
+.admin-console .admin-sys-hero .admin-system-refresh:hover{background:#fff5e8}
+.admin-console .admin-sys-hero .admin-system-refresh svg{width:17px;height:17px}
+.admin-console .admin-system-unavailable{padding:12px 17px;margin-bottom:12px;border:1px solid #e3baa1;border-radius:10px;font-size:12px}
+.admin-console .admin-sys-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:13px}
+.admin-console .admin-sys-kpi{min-height:108px;display:flex;align-items:center;gap:13px;min-width:0;
+ border:1px solid #e4e7ec;background:#fff;border-radius:11px;padding:17px 16px;box-shadow:0 4px 12px #271d1207}
+.admin-console .admin-sys-kpi-icon{width:55px;height:55px;flex:0 0 55px;display:grid;place-items:center;
+ border-radius:11px;background:#e8f8ed;color:#17965b}
+.admin-console .admin-sys-kpi-icon svg{width:31px;height:31px}
+.admin-console .admin-sys-trophy{color:#ad720e;background:#fcf2de}
+.admin-console .admin-sys-votes{color:#bd0a30;background:#fee9ed}
+.admin-console .admin-sys-shield,.admin-console .admin-sys-storage{color:#a06b18;background:#f9f1e2}
+.admin-console .admin-sys-kpi>div{min-width:0;display:grid;gap:5px;align-content:center}
+.admin-console .admin-sys-kpi-name{font-size:13px;color:#43291c;font-weight:750}
+.admin-console .admin-sys-kpi small{font-size:11px;color:#7a8494;line-height:1.45}
+.admin-console .admin-sys-kpi .admin-system-count{font-size:31px;line-height:1;color:#2c211c}
+.admin-console .admin-sys-kpi .admin-health-state{font-size:12px;padding:6px 12px;justify-self:start}
+.admin-console .admin-health-state-unknown{color:#726f71;background:#eff0f2}
+.admin-console .admin-sys-content-row{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:13px;margin-bottom:13px}
+.admin-console .admin-sys-bottom-row{display:grid;grid-template-columns:1.12fr 1.07fr .95fr;gap:13px;margin-bottom:10px}
+.admin-console .admin-sys-content-row>.admin-system-panel,.admin-console .admin-sys-bottom-row>.admin-system-panel{
+ min-width:0;margin:0;padding:19px 19px 17px;border:1px solid #e6e7e8;border-radius:12px;box-shadow:0 4px 13px #301b0a08}
+.admin-console .admin-sys-content-row>.admin-system-panel{min-height:294px}
+.admin-console .admin-sys-bottom-row>.admin-system-panel{min-height:227px}
+.admin-console .admin-sys-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;min-width:0;margin:0 0 17px}
+.admin-console .admin-sys-section-head>div{min-width:0}
+.admin-console .admin-sys-section-head h2{margin:0 0 6px;font-size:18px;color:#1c1b21;letter-spacing:-.03em;line-height:1.2}
+.admin-console .admin-sys-section-head p{margin:0;color:#788197;font-size:11px;line-height:1.5}
+.admin-console .admin-sys-section-head a{font-size:11px;font-weight:750;color:#c30730;white-space:nowrap;text-decoration:none}
+.admin-console .admin-sys-section-head a:hover{text-decoration:underline}
+.admin-console .admin-sys-service-list{display:grid;gap:0}
+.admin-console .admin-sys-service{display:flex;gap:12px;align-items:center;min-width:0;padding:11px 0;border-top:1px solid #eef0f3}
+.admin-console .admin-sys-service-icon{width:37px;height:37px;flex:0 0 37px;display:grid;place-items:center;border-radius:8px;color:#258d61;background:#e7f5ed}
+.admin-console .admin-sys-service-icon svg{height:23px;width:23px}
+.admin-console .admin-sys-service-icon.admin-sys-shield,.admin-console .admin-sys-service-icon.admin-sys-storage{color:#9f791e;background:#fcf1db}
+.admin-console .admin-sys-service>div{display:grid;gap:4px;min-width:0;flex:1}
+.admin-console .admin-sys-service>div strong{font-size:12px;color:#282630}
+.admin-console .admin-sys-service>div small{font-size:10px;color:#81899c;line-height:1.3}
+.admin-console .admin-sys-service .admin-health-state{font-size:10px;padding:6px 10px;white-space:nowrap;flex:0 0 auto}
+.admin-console .admin-sys-chart-legend{display:inline-flex;gap:7px;align-items:center;color:#68748a;font-size:10px;white-space:nowrap}
+.admin-console .admin-sys-chart-legend i{display:block;width:9px;height:9px;border-radius:50%;background:#be0a2e}
+.admin-console .admin-sys-chart{width:100%;height:auto;min-height:162px}
+.admin-console .admin-sys-chart-metric{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:3px 0 5px}
+.admin-console .admin-sys-chart-metric strong{font-size:22px;color:#201c26;font-variant-numeric:tabular-nums}
+.admin-console .admin-sys-chart-metric span{font-size:10px;color:#808aa0}
+.admin-console .admin-sys-chart-metric span:last-child{margin-left:auto}
+.admin-console .admin-sys-chart-empty{display:grid;justify-items:center;align-content:center;text-align:center;gap:11px;
+ background:#f9fafb;border:1px dashed #d5d9df;border-radius:10px;min-height:198px;padding:14px}
+.admin-console .admin-sys-chart-empty svg{width:34px;height:34px;color:#bd7c4f}
+.admin-console .admin-sys-chart-empty strong{font-size:13px;color:#2c2730}
+.admin-console .admin-sys-chart-empty p{margin:0;color:#768094;font-size:11px;max-width:280px}
+.admin-console .admin-sys-resources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;text-align:center}
+.admin-console .admin-sys-resource{display:grid;justify-items:center;gap:6px;font-size:11px;color:#34303a}
+.admin-console .admin-sys-resource small{color:#8a8b96;font-size:10px}
+.admin-console .admin-sys-ring{width:91px;height:91px;border-radius:50%;border:8px solid #e9ecec;display:grid;place-items:center;background:#fff}
+.admin-console .admin-sys-ring-cpu{border-top-color:#c5ddd1}
+.admin-console .admin-sys-ring-ram{border-top-color:#e1c8a0}
+.admin-console .admin-sys-ring-disk{border-top-color:#e5c5ce}
+.admin-console .admin-sys-ring span{font-size:23px;font-weight:780;color:#818391}
+.admin-console .admin-sys-db-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.admin-console .admin-sys-db-stat-grid>div{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:4px 9px}
+.admin-console .admin-sys-db-stat-grid svg{grid-row:span 2;align-self:center;width:28px;height:28px;color:#c49b69}
+.admin-console .admin-sys-db-stat-grid strong{font-variant-numeric:tabular-nums;font-size:19px;color:#201c22}
+.admin-console .admin-sys-db-stat-grid small{font-size:10px;color:#7c8596}
+.admin-console .admin-sys-events{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.admin-console .admin-sys-check-event{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid #eff0f1;min-width:0}
+.admin-console .admin-sys-event-icon{flex:0 0 24px;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;color:#169252;background:#e4f5e9}
+.admin-console .admin-sys-event-warn{color:#ac6920;background:#fff1da}
+.admin-console .admin-sys-event-icon svg{width:16px;height:16px}
+.admin-console .admin-sys-check-event>span:nth-child(2){min-width:0;display:grid;gap:3px;flex:1}
+.admin-console .admin-sys-check-event strong{font-size:10px;color:#26222b}
+.admin-console .admin-sys-check-event small{font-size:10px;color:#89909c}
+.admin-console .admin-sys-check-event time{font-size:9px;color:#9299a6;white-space:nowrap}
+.admin-console .admin-sys-no-events{font-size:12px;color:#808797;line-height:1.6;background:#f9fafb;padding:17px;border-radius:9px}
+.admin-console .admin-sys-disclaimer{font-size:11px;margin:8px 0 16px;color:#808596;line-height:1.5}
+@media(max-width:1400px){
+ .admin-console .admin-sys-bottom-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .admin-console .admin-sys-bottom-row>.admin-system-panel:last-child{grid-column:1/-1}
+}
+@media(max-width:1090px){
+ .admin-console .admin-sys-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .admin-console .admin-sys-content-row{grid-template-columns:1fr}
+ .admin-console .admin-sys-hero{padding:24px}
+}
+@media(max-width:700px){
+ .admin-console .admin-sys-hero{height:auto;min-height:235px;flex-direction:column;align-items:flex-start;gap:12px;background-position:60% center}
+ .admin-console .admin-sys-hero-tools{min-width:0;align-self:stretch;align-items:flex-start}
+ .admin-console .admin-sys-bottom-row{grid-template-columns:1fr}
+ .admin-console .admin-sys-bottom-row>.admin-system-panel:last-child{grid-column:auto}
+ .admin-console .admin-sys-checked{white-space:normal}
+}
+@media(max-width:460px){
+ .admin-console .admin-sys-kpis{grid-template-columns:1fr}
+ .admin-console .admin-sys-resources{gap:5px}
+ .admin-console .admin-sys-ring{width:70px;height:70px;border-width:6px}
+ .admin-console .admin-sys-service{flex-wrap:wrap}
+ .admin-console .admin-sys-service .admin-health-state{margin-left:49px}
+ .admin-console .admin-sys-chart-legend{display:none}
+}
