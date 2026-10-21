@@ -123,7 +123,6 @@ function pageDataMarkup({ races, entries, users, camelNames }) {
   const pending = entries.filter(entry => String(entry.entryStatus).toUpperCase() === "PENDING");
   const count = status => races.filter(race => String(race.status).toUpperCase() === status).length;
   const controls = [
-    ["create", "plus", "Create new races", "Add and configure races with date, location and details."],
     ["organizerId", "users", "Assign organizer", "Select the organizer responsible for each race."],
     ["requests", "shield", "Approve or reject entry requests", "Review camel registration requests submitted by owners."],
     ["status", "flag", "Manage race status", "Use the race states: SCHEDULED, OPEN, CLOSED, COMPLETED or CANCELLED."],
@@ -451,8 +450,7 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
     }));
     page.querySelectorAll("[data-admin-race-control]").forEach(button => button.addEventListener("click", () => {
       const action = button.dataset.adminRaceControl;
-      if (action === "create") openEdit(null);
-      else if (action === "requests") showRequests();
+      if (action === "requests") showRequests();
       else chooseRace(action);
     }));
     rerenderRaceRows();
