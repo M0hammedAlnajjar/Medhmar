@@ -83,7 +83,7 @@ test('approved hero renders photograph, working gallery controls, results tab an
  assert.match(html,/data-preview-fullscreen/);
  assert.match(html,/data-preview-tab="results"/);
  assert.match(html,/data-results="Al Barq: 3 votes \(75%\) · Shaheen: 1 votes \(25%\)"/);
- assert.match(html,/class="broadcast-facts"/);
+ assert.doesNotMatch(html,/class="broadcast-facts"|Opens \(UTC\)|Closes \(UTC\)|<small>Broadcast<\/small>/);
  assert.match(html,/CLOSED · RESULTS|VOTING OPEN|VOTING SCHEDULED/);
  assert.match(html,/Illustrative racetrack photograph\. No live stream is connected/);
  assert.doesNotMatch(html,/2,300 viewers|Live broadcast connected|1234 votes/);
@@ -142,4 +142,15 @@ test('gallery and result tab update visual state without writing votes',()=>{
  tabs[2].cb();
  assert.equal(text,'Al Barq 3 votes');
  assert.ok(changes.some(([k,v])=>k==='aria-labelledby'&&v==='challenge-results'));
+});
+
+test('challenge overview no longer renders the redundant four-column facts bar',()=>{
+ const html=broadcastPreview(challenge,{signedIn:true});
+ assert.doesNotMatch(html,/broadcast-facts|<small>Challenge ID<\/small>|<small>Opens \(UTC\)<\/small>|<small>Closes \(UTC\)<\/small>|<small>Broadcast<\/small>/);
+ assert.match(html,/CHALLENGE #42/);
+ assert.match(html,/Voting opens/);
+ assert.match(html,/data-preview-tab="overview"/);
+ assert.match(html,/data-preview-tab="participants"/);
+ assert.match(html,/data-preview-tab="results"/);
+ assert.match(html,/No live stream is connected/);
 });
