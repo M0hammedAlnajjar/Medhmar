@@ -80,6 +80,7 @@ export async function checkAdminRaces(browser, origin) {
     assert.deepEqual([...userPages], [0, 1]);
     assert.match(await page.locator("[data-race-rows]").innerText(), /Sulaiman Organizer/);
     assert.match(await page.locator("[data-entry-rows]").innerText(), /No pending registration requests/);
+    assert.equal(await page.locator("[data-entry-rows] .admin-race-empty-state svg").count(), 0, "pending registration empty state has no camel icon");
     assert.equal(writes.length, 0);
     assert.equal(await page.locator(".admin-race-thumbnail img").count(), 3);
     await page.waitForFunction(() => [...document.querySelectorAll(".admin-race-thumbnail img")].every(img => img.complete && img.naturalWidth > 0));
@@ -111,6 +112,7 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator("[data-race-rows] tr").count(), 1);
     await page.locator("[data-race-status-filter]").selectOption("CLOSED");
     assert.match(await page.locator("[data-race-rows]").innerText(), /No races found/);
+    assert.equal(await page.locator("[data-race-rows] .admin-race-empty-state svg").count(), 0, "race list empty state has no camel icon");
     assert.equal(await page.locator("[data-race-rows] .admin-race-empty-state").evaluate(el => getComputedStyle(el).backgroundImage), "none", "race list empty state has no desert artwork");
     await page.locator("[data-race-search]").fill("");
     await page.locator("[data-race-status-filter]").selectOption("");
