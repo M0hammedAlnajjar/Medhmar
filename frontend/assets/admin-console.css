@@ -1053,14 +1053,7 @@
 }
 
 
-/* Reference header details, isolated to the Challenges workspace. */
-@media(min-width:871px){
- .admin-console:has(.mhch-page){grid-template-columns:206px minmax(0,1fr)}
- .admin-console:has(.mhch-page) .admin-sidebar{padding-left:10px;padding-right:10px}
- .admin-console:has(.mhch-page) .admin-sidebar-nav a{min-height:52px;padding:0 12px;gap:10px;font-size:13px}
- .admin-console:has(.mhch-page) .admin-nav-icon,
- .admin-console:has(.mhch-page) .admin-nav-icon svg{width:25px;height:25px}
-}
+/* Challenge-specific header details; the shared sidebar keeps identical dimensions. */
 .admin-console .mhch-breadcrumb-home{display:flex;align-items:center;color:#7c7c7c}
 .admin-console .mhch-topbar-location{margin-left:auto;display:flex;align-items:center;gap:8px;color:#353237;white-space:nowrap;font-size:13px;font-weight:500}
 .admin-console:has(.mhch-page) .admin-user-chip{border-left:1px solid #e9e4e1;padding-left:20px}
@@ -1072,17 +1065,18 @@
  .admin-console .mhch-breadcrumb-home{display:none}
 }
 
-/* October 21 reference: focused admin dashboard layout and responsive shortcuts */
+/* Unified desktop administration shell: reserved document gutter prevents horizontal shifts. */
+html:has(.admin-console){scrollbar-gutter:stable}
 .admin-console{grid-template-columns:224px minmax(0,1fr)}
-.admin-console .admin-sidebar{overflow-y:auto;padding:20px 13px}
-.admin-console .admin-sidebar-brand{min-height:138px;padding:3px 5px 20px}
+.admin-console .admin-sidebar{height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:20px 13px}
+.admin-console .admin-sidebar-brand{min-height:138px;flex-shrink:0;padding:3px 5px 20px}
 .admin-console .admin-sidebar-brand img{width:188px;max-width:100%;height:auto}
-.admin-console .admin-sidebar-nav{display:grid;align-content:start;gap:25px}
+.admin-console .admin-sidebar-nav{display:grid;align-content:start;gap:25px;flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;overscroll-behavior:contain}
 .admin-console .admin-sidebar-group{display:grid;gap:5px;min-width:0}
 .admin-console .admin-sidebar-label{margin:0 12px 5px;color:#c4b1a3;letter-spacing:.07em;font-size:11px;font-weight:750}
 .admin-console .admin-sidebar-nav a{min-height:49px;padding:0 16px;gap:14px;font-size:14px;line-height:1.3}
 .admin-console .admin-sidebar-nav .admin-nav-icon,.admin-console .admin-sidebar-nav .admin-nav-icon svg{width:23px;height:23px}
-.admin-console .admin-sidebar-bottom{margin:20px 8px 0;margin-top:auto;gap:2px;padding:15px 0 0}
+.admin-console .admin-sidebar-bottom{margin:14px 8px 0;flex-shrink:0;gap:2px;padding:15px 0 0}
 .admin-console .admin-sidebar-bottom button{display:flex;align-items:center;gap:13px;min-height:43px;padding:7px 9px;color:#fff;border-radius:7px;font-size:13px;font-weight:500;background:transparent;text-decoration:none}
 .admin-console .admin-sidebar-bottom button:hover{background:#ffffff14;color:#fff}
 .admin-console .admin-sidebar-bottom button svg{height:23px;width:23px}
