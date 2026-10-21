@@ -94,17 +94,23 @@ export async function checkAdminRaces(browser, origin) {
     assert.ok(actionPlacement.buttonCenter > actionPlacement.toolbarCenter, "desktop button is on right");
     assert.equal(await page.locator(".admin-race-photo-credit").count(), 0, "banner should not show a photo source badge");
     const bannerBackground = await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage);
-    assert.ok(bannerBackground.includes("/assets/admin-races/race-track-hero.svg"), "banner uses the local vector camel racing illustration");
-    assert.ok(!bannerBackground.includes("omannews.gov.om") && !bannerBackground.includes("hero.webp"), "no old photographic background or fallback");
-    const bannerArtwork = await page.evaluate(async () => {
-      const response = await fetch("/assets/admin-races/race-track-hero.svg");
-      return {ok:response.ok, type:response.headers.get("content-type") || "", source:await response.text()};
+    assert.ok(bannerBackground.includes("/assets/admin-races/medhmar-race-banner.avif"), "banner uses the selected realistic camel racecourse image");
+    assert.ok(bannerBackground.includes("/assets/admin-races/race-track-hero.svg"), "vector fallback remains for unsupported browsers");
+    assert.ok(!bannerBackground.includes("omannews.gov.om") && !bannerBackground.includes("hero.webp"), "no old image or external source");
+    const photo = await page.evaluate(async () => {
+      const response = await fetch("/assets/admin-races/medhmar-race-banner.avif");
+      const bytes = await response.arrayBuffer();
+      const img = new Image();
+      img.src = "/assets/admin-races/medhmar-race-banner.avif";
+      try {
+        await img.decode();
+        return {ok: response.ok, size:bytes.byteLength, width:img.naturalWidth, height:img.naturalHeight};
+      } catch {
+        return {ok: response.ok, size:bytes.byteLength, width:0, height:0};
+      }
     });
-    assert.ok(bannerArtwork.ok, "original banner SVG loads from frontend assets");
-    assert.ok(bannerArtwork.type.toLowerCase().includes("image/svg+xml"), "racing banner served as genuine SVG");
-    assert.match(bannerArtwork.source, /<svg[^>]+viewBox="0 0 1600 260"/, "racing banner is vector art");
-    assert.match(bannerArtwork.source, /racecourse|racetrack|racing-camel/i, "banner depicts a camel racing track");
-    assert.equal((bannerArtwork.source.match(/class="racing-camel"/g)||[]).length,3, "three racing camels are illustrated");
+    assert.ok(photo.ok && photo.size > 5000, "optimized AVIF image loads from the project");
+    assert.deepEqual([photo.width,photo.height],[1600,533], "racecourse image fully decodes at expected dimensions");
     assert.equal(await page.locator(".admin-race-hero").innerText().then(text => text.includes("GREATER HERITAGE")), false, "hero contains no old decorative tagline");
     assert.equal(await page.locator(".admin-race-list-panel .admin-race-heading-icon").count(), 0, "Race List heading should have no camel badge");
     assert.equal(await page.locator(".admin-race-requests-panel .admin-race-heading-icon").count(), 1, "Requests heading keeps its icon");
@@ -148,7 +154,7 @@ export async function checkAdminRaces(browser, origin) {
     });
     assert.ok(Math.abs(mobileActionLayout.toolbarWidth - mobileActionLayout.buttonWidth) < 2, "mobile action occupies full toolbar width");
     assert.ok(mobileActionLayout.buttonTop >= mobileActionLayout.heroBottom, "mobile action stays below the racing banner");
-    assert.ok(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("race-track-hero.svg")), "mobile uses the same SVG race-track artwork");
+    assert.ok(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("medhmar-race-banner.avif")), "mobile uses the same realistic image");
     await page.screenshot({ path: "test-results/admin-races-mobile.png", fullPage: true });
     await page.setViewportSize({ width: 1672, height: 941 });
     await page.locator("[data-race-search]").fill("championship");
