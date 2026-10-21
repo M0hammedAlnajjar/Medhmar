@@ -583,6 +583,27 @@ try {
   assert.equal(await page.locator('.admin-sys-kpi').count(),4);
   assert.match(await page.locator('.admin-sys-kpis').innerText(),/Connected|12|7/);
   assert.equal(await page.locator('#admin-health-check').isVisible(),true);
+  // Decorative system infrastructure illustration must load as an actual SVG;
+  // keep operational statuses and the refresh action in live HTML.
+  const healthHero = await page.locator('.admin-sys-hero').evaluate(hero => ({
+    background: getComputedStyle(hero).backgroundImage,
+    title: hero.querySelector('#admin-sys-title')?.textContent,
+    refresh: !!hero.querySelector('#admin-health-check'),
+    toolsVisible: hero.querySelector('.admin-sys-hero-tools')?.getBoundingClientRect().width > 0
+  }));
+  assert.match(healthHero.background, /admin-system-health-hero\\.svg/, 'system hero uses the illustrated SVG');
+  assert.doesNotMatch(healthHero.background, /admin-dashboard-race\\.webp/, 'system hero must not show the racing photo');
+  assert.equal(healthHero.title,'System Health');
+  assert.ok(healthHero.refresh && healthHero.toolsVisible,'health controls stay in the accessible HTML overlay');
+  const svgAsset = await page.evaluate(async () => {
+    const response = await fetch('/assets/admin-system-health-hero.svg');
+    const body = await response.text();
+    return {ok:response.ok, contentType:response.headers.get('content-type')||'', body};
+  });
+  assert.equal(svgAsset.ok,true,'system hero SVG asset loads');
+  assert.match(svgAsset.contentType,/image\\/svg\\+xml/i,'SVG is served as an SVG image');
+  assert.match(svgAsset.body,/<svg[^>]+viewBox="0 0 1600 240"/,'SVG artwork contains scalable vector markup');
+  assert.match(svgAsset.body,/Decorative illustration, not live system status/,'SVG does not pretend to show a live health reading');
   await page.screenshot({path:'test-results/admin-system-health-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
