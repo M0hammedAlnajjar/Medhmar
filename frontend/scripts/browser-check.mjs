@@ -158,6 +158,8 @@ try {
   await page.locator('.broadcast-live-data').waitFor();
   await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
   assert.equal(recordedChallengeVotes,1,'recorded vote must persist after a reload');
+  // Clear the expected authenticated vote before testing read-only page controls.
+  mutations.length=0;
   await page.setViewportSize({width:1920,height:1080});
   const desktopReferenceGeometry=await page.evaluate(()=>{
     const grid=document.querySelector('.broadcast-grid').getBoundingClientRect();
