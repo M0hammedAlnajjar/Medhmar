@@ -88,6 +88,14 @@ try {
   assert.equal(await page.locator('.broadcast-published-card').count(),1);
   assert.equal(await page.locator('.broadcast-published-placeholder').count(),1);
   assert.match(await page.locator('.broadcast-published-placeholder').innerText(),/Only real challenge results/);
+  assert.equal(await page.locator('.broadcast-placeholder-landscape').count(),1,'placeholder uses inline mountain SVG');
+  assert.equal(await page.locator('.broadcast-placeholder-flag').count(),1,'reference flag icon renders');
+  const landscapeVisual=await page.locator('.broadcast-published-placeholder').evaluate(el=>({
+    artwork:el.querySelector('.broadcast-placeholder-landscape')?.getBoundingClientRect().width,
+    background:getComputedStyle(el).backgroundImage
+  }));
+  assert.ok(landscapeVisual.artwork>100,'inline illustration must have nonzero dimensions');
+  assert.ok(!landscapeVisual.background.includes('url('),'placeholder must not download a photo');
   assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
   const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
