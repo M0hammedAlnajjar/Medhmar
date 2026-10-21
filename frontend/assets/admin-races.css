@@ -9,13 +9,13 @@
 .admin-race-hero, .admin-race-content { position: relative; z-index: 1; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
-.admin-race-hero { min-height: 216px; border-radius: 0 0 14px 14px; padding: 38px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background: linear-gradient(90deg, #fff8ec75, transparent 50%), url('/assets/admin-races/hero.webp') center 43% / cover no-repeat, #f3e4cf; }
-.admin-race-hero-copy { min-width: 0; }
+.admin-race-hero { min-height: 235px; border-radius: 0 0 14px 14px; padding: 35px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background-color: #f3e4cf; background-image: linear-gradient(90deg, #fffbf5fa 0%, #fffbf5f2 30%, #fffbf5c7 49%, #fffbf538 70%, #fffbf500 87%), url('https://omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg'), url('/assets/admin-races/hero.webp'); background-position: center, center 44%, center 43%; background-size: cover; background-repeat: no-repeat; }
+.admin-race-hero-copy { min-width: 0; max-width: min(55%, 650px); position: relative; z-index: 1; }
 .admin-race-hero-copy > span:first-child, .admin-race-modal-head > div > span { font-size: 12px; font-weight: 650; letter-spacing: .16em; color: #a45708; }
 .admin-console .admin-race-hero h1 { margin: 10px 0 3px; font: 700 clamp(35px, 3vw, 50px)/1.08 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; color: #28180d; }
 .admin-race-hero-copy p { margin: 0; color: #35261e; font-size: 16px; line-height: 1.3; }
-.admin-race-hero-action { flex: 0 0 auto; display: grid; justify-items: end; }
-.admin-race-hero-action p { margin: 14px 0 9px; color: #4d3320; font-size: 9px; line-height: 1.4; letter-spacing: .12em; text-align: right; font-weight: 600; }
+.admin-race-hero-action { position: relative; z-index: 1; flex: 0 0 auto; display: grid; justify-items: end; }
+.admin-race-photo-credit { position: absolute; z-index: 1; right: 16px; bottom: 9px; padding: 4px 7px; background: #241c15b3; color: #fff; text-decoration: none; border-radius: 5px; font: 10px/1.2 'Segoe UI', sans-serif; } .admin-race-photo-credit:hover { text-decoration: underline; }
 .admin-race-flourish { display: block; width: 84px; height: 2px; background: #cd8a2c; position: relative; margin-top: 19px; }
 .admin-race-flourish::before, .admin-race-flourish::after { content: ''; position: absolute; width: 5px; height: 5px; top: -2px; transform: rotate(45deg); background: #d69a3e; }
 .admin-race-flourish::before { left: 0; border: 1px solid #b7771e; background: #fff4da; }
@@ -25,7 +25,7 @@
 .admin-race-primary, .admin-race-secondary, .admin-race-action, .admin-race-approve, .admin-race-reject { border-radius: 9px; font: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
 .admin-race-primary { border: 1px solid #c63b4c; background: linear-gradient(#b70725, #950017); color: #fff; padding: 11px 17px; box-shadow: 0 3px 7px #75152816; font-weight: 600; }
 .admin-race-primary:hover { background: #8b071c; }
-.admin-race-hero-action .admin-race-primary { min-height: 50px; padding: 9px 23px; font: 700 21px Georgia, serif; }
+.admin-race-hero-action .admin-race-primary { min-height: 45px; padding: 9px 20px; font: 650 16px/1.25 'Segoe UI', sans-serif; }
 .admin-race-hero-action .admin-race-primary > span:first-child { font: 24px/1 Arial, sans-serif; }
 .admin-race-primary svg, .admin-race-action svg { width: 16px; height: 16px; }
 .admin-race-secondary { background: #fffdfa; color: #4f3d32; padding: 10px 15px; border: 1px solid #d9cabc; }
@@ -187,10 +187,10 @@
   .admin-console[data-admin-layout="races"] .admin-topbar-breadcrumb, .admin-console[data-admin-layout="races"] .admin-topbar-section, .admin-console[data-admin-layout="races"] .admin-breadcrumb-separator, .admin-console[data-admin-layout="races"] .admin-topbar-pill { display: none; }
   .admin-console[data-admin-layout="races"] .admin-mobile-nav nav { max-height: 75vh; overflow: auto; }
   .admin-race-content { padding: 14px; }
-  .admin-race-hero { min-height: 230px; background-position: 58% 43%; }
+  .admin-race-hero { min-height: 230px; background-position: center, 60% 44%, 60% 43%; }
 }
 @media (max-width: 650px) {
-  .admin-race-hero { display: block; min-height: 290px; padding: 24px 20px; background-image: linear-gradient(90deg, #fff7e9f2, #fff7e9a0 62%, #fff7e938), url('/assets/admin-races/hero.webp'); background-position: 60% 38%; }
+  .admin-race-hero { display: block; min-height: 290px; padding: 24px 20px; background-image: linear-gradient(90deg, #fffbf5fa 0%, #fffbf5ea 55%, #fffbf596 100%), url('https://omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg'), url('/assets/admin-races/hero.webp'); background-position: center, 64% 40%, 64% 40%; }
   .admin-console .admin-race-hero h1 { font-size: 35px; }
   .admin-race-hero-copy p { max-width: 340px; }
   .admin-race-hero-action { display: block; margin-top: 20px; }
@@ -215,3 +215,5 @@
   .admin-race-form .span-2 { grid-column: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .admin-races-page * { scroll-behavior: auto; } }
+
+@media (max-width: 650px) { .admin-race-hero-copy { max-width: 100%; } .admin-race-photo-credit { right: 10px; bottom: 8px; font-size: 9px; } }
