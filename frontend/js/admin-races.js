@@ -132,7 +132,6 @@ function pageDataMarkup({ races, entries, users, camelNames }) {
   return `
     <section class="admin-race-hero" aria-labelledby="admin-race-title">
       <div class="admin-race-hero-copy"><span>RACE MANAGEMENT</span><h1 id="admin-race-title">Race Management</h1><p>Create new races and review camel registration requests<br class="admin-race-desktop-break"> for all races on the Medhmar platform.</p></div>
-      <img class="admin-race-hero-art" src="/assets/admin-races/race-operations-hero.svg" width="900" height="240" alt="" aria-hidden="true">
     </section>
     <div class="admin-race-content">
       <div class="admin-race-create-toolbar">
