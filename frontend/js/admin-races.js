@@ -133,9 +133,11 @@ function pageDataMarkup({ races, entries, users, camelNames }) {
   return `
     <section class="admin-race-hero" aria-labelledby="admin-race-title">
       <div class="admin-race-hero-copy"><span>RACE MANAGEMENT</span><h1 id="admin-race-title">Race Management</h1><p>Create new races and review camel registration requests<br class="admin-race-desktop-break"> for all races on the Medhmar platform.</p></div>
-      <div class="admin-race-hero-action"><button type="button" class="admin-race-primary" data-admin-race-create><span aria-hidden="true">＋</span><span>Add New Race</span></button></div>
     </section>
     <div class="admin-race-content">
+      <div class="admin-race-create-toolbar">
+        <button type="button" class="admin-race-primary" data-admin-race-create><span aria-hidden="true">＋</span><span>Add New Race</span></button>
+      </div>
       <section class="admin-race-metrics" aria-label="Race summary">
         <article class="admin-race-metric-total"><span class="admin-race-metric-icon red">${icon("trophy")}</span><div><span>Total Races</span><div class="admin-race-count"><strong>${races.length}</strong>${count("OPEN") ? `<span class="admin-race-open-note" title="Races currently open for registration">↗ ${count("OPEN")} open</span>` : ""}</div><small>All races in the system</small></div></article>
         <article class="admin-race-metric-open"><span class="admin-race-metric-icon gold">${icon("flag")}</span><div><span>Open Races</span><strong>${count("OPEN")}</strong><small>Currently open for registration</small></div></article>
