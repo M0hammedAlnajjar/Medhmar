@@ -132,8 +132,9 @@ function pageDataMarkup({ races, entries, users, camelNames }) {
   const sortHeader = (key, label) => `<th scope="col" aria-sort="none"><button type="button" data-race-sort="${key}">${label}${icon("sort")}</button></th>`;
   return `
     <section class="admin-race-hero" aria-labelledby="admin-race-title">
-      <div class="admin-race-hero-copy"><span>RACE MANAGEMENT</span><h1 id="admin-race-title">Race Management</h1><p>Create new races and review camel registration requests<br class="admin-race-desktop-break"> for all races on the Medhmar platform.</p><span class="admin-race-flourish" aria-hidden="true"></span></div>
-      <div class="admin-race-hero-action"><button type="button" class="admin-race-primary" data-admin-race-create><span aria-hidden="true">＋</span><span>Add New Race</span></button><p>MORE RACES<br>GREATER HERITAGE</p><span class="admin-race-flourish" aria-hidden="true"></span></div>
+      <div class="admin-race-hero-copy"><span>RACE MANAGEMENT</span><h1 id="admin-race-title">Race Management</h1><p>Create new races and review camel registration requests<br class="admin-race-desktop-break"> for all races on the Medhmar platform.</p></div>
+      <div class="admin-race-hero-action"><button type="button" class="admin-race-primary" data-admin-race-create><span aria-hidden="true">＋</span><span>Add New Race</span></button></div>
+      <a class="admin-race-photo-credit" href="https://omannews.gov.om/topics/ar/119/show/463138" target="_blank" rel="noopener noreferrer" aria-label="Photo source: Oman News Agency">Photo: Oman News Agency</a>
     </section>
     <div class="admin-race-content">
       <section class="admin-race-metrics" aria-label="Race summary">
