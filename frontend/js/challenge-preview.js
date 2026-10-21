@@ -98,10 +98,6 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
       '</div><button type="button" id="refresh-challenges" class="broadcast-refresh">Refresh results</button></div>'+
     '<div id="broadcast-info" role="tabpanel" aria-labelledby="challenge-overview" tabindex="0" data-overview="'+escapeHtml(dates)+
       '" data-participants="'+escapeHtml(participants)+'" data-results="'+escapeHtml(results)+'"><p>'+escapeHtml(dates)+'</p></div>'+
-    '<div class="broadcast-facts"><div>'+ico('file',23)+'<span><small>Challenge ID</small><strong>#'+escapeHtml(id)+'</strong></span></div>'+
-      '<div>'+ico('calendar',23)+'<span><small>Opens (UTC)</small><strong>'+escapeHtml(utc(challenge.opensAt))+'</strong></span></div>'+
-      '<div>'+ico('calendar',23)+'<span><small>Closes (UTC)</small><strong>'+escapeHtml(utc(challenge.closesAt))+'</strong></span></div>'+
-      '<div>'+ico('radio',23)+'<span><small>Broadcast</small><strong>Not connected</strong></span></div></div>'+
   '</div><aside class="broadcast-voting">'+
     '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
     '<p>'+escapeHtml(votingNote)+'</p>'+candidateCards+

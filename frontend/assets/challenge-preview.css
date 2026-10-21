@@ -35,13 +35,6 @@
 .broadcast-refresh:hover{background:#fff8ed}
 .broadcast-left #broadcast-info{padding:4px 0 0;margin:0 0 19px;min-height:34px;color:#846d5e;font-size:12px;line-height:1.65}
 .broadcast-left #broadcast-info p{margin:0}
-.broadcast-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:center;padding:16px 0;background:#fff;border:1px solid var(--bc-edge);border-radius:10px;margin:0;min-height:73px;box-shadow:0 4px 14px rgba(66,37,22,.03)}
-.broadcast-facts>div{display:flex;align-items:center;gap:10px;min-width:0;border-right:1px solid #eddfd2;padding:0 15px}
-.broadcast-facts>div:last-child{border-right:0}
-.broadcast-facts svg{flex-shrink:0;color:#ae6c32}
-.broadcast-facts span{min-width:0}
-.broadcast-facts small{display:block;font-size:10px;color:#89786a;margin:0 0 3px}
-.broadcast-facts strong{display:block;color:#1e1a17;font-size:11px;font-weight:850;overflow-wrap:anywhere}
 .broadcast-voting{border:1px solid var(--bc-edge);background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(40,25,17,.08);padding:23px 23px 20px;min-width:0}
 .broadcast-voting-title{display:flex;align-items:center;gap:10px}
 .broadcast-voting-title .broadcast-trophy{display:grid;place-items:center;width:28px;height:28px;flex-shrink:0;border-radius:50%;background:#b78b49;color:#fff}
@@ -106,7 +99,6 @@
  .broadcast-heading{padding:20px 17px}
  .broadcast-meta{gap:6px 8px}
  .broadcast-voting{padding:19px 16px}
- .broadcast-facts>div{padding:0 9px;gap:6px}
  .broadcast-upcoming{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:970px){
@@ -132,9 +124,6 @@
  .broadcast-toolbar [data-preview-image]{height:29px;width:29px}
  .broadcast-bottom-tools{gap:8px}
  .broadcast-tabs button{padding:8px 10px;font-size:11px;min-height:39px}
- .broadcast-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 0;padding:14px 5px}
- .broadcast-facts>div{border:0}
- .broadcast-facts>div:nth-child(odd){border-right:1px solid #eee4db}
  .broadcast-upcoming{grid-template-columns:minmax(0,1fr)}
  .broadcast-published-heading h2{font-size:25px}
  .broadcast-published-heading p{font-size:12px}
@@ -209,12 +198,6 @@
 .app-shell:has(.broadcast-preview) .broadcast-count{font-size:12px}
 .app-shell:has(.broadcast-preview) .broadcast-candidate button,
 .app-shell:has(.broadcast-preview) .broadcast-candidate .broadcast-vote-link{min-height:46px;font-size:13px}
-.app-shell:has(.broadcast-preview) .broadcast-facts{
- min-height:82px;
- padding-block:18px;
-}
-.app-shell:has(.broadcast-preview) .broadcast-facts small{font-size:11px}
-.app-shell:has(.broadcast-preview) .broadcast-facts strong{font-size:12px}
 .app-shell:has(.broadcast-preview) .broadcast-published{margin-top:28px}
 .app-shell:has(.broadcast-preview) .broadcast-published-heading{margin-bottom:18px}
 .app-shell:has(.broadcast-preview) .broadcast-published-heading h2{font-size:clamp(27px,2vw,34px)}
@@ -285,8 +268,6 @@
  .app-shell:has(.broadcast-preview) .broadcast-meta{font-size:10px}
  .app-shell:has(.broadcast-preview) .broadcast-label{top:184px;font-size:10px}
  .app-shell:has(.broadcast-preview) .broadcast-tabs button{font-size:11px;min-height:39px}
- .app-shell:has(.broadcast-preview) .broadcast-facts small{font-size:10px}
- .app-shell:has(.broadcast-preview) .broadcast-facts strong{font-size:11px}
  .app-shell:has(.broadcast-preview) .broadcast-candidate{grid-template-columns:85px minmax(0,1fr);gap:10px}
  .app-shell:has(.broadcast-preview) .broadcast-camel-photo{height:120px}
  .app-shell:has(.broadcast-preview) .broadcast-voting{padding:17px}
