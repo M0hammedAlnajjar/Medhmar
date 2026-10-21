@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { matchRoute, canAccessRoute } from "../js/routes.js";
-import { adminShell } from "../js/admin-console.js";
+import { adminShell, mountAdminScreen } from "../js/admin-console.js";
 
 const user = role => ({ userId: 1, fullName: "Test User", roles: [role] });
 
@@ -52,4 +52,18 @@ test("admin sidebar stays identical when navigating from Dashboard to Races", ()
   assert.match(dashboard, /<header class="admin-topbar">/);
   assert.doesNotMatch(races, /Back to Website/);
   assert.equal((races.match(/href="\/admin\/settings"/g) || []).length, 2);
+});
+
+test("admin shell mounting preserves the sidebar menu's scroll offset", () => {
+  const root = {
+    currentNav: {scrollTop: 164},
+    get innerHTML() { return this.html; },
+    set innerHTML(html) { this.html = html; this.currentNav = {scrollTop: 0}; },
+    querySelector(selector) { return selector === '.admin-sidebar-nav' ? this.currentNav : null; }
+  };
+  mountAdminScreen(root, adminShell({user: user("ADMIN"), active: "/admin/races", body: "Races"}));
+  assert.equal(root.currentNav.scrollTop, 164);
+  mountAdminScreen(root, adminShell({user: user("ADMIN"), active: "/admin/challenges", body: "Challenges"}));
+  assert.equal(root.currentNav.scrollTop, 164);
+  assert.match(root.innerHTML, /href="\/admin\/challenges" data-link class="active"/);
 });
