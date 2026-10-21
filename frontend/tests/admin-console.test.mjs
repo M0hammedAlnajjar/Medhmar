@@ -269,8 +269,8 @@ test('admin chart tabs bind inside the existing SPA',async()=>{
 
 test('dashboard reference groups admin navigation and links to operational pages',()=>{
  const shell=adminShell({user:{fullName:'Admin'},active:'/admin',body:'Dashboard'});
- for(const heading of ['OVERVIEW','MANAGEMENT','SYSTEM','Back to Website'])assert.match(shell,new RegExp(heading));
- assert.match(shell,/href="\/home\?view=website" data-link class="admin-back-website"/);
+ for(const heading of ['OVERVIEW','MANAGEMENT','SYSTEM'])assert.match(shell,new RegExp(heading));
+ assert.doesNotMatch(shell,/admin-back-website|Back to Website|view=website/);
  const html=adminDashboard({summary:null});
  for(const path of ['/admin/users','/admin/marketplace','/admin/system-health','/admin/audit-logs'])
   assert.ok(html.includes('href="'+path+'" data-link'),path);
