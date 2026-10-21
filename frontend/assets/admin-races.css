@@ -18,17 +18,17 @@
 .admin-console[data-admin-layout="races"] .admin-sidebar-brand { min-height: 140px; padding: 12px 8px 32px; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-brand img { width: 158px; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-nav { gap: 27px; }
-.admin-console[data-admin-layout="races"] .admin-sidebar-group { gap: 4px; }
+.admin-console[data-admin-layout="races"] .admin-sidebar-group { gap: 1px; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-label { margin: 0 14px 3px; font-size: 10px; font-weight: 500; }
-.admin-console[data-admin-layout="races"] .admin-sidebar-nav a { min-height: 44px; padding: 9px 17px; gap: 17px; font-size: 13px; font-weight: 500; }
+.admin-console[data-admin-layout="races"] .admin-sidebar-nav a { min-height: 44px; padding: 8px 17px; gap: 17px; font-size: 13px; font-weight: 500; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-nav a.active { background: linear-gradient(115deg, #70141d, #8e1020); border: 1px solid #a72c35; box-shadow: inset 0 1px #ffffff12; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-nav a.active::after { content: '›'; margin-left: auto; font-size: 22px; }
 .admin-console[data-admin-layout="races"] .admin-nav-icon svg { width: 21px; height: 21px; }
-.admin-console[data-admin-layout="races"] .admin-sidebar-bottom { margin: 18px 14px 0; padding: 8px 0 0; gap: 4px; }
+.admin-console[data-admin-layout="races"] .admin-sidebar-bottom { margin: 7px 14px 0; padding: 8px 0 0; gap: 0; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-bottom a,
 .admin-console[data-admin-layout="races"] .admin-sidebar-bottom button { min-height: 44px; display: flex; align-items: center; gap: 17px; color: #fff8ef; text-decoration: none; padding: 9px 4px; font-size: 13px; font-weight: 500; }
-.admin-console[data-admin-layout="races"] .admin-sidebar-bottom .admin-race-back-link { border-top: 1px solid #75563e; padding-top: 18px; margin-top: 12px; }
-.admin-races-page { min-height: 100vh; background: url('/assets/admin-races/mountains.svg') bottom right / 370px auto no-repeat; }
+.admin-console[data-admin-layout="races"] .admin-sidebar-bottom .admin-race-back-link { border-top: 1px solid #75563e; padding-top: 18px; margin-top: 7px; }
+.admin-races-page { min-height: 100vh; background: url('/assets/admin-races/mountains.svg') bottom right / 370px 120px no-repeat; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
 .admin-race-hero { min-height: 216px; border-radius: 0 0 14px 14px; padding: 38px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background: linear-gradient(90deg, #fff8ec75, transparent 50%), url('/assets/admin-races/hero.webp') center 43% / cover no-repeat, #f3e4cf; }
@@ -60,7 +60,7 @@
 .admin-race-metrics article.admin-race-metric-completed { background-image: linear-gradient(90deg, #ffffff, #ffffffc0 60%, #ffffff18), url('/assets/admin-races/pavilion.svg'); }
 .admin-race-metrics article > div { min-width: 0; padding-top: 2px; }
 .admin-race-metrics article > div > span { display: block; font: 700 14px/1.35 Georgia, serif; color: #2b3550; }
-.admin-race-metrics strong { display: block; font: 700 44px/1 Georgia, serif; color: #800d21; }
+.admin-race-metrics strong { display: block; font: 700 42px/1 Georgia, serif; color: #800d21; }
 .admin-race-metric-open strong { color: #985b0a; }
 .admin-race-metric-completed strong { color: #0d5137; }
 .admin-race-metrics small { display: block; margin-top: 3px; font-size: 11px; color: #4f5c76; line-height: 1.35; }
@@ -150,7 +150,7 @@
 .admin-race-requests-panel .admin-race-table { min-width: 760px; }
 .admin-race-requests-panel .admin-race-table th { font-size: 9px; padding-top: 9px; padding-bottom: 9px; }
 .admin-race-empty { text-align: center !important; padding: 9px 15px 7px !important; height: auto !important; }
-.admin-race-empty-state { min-height: 73px; display: grid; justify-items: center; align-content: end; padding: 0 10px 3px; background: url('/assets/admin-races/empty-desert.svg') center bottom / 680px 75px no-repeat; }
+.admin-race-empty-state { min-height: 73px; display: grid; justify-items: center; align-content: end; padding: 0 10px 3px; background: linear-gradient(90deg, #fffdfa, #fffdfa00 28%, #fffdfa00 72%, #fffdfa), url('/assets/admin-races/empty-desert.svg') center bottom / 680px 75px no-repeat; }
 .admin-race-empty-state > svg { width: 42px; height: 35px; color: #bd905e; }
 .admin-race-table .admin-race-empty-state strong { font: 600 13px/1.4 'Segoe UI', Arial, sans-serif; }
 .admin-race-empty-state small { font-size: 10px !important; margin-top: 0 !important; }

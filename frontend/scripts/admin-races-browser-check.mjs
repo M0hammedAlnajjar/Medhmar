@@ -70,6 +70,9 @@ export async function checkAdminRaces(browser, origin) {
     assert.ok(placement.controls.x > placement.list.x);
     assert.equal(placement.list.y, placement.controls.y);
     await page.screenshot({ path: "test-results/admin-races-desktop.png", fullPage: true });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: "test-results/admin-races-mobile.png", fullPage: true });
+    await page.setViewportSize({ width: 1672, height: 941 });
     await page.locator("[data-race-search]").fill("championship");
     assert.equal(await page.locator("[data-race-rows] tr").count(), 1);
     await page.locator("[data-race-status-filter]").selectOption("CLOSED");
@@ -139,7 +142,6 @@ export async function checkAdminRaces(browser, origin) {
       await page.setViewportSize({ width, height: 900 });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Race page must not overflow at ${width}px`);
     }
-    await page.screenshot({ path: "test-results/admin-races-mobile.png", fullPage: true });
     await page.locator("[data-admin-race-create]").click();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.evaluate(() => { history.pushState({}, "", "/admin/users"); window.dispatchEvent(new PopStateEvent("popstate")); });

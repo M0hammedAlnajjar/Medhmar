@@ -26,7 +26,7 @@ const icon = name => ({
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
   shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 3v6c0 5-3 8-8 9-5-1-8-4-8-9V6l8-3Z"/><path d="m8 12 2.5 2.5L16 9"/></svg>',
   document:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v5h5M9 12h6m-6 4h6"/></svg>'
-})[name]?.replace("<svg ", '<svg aria-hidden="true" focusable="false" ') || "";
+})[name]?.replaceAll(' aria-hidden="true"', "").replace("<svg ", '<svg aria-hidden="true" focusable="false" ') || "";
 
 const fmtDateTime = value => {
   if (!value) return "—";
