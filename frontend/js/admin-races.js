@@ -59,6 +59,19 @@ const imageUrl = value => {
   const url = apiAssetUrl(value);
   return /^https?:\/\//i.test(url) ? url : "";
 };
+const fallbackRaceCovers = [
+  "/assets/mock-camels/camel-7.jpg",
+  "/assets/mock-camels/camel-4.jpg",
+  "/assets/mock-camels/camel-6.jpg",
+  "/assets/mock-camels/camel-5.jpg",
+  "/assets/mock-camels/camel-3.jpg",
+  "/assets/mock-camels/camel-8.jpg"
+];
+const fallbackRaceCover = race => {
+  const numericId = Number(race?.raceId);
+  const index = Number.isFinite(numericId) ? Math.abs(Math.trunc(numericId) - 1) % fallbackRaceCovers.length : 0;
+  return fallbackRaceCovers[index];
+};
 const dateCell = value => {
   const date = new Date(value);
   if (!value || Number.isNaN(date.valueOf())) return "—";
@@ -68,9 +81,10 @@ const dateCell = value => {
 function raceRowsMarkup(races, userName) {
   if (!races.length) return `<tr><td colspan="6" class="admin-race-empty">${emptyState("No races found", "Add a new race or adjust your search and filters.")}</td></tr>`;
   return races.map(race => {
-    const cover = imageUrl(race.coverImageUrl);
+    const fallback = fallbackRaceCover(race);
+    const cover = imageUrl(race.coverImageUrl) || fallback;
     return `<tr>
-      <td><div class="admin-race-identity"><span class="admin-race-thumbnail">${camelMark}${cover ? `<img src="${esc(cover)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}</span><div><strong>${esc(race.name)}</strong><small>Race #${esc(race.raceId)}</small></div></div></td>
+      <td><div class="admin-race-identity"><span class="admin-race-thumbnail">${camelMark}<img src="${esc(cover)}" data-race-fallback-cover="${esc(fallback)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span><div><strong>${esc(race.name)}</strong><small>Race #${esc(race.raceId)}</small></div></div></td>
       <td>${dateCell(race.startsAt)}</td>
       <td><span class="admin-race-cell-icon">${icon("pin")}<span>${esc(race.location)}</span></span></td>
       <td><span class="admin-race-badge ${statusTone(race.status)}">${esc(race.status)}</span></td>
@@ -391,9 +405,13 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
       showRequests(button.dataset.adminRaceRequests);
     }));
     page.querySelectorAll(".admin-race-thumbnail img").forEach(img => {
-      const fallback = () => img.remove();
-      img.addEventListener("error", fallback, { once: true });
-      if (img.complete && !img.naturalWidth) fallback();
+      const fallback = img.dataset.raceFallbackCover;
+      const useFallback = () => {
+        if (!fallback || img.getAttribute("src") === fallback) return;
+        img.setAttribute("src", fallback);
+      };
+      img.addEventListener("error", useFallback);
+      if (img.complete && !img.naturalWidth) useFallback();
     });
   };
   const bindDecisionActions = () => {
