@@ -93,3 +93,16 @@ test('Backend API code icon has matching angle brackets and centered slash in bo
   assert.equal(html.split(segment).length-1,2,'the code glyph should be present in KPI and Service Status: '+segment);
  assert.doesNotMatch(html,/l5 5-5-5/,'old malformed right bracket must never return');
 });
+
+test('system health vector illustration keeps all three service symbols clear and in its safe area',async()=>{
+ const svg=await readFile(new URL('../assets/admin-system-health-hero.svg',import.meta.url),'utf8');
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ assert.match(svg,/viewBox="0 0 1600 240"/);
+ assert.match(svg,/Decorative illustration, not live system status/);
+ for(const landmark of ['translate(877 56)','translate(1068 56)','translate(1254 56)'])
+  assert.ok(svg.includes(landmark),'service icon should fit within the visible banner: '+landmark);
+ assert.equal((svg.match(/width="130" height="126"/g)||[]).length,2,'server and database icon card dimensions');
+ assert.match(svg,/stroke="#ffe0b0" stroke-width="3\.8"/,'prominent golden icon strokes');
+ assert.ok(css.includes("admin-system-health-hero.svg"),'banner references the SVG source');
+ assert.ok(css.includes("background:#241915ed"),'timestamp has a contrasting background');
+});
