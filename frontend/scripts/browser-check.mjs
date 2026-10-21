@@ -96,6 +96,29 @@ try {
   }));
   assert.ok(landscapeVisual.artwork>100,'inline illustration must have nonzero dimensions');
   assert.ok(!landscapeVisual.background.includes('url('),'placeholder must not download a photo');
+  // Regress the wide, shallow banner that previously cropped the SVG with `slice`.
+  for (const width of [1920,1440,970,660,390,320]) {
+    await page.setViewportSize({width,height:900});
+    const geometry=await page.locator('.broadcast-published-placeholder').evaluate(el=>{
+      const banner=el.getBoundingClientRect();
+      const svg=el.querySelector('.broadcast-placeholder-landscape');
+      const art=svg.getBBox(),matrix=svg.getScreenCTM();
+      const corners=[new DOMPoint(art.x,art.y),new DOMPoint(art.x+art.width,art.y+art.height)]
+        .map(point=>point.matrixTransform(matrix));
+      const copy=el.querySelector('.broadcast-placeholder-copy').getBoundingClientRect();
+      return {
+        artFits:corners.every(point=>point.x>=banner.left-1&&point.x<=banner.right+1
+          &&point.y>=banner.top-1&&point.y<=banner.bottom+1),
+        copyFits:copy.left>=banner.left&&copy.right<=banner.right+1
+          &&copy.top>=banner.top&&copy.bottom<=banner.bottom+1,
+        overflow:document.documentElement.scrollWidth>innerWidth+1
+      };
+    });
+    assert.ok(geometry.artFits,`mountains and palms must be fully visible at ${width}px`);
+    assert.ok(geometry.copyFits,`placeholder copy must stay inside the banner at ${width}px`);
+    assert.ok(!geometry.overflow,`challenge page must not scroll horizontally at ${width}px`);
+  }
+  await page.setViewportSize({width:1440,height:900});
   assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
   const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);

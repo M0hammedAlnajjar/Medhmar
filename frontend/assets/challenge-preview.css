@@ -469,8 +469,8 @@
  border-radius:17px;
  padding:9px 13px;
 }
-/* Exact-reference quiet placeholder: gold flag, gentle SVG mountains, soft palms.
-   Scenery is decorative only and never obscures the message or its real-data policy. */
+/* Reference landscape: soft mountain faces, date palms and a clear text area.
+   Contain the artwork at the right so neither peaks nor trunks are cropped. */
 .app-shell:has(.broadcast-preview) .broadcast-published-placeholder{
  position:relative;
  isolation:isolate;
@@ -479,23 +479,23 @@
  justify-content:center;
  min-width:0;
  min-height:156px;
- padding:16px 20px 16px 24px;
+ padding:20px;
  overflow:hidden;
- background:linear-gradient(110deg,#fffdfa 0%,#fffaf4 72%,#f9f3e9 100%);
+ background:linear-gradient(110deg,#fcfaf7 0%,#faf7f2 72%,#f8f4ed 100%);
  border:0;
- border-left:1px solid #e8dfd2;
  border-radius:0;
  box-shadow:none;
  color:#77563b;
 }
 .app-shell:has(.broadcast-preview) .broadcast-placeholder-landscape{
  position:absolute;
- inset:0;
- width:100%;
+ top:0;
+ right:0;
+ width:min(100%,760px);
  height:100%;
  z-index:0;
  pointer-events:none;
- opacity:.86;
+ opacity:1;
 }
 .app-shell:has(.broadcast-preview) .broadcast-placeholder-copy{
  position:relative;
@@ -504,7 +504,7 @@
  flex-direction:column;
  align-items:flex-start;
  gap:6px;
- max-width:min(335px,100%);
+ max-width:min(320px,100%);
 }
 .app-shell:has(.broadcast-preview) .broadcast-placeholder-flag{
  display:block;
@@ -515,17 +515,17 @@
  margin-bottom:0;
 }
 .app-shell:has(.broadcast-preview) .broadcast-published-placeholder strong{
- color:#57361f;
+ color:#4c2e1c;
  font-size:16px;
- font-weight:800;
+ font-weight:750;
  line-height:1.25;
 }
 .app-shell:has(.broadcast-preview) .broadcast-published-placeholder p{
  margin:0;
- max-width:320px;
+ max-width:300px;
  font-size:12px;
  line-height:1.55;
- color:#7d7470;
+ color:#70757c;
 }
 
 @media(max-width:1250px){
@@ -582,12 +582,6 @@
  .app-shell:has(.broadcast-preview) .broadcast-upcoming:has(> .broadcast-published-card + .broadcast-published-placeholder){
   grid-template-columns:minmax(0,1fr);
  }
- .app-shell:has(.broadcast-preview) .broadcast-published-placeholder{
-  border-left:0;
-  border-top:1px solid #e8dfd2;
-  padding:16px;
- }
- .app-shell:has(.broadcast-preview) .broadcast-placeholder-copy{max-width:min(370px,100%)}
 }
 @media(max-width:660px){
  .app-shell:has(.broadcast-preview) .main{
@@ -648,8 +642,6 @@
  .app-shell:has(.broadcast-preview) .broadcast-published-heading h2{
   font-size:25px;
  }
- .app-shell:has(.broadcast-preview) .broadcast-placeholder-landscape{opacity:.42}
- .app-shell:has(.broadcast-preview) .broadcast-placeholder-copy{max-width:100%}
  .app-shell:has(.broadcast-preview) .broadcast-card-bottom{
   flex-wrap:wrap;
  }
@@ -675,5 +667,25 @@
  }
  .app-shell:has(.broadcast-preview) .broadcast-card-results>div{
   grid-template-columns:50px minmax(0,1fr) 31px;
+ }
+}
+@media(max-width:420px){
+ .app-shell:has(.broadcast-preview) .broadcast-published-placeholder{
+  justify-content:flex-start;
+  padding:18px 18px 0;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-placeholder-copy{
+  order:0;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-placeholder-landscape{
+  position:relative;
+  order:1;
+  top:auto;
+  right:auto;
+  width:100%;
+  height:auto;
+  aspect-ratio:640/185;
+  flex-shrink:0;
+  margin-top:4px;
  }
 }
