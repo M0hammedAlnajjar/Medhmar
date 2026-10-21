@@ -117,6 +117,10 @@ export async function checkAdminRaces(browser, origin) {
     assert.match(vectorArtwork.text, /viewBox="0 0 1600 220"/, "SVG is designed for the admin banner");
     assert.match(vectorArtwork.text, /racetrack|racing track|racing lanes/i, "vector design represents a real racing track");
     assert.match(vectorArtwork.text, /finish flag/i, "vector design includes finish flag");
+    assert.equal((vectorArtwork.text.match(/Single-humped dromedaries/g)||[]).length, 3, "three racing camels are represented, not a lone static emblem");
+    assert.match(vectorArtwork.text, /Track barriers and lane markings/, "racing track railings and lanes are present");
+    assert.match(vectorArtwork.text, /Finish post and checkered flag/, "finish line is part of the scene");
+    assert.ok(!vectorArtwork.text.includes('rx="78"') && !vectorArtwork.text.includes('width="156" height="169"'), "previous oval track and separate flag card are gone");
     assert.equal(await page.locator(".admin-race-hero").innerText().then(text => text.includes("GREATER HERITAGE")), false, "hero contains no old decorative tagline");
     assert.equal(await page.locator(".admin-race-list-panel .admin-race-heading-icon").count(), 0, "Race List heading should have no camel badge");
     assert.equal(await page.locator(".admin-race-requests-panel .admin-race-heading-icon").count(), 1, "Requests heading keeps its icon");
