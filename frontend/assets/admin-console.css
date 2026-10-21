@@ -1284,8 +1284,11 @@ html:has(.admin-console){scrollbar-gutter:stable}
 /* System Health visual redesign: all selectors are scoped to the existing admin workspace.
    Decorative rings are explicitly NOT telemetry; values stay unknown until instrumented. */
 .admin-console .admin-sys-hero{
- background-image:linear-gradient(90deg,rgba(47,25,17,.94),rgba(74,34,17,.69) 44%,rgba(72,35,17,.18) 100%),url('/assets/admin-dashboard-race.webp');
- background-size:cover;background-position:center 43%;border:1px solid #d7b899;
+ /* Decorative SVG illustrates infrastructure, not a live health reading. */
+ background-color:#281b17;
+ background-image:linear-gradient(90deg,rgba(25,17,15,.72) 0%,rgba(25,17,15,.28) 42%,rgba(25,17,15,0) 74%),url('/assets/admin-system-health-hero.svg');
+ background-size:cover;background-repeat:no-repeat;background-position:center;
+ border:1px solid #936e51;
  display:flex;justify-content:space-between;align-items:center;min-height:178px;padding:27px 30px;
  margin:16px 0 13px;border-radius:12px;gap:22px;
 }
@@ -1383,7 +1386,7 @@ html:has(.admin-console){scrollbar-gutter:stable}
  .admin-console .admin-sys-hero{padding:24px}
 }
 @media(max-width:700px){
- .admin-console .admin-sys-hero{height:auto;min-height:235px;flex-direction:column;align-items:flex-start;gap:12px;background-position:60% center}
+ .admin-console .admin-sys-hero{height:auto;min-height:235px;flex-direction:column;align-items:flex-start;gap:12px;background-position:center;background-image:linear-gradient(90deg,rgba(25,17,15,.88),rgba(25,17,15,.46)),url("/assets/admin-system-health-hero.svg")}
  .admin-console .admin-sys-hero-tools{min-width:0;align-self:stretch;align-items:flex-start}
  .admin-console .admin-sys-bottom-row{grid-template-columns:1fr}
  .admin-console .admin-sys-bottom-row>.admin-system-panel:last-child{grid-column:auto}
