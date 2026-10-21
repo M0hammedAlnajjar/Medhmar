@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> {
 
-    @Query("SELECT m FROM MarketPlace m WHERE m.isActive = true ORDER BY m.listingId DESC")
+    @Query("SELECT m FROM MarketPlace m WHERE m.isActive = true\n            AND m.status = com.gulfracing.enums.MarketPlaceStatus.AVAILABLE ORDER BY m.listingId DESC")
     List<MarketPlace> getAllMarketPlaces();
 
     Optional<MarketPlace> findByListingIdAndIsActiveTrue(Long listingId);
@@ -62,4 +62,32 @@ public interface MarketPlaceRepository extends JpaRepository<MarketPlace, Long> 
     long countActiveListings(@Param("status") MarketPlaceStatus status);
 
     long countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(java.util.Date from, java.util.Date until);
+
+    // ---- Administrator moderation queries (read-only; reuse the same table as the public marketplace) ----
+    @Query("SELECT m.status, COUNT(m) FROM MarketPlace m GROUP BY m.status")
+    List<Object[]> countGroupedByStatus();
+
+    @Query("SELECT DISTINCT c.category FROM MarketPlace m JOIN m.camel c "
+            + "WHERE c.category IS NOT NULL AND c.category <> '' ORDER BY c.category")
+    List<String> findDistinctCategories();
+
+    @Query("""
+        SELECT m
+        FROM MarketPlace m
+        LEFT JOIN m.camel c
+        LEFT JOIN m.user u
+        WHERE (:status IS NULL OR m.status = :status)
+          AND (:activeOnly = false OR m.isActive = true)
+          AND (:category IS NULL OR LOWER(c.category) = LOWER(:category))
+          AND (:search IS NULL
+               OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
+               OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%')))
+        """)
+    Page<MarketPlace> searchForAdmin(
+            @Param("search") String search,
+            @Param("status") MarketPlaceStatus status,
+            @Param("activeOnly") boolean activeOnly,
+            @Param("category") String category,
+            Pageable pageable
+    );
 }

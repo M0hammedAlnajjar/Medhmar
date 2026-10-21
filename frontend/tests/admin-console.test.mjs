@@ -31,12 +31,12 @@ test('dashboard renders real weekly activity, secure recent events and honest st
   recentEvents:[{auditId:22,actionType:'OWNER_ROLE_GRANTED',entityType:'User',entityId:18,actorUserId:5,createdAt:'2026-10-18T10:00:00Z'}],
   generatedAt:'2026-10-18T10:00:00Z'};
  const html=adminDashboard({user:{fullName:'Admin'},summary});
- for(const title of ['Total Users','Registered Camels','Upcoming / Open Races','Active Listings','Platform Activity','Recent Activity','System Status'])
+ for(const title of ['Total Users','Registered Camels','Upcoming Races','Active Listings','Platform Activity','Recent Activity','Quick access'])
   assert.match(html,new RegExp(title.replaceAll('/','\\/')));
  assert.match(html,/OWNER_ROLE_GRANTED|Owner Role Granted/);
  assert.match(html,/admin-activity-svg/);
- assert.match(html,/Database connectivity|Check database &amp; API/);
- assert.match(html,/Not monitored/);
+ assert.match(html,/Review listings|Manage users/);
+ assert.match(html,/System health|Audit logs/);
  assert.doesNotMatch(html,new RegExp('<strong>(?:1,248|642|118)</strong>|All Systems Operational|Payment Service.+Online'));
 });
 test('dashboard escapes audit values and never presents missing values as zero',()=>{
@@ -79,7 +79,7 @@ test('offline mode exposes refresh without claiming platform data is live',()=>{
  const html=adminDashboard({user:{fullName:'Operator'},error:'Network unavailable'});
  assert.match(html,/id="admin-refresh"/);
  assert.match(html,/Data unavailable/);
- assert.match(html,/Unverified/);
+ assert.match(html,/Activity data is unavailable/);
  assert.doesNotMatch(html,/Live platform data|admin-health-good/);
 });
 
@@ -110,8 +110,8 @@ test('reference-matched administration header and dashboard panels are present',
  const html=adminDashboard({summary:data});
  assert.match(html,/PLATFORM OVERVIEW/);
  assert.match(html,/class="admin-chart-period"/);
- assert.match(html,/admin-status-check/);
- assert.match(html,/admin-panel-health/);
+ assert.match(html,/admin-quick-links/);
+ assert.match(html,/admin-dashboard-quick/);
  assert.match(html,/12|Registered Camels/);
 });
 test('reference styling stays inside the dedicated administration scope',async()=>{
@@ -264,4 +264,21 @@ test('admin chart tabs bind inside the existing SPA',async()=>{
  const code=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
  assert.ok(code.includes('bindAdminChartTabs();'));
  assert.ok(code.includes('bindAdminChartTabs } from'));
+});
+
+
+test('dashboard reference groups admin navigation and links to operational pages',()=>{
+ const shell=adminShell({user:{fullName:'Admin'},active:'/admin',body:'Dashboard'});
+ for(const heading of ['OVERVIEW','MANAGEMENT','SYSTEM','Back to Website'])assert.match(shell,new RegExp(heading));
+ assert.match(shell,/href="\/home\?view=website" data-link class="admin-back-website"/);
+ const html=adminDashboard({summary:null});
+ for(const path of ['/admin/users','/admin/marketplace','/admin/system-health','/admin/audit-logs'])
+  assert.ok(html.includes('href="'+path+'" data-link'),path);
+ assert.match(html,/admin-dashboard-quick|Quick access/);
+ assert.match(html,/Data unavailable/);
+ assert.doesNotMatch(html,/admin-panel-health|All Systems Operational/);
+});
+test('responsive admin dashboard selectors are scoped to the dedicated workspace',async()=>{
+ const css=await (await import('node:fs/promises')).readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ for(const token of ['.admin-console .admin-sidebar-group','.admin-console .admin-dashboard-quick','.admin-console .admin-quick-links','.admin-console .admin-chart-caption'])assert.ok(css.includes(token));
 });
