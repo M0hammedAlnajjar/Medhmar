@@ -83,3 +83,13 @@ test('health monitoring style is responsive and existing page keeps refresh beha
  assert.match(app,/samples:state\.adminHealthSamples/);
  assert.match(app,/nowMs\(\)-checkStarted/);
 });
+
+test('Backend API code icon has matching angle brackets and centered slash in both contexts',()=>{
+ const html=adminSystemHealthView({data:live});
+ const left='d="m8 7-5 5 5 5"';
+ const right='d="m16 7 5 5-5 5"';
+ const slash='d="m14 4-4 16"';
+ for(const segment of [left,right,slash])
+  assert.equal(html.split(segment).length-1,2,'the code glyph should be present in KPI and Service Status: '+segment);
+ assert.doesNotMatch(html,/l5 5-5-5/,'old malformed right bracket must never return');
+});
