@@ -83,6 +83,15 @@ public class RaceEntryService {
     }
 
     @Transactional(readOnly = true)
+    public List<RaceEntry> publicParticipants(Long raceId) {
+        raceById(raceId);
+        return entries.findPublicParticipants(
+                raceId,
+                RaceEntryStatus.ACCEPTED
+        );
+    }
+
+    @Transactional(readOnly = true)
     public RaceEntry getById(Long id, Long actorId) {
         var entry = entryById(id);
         users.getActive(actorId);
@@ -100,7 +109,7 @@ public class RaceEntryService {
             throw ApiException.badRequest("Decision must be ACCEPTED or REJECTED.");
         }
         var entry = lockedEntry(id);
-        requireOrganizer(entry.getRace(), actorId);
+        requireAdmin(actorId);
         if (entry.getEntryStatus() != RaceEntryStatus.PENDING) {
             throw ApiException.conflict("Only pending entries can be decided.");
         }
