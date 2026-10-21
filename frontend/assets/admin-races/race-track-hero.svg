@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 260" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="raceTitle raceDescription">
+ <title id="raceTitle">Illustrated camel racing track at golden hour</title>
+ <desc id="raceDescription">Three racing camels, jockey equipment, a sand racetrack, railings and stadium lighting. Decorative SVG illustration.</desc>
+ <defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="1" y2=".25">
+   <stop stop-color="#fffbf4"/><stop offset=".38" stop-color="#fff5e6"/><stop offset=".7" stop-color="#f5d3a3"/><stop offset="1" stop-color="#dba16d"/>
+  </linearGradient>
+  <linearGradient id="sand" x1="0" y1="0" x2=".2" y2="1">
+   <stop stop-color="#efc992"/><stop offset=".52" stop-color="#dab080"/><stop offset="1" stop-color="#ae7651"/>
+  </linearGradient>
+  <linearGradient id="camelGold" x1="0" y1="0" x2=".8" y2="1">
+   <stop stop-color="#f5d29c"/><stop offset=".54" stop-color="#dba26c"/><stop offset="1" stop-color="#b87d4b"/>
+  </linearGradient>
+  <linearGradient id="camelTan" x1="0" y1="0" x2=".8" y2="1">
+   <stop stop-color="#e4c19a"/><stop offset=".6" stop-color="#bd8c66"/><stop offset="1" stop-color="#a5724c"/>
+  </linearGradient>
+  <linearGradient id="softLight" x1="0" y1="0" x2="1" y2="0">
+   <stop stop-color="#fffbf5"/><stop offset=".30" stop-color="#fffbf5" stop-opacity=".95"/>
+   <stop offset=".53" stop-color="#fffbf5" stop-opacity=".55"/>
+   <stop offset=".71" stop-color="#fffbf5" stop-opacity=".05"/><stop offset="1" stop-color="#fffbf5" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="dust"><stop stop-color="#fff2cf" stop-opacity=".55"/><stop offset="1" stop-color="#e6b87b" stop-opacity="0"/></radialGradient>
+  <pattern id="sandmarks" width="77" height="31" patternUnits="userSpaceOnUse">
+   <path d="M3 20q21-6 43-1M50 8l14-2" stroke="#8d633f" stroke-opacity=".18" stroke-width="1.8" fill="none"/>
+  </pattern>
+ </defs>
+ <!-- Open racecourse and sky, rather than a cropped camel close-up -->
+ <rect width="1600" height="260" fill="url(#sky)"/>
+ <circle cx="1330" cy="49" r="87" fill="#fff1c8" opacity=".46"/>
+ <path d="M660 143Q732 114 810 133T990 133Q1060 108 1145 129T1315 122Q1416 93 1600 118V196H660Z" fill="#bc987b" opacity=".26"/>
+ <path d="M760 151Q860 133 945 146T1140 145Q1250 128 1370 146T1600 132V196H760Z" fill="#be946d" opacity=".23"/>
+ <!-- racecourse lights -->
+ <g stroke="#9d785d" stroke-width="2.5" opacity=".64" fill="none">
+  <path d="M925 166V65M1360 161V46M1518 167V64"/>
+  <path d="M910 61h31v11h-31zM1344 42h32v11h-32zM1503 60h30v11h-30z" fill="#d9cab3"/>
+ </g>
+ <g fill="#fff4d4" opacity=".8">
+  <circle cx="914" cy="66" r="2.5"/><circle cx="924" cy="66" r="2.5"/><circle cx="934" cy="66" r="2.5"/>
+  <circle cx="1349" cy="47" r="2.5"/><circle cx="1359" cy="47" r="2.5"/><circle cx="1369" cy="47" r="2.5"/>
+  <circle cx="1507" cy="65" r="2.5"/><circle cx="1517" cy="65" r="2.5"/><circle cx="1527" cy="65" r="2.5"/>
+ </g>
+ <!-- racetrack rail is an unmistakable visual element -->
+ <path d="M600 178Q966 156 1600 168" stroke="#f6efe2" stroke-width="10" fill="none"/>
+ <path d="M600 180Q966 159 1600 172" stroke="#af754b" stroke-width="3" fill="none" opacity=".8"/>
+ <g stroke="#fff4df" stroke-width="5" opacity=".92">
+  <path d="M750 174v60M880 170v63M1020 165v62M1160 165v58M1300 166v54M1440 166v48M1565 169v49"/>
+ </g>
+ <path d="M0 189Q750 170 1600 180V260H0Z" fill="url(#sand)"/>
+ <path d="M0 189Q750 170 1600 180V260H0Z" fill="url(#sandmarks)"/>
+ <path d="M400 247Q900 211 1600 233 M630 259Q1090 226 1600 244" stroke="#8c5c3d" opacity=".21" stroke-width="4" fill="none"/>
+ <!-- Dust near hooves -->
+ <g fill="url(#dust)">
+  <ellipse cx="1048" cy="215" rx="156" ry="28"/><ellipse cx="1264" cy="217" rx="200" ry="33"/>
+  <ellipse cx="1480" cy="229" rx="155" ry="27"/>
+ </g>
+ <g transform="translate(827 55) scale(0.74)" class="racing-camel">
+  <ellipse cx="177" cy="212" rx="116" ry="8" fill="#704b32" opacity=".13"/>
+  <g fill="url(#camelTan)" stroke="#8c5839" stroke-width="2.1" stroke-linejoin="round">
+    <path d="M111 123 Q114 148 104 172 L75 207 Q70 213 80 218 L91 214 126 177 145 139Z"/>
+    <path d="M136 128 Q138 156 153 174 L148 211 Q151 219 163 218 L169 212 174 167 159 133Z"/>
+    <path d="M222 124 Q234 151 235 174 L260 205 Q272 213 282 207 L277 196 257 165 251 129Z"/>
+    <path d="M243 124 Q259 148 262 170 L237 207 Q236 216 246 218 L252 214 281 175 271 128Z"/>
+    <path d="M251 110 Q274 101 277 88" fill="none" stroke-width="5" stroke-linecap="round"/>
+    <path d="M97 100 Q111 80 136 79 Q151 79 161 55 Q171 37 184 39 Q195 41 200 59 Q210 80 225 84 Q262 89 264 119 Q259 143 220 148 L138 148 Q110 145 101 135 Q89 126 97 100Z"/>
+    <path d="M108 102 Q86 92 83 65 L80 55 Q72 56 66 51 L52 54 Q40 57 35 50 Q29 44 37 37 L50 28 Q61 20 70 28 L77 24 Q84 21 85 29 L93 34 Q97 41 94 51 Q94 74 127 94 Z"/>
+  </g>
+  <path d="M113 113 Q157 126 200 119T253 121" stroke="#fae2b5" stroke-opacity=".55" stroke-width="3" fill="none"/>
+  <path d="M148 88 Q161 81 170 61 Q178 49 183 54" stroke="#fde9c4" stroke-width="3.5" fill="none" opacity=".65"/>
+  <path d="M44 43 Q55 49 66 45" stroke="#9c6446" stroke-width="2" fill="none"/>
+  <circle cx="61" cy="34" r="2.9" fill="#281e1c"/>
+  <path d="M42 49 Q43 52 47 52" stroke="#453028" fill="none" stroke-width="1.4"/>
+  <path d="M72 31 L97 85 M75 37 L95 83" stroke="#aa402f" stroke-width="3" fill="none"/>
+  <circle cx="74" cy="38" r="4.3" fill="#a4142a" stroke="#d8a76c" stroke-width="1.2"/>
+  <!-- Colored race saddle and robotic jockey silhouette -->
+  <path d="M157 86 Q192 70 224 91 L226 122 Q187 128 161 112Z" fill="#27795f" stroke="#f8efe6" stroke-width="3"/>
+  <path d="M167 95 Q189 100 215 91 M163 105 Q192 116 224 107" fill="none" stroke="#fff7ef" stroke-width="3" opacity=".9"/>
+  <rect x="187" y="62" width="22" height="29" rx="5" fill="#265c49" stroke="#f3d0a1" stroke-width="2"/>
+  <circle cx="198" cy="58" r="7" fill="#49352e" stroke="#edcfa3" stroke-width="2.5"/>
+  <path d="M199 48 V37 M201 37 l6-4" stroke="#53352f" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M186 75 Q164 66 145 78" stroke="#492d27" stroke-width="3" fill="none"/>
+  <path d="M138 79 L83 47" stroke="#c43a33" stroke-width="1.6" fill="none"/>
+  <g fill="#e7b579" opacity=".78">
+    <circle cx="103" cy="194" r="3"/><circle cx="86" cy="201" r="2"/><circle cx="245" cy="196" r="2.4"/>
+  </g>
+</g>
+ <g transform="translate(1366 66) scale(0.69)" class="racing-camel">
+  <ellipse cx="177" cy="212" rx="116" ry="8" fill="#704b32" opacity=".13"/>
+  <g fill="url(#camelTan)" stroke="#8c5839" stroke-width="2.1" stroke-linejoin="round">
+    <path d="M111 123 Q114 148 104 172 L75 207 Q70 213 80 218 L91 214 126 177 145 139Z"/>
+    <path d="M136 128 Q138 156 153 174 L148 211 Q151 219 163 218 L169 212 174 167 159 133Z"/>
+    <path d="M222 124 Q234 151 235 174 L260 205 Q272 213 282 207 L277 196 257 165 251 129Z"/>
+    <path d="M243 124 Q259 148 262 170 L237 207 Q236 216 246 218 L252 214 281 175 271 128Z"/>
+    <path d="M251 110 Q274 101 277 88" fill="none" stroke-width="5" stroke-linecap="round"/>
+    <path d="M97 100 Q111 80 136 79 Q151 79 161 55 Q171 37 184 39 Q195 41 200 59 Q210 80 225 84 Q262 89 264 119 Q259 143 220 148 L138 148 Q110 145 101 135 Q89 126 97 100Z"/>
+    <path d="M108 102 Q86 92 83 65 L80 55 Q72 56 66 51 L52 54 Q40 57 35 50 Q29 44 37 37 L50 28 Q61 20 70 28 L77 24 Q84 21 85 29 L93 34 Q97 41 94 51 Q94 74 127 94 Z"/>
+  </g>
+  <path d="M113 113 Q157 126 200 119T253 121" stroke="#fae2b5" stroke-opacity=".55" stroke-width="3" fill="none"/>
+  <path d="M148 88 Q161 81 170 61 Q178 49 183 54" stroke="#fde9c4" stroke-width="3.5" fill="none" opacity=".65"/>
+  <path d="M44 43 Q55 49 66 45" stroke="#9c6446" stroke-width="2" fill="none"/>
+  <circle cx="61" cy="34" r="2.9" fill="#281e1c"/>
+  <path d="M42 49 Q43 52 47 52" stroke="#453028" fill="none" stroke-width="1.4"/>
+  <path d="M72 31 L97 85 M75 37 L95 83" stroke="#aa402f" stroke-width="3" fill="none"/>
+  <circle cx="74" cy="38" r="4.3" fill="#a4142a" stroke="#d8a76c" stroke-width="1.2"/>
+  <!-- Colored race saddle and robotic jockey silhouette -->
+  <path d="M157 86 Q192 70 224 91 L226 122 Q187 128 161 112Z" fill="#2d648a" stroke="#f8efe6" stroke-width="3"/>
+  <path d="M167 95 Q189 100 215 91 M163 105 Q192 116 224 107" fill="none" stroke="#fff7ef" stroke-width="3" opacity=".9"/>
+  <rect x="187" y="62" width="22" height="29" rx="5" fill="#1e5472" stroke="#f3d0a1" stroke-width="2"/>
+  <circle cx="198" cy="58" r="7" fill="#49352e" stroke="#edcfa3" stroke-width="2.5"/>
+  <path d="M199 48 V37 M201 37 l6-4" stroke="#53352f" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M186 75 Q164 66 145 78" stroke="#492d27" stroke-width="3" fill="none"/>
+  <path d="M138 79 L83 47" stroke="#c43a33" stroke-width="1.6" fill="none"/>
+  <g fill="#e7b579" opacity=".78">
+    <circle cx="103" cy="194" r="3"/><circle cx="86" cy="201" r="2"/><circle cx="245" cy="196" r="2.4"/>
+  </g>
+</g>
+ <g transform="translate(1086 11) scale(1.02)" class="racing-camel">
+  <ellipse cx="177" cy="212" rx="116" ry="8" fill="#704b32" opacity=".13"/>
+  <g fill="url(#camelGold)" stroke="#8c5839" stroke-width="2.1" stroke-linejoin="round">
+    <path d="M111 123 Q114 148 104 172 L75 207 Q70 213 80 218 L91 214 126 177 145 139Z"/>
+    <path d="M136 128 Q138 156 153 174 L148 211 Q151 219 163 218 L169 212 174 167 159 133Z"/>
+    <path d="M222 124 Q234 151 235 174 L260 205 Q272 213 282 207 L277 196 257 165 251 129Z"/>
+    <path d="M243 124 Q259 148 262 170 L237 207 Q236 216 246 218 L252 214 281 175 271 128Z"/>
+    <path d="M251 110 Q274 101 277 88" fill="none" stroke-width="5" stroke-linecap="round"/>
+    <path d="M97 100 Q111 80 136 79 Q151 79 161 55 Q171 37 184 39 Q195 41 200 59 Q210 80 225 84 Q262 89 264 119 Q259 143 220 148 L138 148 Q110 145 101 135 Q89 126 97 100Z"/>
+    <path d="M108 102 Q86 92 83 65 L80 55 Q72 56 66 51 L52 54 Q40 57 35 50 Q29 44 37 37 L50 28 Q61 20 70 28 L77 24 Q84 21 85 29 L93 34 Q97 41 94 51 Q94 74 127 94 Z"/>
+  </g>
+  <path d="M113 113 Q157 126 200 119T253 121" stroke="#fae2b5" stroke-opacity=".55" stroke-width="3" fill="none"/>
+  <path d="M148 88 Q161 81 170 61 Q178 49 183 54" stroke="#fde9c4" stroke-width="3.5" fill="none" opacity=".65"/>
+  <path d="M44 43 Q55 49 66 45" stroke="#9c6446" stroke-width="2" fill="none"/>
+  <circle cx="61" cy="34" r="2.9" fill="#281e1c"/>
+  <path d="M42 49 Q43 52 47 52" stroke="#453028" fill="none" stroke-width="1.4"/>
+  <path d="M72 31 L97 85 M75 37 L95 83" stroke="#b6112d" stroke-width="3" fill="none"/>
+  <circle cx="74" cy="38" r="4.3" fill="#a4142a" stroke="#d8a76c" stroke-width="1.2"/>
+  <!-- Colored race saddle and robotic jockey silhouette -->
+  <path d="M157 86 Q192 70 224 91 L226 122 Q187 128 161 112Z" fill="#a60e24" stroke="#f8efe6" stroke-width="3"/>
+  <path d="M167 95 Q189 100 215 91 M163 105 Q192 116 224 107" fill="none" stroke="#fff7ef" stroke-width="3" opacity=".9"/>
+  <rect x="187" y="62" width="22" height="29" rx="5" fill="#97152a" stroke="#f3d0a1" stroke-width="2"/>
+  <circle cx="198" cy="58" r="7" fill="#49352e" stroke="#edcfa3" stroke-width="2.5"/>
+  <path d="M199 48 V37 M201 37 l6-4" stroke="#53352f" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M186 75 Q164 66 145 78" stroke="#492d27" stroke-width="3" fill="none"/>
+  <path d="M138 79 L83 47" stroke="#c43a33" stroke-width="1.6" fill="none"/>
+  <g fill="#e7b579" opacity=".78">
+    <circle cx="103" cy="194" r="3"/><circle cx="86" cy="201" r="2"/><circle cx="245" cy="196" r="2.4"/>
+  </g>
+</g>
+ <g fill="#f7dbb1" opacity=".67">
+  <circle cx="1287" cy="225" r="4"/><circle cx="1306" cy="229" r="2.5"/><circle cx="1249" cy="221" r="5"/>
+  <circle cx="1011" cy="222" r="3"/><circle cx="1517" cy="224" r="2.5"/>
+ </g>
+ <rect width="1600" height="260" fill="url(#softLight)"/>
+</svg>
