@@ -49,7 +49,7 @@ test('admin routes are not accessible to regular users',()=>{
  }
 });
 
-test('Back to Website opens public Home and preserves the choice until returning to admin', async()=>{
+test('Explicit public website browsing preserves choice until returning to admin', async()=>{
  const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
  const start=app.indexOf('const publicWebsiteMode =');
  const end=app.indexOf('function toast(',start);
