@@ -81,5 +81,5 @@ test('health monitoring style is responsive and existing page keeps refresh beha
   '.admin-console .admin-sys-resource','@media(max-width:1090px)']) assert.ok(css.includes(selector),selector);
  assert.match(app,/adminHealthSamples: \[\]/);
  assert.match(app,/samples:state\.adminHealthSamples/);
- assert.match(app,/performance\.now\(\)-checkStarted/);
+ assert.match(app,/nowMs\(\)-checkStarted/);
 });
