@@ -106,6 +106,9 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
   '</aside></div></section>';
 }
 
+// Decorative SVG uses no external image requests or client scripts.
+const upcomingLandscape = "<svg class=\"broadcast-placeholder-landscape\" viewBox=\"0 0 640 185\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\" focusable=\"false\">\n<defs><linearGradient id=\"challenge-mountains\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f9f2e8\" stop-opacity=\".12\"/><stop offset=\"1\" stop-color=\"#e8d4b6\" stop-opacity=\".9\"/></linearGradient></defs>\n<path d=\"M200 174 267 147 303 128 323 139 352 102 374 115 417 68 438 85 472 35 493 59 509 42 553 102 584 117 640 147V185H200Z\" fill=\"url(#challenge-mountains)\" opacity=\".66\"/>\n<path d=\"m262 152 47-35 22 19 22-34 21 13 43-47 21 17 34-50 21 24 16-17 44 60\" fill=\"none\" stroke=\"#e5d4bd\" stroke-width=\"1.5\" opacity=\".43\"/>\n<path d=\"M246 185q76-46 167-24 97-45 227-6v30Z\" fill=\"#efddc5\" opacity=\".34\"/>\n<path d=\"M260 185q116-23 208-16 92-30 172-8v24Z\" fill=\"#e7d3b5\" opacity=\".4\"/>\n<g fill=\"none\" stroke=\"#d8bb91\" stroke-linecap=\"round\" opacity=\".62\">\n<g transform=\"translate(389 166) scale(.68)\"><path d=\"M0 0Q5-25 3-52\" stroke-width=\"3.5\"/><path d=\"M3-52Q-17-76-36-57M3-52Q-8-80-22-80M3-52Q15-81 29-74M3-52Q27-69 43-50M3-52Q-25-50-35-35M3-52Q24-47 37-33\" stroke-width=\"3\"/></g>\n<g transform=\"translate(549 177) scale(.86)\"><path d=\"M0 0Q-3-31 4-63\" stroke-width=\"4\"/><path d=\"M4-63Q-18-88-45-70M4-63Q-15-95-30-97M4-63Q14-92 27-94M4-63Q32-86 48-67M4-63Q-26-59-42-39M4-63Q35-52 45-40\" stroke-width=\"3.2\"/></g>\n</g><path d=\"M207 178q92-17 183-5 107-13 250-3\" stroke=\"#d8c19f\" stroke-width=\"1.4\" fill=\"none\" opacity=\".34\"/></svg>";
+
 // Renders only API-returned published challenges; never invents the cards shown in the visual concept.
 export function publishedChallengeCards(challenges=[]) {
  return '<section class="broadcast-published" id="published-challenges" aria-labelledby="broadcast-published-title">'+
@@ -137,9 +140,11 @@ export function publishedChallengeCards(challenges=[]) {
    }).join('')+
    (challenges.length===1?
     '<aside class="broadcast-published-placeholder" aria-label="Upcoming published challenges">'+
-     '<span class="broadcast-section-kicker">MEDHMAR</span>'+
+     upcomingLandscape+
+     '<div class="broadcast-placeholder-copy">'+
+     "<svg class=\"broadcast-placeholder-flag\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" fill=\"none\"><path d=\"M5 21V3\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><path d=\"M6 4c5-3 8 3 13 0v10c-5 3-8-3-13 0Z\" fill=\"currentColor\"/></svg>"+
      '<strong>More challenges on the way</strong>'+
-     '<p>Additional recorded competitions will appear here when the platform publishes them. Only real challenge results are shown.</p></aside>':'')+
+     '<p>Additional recorded competitions will appear here when the platform publishes them. Only real challenge results are shown.</p></div></aside>':'')+
    '</div>':
    '<div class="broadcast-upcoming-empty">The featured challenge is shown above. More published challenges will appear here when available.</div>')+
    '</section>';

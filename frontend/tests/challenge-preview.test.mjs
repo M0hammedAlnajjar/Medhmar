@@ -178,3 +178,28 @@ test('approved compact challenge layout uses only existing photos and keeps vote
  assert.match(html,/Sign in to vote/);
  assert.doesNotMatch(html,/broadcast-facts/);
 });
+
+test('upcoming challenge placeholder matches the reference using decorative inline SVG only',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
+ const single=publishedChallengeCards([challenge]);
+ const placeholder=single.match(/<aside class="broadcast-published-placeholder"[^]*?<\/aside>/)?.[0];
+ assert.ok(placeholder,'the one-record placeholder must render');
+ assert.match(placeholder,/class="broadcast-placeholder-landscape"/);
+ assert.match(placeholder,/class="broadcast-placeholder-flag"/);
+ assert.match(placeholder,/viewBox="0 0 640 185"/);
+ assert.match(placeholder,/aria-hidden="true" focusable="false"/);
+ assert.match(placeholder,/challenge-mountains/);
+ assert.match(placeholder,/More challenges on the way/);
+ assert.match(placeholder,/Only real challenge results are shown/);
+ assert.doesNotMatch(placeholder,/<img|https?:\/\/|<script|<button/);
+ assert.equal((placeholder.match(/<svg/g)||[]).length,2);
+ assert.match(css,/\.broadcast-placeholder-landscape/);
+ assert.match(css,/\.broadcast-placeholder-copy/);
+ assert.match(css,/\.broadcast-placeholder-flag/);
+ assert.doesNotMatch(css,/url\('\/assets\/racing-hero\.webp'\) center 43%\/cover no-repeat/);
+ const multiple=publishedChallengeCards([challenge,{...challenge,challengeId:43}]);
+ assert.doesNotMatch(multiple,/broadcast-placeholder-landscape|broadcast-published-placeholder/);
+ const none=publishedChallengeCards([]);
+ assert.doesNotMatch(none,/broadcast-placeholder-landscape/);
+});
