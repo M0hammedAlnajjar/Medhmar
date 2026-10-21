@@ -119,6 +119,16 @@ export function adminShell({ user, active = '/admin', body = '' }) {
    '</header><main class="admin-main">'+body+'</main>'+
    '<footer class="admin-footer">'+(chosen==='/admin'?'<span>Administration workspace</span><span>Timestamps GMT+4 · Chart dates UTC</span>':'© '+new Date().getFullYear()+' Medhmar. All rights reserved.')+'</footer></div></div>';
 }
+
+// The admin shell is rebuilt during navigation and API refreshes. Retain the
+// independent menu scroll position so selecting a route does not jump the menu.
+export function mountAdminScreen(root, html) {
+ const scrollTop = root.querySelector('.admin-sidebar-nav')?.scrollTop ?? 0;
+ root.innerHTML = html;
+ const nav = root.querySelector('.admin-sidebar-nav');
+ if (nav) nav.scrollTop = scrollTop;
+}
+
 const validCount=value => typeof value==='number' && Number.isSafeInteger(value) && value>=0;
 const number=value => validCount(value) ? value.toLocaleString('en-US') : '—';
 const safeLabel=value => String(value||'').replace(/_/g,' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());

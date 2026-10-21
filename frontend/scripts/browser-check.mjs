@@ -450,6 +450,61 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
   assert.equal(await page.locator('.admin-sidebar-nav a').count(), 11, 'desktop navigation should contain eleven admin routes');
   assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),11,'desktop menu should retain its SVG icons');
+  // Page-specific content must never resize or shift the navigation shell.
+  const adminSidebarGeometry = () => page.locator('.admin-sidebar').evaluate(aside => {
+    const side = aside.getBoundingClientRect();
+    const brand = aside.querySelector('.admin-sidebar-brand').getBoundingClientRect();
+    const link = aside.querySelector('.admin-sidebar-nav a');
+    const first = link.getBoundingClientRect();
+    const footer = aside.querySelector('.admin-sidebar-bottom').getBoundingClientRect();
+    return {
+      x: Math.round(side.x), width: Math.round(side.width), height: Math.round(side.height),
+      brandHeight: Math.round(brand.height), firstLeft: Math.round(first.left),
+      firstHeight: Math.round(first.height), bottom: Math.round(footer.bottom),
+      linkGap: getComputedStyle(link).gap, fontSize: getComputedStyle(link).fontSize
+    };
+  });
+  const originalSidebar = await adminSidebarGeometry();
+  assert.equal(originalSidebar.width,224,'desktop sidebar should use one width');
+  for (const active of ['/admin/challenges','/admin/races','/admin/users']) {
+    await page.evaluate(async selected => {
+      const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
+      const body=selected==='/admin/challenges'
+        ? '<section class="mhch-page">Challenges</section>'
+        : '<section class="admin-layout-test">Admin content</section>';
+      mountAdminScreen(document.querySelector('#app'),adminShell({
+        user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},active:selected,body
+      }));
+    },active);
+    assert.deepEqual(await adminSidebarGeometry(),originalSidebar,
+      active+' must not change sidebar size or alignment');
+  }
+  // At shorter heights, only the menu scrolls; logo and sign-out stay anchored.
+  await page.setViewportSize({width:1440,height:600});
+  const menuScrollBefore = await page.locator('.admin-sidebar-nav').evaluate(nav => {
+    nav.scrollTop=150;
+    return nav.scrollTop;
+  });
+  assert.ok(menuScrollBefore>0,'short desktops must have an independently scrollable menu');
+  await page.evaluate(async()=>{
+    const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
+    mountAdminScreen(document.querySelector('#app'),adminShell({
+      user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},
+      active:'/admin/challenges',body:'<section class="mhch-page">Challenges</section>'
+    }));
+  });
+  assert.equal(await page.locator('.admin-sidebar-nav').evaluate(nav=>nav.scrollTop),menuScrollBefore,
+    'navigating between admin pages must retain the menu scroll offset');
+  assert.ok(await page.locator('#admin-signout').evaluate(button=>button.getBoundingClientRect().bottom<=innerHeight+1),
+    'sign out must remain visible even while the nav scrolls');
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(async()=>{
+    const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
+    mountAdminScreen(document.querySelector('#app'),adminShell({
+      user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},
+      active:'/admin',body:'<section class="admin-layout-test">Dashboard content</section>'
+    }));
+  });
   await page.screenshot({path:'test-results/admin-nav-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'mobile should hide desktop sidebar');

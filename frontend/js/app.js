@@ -15,7 +15,7 @@ import { syncAssistantDock } from './assistant-view.js';
 import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
-import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs } from './admin-console.js';
+import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs, mountAdminScreen } from './admin-console.js';
 import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
 import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
@@ -972,9 +972,11 @@ async function render() {
 
  if(match && (adminArea(path) || match.route.path==='/settings')) {
   const adminRoute=adminArea(path);
-  root.innerHTML=adminRoute
+  const verifyingHtml=adminRoute
     ? adminShell({user:state.user,active:path,body:'<section class="card card-pad" role="status">Verifying administrator access…</section>'})
     : shell('<section class="card card-pad" role="status">Checking your account…</section>');
+  if (adminRoute) mountAdminScreen(root, verifyingHtml);
+  else root.innerHTML=verifyingHtml;
   bind();
   try {
    const user=await authApi.me();
@@ -1149,7 +1151,8 @@ async function render() {
      state.adminHeritageError='Unable to load organizations, stories, or visitor events. Please retry.';
     }
    }
-   root.innerHTML=adminRoute?screen(match)():settings();
+   if (adminRoute) mountAdminScreen(root, screen(match)());
+   else root.innerHTML=settings();
   }catch(err){
    if(epoch!==renderEpoch)return;
    state.adminUsers=null;state.adminPageData=null;state.adminSummary=null;
@@ -1158,7 +1161,8 @@ async function render() {
    if(err.status===401||err.status===403){state.user={...guestUser};denyRoleAccess(match.route);}
    else {
     const body='<section class="card card-pad error"><h2>Account unavailable</h2><p>Unable to verify your session. Please retry.</p><button class="btn btn-primary" id="admin-retry" type="button">Retry</button></section>';
-    root.innerHTML=adminRoute?adminShell({user:state.user,active:path,body}):shell(body);
+    if (adminRoute) mountAdminScreen(root, adminShell({user:state.user,active:path,body}));
+    else root.innerHTML=shell(body);
    }
   }
  }else root.innerHTML=match?screen(match)():notFound();
