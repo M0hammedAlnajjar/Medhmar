@@ -479,24 +479,59 @@ try {
     assert.deepEqual(await adminSidebarGeometry(),originalSidebar,
       active+' must not change sidebar size or alignment');
   }
-  // At shorter heights, only the menu scrolls; logo and sign-out stay anchored.
-  await page.setViewportSize({width:1440,height:600});
-  const menuScrollBefore = await page.locator('.admin-sidebar-nav').evaluate(nav => {
-    nav.scrollTop=150;
-    return nav.scrollTop;
-  });
-  assert.ok(menuScrollBefore>0,'short desktops must have an independently scrollable menu');
-  await page.evaluate(async()=>{
-    const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
-    mountAdminScreen(document.querySelector('#app'),adminShell({
-      user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},
-      active:'/admin/challenges',body:'<section class="mhch-page">Challenges</section>'
-    }));
-  });
-  assert.equal(await page.locator('.admin-sidebar-nav').evaluate(nav=>nav.scrollTop),menuScrollBefore,
-    'navigating between admin pages must retain the menu scroll offset');
-  assert.ok(await page.locator('#admin-signout').evaluate(button=>button.getBoundingClientRect().bottom<=innerHeight+1),
-    'sign out must remain visible even while the nav scrolls');
+  // The entire desktop navigation must fit at common viewport heights without
+  // an inner scrollbar, including after switching pages.
+  for (const height of [900, 800, 700, 600, 510]) {
+    await page.setViewportSize({width:1440,height});
+    for (const active of ['/admin','/admin/challenges','/admin/races']) {
+      await page.evaluate(async selected=>{
+        const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
+        const body=selected==='/admin/challenges'
+          ? '<section class="mhch-page">Challenges</section>'
+          : '<section class="admin-layout-test">Administration</section>';
+        mountAdminScreen(document.querySelector('#app'),adminShell({
+          user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},
+          active:selected,body
+        }));
+      }, active);
+      const fit=await page.locator('.admin-sidebar').evaluate(side=>{
+        const nav=side.querySelector('.admin-sidebar-nav');
+        const brand=side.querySelector('.admin-sidebar-brand');
+        const footer=side.querySelector('.admin-sidebar-bottom');
+        const bounds=side.getBoundingClientRect();
+        const navBox=nav.getBoundingClientRect();
+        const links=[...nav.querySelectorAll('a')];
+        const last=links.at(-1).getBoundingClientRect();
+        return {
+          width:Math.round(bounds.width),links:links.length,
+          clientHeight:nav.clientHeight,scrollHeight:nav.scrollHeight,
+          scrollTop:nav.scrollTop,overflow:getComputedStyle(nav).overflowY,
+          logoBottom:brand.getBoundingClientRect().bottom,
+          firstLinkTop:links[0].getBoundingClientRect().top,
+          lastLinkBottom:last.bottom,navBottom:navBox.bottom,
+          footerTop:footer.getBoundingClientRect().top,
+          footerBottom:footer.getBoundingClientRect().bottom,
+          viewportBottom:innerHeight
+        };
+      });
+      assert.equal(fit.width,224,active+' sidebar width must remain fixed at '+height+'px height');
+      assert.equal(fit.links,11,'all admin navigation links are present');
+      assert.ok(fit.scrollHeight<=fit.clientHeight+1,
+        active+' menu must fit at '+height+'px without an inner scrollbar: '+JSON.stringify(fit));
+      assert.notEqual(fit.overflow,'auto','navigation should not expose an inner scrollbar');
+      assert.ok(fit.logoBottom<=fit.firstLinkTop+1,'logo and navigation must not overlap');
+      assert.ok(fit.lastLinkBottom<=fit.navBottom+1,'last menu item must be visible');
+      assert.ok(fit.lastLinkBottom<=fit.footerTop+1,'last menu item must not collide with Sign Out');
+      assert.ok(fit.footerBottom<=fit.viewportBottom+1,'Sign Out must fit in the sidebar');
+    }
+  }
+  // Very short screens should use the full accessible menu instead of hiding links.
+  await page.setViewportSize({width:1440,height:480});
+  assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'short desktop uses compact navigation');
+  assert.equal(await page.locator('.admin-mobile-nav').isVisible(),true,'short desktop exposes its navigation dropdown');
+  await page.locator('.admin-mobile-nav summary').click();
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),11,'dropdown keeps every admin route');
+  await page.locator('.admin-mobile-nav summary').click();
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async()=>{
     const {adminShell,mountAdminScreen}=await import('/js/admin-console.js');
