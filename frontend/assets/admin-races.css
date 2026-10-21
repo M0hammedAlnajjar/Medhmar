@@ -9,13 +9,13 @@
 .admin-race-hero, .admin-race-content { position: relative; z-index: 1; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
+/* Photo source: Oman News Agency (https://omannews.gov.om/topics/ar/119/show/463138). Verify reuse permission before publishing. */
 .admin-race-hero { min-height: 235px; border-radius: 0 0 14px 14px; padding: 35px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background-color: #f3e4cf; background-image: linear-gradient(90deg, #fffbf5fa 0%, #fffbf5f2 30%, #fffbf5c7 49%, #fffbf538 70%, #fffbf500 87%), url('https://omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg'), url('/assets/admin-races/hero.webp'); background-position: center, center 44%, center 43%; background-size: cover; background-repeat: no-repeat; }
 .admin-race-hero-copy { min-width: 0; max-width: min(55%, 650px); position: relative; z-index: 1; }
 .admin-race-hero-copy > span:first-child, .admin-race-modal-head > div > span { font-size: 12px; font-weight: 650; letter-spacing: .16em; color: #a45708; }
 .admin-console .admin-race-hero h1 { margin: 10px 0 3px; font: 700 clamp(35px, 3vw, 50px)/1.08 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; color: #28180d; }
 .admin-race-hero-copy p { margin: 0; color: #35261e; font-size: 16px; line-height: 1.3; }
 .admin-race-hero-action { position: relative; z-index: 1; flex: 0 0 auto; display: grid; justify-items: end; }
-.admin-race-photo-credit { position: absolute; z-index: 1; right: 16px; bottom: 9px; padding: 4px 7px; background: #241c15b3; color: #fff; text-decoration: none; border-radius: 5px; font: 10px/1.2 'Segoe UI', sans-serif; } .admin-race-photo-credit:hover { text-decoration: underline; }
 .admin-race-flourish { display: block; width: 84px; height: 2px; background: #cd8a2c; position: relative; margin-top: 19px; }
 .admin-race-flourish::before, .admin-race-flourish::after { content: ''; position: absolute; width: 5px; height: 5px; top: -2px; transform: rotate(45deg); background: #d69a3e; }
 .admin-race-flourish::before { left: 0; border: 1px solid #b7771e; background: #fff4da; }
@@ -216,4 +216,4 @@
 }
 @media (prefers-reduced-motion: reduce) { .admin-races-page * { scroll-behavior: auto; } }
 
-@media (max-width: 650px) { .admin-race-hero-copy { max-width: 100%; } .admin-race-photo-credit { right: 10px; bottom: 8px; font-size: 9px; } }
+@media (max-width: 650px) { .admin-race-hero-copy { max-width: 100%; } }
