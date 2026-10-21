@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 220" aria-hidden="true">
+  <!-- Decorative audit illustration; actual audit events remain in the table, not the artwork. -->
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2=".35">
+      <stop stop-color="#36241c"/>
+      <stop offset=".56" stop-color="#553727"/>
+      <stop offset="1" stop-color="#754731"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" x2="1">
+      <stop stop-color="#eac292" stop-opacity=".2"/>
+      <stop offset=".5" stop-color="#ffdab0" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#eac292" stop-opacity=".32"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#e5ad70" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#e5ad70" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f7deb8" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#f7deb8" stop-opacity=".04"/>
+    </linearGradient>
+    <pattern id="mesh" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#ffe1b7" stroke-opacity=".055" stroke-width=".8"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="220" fill="url(#bg)"/>
+  <rect x="665" width="935" height="220" fill="url(#mesh)"/>
+  <ellipse cx="1150" cy="108" rx="500" ry="220" fill="url(#glow)"/>
+  <!-- subdued event network -->
+  <g fill="none" stroke="url(#line)" stroke-width="1.7" stroke-linecap="round">
+    <path d="M1075 116H1165M1211 116H1330M1370 116H1435"/>
+    <path d="M935 190C1050 171 1145 191 1238 193S1460 188 1580 174" opacity=".35"/>
+    <path d="M1100 25Q1200 4 1320 29" opacity=".26"/>
+  </g>
+  <!-- log record / immutable document -->
+  <g transform="translate(870 20)">
+    <rect x="-10" y="-9" width="178" height="195" rx="24" fill="#241b18" fill-opacity=".22" stroke="#ffddac" stroke-opacity=".12"/>
+    <rect x="0" y="0" width="158" height="175" rx="17" fill="url(#card)" stroke="#f4c996" stroke-opacity=".68" stroke-width="1.6"/>
+    <path d="M115 0v31a10 10 0 0 0 10 10h33" fill="#f8d2a3" fill-opacity=".13" stroke="#f3c99a" stroke-opacity=".5" stroke-width="1.5"/>
+    <g stroke="#f5d0a4" stroke-width="2.8" stroke-linecap="round" fill="none">
+      <path d="M26 51h61M26 63h41M48 91h72M48 119h72M48 147h61"/>
+      <path d="m26 90 6 6 10-13 M26 118l6 6 10-13 M26 146l6 6 10-13" stroke-width="2.6"/>
+    </g>
+    <rect x="21" y="17" width="57" height="15" rx="7.5" fill="#eec795" fill-opacity=".16"/>
+    <path d="M30 24.5h39" stroke="#f4d4ac" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <!-- verified timeline nodes, iconographic only and not live events -->
+  <g stroke="#f7d7ab" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="1188" cy="116" r="23" stroke-opacity=".68" stroke-width="2.4" fill="#442c21"/>
+    <path d="m1179 115 6 6 13-15" stroke-width="3.4"/>
+    <circle cx="1351" cy="116" r="23" stroke-opacity=".68" stroke-width="2.4" fill="#442c21"/>
+    <path d="M1351 103v13l8 5" stroke-width="3"/>
+    <circle cx="1462" cy="116" r="23" stroke-opacity=".5" stroke-width="2" fill="#4c3022"/>
+    <path d="m1453 116 6 6 12-13" stroke-opacity=".78" stroke-width="3"/>
+  </g>
+  <g fill="#fff0d9" opacity=".76">
+    <circle cx="1119" cy="116" r="3.3"/>
+    <circle cx="1266" cy="116" r="3.3"/>
+    <circle cx="1415" cy="116" r="3.3"/>
+  </g>
+  <!-- small shield/lock: privacy and read-only security -->
+  <g transform="translate(1290 19)" stroke="#f4cf9c" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M35 0 65 12v27c0 24-15 42-30 51C20 81 5 63 5 39V12Z" stroke-opacity=".45" stroke-width="2.4" fill="#e2b785" fill-opacity=".08"/>
+    <rect x="22" y="37" width="26" height="21" rx="4" stroke-width="2.3"/>
+    <path d="M27 37v-7a8 8 0 0 1 16 0v7" stroke-width="2.3"/>
+    <circle cx="35" cy="47.5" r="1.8" fill="#f4cf9c" stroke="none"/>
+  </g>
+  <g fill="none" stroke="#ffdbac" stroke-opacity=".12" stroke-width="2">
+    <path d="M762 25h52M762 35h31M1508 176h55M1533 186h30"/>
+    <circle cx="1170" cy="113" r="87" stroke-dasharray="2 18"/>
+  </g>
+</svg>
