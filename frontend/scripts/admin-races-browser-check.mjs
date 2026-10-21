@@ -9,7 +9,7 @@ export async function checkAdminRaces(browser, origin) {
   const writes = [], racePages = new Set(), userPages = new Set();
   const races = [
     { raceId: 1, name: "Al Bashayer Autumn Race", startsAt: "2026-10-05T16:00:00Z", location: "Al Bashayer, Oman", distanceKm: 5, status: "CLOSED", organizerId: 12, organizationId: 3, coverImageUrl: `${origin}/assets/racing-hero.webp` },
-    { raceId: 2, name: "Bahla Race", startsAt: "2026-10-28T10:39:00Z", location: "Bahla", distanceKm: 6, status: "CLOSED", organizerId: 12, coverImageUrl: `${origin}/assets/admin-races/hero.webp` },
+    { raceId: 2, name: "Bahla Race", startsAt: "2026-10-28T10:39:00Z", location: "Bahla", distanceKm: 6, status: "CLOSED", organizerId: 12 },
     { raceId: 4, name: "Bahla Championship Race", startsAt: "2026-11-21T06:08:00Z", location: "Bahla, Al Dakhiliyah", distanceKm: 8, status: "OPEN", organizerId: 12, coverImageUrl: `${origin}/assets/racing-hero.webp` }
   ];
   let entries = [];
@@ -62,6 +62,21 @@ export async function checkAdminRaces(browser, origin) {
     assert.match(await page.locator("[data-race-rows]").innerText(), /Sulaiman Organizer/);
     assert.match(await page.locator("[data-entry-rows]").innerText(), /No pending registration requests/);
     assert.equal(writes.length, 0);
+    assert.equal(await page.locator(".admin-race-thumbnail img").count(), 3);
+    await page.waitForFunction(() => [...document.querySelectorAll(".admin-race-thumbnail img")].every(img => img.complete && img.naturalWidth > 0));
+    assert.match(await page.locator(".admin-race-thumbnail img").nth(1).getAttribute("src"), /\/assets\/mock-camels\/camel-/);
+    const artwork = await page.evaluate(() => ({
+      total: getComputedStyle(document.querySelector(".admin-race-metric-total")).backgroundImage,
+      open: getComputedStyle(document.querySelector(".admin-race-metric-open")).backgroundImage,
+      pending: getComputedStyle(document.querySelector(".admin-race-metric-pending")).backgroundImage,
+      completed: getComputedStyle(document.querySelector(".admin-race-metric-completed")).backgroundImage,
+      empty: getComputedStyle(document.querySelector(".admin-race-empty-state")).backgroundImage
+    }));
+    assert.match(artwork.total, /caravan\.svg/);
+    assert.match(artwork.open, /dunes\.svg/);
+    assert.match(artwork.pending, /people\.svg/);
+    assert.match(artwork.completed, /pavilion\.svg/);
+    assert.match(artwork.empty, /empty-desert\.svg/);
     const placement = await page.evaluate(() => {
       const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
       return { list: box(".admin-race-list-panel"), requests: box(".admin-race-requests-panel"), controls: box(".admin-race-controls-panel") };
@@ -137,7 +152,8 @@ export async function checkAdminRaces(browser, origin) {
     await load();
     assert.match(await page.locator("[data-race-rows]").innerText(), /<img src=x/);
     assert.equal(await page.evaluate(() => window.__raceXss), undefined);
-    await page.waitForFunction(() => document.querySelector(".admin-race-thumbnail img")?.complete !== false);
+    await page.waitForFunction(() => [...document.querySelectorAll(".admin-race-thumbnail img")].every(img => img.complete && img.naturalWidth > 0));
+    assert.match(await page.locator(".admin-race-thumbnail img").first().getAttribute("src"), /\/assets\/mock-camels\/camel-/);
     for (const width of [1440, 1024, 768, 390]) {
       await page.setViewportSize({ width, height: 900 });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Race page must not overflow at ${width}px`);

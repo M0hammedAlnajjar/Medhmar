@@ -28,7 +28,9 @@
 .admin-console[data-admin-layout="races"] .admin-sidebar-bottom a,
 .admin-console[data-admin-layout="races"] .admin-sidebar-bottom button { min-height: 44px; display: flex; align-items: center; gap: 17px; color: #fff8ef; text-decoration: none; padding: 9px 4px; font-size: 13px; font-weight: 500; }
 .admin-console[data-admin-layout="races"] .admin-sidebar-bottom .admin-race-back-link { border-top: 1px solid #75563e; padding-top: 18px; margin-top: 7px; }
-.admin-races-page { min-height: 100vh; background: url('/assets/admin-races/mountains.svg') bottom right / 370px 120px no-repeat; }
+.admin-races-page { min-height: 100vh; background: linear-gradient(180deg, #fbf7ef 0%, #f8f3ea 100%); position: relative; overflow: hidden; }
+.admin-races-page::after { content: ''; position: absolute; z-index: 0; right: 0; bottom: 0; width: min(430px, 35vw); height: 165px; pointer-events: none; background: url('/assets/admin-races/mountains.svg') right bottom / contain no-repeat; opacity: .96; }
+.admin-race-hero, .admin-race-content { position: relative; z-index: 1; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
 .admin-race-hero { min-height: 216px; border-radius: 0 0 14px 14px; padding: 38px 38px 27px 49px; display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; background: linear-gradient(90deg, #fff8ec75, transparent 50%), url('/assets/admin-races/hero.webp') center 43% / cover no-repeat, #f3e4cf; }
@@ -53,7 +55,7 @@
 .admin-race-secondary { background: #fffdfa; color: #4f3d32; padding: 10px 15px; border: 1px solid #d9cabc; }
 .admin-races-page button:disabled, [data-admin-race-dialog] button:disabled { opacity: .55; cursor: not-allowed; }
 .admin-race-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
-.admin-race-metrics article { min-width: 0; min-height: 109px; border: 1px solid var(--race-border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 18px; background-color: #fffdfa; background-repeat: no-repeat; background-position: right bottom; background-size: auto 100%; box-shadow: 0 3px 12px #3f2c1303; }
+.admin-race-metrics article { min-width: 0; min-height: 109px; border: 1px solid var(--race-border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 18px; background-color: #fffdfa; background-repeat: no-repeat; background-position: right bottom; background-size: auto 100%; box-shadow: 0 3px 12px #3f2c1308, inset 0 1px #fff; overflow: hidden; }
 .admin-race-metrics article.admin-race-metric-total { background-image: linear-gradient(90deg, #ffffff, #ffffffd9 55%, #ffffff18), url('/assets/admin-races/caravan.svg'); }
 .admin-race-metrics article.admin-race-metric-open { background-image: linear-gradient(90deg, #ffffff, #ffffffa6 55%, #ffffff18), url('/assets/admin-races/dunes.svg'); }
 .admin-race-metrics article.admin-race-metric-pending { background-image: linear-gradient(90deg, #ffffff, #ffffffce 60%, #ffffff18), url('/assets/admin-races/people.svg'); }
@@ -101,9 +103,9 @@
 .admin-race-table td strong { display: block; font: 700 13px/1.3 Georgia, serif; letter-spacing: -.02em; color: #151a35; }
 .admin-race-table td small { display: block; color: #53617e; margin-top: 3px; font-size: 11px; }
 .admin-race-identity { display: flex; align-items: center; gap: 13px; min-width: 205px; }
-.admin-race-thumbnail { width: 60px; height: 52px; flex: 0 0 60px; border-radius: 9px; display: grid; place-items: center; overflow: hidden; position: relative; color: #ab742f; background: linear-gradient(#eee4cf, #fbf4e7); }
+.admin-race-thumbnail { width: 60px; height: 52px; flex: 0 0 60px; border-radius: 9px; display: grid; place-items: center; overflow: hidden; position: relative; color: #ab742f; background: linear-gradient(#eee4cf, #fbf4e7); border: 1px solid #e8d7bf; box-shadow: inset 0 0 0 1px #ffffff99, 0 2px 5px #5635110b; }
 .admin-race-thumbnail > svg { width: 39px; height: 35px; }
-.admin-race-thumbnail img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.admin-race-thumbnail img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 42%; display: block; }
 .admin-race-cell-icon { display: flex; align-items: flex-start; gap: 10px; }
 .admin-race-cell-icon > svg { width: 16px; height: 16px; flex: 0 0 16px; margin-top: 2px; color: #a65808; }
 .admin-race-cell-icon time { white-space: nowrap; }
@@ -150,8 +152,8 @@
 .admin-race-requests-panel .admin-race-table { min-width: 760px; }
 .admin-race-requests-panel .admin-race-table th { font-size: 9px; padding-top: 9px; padding-bottom: 9px; }
 .admin-race-empty { text-align: center !important; padding: 9px 15px 7px !important; height: auto !important; }
-.admin-race-empty-state { min-height: 73px; display: grid; justify-items: center; align-content: end; padding: 0 10px 3px; background: linear-gradient(90deg, #fffdfa, #fffdfa00 28%, #fffdfa00 72%, #fffdfa), url('/assets/admin-races/empty-desert.svg') center bottom / 680px 75px no-repeat; }
-.admin-race-empty-state > svg { width: 42px; height: 35px; color: #bd905e; }
+.admin-race-empty-state { min-height: 88px; display: grid; justify-items: center; align-content: end; padding: 0 10px 5px; background: linear-gradient(90deg, #fffdfa, #fffdfa00 22%, #fffdfa00 78%, #fffdfa), url('/assets/admin-races/empty-desert.svg') center bottom / min(760px, 92%) 88px no-repeat; }
+.admin-race-empty-state > svg { width: 47px; height: 38px; color: #bc8450; filter: drop-shadow(0 1px #fff5e5); }
 .admin-race-table .admin-race-empty-state strong { font: 600 13px/1.4 'Segoe UI', Arial, sans-serif; }
 .admin-race-empty-state small { font-size: 10px !important; margin-top: 0 !important; }
 .admin-race-modal, .admin-race-view-modal { width: min(760px, calc(100vw - 32px)); max-height: 90vh; overflow: auto; padding: 0; border: 1px solid #e6d9c6; border-radius: 14px; background: #fffcf7; color: #1c2339; }
