@@ -63,6 +63,10 @@ export const raceEntryApi = {
         return api(`/api/race-entries/race/${raceId}`);
     },
 
+    getPublicParticipants(raceId) {
+        return api(`/api/race-entries/race/${raceId}/participants`);
+    },
+
     getById(id) {
         return api(`/api/race-entries/${id}`);
     },

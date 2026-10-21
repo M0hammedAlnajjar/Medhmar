@@ -17,8 +17,10 @@ class RaceAuthorizationIntegrationTests extends IntegrationSupport {
         var viewer = register("viewer@example.com");
         var owner = register("owner@example.com");
         var other = register("other@example.com");
+        var admin = register("race-admin@example.com");
         users.updateRoles(owner.userId(),Set.of("ORGANIZER"));
         users.updateRoles(other.userId(),Set.of("ORGANIZER"));
+        users.updateRoles(admin.userId(),Set.of("ADMIN"));
         var race = new Race();
         race.setName("Race"); race.setStartsAt(NOW.plusSeconds(3600)); race.setLocation("Muscat");
         race.setDistanceKm(5.0); race.setStatus(RaceStatus.SCHEDULED);
@@ -28,8 +30,11 @@ class RaceAuthorizationIntegrationTests extends IntegrationSupport {
         mvc.perform(delete("/api/races/"+id).session(login(viewer.email())).with(csrf())).andExpect(status().isForbidden());
         mvc.perform(delete("/api/races/"+id).session(login(other.email())).with(csrf())).andExpect(status().isForbidden());
         mvc.perform(post("/api/races").session(login(other.email())).with(csrf()).contentType("application/json")
-            .content(payload(Map.of("name","Spoofed","startsAt",NOW.plusSeconds(3600).toString(),"location","Muscat",
-                "distanceKm",5,"status","SCHEDULED","organizerId",owner.userId())))).andExpect(status().isForbidden());
+            .content(payload(Map.of("name","Organizer Attempt","startsAt",NOW.plusSeconds(3600).toString(),"location","Muscat",
+                "distanceKm",5,"status","SCHEDULED","organizerId",other.userId())))).andExpect(status().isForbidden());
+        mvc.perform(post("/api/races").session(login(admin.email())).with(csrf()).contentType("application/json")
+            .content(payload(Map.of("name","Admin Created Race","startsAt",NOW.plusSeconds(7200).toString(),"location","Nizwa",
+                "distanceKm",6,"status","SCHEDULED","organizerId",owner.userId())))).andExpect(status().isCreated());
         mvc.perform(delete("/api/races/"+id).session(login(owner.email())).with(csrf())).andExpect(status().isNoContent());
     }
 }

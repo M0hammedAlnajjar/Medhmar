@@ -100,7 +100,8 @@ test("race workflow access follows backend roles", () => {
   assert.equal(canAccessRoute(matchRoute("/races/1/register").route, viewer), false);
   assert.equal(canAccessRoute(matchRoute("/registrations").route, owner), true);
   assert.equal(canAccessRoute(matchRoute("/organizer").route, organizer), true);
-  assert.equal(canAccessRoute(matchRoute("/organizer/races/new").route, organizer), true);
+  assert.equal(canAccessRoute(matchRoute("/organizer/races/new").route, organizer), false);
+  assert.equal(canAccessRoute(matchRoute("/organizer/races/new").route, admin), true);
   assert.equal(canAccessRoute(matchRoute("/organizer/races/1").route, owner), false);
   assert.equal(canAccessRoute(matchRoute("/organizer/races/1").route, admin), true);
 });

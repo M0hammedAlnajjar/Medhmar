@@ -15,9 +15,11 @@ class OrganizationIntegrationTests extends IntegrationSupport {
         var organizer = register("org-owner@example.com");
         var secondOrganizer = register("org-second@example.com");
         var outsider = register("org-outsider@example.com");
+        var admin = register("org-admin@example.com");
         users.updateRoles(organizer.userId(), Set.of("ORGANIZER"));
         users.updateRoles(secondOrganizer.userId(), Set.of("ORGANIZER"));
         users.updateRoles(outsider.userId(), Set.of("ORGANIZER"));
+        users.updateRoles(admin.userId(), Set.of("ADMIN"));
 
         var session = login(organizer.email());
         String created = mvc.perform(post("/api/organizations").session(session).with(csrf())
@@ -60,7 +62,7 @@ class OrganizationIntegrationTests extends IntegrationSupport {
                         ))))
                 .andExpect(status().isForbidden());
 
-        mvc.perform(post("/api/races").session(session).with(csrf())
+        mvc.perform(post("/api/races").session(login(admin.email())).with(csrf())
                         .contentType("application/json")
                         .content(payload(Map.of(
                                 "name", "Organization Race",
