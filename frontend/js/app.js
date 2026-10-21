@@ -33,6 +33,7 @@ let renderEpoch = 0;
 const state = {
   adminUsers: null,
   adminPageData: null,
+  adminUserStats: null,
   adminSummary: null,
   adminError: '',
   adminPage: 0,
@@ -350,7 +351,7 @@ function adminOrganizationsPage() {
 }
 function adminUsersPage() {
  if (!canAccessRoute(matchRoute('/admin/users').route,state.user)) return adminDenied();
- return shell(adminUsersView({users:state.adminUsers,page:state.adminPageData,error:state.adminError}),'/admin/users');
+ return shell(adminUsersView({users:state.adminUsers,page:state.adminPageData,stats:state.adminUserStats,error:state.adminError}),'/admin/users');
 }
 // Audit pages use the dedicated Admin shell and server-side paginated data.
 const auditFilters = () => {
@@ -891,6 +892,7 @@ async function render() {
  if(!adminArea(path)) loadView(match);
  state.adminUsers=null;
  state.adminPageData=null;
+ state.adminUserStats=null;
  state.adminSummary=null;
  state.adminError='';
  state.adminAuditPageData=null;
@@ -986,6 +988,18 @@ async function render() {
       if(epoch!==renderEpoch)return;
       if(!Array.isArray(page?.content))throw new Error('Unable to load accounts.');
       state.adminUsers=page.content;state.adminPageData=page;
+      // A separate aggregate endpoint prevents page-scoped role counts from
+      // masquerading as global account statistics. Older backends degrade safely.
+      try {
+       const stats=await adminApi.userStats();
+       if(epoch!==renderEpoch)return;
+       if(stats && Number.isSafeInteger(stats.totalUsers) && stats.totalUsers>=0 &&
+          stats.roles && typeof stats.roles==='object')state.adminUserStats=stats;
+      } catch(statsError) {
+       if(epoch!==renderEpoch)return;
+       if(statsError?.status===401||statsError?.status===403)throw statsError;
+       state.adminUserStats=null;
+      }
      }
     } catch(err) {
      if(epoch!==renderEpoch)return;

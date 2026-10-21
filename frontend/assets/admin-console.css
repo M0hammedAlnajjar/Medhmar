@@ -1233,3 +1233,55 @@
  .admin-console .admin-metrics{grid-template-columns:minmax(0,1fr)}
  .admin-console .admin-metrics .admin-metric-card{min-height:98px}
 }
+
+
+/* Manage Users: six equal reference cards, all scoped to account statistics. */
+.admin-console .admin-users-stats{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;
+  margin:-34px 8px 12px;position:relative;z-index:2;
+}
+.admin-console .admin-users-stats .admin-users-stat{
+  display:flex;align-items:center;gap:11px;min-width:0;min-height:101px;
+  padding:12px 13px;background:#fff;border:1px solid #eae9e8;
+  border-radius:10px;box-shadow:0 3px 13px #26190d0c;
+}
+.admin-console .admin-users-stats .admin-users-stat-icon{
+  display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;
+  border-radius:10px;background:#fce8eb;color:#d3042f;
+}
+.admin-console .admin-users-stats .admin-users-stat-icon svg{display:block;width:32px;height:32px}
+.admin-console .admin-users-stats .admin-users-stat-viewer .admin-users-stat-icon{color:#1387f6;background:#e9f5ff}
+.admin-console .admin-users-stats .admin-users-stat-owner .admin-users-stat-icon{color:#f29100;background:#fff2de}
+.admin-console .admin-users-stats .admin-users-stat-trainer .admin-users-stat-icon{color:#2789ed;background:#e9f5ff}
+.admin-console .admin-users-stats .admin-users-stat-organizer .admin-users-stat-icon{color:#8732ea;background:#f5edff}
+.admin-console .admin-users-stats .admin-users-stat-admin .admin-users-stat-icon{color:#d00432;background:#ffeaed}
+.admin-console .admin-users-stats .admin-users-stat>div{
+  display:grid;align-content:center;min-width:0;gap:3px;
+}
+.admin-console .admin-users-stats .admin-users-stat-label{
+  font-size:11px;font-weight:600;line-height:1.2;color:#46526e;white-space:nowrap;
+}
+.admin-console .admin-users-stats .admin-users-stat strong{
+  font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:#11121a;
+  font-variant-numeric:tabular-nums;
+}
+.admin-console .admin-users-stats .admin-users-stat-trend{
+  display:block;font-size:13px;font-weight:750;line-height:1.2;white-space:nowrap;
+}
+.admin-console .admin-users-stats .admin-trend-up{color:#12a450}
+.admin-console .admin-users-stats .admin-trend-down{color:#cc3450}
+.admin-console .admin-users-stats .admin-trend-flat,
+.admin-console .admin-users-stats .admin-trend-unknown{color:#778398}
+.admin-console .admin-users-stats .admin-users-stat small{
+  font-size:11px;font-weight:400;line-height:1.2;color:#8390a5;white-space:nowrap;
+}
+@media(max-width:1250px){
+ .admin-console .admin-users-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:680px){
+ .admin-console .admin-users-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .admin-console .admin-users-stats .admin-users-stat{min-height:102px}
+}
+@media(max-width:395px){
+ .admin-console .admin-users-stats{grid-template-columns:1fr}
+}
