@@ -61,7 +61,7 @@ export function adminSystemHealthView({data=null,error='',samples=[]}={}){
  const figures=card('Database','MySQL · Live SELECT 1','database',badge(result,connected?'ok':valid?'down':'unknown'))+
  card('Backend API','Authenticated health endpoint','code',badge(valid?'Responding':'Unverified',valid?'ok':'unknown'))+
  card('Challenges','Total recorded','trophy','<strong class="admin-system-count">'+(connected?number(data.totalChallenges):'—')+'</strong>')+
- card('Votes','Total saved','votes','<strong class="admin-system-count">'+(connected?number(data.totalVotes):'—')+'</strong>');
+ card('Votes','Total saved votes across all challenges','votes','<strong class="admin-system-count">'+(connected?number(data.totalVotes):'—')+'</strong>');
  const events=snapshots.slice(-4).reverse().map(s=>
  '<li class="admin-sys-check-event"><span class="admin-sys-event-icon admin-sys-event-'+(s.result==='CONNECTED'?'ok':'warn')+
  '">'+icon(s.result==='CONNECTED'?'check':'warn')+'</span><span><strong>'+
