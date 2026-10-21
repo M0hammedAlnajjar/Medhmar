@@ -1,72 +1,71 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 220" aria-hidden="true">
-  <!-- Decorative audit illustration; actual audit events remain in the table, not the artwork. -->
+  <!-- Decorative audit illustration. No synthetic user actions or live status shown. -->
   <defs>
-    <linearGradient id="bg" x1="0" x2="1" y1="0" y2=".35">
-      <stop stop-color="#36241c"/>
-      <stop offset=".56" stop-color="#553727"/>
-      <stop offset="1" stop-color="#754731"/>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2=".2">
+      <stop stop-color="#2d1d18"/>
+      <stop offset=".53" stop-color="#493024"/>
+      <stop offset="1" stop-color="#704530"/>
     </linearGradient>
-    <linearGradient id="line" x1="0" x2="1">
-      <stop stop-color="#eac292" stop-opacity=".2"/>
-      <stop offset=".5" stop-color="#ffdab0" stop-opacity=".85"/>
-      <stop offset="1" stop-color="#eac292" stop-opacity=".32"/>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#e9bd84" stop-opacity=".36"/>
+      <stop offset="1" stop-color="#e9bd84" stop-opacity=".13"/>
     </linearGradient>
-    <radialGradient id="glow">
-      <stop stop-color="#e5ad70" stop-opacity=".2"/>
-      <stop offset="1" stop-color="#e5ad70" stop-opacity="0"/>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#f9ddaf"/>
+      <stop offset=".55" stop-color="#f8cb89"/>
+      <stop offset="1" stop-color="#f1b767"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop stop-color="#f2bd76" stop-opacity=".23"/>
+      <stop offset="1" stop-color="#f2bd76" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#f7deb8" stop-opacity=".18"/>
-      <stop offset="1" stop-color="#f7deb8" stop-opacity=".04"/>
-    </linearGradient>
-    <pattern id="mesh" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M24 0H0V24" fill="none" stroke="#ffe1b7" stroke-opacity=".055" stroke-width=".8"/>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="11" cy="11" r="1" fill="#f9d4a1" fill-opacity=".16"/>
     </pattern>
   </defs>
-  <rect width="1600" height="220" fill="url(#bg)"/>
-  <rect x="665" width="935" height="220" fill="url(#mesh)"/>
-  <ellipse cx="1150" cy="108" rx="500" ry="220" fill="url(#glow)"/>
-  <!-- subdued event network -->
-  <g fill="none" stroke="url(#line)" stroke-width="1.7" stroke-linecap="round">
-    <path d="M1075 116H1165M1211 116H1330M1370 116H1435"/>
-    <path d="M935 190C1050 171 1145 191 1238 193S1460 188 1580 174" opacity=".35"/>
-    <path d="M1100 25Q1200 4 1320 29" opacity=".26"/>
-  </g>
-  <!-- log record / immutable document -->
-  <g transform="translate(870 20)">
-    <rect x="-10" y="-9" width="178" height="195" rx="24" fill="#241b18" fill-opacity=".22" stroke="#ffddac" stroke-opacity=".12"/>
-    <rect x="0" y="0" width="158" height="175" rx="17" fill="url(#card)" stroke="#f4c996" stroke-opacity=".68" stroke-width="1.6"/>
-    <path d="M115 0v31a10 10 0 0 0 10 10h33" fill="#f8d2a3" fill-opacity=".13" stroke="#f3c99a" stroke-opacity=".5" stroke-width="1.5"/>
-    <g stroke="#f5d0a4" stroke-width="2.8" stroke-linecap="round" fill="none">
-      <path d="M26 51h61M26 63h41M48 91h72M48 119h72M48 147h61"/>
-      <path d="m26 90 6 6 10-13 M26 118l6 6 10-13 M26 146l6 6 10-13" stroke-width="2.6"/>
+  <rect width="1600" height="220" fill="url(#background)"/>
+  <rect x="830" y="0" width="660" height="220" fill="url(#dots)"/>
+  <ellipse cx="1123" cy="113" rx="460" ry="180" fill="url(#halo)"/>
+  <!-- Inset audit document: kept inside the visible hero safe area. -->
+  <g transform="translate(932 45)">
+    <rect x="0" y="0" width="156" height="130" rx="15" fill="#241a17" fill-opacity=".72" stroke="#f6cb92" stroke-width="2.4"/>
+    <path d="M123 0v20c0 8 6 14 14 14h19" fill="url(#paper)" stroke="#f6cb92" stroke-width="2.4" stroke-linejoin="round"/>
+    <rect x="18" y="16" width="76" height="7" rx="3.5" fill="#ffe0b0" fill-opacity=".8"/>
+    <g fill="none" stroke="#ffe2b6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m20 49 7 7 12-15 M20 82l7 7 12-15 M20 115l7 7 12-15"/>
+      <path d="M48 48h69 M48 81h69 M48 114h55" opacity=".94"/>
     </g>
-    <rect x="21" y="17" width="57" height="15" rx="7.5" fill="#eec795" fill-opacity=".16"/>
-    <path d="M30 24.5h39" stroke="#f4d4ac" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>
   </g>
-  <!-- verified timeline nodes, iconographic only and not live events -->
-  <g stroke="#f7d7ab" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="1188" cy="116" r="23" stroke-opacity=".68" stroke-width="2.4" fill="#442c21"/>
-    <path d="m1179 115 6 6 13-15" stroke-width="3.4"/>
-    <circle cx="1351" cy="116" r="23" stroke-opacity=".68" stroke-width="2.4" fill="#442c21"/>
-    <path d="M1351 103v13l8 5" stroke-width="3"/>
-    <circle cx="1462" cy="116" r="23" stroke-opacity=".5" stroke-width="2" fill="#4c3022"/>
-    <path d="m1453 116 6 6 12-13" stroke-opacity=".78" stroke-width="3"/>
+  <!-- Audit trail: restrained connectors, clear spacing. -->
+  <g fill="none" stroke="#f4ce99" stroke-width="2.8" stroke-linecap="round">
+    <path d="M1111 110h72"/>
+    <path d="M1296 110h52"/>
+    <path d="M1413 110h32" stroke-opacity=".4"/>
   </g>
-  <g fill="#fff0d9" opacity=".76">
-    <circle cx="1119" cy="116" r="3.3"/>
-    <circle cx="1266" cy="116" r="3.3"/>
-    <circle cx="1415" cy="116" r="3.3"/>
+  <g fill="#ffe1b5">
+    <circle cx="1147" cy="110" r="4"/>
+    <circle cx="1321" cy="110" r="4"/>
   </g>
-  <!-- small shield/lock: privacy and read-only security -->
-  <g transform="translate(1290 19)" stroke="#f4cf9c" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M35 0 65 12v27c0 24-15 42-30 51C20 81 5 63 5 39V12Z" stroke-opacity=".45" stroke-width="2.4" fill="#e2b785" fill-opacity=".08"/>
-    <rect x="22" y="37" width="26" height="21" rx="4" stroke-width="2.3"/>
-    <path d="M27 37v-7a8 8 0 0 1 16 0v7" stroke-width="2.3"/>
-    <circle cx="35" cy="47.5" r="1.8" fill="#f4cf9c" stroke="none"/>
+  <!-- Protection: shield with a clearly legible lock. -->
+  <g transform="translate(1186 49)">
+    <path d="M55 0 107 20v39c0 35-24 62-52 76C27 121 3 94 3 59V20L55 0Z"
+      fill="#261a15" fill-opacity=".78" stroke="url(#gold)" stroke-width="3.8" stroke-linejoin="round"/>
+    <path d="M55 14 92 28v32c0 26-15 45-37 58-22-13-37-32-37-58V28Z"
+      fill="#d5a069" fill-opacity=".13"/>
+    <g stroke="#ffdfaa" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="38" y="59" width="35" height="33" rx="5" fill="#40291f" stroke-width="3.6"/>
+      <path d="M45 58v-8a10 10 0 0 1 20 0v8"/>
+      <path d="M55.5 72v8"/>
+    </g>
+    <circle cx="55.5" cy="70" r="2.8" fill="#ffdfaa"/>
   </g>
-  <g fill="none" stroke="#ffdbac" stroke-opacity=".12" stroke-width="2">
-    <path d="M762 25h52M762 35h31M1508 176h55M1533 186h30"/>
-    <circle cx="1170" cy="113" r="87" stroke-dasharray="2 18"/>
+  <!-- Clock represents event history, not an actual timestamp. -->
+  <g transform="translate(1374 110)" fill="none" stroke="#ffe0ae" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle r="34" fill="#2b1d17" fill-opacity=".72" stroke="url(#gold)"/>
+    <path d="M0-18v18l13 9"/>
+  </g>
+  <g fill="none" stroke="#f4cd92" stroke-width="1.5" opacity=".25">
+    <path d="M840 175h66M851 185h41 M1440 46h74 M1452 56h40"/>
+    <circle cx="1239" cy="111" r="81" stroke-dasharray="2 13"/>
   </g>
 </svg>
