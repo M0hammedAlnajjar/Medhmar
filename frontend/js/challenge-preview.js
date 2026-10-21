@@ -26,8 +26,6 @@ const symbols = {
   pin:'<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
   calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
   trophy:'<path d="M7 3h10v9a5 5 0 0 1-10 0zM7 6H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4M12 17v4m-5 0h10"/>',
-  group:'<circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6m4 9v-2a6 6 0 0 0-4-5"/>',
-  chart:'<path d="M4 20v-7M10 20V4M16 20v-11M22 20v-5"/>',
   radio:'<circle cx="12" cy="12" r="2"/><path d="M7.5 7.5a6.5 6.5 0 0 0 0 9m9-9a6.5 6.5 0 0 1 0 9M4 4a11.3 11.3 0 0 0 0 16m16-16a11.3 11.3 0 0 1 0 16"/>',
   expand:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
   file:'<path d="M6 3h9l5 5v13H6zM15 3v6h5M9 13h8M9 17h8"/>',
@@ -71,10 +69,6 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
   'Voting will be available during the scheduled window.') :
   signedIn?'One vote per account. Votes are saved to the platform and cannot be changed.':
   'Sign in to cast one recorded vote.';
- const dates='Voting opens '+utc(challenge.opensAt)+'. Voting closes '+utc(challenge.closesAt)+'.';
- const participants=camels.length?camels.map(c=>String(c.name||'Camel')+' (#'+c.camelId+')').join(' · '):'No participating camels';
- const results=camels.length?camels.map(c=>String(c.name||'Camel')+': '+safeCount(c.voteCount)+' votes ('+
-  (percent(c.votePercent)===null?'—':percent(c.votePercent).toFixed(0)+'%')+')').join(' · '):'No recorded contenders';
  return '<section class="broadcast-preview broadcast-live-data" aria-label="Featured published challenge">'+
   '<div class="broadcast-grid"><div class="broadcast-left">'+
     '<div class="broadcast-player" id="broadcast-player">'+
@@ -91,13 +85,6 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
       '<button type="button" data-preview-image="prev" aria-label="Previous illustrative photograph">‹</button>'+
       '<button type="button" data-preview-image="next" aria-label="Next illustrative photograph">›</button></div></div>'+
     '</div>'+
-    '<div class="broadcast-bottom-tools"><div class="broadcast-tabs" role="tablist" aria-label="Challenge information">'+
-      '<button type="button" role="tab" data-preview-tab="overview" id="challenge-overview" aria-selected="true" aria-controls="broadcast-info">Overview</button>'+
-      '<button type="button" role="tab" data-preview-tab="participants" id="challenge-participants" aria-selected="false" aria-controls="broadcast-info">'+ico('group',16)+'Participants</button>'+
-      '<button type="button" role="tab" data-preview-tab="results" id="challenge-results" aria-selected="false" aria-controls="broadcast-info">'+ico('chart',16)+'Results</button>'+
-      '</div><button type="button" id="refresh-challenges" class="broadcast-refresh">Refresh results</button></div>'+
-    '<div id="broadcast-info" role="tabpanel" aria-labelledby="challenge-overview" tabindex="0" data-overview="'+escapeHtml(dates)+
-      '" data-participants="'+escapeHtml(participants)+'" data-results="'+escapeHtml(results)+'"><p>'+escapeHtml(dates)+'</p></div>'+
   '</div><aside class="broadcast-voting">'+
     '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
     '<p>'+escapeHtml(votingNote)+'</p>'+candidateCards+
@@ -230,30 +217,5 @@ export function bindBroadcastPreview(root) {
   photoIndex=(photoIndex+(button.dataset.previewImage==='next'?1:-1)+gallery.length)%gallery.length;
   scene.src=gallery[photoIndex];
  }));
- const tabs=[...section.querySelectorAll('[data-preview-tab]')];
- const activate=(button,focus=false)=>{
-   for(const tab of tabs){
-     const current=tab===button;
-     tab.setAttribute('aria-selected',String(current));
-     tab.tabIndex=current?0:-1;
-   }
-   const info=section.querySelector('#broadcast-info');
-   if(!info)return;
-   info.setAttribute('aria-labelledby',button.id);
-   info.textContent=info.dataset[button.dataset.previewTab]||'';
-   if(focus)button.focus();
- };
- tabs.forEach((button,i)=>{
-   button.tabIndex=i? -1:0;
-   button.addEventListener('keydown',event=>{
-     let next;
-     if(event?.key==='ArrowRight')next=(i+1)%tabs.length;
-     else if(event?.key==='ArrowLeft')next=(i-1+tabs.length)%tabs.length;
-     else if(event?.key==='Home')next=0;
-     else if(event?.key==='End')next=tabs.length-1;
-     else return;
-     event.preventDefault();activate(tabs[next],true);
-   });
-   button.addEventListener('click',()=>activate(button));
- });
+
 }

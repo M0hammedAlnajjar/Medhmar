@@ -22,7 +22,7 @@ test('published challenge replaces all old sample details with recorded data',()
  assert.match(html,/No photo/);
  assert.doesNotMatch(html,/744 votes|456 votes|1\.2K watching|Al Bashaer Evening Challenge|Try one sample vote|Reset preview vote/);
  assert.doesNotMatch(html,/data-preview-vote/);
- assert.match(html,/Refresh results/);
+ assert.doesNotMatch(html,/Refresh results|broadcast-bottom-tools|broadcast-tabs|broadcast-info/);
 });
 test('unsigned visitors see only authenticated vote links; future/closed challenges cannot vote',()=>{
  const publicView=broadcastPreview(challenge,{signedIn:false});
@@ -50,29 +50,15 @@ test('user supplied names and photo URLs cannot inject HTML',()=>{
  assert.match(evil,/&lt;img src=x|&lt;script&gt;/);
  assert.match(evil,/No photo/);
 });
-test('tabs and fullscreen only change presentation, never mutate votes',()=>{
- let labels=[];const tabs=[
-  {dataset:{previewTab:'overview'},id:'challenge-overview',addEventListener(kind,cb){this.cb=cb;},
-   setAttribute(k,v){labels.push([k,v]);}},
-  {dataset:{previewTab:'participants'},id:'challenge-participants',
-   addEventListener(kind,cb){this.cb=cb;},setAttribute(k,v){labels.push([k,v]);}}
- ];
- const info={dataset:{overview:'Overview text',participants:'Al Barq (#1) · Shaheen (#2)'},
-   setAttribute(k,v){this.label=v;},textContent:''};
- const section={
-  querySelector(sel){if(sel==='[data-preview-fullscreen]')return null;if(sel==='#broadcast-info')return info;return null;},
-  querySelectorAll(sel){return sel==='[data-preview-tab]'?tabs:[];}
- };
- const root={querySelector(sel){return sel==='.broadcast-preview'?section:null;}};
- bindBroadcastPreview(root);
- tabs[1].cb();
- assert.match(info.textContent,/Shaheen/);
- assert.equal(info.label,'challenge-participants');
- assert.ok(labels.some(([k,v])=>k==='aria-selected'&&v==='true'));
+test('the challenge keeps the real voting actions and gallery but omits the old details controls',()=>{
+ const html=broadcastPreview(challenge,{signedIn:true});
+ for(const removed of ['broadcast-bottom-tools','broadcast-tabs','broadcast-info',
+   'data-preview-tab','Refresh results','Voting opens'])assert.ok(!html.includes(removed),removed);
+ assert.match(html,/data-preview-image="next"|data-preview-fullscreen/);
+ assert.match(html,/data-challenge="42" data-camel="1"/);
 });
 
-
-test('approved hero renders photograph, working gallery controls, results tab and real facts',()=>{
+test('approved hero renders photograph, gallery controls and real voting data',()=>{
  const html=broadcastPreview(challenge,{signedIn:true});
  assert.match(html,/class="broadcast-grid"/);
  assert.match(html,/class="broadcast-player"/);
@@ -81,8 +67,8 @@ test('approved hero renders photograph, working gallery controls, results tab an
  assert.match(html,/data-preview-image="next"/);
  assert.match(html,/data-preview-image="prev"/);
  assert.match(html,/data-preview-fullscreen/);
- assert.match(html,/data-preview-tab="results"/);
- assert.match(html,/data-results="Al Barq: 3 votes \(75%\) · Shaheen: 1 votes \(25%\)"/);
+ assert.doesNotMatch(html,/data-preview-tab|data-results=|broadcast-info/);
+ assert.match(html,/3 votes|75%/);
  assert.doesNotMatch(html,/class="broadcast-facts"|Opens \(UTC\)|Closes \(UTC\)|<small>Broadcast<\/small>/);
  assert.match(html,/CLOSED · RESULTS|VOTING OPEN|VOTING SCHEDULED/);
  assert.match(html,/Illustrative racetrack photograph\. No live stream is connected/);
@@ -111,58 +97,37 @@ test('published cards show only API data and use safe fallback illustration',()=
  assert.match(empty,/More published challenges will appear here/);
  assert.doesNotMatch(empty,/broadcast-published-card|Desert Speed Challenge/);
 });
-test('gallery and result tab update visual state without writing votes',()=>{
- let changes=[],text='',gallerySource='/assets/home-racetrack.jpg';
- const info={dataset:{overview:'Opening times',participants:'Two contenders',results:'Al Barq 3 votes'},
-  setAttribute(k,v){changes.push([k,v]);},set textContent(v){text=v;},get textContent(){return text;}};
- const photo={get src(){return gallerySource;},set src(v){gallerySource=v;}};
- const buttons=['prev','next'].map(id=>({dataset:{previewImage:id},addEventListener(_,cb){this.cb=cb;}}));
- const tabs=['overview','participants','results'].map((kind,i)=>({
-   id:'challenge-'+kind,dataset:{previewTab:kind},
-   addEventListener(_,cb){this.cb=cb;},setAttribute(k,v){changes.push([k,v]);},
-   focus(){},tabIndex:i? -1:0
- }));
+test('gallery controls update the photograph without mutating votes',()=>{
+ let gallerySource='/assets/home-racetrack.jpg';
+ const photo={get src(){return gallerySource;},set src(value){gallerySource=value;}};
+ const buttons=['prev','next'].map(direction=>({dataset:{previewImage:direction},addEventListener(_,cb){this.cb=cb;}}));
  const section={
-  querySelector(sel){
-   if(sel==='#broadcast-info')return info;
-   if(sel==='.broadcast-scene-image')return photo;
-   return null;
-  },
-  querySelectorAll(sel){
-   if(sel==='[data-preview-image]')return buttons;
-   if(sel==='[data-preview-tab]')return tabs;
-   return [];
-  }
+  querySelector(sel){return sel==='.broadcast-scene-image'?photo:null;},
+  querySelectorAll(sel){return sel==='[data-preview-image]'?buttons:[];}
  };
  bindBroadcastPreview({querySelector:sel=>sel==='.broadcast-preview'?section:null});
  buttons[1].cb();
  assert.equal(gallerySource,'/assets/racing-hero.webp');
  buttons[0].cb();
  assert.equal(gallerySource,'/assets/home-racetrack.jpg');
- tabs[2].cb();
- assert.equal(text,'Al Barq 3 votes');
- assert.ok(changes.some(([k,v])=>k==='aria-labelledby'&&v==='challenge-results'));
 });
 
-test('challenge overview no longer renders the redundant four-column facts bar',()=>{
+test('challenge retains schedule on hero but removes extra navigation and times row',()=>{
  const html=broadcastPreview(challenge,{signedIn:true});
  assert.doesNotMatch(html,/broadcast-facts|<small>Challenge ID<\/small>|<small>Opens \(UTC\)<\/small>|<small>Closes \(UTC\)<\/small>|<small>Broadcast<\/small>/);
  assert.match(html,/CHALLENGE #42/);
- assert.match(html,/Voting opens/);
- assert.match(html,/data-preview-tab="overview"/);
- assert.match(html,/data-preview-tab="participants"/);
- assert.match(html,/data-preview-tab="results"/);
+ assert.match(html,/Opens .* UTC|Opens /);
+ assert.doesNotMatch(html,/Voting opens|broadcast-bottom-tools|broadcast-info|data-preview-tab|Refresh results/);
  assert.match(html,/No live stream is connected/);
 });
 
-test('approved compact challenge layout uses only existing photos and keeps vote/refresh controls',async()=>{
+test('approved compact challenge layout uses existing photos and keeps gallery controls',async()=>{
  const {readFile}=await import('node:fs/promises');
  const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
  const html=broadcastPreview(challenge,{signedIn:false});
  for(const selector of [
   '.app-shell:has(.broadcast-preview) .broadcast-grid',
   '.app-shell:has(.broadcast-preview) .broadcast-voting',
-  '.app-shell:has(.broadcast-preview) .broadcast-tabs',
   '.app-shell:has(.broadcast-preview) .broadcast-published-card',
   '.app-shell:has(.broadcast-preview) .broadcast-published-placeholder',
   '@media(max-width:970px)','@media(max-width:660px)'
@@ -172,9 +137,8 @@ test('approved compact challenge layout uses only existing photos and keeps vote
  assert.match(css,/grid-template-columns:minmax\(0,33%\) minmax\(0,1fr\)/);
  assert.doesNotMatch(css,/fonts\.googleapis\.com|https?:\/\/|@import/);
  assert.match(css,/url\('\/assets\/racing-hero\.webp'\)/);
- for(const label of ['data-preview-tab="overview"','data-preview-tab="participants"',
-   'data-preview-tab="results"','id="refresh-challenges"','data-preview-fullscreen',
-   'data-preview-image="prev"','data-preview-image="next"'])assert.ok(html.includes(label),label);
+ for(const label of ['data-preview-fullscreen','data-preview-image="prev"','data-preview-image="next"'])assert.ok(html.includes(label),label);
+ assert.doesNotMatch(html,/data-preview-tab|id="refresh-challenges"|broadcast-bottom-tools/);
  assert.match(html,/Sign in to vote/);
  assert.doesNotMatch(html,/broadcast-facts/);
 });
