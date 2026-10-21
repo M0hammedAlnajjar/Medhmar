@@ -17,4 +17,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.userId = :id")
     Optional<User> findLockedById(@Param("id") Long id);
     long countByJoinedAtGreaterThanEqualAndJoinedAtLessThan(java.time.Instant from, java.time.Instant until);
+    @Query("select r.roleName, count(u.userId) from User u join u.roles r group by r.roleName")
+    java.util.List<Object[]> countUsersByRole();
+
+    @Query("select r.roleName, count(u.userId) from User u join u.roles r " +
+            "where u.joinedAt >= :from and u.joinedAt < :until group by r.roleName")
+    java.util.List<Object[]> countNewUsersByRoleBetween(
+        @Param("from") java.time.Instant from, @Param("until") java.time.Instant until);
+
 }

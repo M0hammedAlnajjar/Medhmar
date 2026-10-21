@@ -1,6 +1,7 @@
 package com.gulfracing.controller;
 
 import com.gulfracing.dto.PageResponse;
+import com.gulfracing.dto.AdminUserStatsResponse;
 import com.gulfracing.dto.UserDtos.*;
 import com.gulfracing.service.UserService;
 import jakarta.validation.Valid;
@@ -19,6 +20,10 @@ public class AdminUserController {
     public PageResponse<UserResponse> list(@RequestParam(defaultValue = "0") @Min(0) int page,
         @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         return users.list(page, size);
+    }
+    @GetMapping("/stats")
+    public AdminUserStatsResponse stats() {
+        return users.statistics();
     }
     @PutMapping("/{id}/roles")
     public UserResponse roles(@PathVariable @Positive Long id, @Valid @RequestBody UpdateRolesRequest request) {

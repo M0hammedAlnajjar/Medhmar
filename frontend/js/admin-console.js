@@ -259,6 +259,16 @@ const usersIcon = key => ({
   admin:'<path d="m12 2 8 3v6c0 5-3 8-8 11-5-3-8-6-8-11V5Z"/><path d="M12 6v12M6 12h12"/>',
   users:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 10a4 4 0 0 1 0 8m3 3v-2a5 5 0 0 0-2-4"/>'
 })[key] || '';
+// Filled reference-inspired role pictograms, isolated to Manage Users KPI cards.
+const iconUserStat = key => ({
+ total: '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><circle cx="16" cy="9" r="5"/><circle cx="6" cy="13" r="3.7"/><circle cx="26" cy="13" r="3.7"/><path d="M7 27v-3c0-5 3.8-8.8 9-8.8s9 3.8 9 8.8v3H7ZM.5 25v-2.4c0-4 2.1-6.2 5.3-6.2 1.2 0 2.3.3 3.2.8a11.7 11.7 0 0 0-4.4 9.8H2a1.5 1.5 0 0 1-1.5-2ZM31.5 25v-2.4c0-4-2.1-6.2-5.3-6.2-1.2 0-2.3.3-3.2.8a11.7 11.7 0 0 1 4.4 9.8H30a1.5 1.5 0 0 0 1.5-2Z"/></svg>',
+ viewer: '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M1.5 16S7.5 7 16 7s14.5 9 14.5 9-6 9-14.5 9S1.5 16 1.5 16Z" fill="currentColor"/><circle cx="16" cy="16" r="6.8" fill="#fff"/><circle cx="16" cy="16" r="4.3" fill="currentColor"/></svg>',
+ owner: '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><circle cx="11" cy="10" r="5"/><circle cx="23" cy="11" r="4.4"/><path d="M0 26v-2.5c0-5.4 4.4-9 10.8-9 5.4 0 9.6 3.8 9.6 9v4.2H2A2 2 0 0 1 0 26Zm22.6 1.7v-4.5a11 11 0 0 0-4.2-8.6 9 9 0 0 1 4.5-1.2c5.6 0 9.1 3.7 9.1 9v3.3a2 2 0 0 1-2 2h-7.4Z"/></svg>',
+ trainer: '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><circle cx="14" cy="9" r="5.3"/><path d="M2.5 26v-2.8c0-6 4.8-10 11.5-10 4.5 0 8.3 2.2 10 6l-5.3 8.8H4.5a2 2 0 0 1-2-2Z"/><path d="m20.5 27.7 2.2-6.3 6-4.5 2.2 2.3-4.6 6.1-5.8 2.4Z" opacity=".7"/></svg>',
+ organizer: '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><circle cx="16" cy="8" r="5"/><circle cx="5.8" cy="13" r="4"/><circle cx="26.2" cy="13" r="4"/><path d="M8.5 27v-2.8c0-5 3.1-9 7.5-9s7.5 4 7.5 9V27H8.5ZM0 24.5c0-4.5 2.1-7.6 5.8-7.6 1.2 0 2.4.4 3.5 1.2C7.5 20.5 7 23.5 7 27H2.5A2.5 2.5 0 0 1 0 24.5Zm32 0c0-4.5-2.1-7.6-5.8-7.6-1.2 0-2.4.4-3.5 1.2 1.8 2.4 2.3 5.4 2.3 8.9h4.5a2.5 2.5 0 0 0 2.5-2.5Z"/></svg>',
+ admin: '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 2 11 4v8.5C27 21 23 26 16 30 9 26 5 21 5 14.5V6l11-4Z"/><path d="M16 3v25" stroke-width="2.2"/></svg>'
+})[key] || '';
+
 const iconUser = key => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+usersIcon(key)+'</svg>';
 const safeDate = v => {
   if (!v) return '—';
@@ -267,23 +277,47 @@ const safeDate = v => {
 };
 const initials = name => String(name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
 const safeRole = value => ['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].includes(value) ? value : 'OTHER';
-export function adminUsersView({users,page,error=''}) {
+export function adminUsersView({users,page,statistics=null,error=''}) {
  const current=Math.max(0,Number(page?.page)||0),total=Math.max(1,Number(page?.totalPages)||1);
  const pageSize=Number.isInteger(page?.size)&&page.size>0?page.size:20;
  const totalElements=validCount(page?.totalElements)?page.totalElements:null;
  const live=Array.isArray(users), all=live?users:[];
+ const aggregate=statistics && validCount(statistics.totalUsers) &&
+   statistics.roles && typeof statistics.roles==='object' ? statistics : null;
+ const monthStats=(record) => record && validCount(record.newThisMonth) &&
+   validCount(record.newPreviousPeriod) ? record : null;
  const cards=[
-  {role:null,title:'Total Users',value:totalElements,caption:'Registered platform users',tone:'total',icon:'users'},
-  ...['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(role=>({
-   role,title:role==='VIEWER'?'Viewers':role==='OWNER'?'Owners':role==='TRAINER'?'Trainers':role==='ORGANIZER'?'Organizers':'Admins',
-   value:live?all.filter(u=>Array.isArray(u.roles)&&u.roles.includes(role)).length:null,
-   caption:'On this page',tone:role.toLowerCase(),icon:role.toLowerCase()
-  }))
+   {role:null,title:'Total Users',value:aggregate?aggregate.totalUsers:totalElements,
+    month:aggregate?monthStats({newThisMonth:aggregate.newUsersThisMonth,
+     newPreviousPeriod:aggregate.newUsersPreviousPeriod}):null,tone:'total',icon:'total'},
+   ...['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(role=>{
+     const record=aggregate?.roles?.[role];
+     return {role,title:role==='VIEWER'?'Viewers':role==='OWNER'?'Owners':role==='TRAINER'?'Trainers':role==='ORGANIZER'?'Organizers':'Admins',
+       value:aggregate?(validCount(record?.total)?record.total:null):
+         live?all.filter(u=>Array.isArray(u.roles)&&u.roles.includes(role)).length:null,
+       month:aggregate?monthStats(record):null,tone:role.toLowerCase(),icon:role.toLowerCase()};
+   })
  ];
- const stats=cards.map(c=>'<article class="admin-users-stat admin-users-stat-'+c.tone+'">'+
-   '<span class="admin-users-stat-icon">'+iconUser(c.icon)+'</span><div>'+
-   '<span class="admin-users-stat-label">'+esc(c.title)+'</span>'+
-   '<strong>'+number(c.value)+'</strong><small>'+c.caption+'</small></div></article>').join('');
+ const stats=cards.map(c=>{
+   const actual=number(c.value);
+   let change='<span class="admin-users-stat-trend admin-trend-unknown">—</span>';
+   let sub=aggregate?'Monthly data unavailable':c.role?'On this page':'Month trend unavailable';
+   if(c.month){
+     const curr=c.month.newThisMonth,prev=c.month.newPreviousPeriod;
+     sub='+'+number(curr)+' this month';
+     if(prev===0 && curr>0)change='<span class="admin-users-stat-trend admin-trend-up" title="New registrations; no prior-month baseline">New</span>';
+     else if(prev>0){
+       const percent=Math.round((curr-prev)*100/prev), direction=percent>0?'up':percent<0?'down':'flat';
+       change='<span class="admin-users-stat-trend admin-trend-'+direction+
+         '" title="Registrations compared with the same elapsed period last month">'+
+         (percent>0?'↑ ':percent<0?'↓ ':'')+Math.abs(percent)+'%</span>';
+     }
+   }
+   return '<article class="admin-users-stat admin-users-stat-'+c.tone+'">'+
+     '<span class="admin-users-stat-icon">'+iconUserStat(c.icon)+'</span><div>'+
+     '<span class="admin-users-stat-label">'+esc(c.title)+'</span>'+
+     '<strong>'+actual+'</strong>'+change+'<small>'+esc(sub)+'</small></div></article>';
+ }).join('');
  const rows=all.map((u,i)=>{
   const roles=Array.isArray(u.roles)?u.roles:[];
   const status=String(u.accountStatus||'UNKNOWN').toUpperCase();
@@ -330,7 +364,7 @@ export function adminUsersView({users,page,error=''}) {
  '<div class="admin-users-filter-actions"><button class="admin-users-clear-btn" type="reset" id="admin-users-clear">Clear filters</button>'+
  '<button class="admin-users-refresh-btn" type="button" id="admin-users-refresh">'+iconUser('refresh')+' Refresh</button></div></form>'+
  '<p class="admin-users-page-hint" id="admin-users-filter-note">Filtering is instant and applies to this page only. '+
- 'Total Users includes all registered accounts; role counts are from this page and may overlap.</p>'+
+ 'Total Users includes all registered accounts; role totals may overlap. Monthly percentages compare new registrations with the same elapsed period last month. When aggregate data is unavailable, role counts are from this page only.</p>'+
  '<div class="admin-users-scroll"><table class="admin-users-table"><thead><tr><th>#</th><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>'+
  '<tbody>'+rows+(rows?'':'<tr><td colspan="7" class="admin-users-no-data">No registered users found.</td></tr>')+
  '</tbody></table></div>'+

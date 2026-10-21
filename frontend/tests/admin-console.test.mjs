@@ -163,7 +163,7 @@ test('Manage Users implements the approved admin theme with live, page-scoped ro
  assert.match(html,/On this page/);
  assert.match(html,/name="role"/);
  assert.match(html,/name="joined"/);
- assert.doesNotMatch(html,/1,248|892|214|Add User|last month|\+12%/);
+ assert.doesNotMatch(html,/1,248|892|214|Add User|\+12%/);
 });
 test('User directory escapes malicious content, has safe placeholders and no pretend totals',()=>{
  const html=adminUsersView({users:[{
@@ -307,4 +307,50 @@ test('Dashboard KPIs match the four-card reference while retaining live counts',
 test('Reference KPI styling stays inside the admin metrics area',async()=>{
  const css=await (await import('node:fs/promises')).readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
  for(const rule of ['.admin-console .admin-metrics .admin-metric-card','.admin-console .admin-metrics .admin-metric-icon','.admin-console .admin-metrics .admin-metric-label','min-height:102px','flex:0 0 56px'])assert.ok(css.includes(rule),rule);
+});
+
+
+test('Manage Users KPI cards show aggregate counts and validated registration comparisons',()=>{
+ const statistics={
+  totalUsers:61,newUsersThisMonth:10,newUsersPreviousPeriod:8,
+  roles:{
+   VIEWER:{total:40,newThisMonth:6,newPreviousPeriod:3},
+   OWNER:{total:11,newThisMonth:0,newPreviousPeriod:0},
+   TRAINER:{total:7,newThisMonth:1,newPreviousPeriod:2},
+   ORGANIZER:{total:3,newThisMonth:1,newPreviousPeriod:1},
+   ADMIN:{total:2,newThisMonth:2,newPreviousPeriod:0}
+  }
+ };
+ const html=adminUsersView({users:[{userId:1,fullName:'Owner',roles:['OWNER']}],
+  page:{page:0,totalPages:4,totalElements:61},statistics});
+ for(const label of ['Total Users','Viewers','Owners','Trainers','Organizers','Admins'])
+  assert.ok(html.includes(label),'missing '+label);
+ assert.equal((html.match(/class="admin-users-stat admin-users-stat-/g)||[]).length,6);
+ assert.match(html,/<strong>61<\/strong>/);
+ assert.match(html,/<strong>40<\/strong>/);
+ assert.match(html,/<strong>11<\/strong>/);
+ assert.match(html,/↑ 25%/);
+ assert.match(html,/↓ 50%/);
+ assert.match(html,/\+10 this month/);
+ assert.match(html,/New registrations; no prior-month baseline/);
+ assert.doesNotMatch(html,/1,248|892|214|\+132 this month/);
+ const fallback=adminUsersView({users:[{userId:1,roles:['OWNER']}],
+  page:{page:0,totalPages:4,totalElements:61}});
+ assert.match(fallback,/On this page/);
+ assert.doesNotMatch(fallback,/↑ 25%|\+10 this month/);
+ const offline=adminUsersView({users:null,page:null,error:'Offline'});
+ assert.doesNotMatch(offline,/<strong>61<\/strong>/);
+});
+test('Manage Users role KPI cards use scoped responsive reference styling and real API',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ const api=await readFile(new URL('../js/api.js',import.meta.url),'utf8');
+ const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
+ for(const selector of ['.admin-console .admin-users-stats .admin-users-stat',
+  '.admin-console .admin-users-stats .admin-users-stat-icon',
+  '.admin-console .admin-users-stats .admin-trend-up',
+  '@media(max-width:1250px)'])
+  assert.ok(css.includes(selector),selector);
+ assert.match(api,/userStats: \(\) => api\("\/api\/admin\/users\/stats"\)/);
+ assert.match(app,/adminUserStats/);
 });

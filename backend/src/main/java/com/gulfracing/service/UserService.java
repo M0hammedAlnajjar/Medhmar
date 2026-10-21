@@ -3,6 +3,7 @@ package com.gulfracing.service;
 import com.gulfracing.dto.AuthDtos.RegisterRequest;
 import com.gulfracing.dto.UserDtos.*;
 import com.gulfracing.dto.PageResponse;
+import com.gulfracing.dto.AdminUserStatsResponse;
 import com.gulfracing.entity.*;
 import com.gulfracing.enums.*;
 import com.gulfracing.exception.ApiException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.time.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class UserService {
     private final RoleRepository roles;
     private final AuthAccountRepository accounts;
     private final PasswordEncoder passwords;
+    private final Clock clock;
 
     public static String normalizeEmail(String email) {
         return email == null ? "" : email.strip().toLowerCase(Locale.ROOT);
@@ -117,6 +120,43 @@ public class UserService {
     public PageResponse<UserResponse> list(int page, int size) {
         return PageResponse.from(users.findAll(PageRequest.of(page, size, Sort.by("userId"))), this::response);
     }
+    private static Map<String, Long> countsByRole(List<Object[]> rows) {
+        var result = new HashMap<String, Long>();
+        for (var row : rows) {
+            result.put((String) row[0], ((Number) row[1]).longValue());
+        }
+        return result;
+    }
+
+    /** Compare this month's registrations with an equally long portion of the previous month.
+     * Role totals reflect CURRENT roles and may overlap; they are not exclusive account categories.
+     */
+    @Transactional(readOnly = true)
+    public AdminUserStatsResponse statistics() {
+        Instant now = clock.instant();
+        LocalDate utcDate = now.atZone(ZoneOffset.UTC).toLocalDate();
+        Instant currentMonth = utcDate.withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant previousMonth = utcDate.withDayOfMonth(1).minusMonths(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant previousEnd = previousMonth.plus(Duration.between(currentMonth, now));
+        if (previousEnd.isAfter(currentMonth)) previousEnd = currentMonth;
+
+        var allRoles = countsByRole(users.countUsersByRole());
+        var thisMonth = countsByRole(users.countNewUsersByRoleBetween(currentMonth, now));
+        var lastPeriod = countsByRole(users.countNewUsersByRoleBetween(previousMonth, previousEnd));
+        var roleStats = new LinkedHashMap<String, AdminUserStatsResponse.RoleStats>();
+        for (var role : List.of("VIEWER", "OWNER", "TRAINER", "ORGANIZER", "ADMIN")) {
+            roleStats.put(role, new AdminUserStatsResponse.RoleStats(
+                allRoles.getOrDefault(role, 0L),
+                thisMonth.getOrDefault(role, 0L),
+                lastPeriod.getOrDefault(role, 0L)));
+        }
+        return new AdminUserStatsResponse(
+            users.count(),
+            users.countByJoinedAtGreaterThanEqualAndJoinedAtLessThan(currentMonth, now),
+            users.countByJoinedAtGreaterThanEqualAndJoinedAtLessThan(previousMonth, previousEnd),
+            roleStats, now);
+    }
+
     @Transactional
     public UserResponse updateRoles(Long id, Set<String> roleNames) {
         var user = users.findLockedById(id).orElseThrow(() -> ApiException.notFound("User"));
