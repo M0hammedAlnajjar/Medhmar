@@ -59,7 +59,7 @@ test('audit banner uses symbolic SVG without changing read-only audit behavior',
   assert.match(svg, /transform="translate\(1374 110\)"/, 'history clock should not overlap Read only');
   assert.match(svg, /stroke-width="3.8"/, 'security glyph uses a clearly visible stroke');
   assert.ok(css.includes('background:#261a16ed'), 'read-only badge has a dark contrast surface');
-  assert.match(svg, /shield\/lock/);
+  assert.match(svg, /Protection: shield with a clearly legible lock/);
   assert.match(html, /class="admin-audit-hero"/);
   assert.match(html, /class="admin-audit-readonly"[^>]*>Read only<\/span>/);
   assert.doesNotMatch(html, /Add Audit|Edit Audit|Delete Audit/);
