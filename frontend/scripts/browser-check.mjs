@@ -624,6 +624,35 @@ try {
   assert.equal(await page.locator('.admin-system-count').count(),2);
   assert.equal(await page.locator('.admin-system-count').first().innerText(),'—');
   await page.setViewportSize({width:1440,height:900});
+  // Decorative audit banner uses a real SVG while all headings and
+  // read-only behavior remain accessible HTML.
+  await page.evaluate(async()=>{
+    const {adminShell}=await import('/js/admin-console.js');
+    const {adminAuditListView}=await import('/js/admin-audit.js');
+    const data={content:[],page:0,size:20,totalElements:0,totalPages:0};
+    document.querySelector('#app').innerHTML=adminShell({
+      user:{userId:1,fullName:'Test Administrator',roles:['ADMIN']},
+      active:'/admin/audit-logs',body:adminAuditListView({data})
+    });
+  });
+  const auditHero = page.locator('.admin-audit-hero');
+  assert.equal(await auditHero.getByRole('heading',{name:'Audit Logs'}).count(),1);
+  assert.equal(await auditHero.locator('.admin-audit-readonly').innerText(),'Read only');
+  assert.ok(await auditHero.evaluate(el=>getComputedStyle(el).backgroundImage.includes('/assets/admin-audit-hero.svg')),
+    'audit banner uses the symbolic SVG');
+  const auditAsset = await page.evaluate(async()=>{
+    const response=await fetch('/assets/admin-audit-hero.svg');
+    const text=await response.text();
+    return {ok:response.ok,type:response.headers.get('content-type')||'',text};
+  });
+  assert.ok(auditAsset.ok && auditAsset.type.includes('image/svg+xml'),'audit SVG should load as image/svg+xml');
+  assert.match(auditAsset.text,/<svg[^>]+viewBox="0 0 1600 220"/);
+  await page.screenshot({path:'test-results/admin-audit-hero-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await auditHero.locator('.admin-audit-readonly').isVisible(),true,'mobile read-only badge is visible');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'audit mobile should not overflow');
+  await page.screenshot({path:'test-results/admin-audit-hero-mobile.png',fullPage:true});
+  await page.setViewportSize({width:1440,height:900});
   // Real admin component and tab handler with clearly test-only data.
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async()=>{
