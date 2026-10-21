@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { matchRoute, canAccessRoute } from '../js/routes.js';
 import { renderAccount } from '../js/account-view.js';
-import { adminShell, adminDashboard, adminUsersView, adminSettingsView } from '../js/admin-console.js';
+import { adminShell, adminDashboard, adminUsersView, adminSettingsView, mountAdminScreen } from '../js/admin-console.js';
 import { adminAuditListView, adminAuditDetailView } from '../js/admin-audit.js';
 import { adminChallengesView, adminOrganizationsView } from '../js/admin-modules.js';
 import { adminSystemHealthView } from '../js/admin-system-health.js';
@@ -17,12 +17,12 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
   .replace("window.addEventListener('popstate',render); init();", '');
 
 function harness(user, { me = async () => user, users, dashboard, audits, auditDetail, challengeList, organizationList, health } = {}) {
-  const root = { innerHTML: '', addEventListener: () => {} };
+  const root = { innerHTML: '', querySelector: () => null, addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
   const context = vm.createContext({
     bindAdminChartTabs: () => {}, bindAdminModules: () => {}, bindAdminMarketplace: () => {}, bindAdminRaces: () => {}, bindBroadcastPreview: () => {}, bindTrainingJournal: () => {}, bindOrganizationDirectory: () => {}, bindHeritageExperiences: () => {}, bindDigitalRaceCards: () => {}, bindMarketplaceBrowse: () => {}, bindTrainerProfile: () => {},
-    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, adminAuditListView, adminAuditDetailView, adminChallengesView, adminOrganizationsView, adminSystemHealthView,
+    session: user, demo, matchRoute, canAccessRoute, bindPedigreeImages, renderAccount, hasAnyRole, adminShell, adminDashboard, adminUsersView, adminSettingsView, mountAdminScreen, adminAuditListView, adminAuditDetailView, adminChallengesView, adminOrganizationsView, adminSystemHealthView,
     normalizePath: () => location.pathname,
     authView: () => '<h1>Sign In</h1>',
     authApi: { me: async () => { requests.push('me'); return me(); } },
