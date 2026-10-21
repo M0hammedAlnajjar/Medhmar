@@ -31,7 +31,7 @@ test('dashboard renders real weekly activity, secure recent events and honest st
   recentEvents:[{auditId:22,actionType:'OWNER_ROLE_GRANTED',entityType:'User',entityId:18,actorUserId:5,createdAt:'2026-10-18T10:00:00Z'}],
   generatedAt:'2026-10-18T10:00:00Z'};
  const html=adminDashboard({user:{fullName:'Admin'},summary});
- for(const title of ['Total Users','Registered Camels','Upcoming Races','Active Listings','Platform Activity','Recent Activity','Quick access'])
+ for(const title of ['Total Users','Registered Camels','Upcoming / Open Races','Active Listings','Platform Activity','Recent Activity','Quick access'])
   assert.match(html,new RegExp(title.replaceAll('/','\\/')));
  assert.match(html,/OWNER_ROLE_GRANTED|Owner Role Granted/);
  assert.match(html,/admin-activity-svg/);
@@ -281,4 +281,30 @@ test('dashboard reference groups admin navigation and links to operational pages
 test('responsive admin dashboard selectors are scoped to the dedicated workspace',async()=>{
  const css=await (await import('node:fs/promises')).readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
  for(const token of ['.admin-console .admin-sidebar-group','.admin-console .admin-dashboard-quick','.admin-console .admin-quick-links','.admin-console .admin-chart-caption'])assert.ok(css.includes(token));
+});
+
+
+test('Dashboard KPIs match the four-card reference while retaining live counts',()=>{
+ const summary={totalUsers:6,activeCamels:0,upcomingRaces:0,activeListings:0,activity:[],recentEvents:[]};
+ const html=adminDashboard({summary});
+ const labels=['Total Users','Registered Camels','Upcoming / Open Races','Active Listings'];
+ const captions=['Registered platform users','Camels in the system','Open for registration','Active marketplace listings'];
+ let previous=-1;
+ for(const label of labels){
+  const at=html.indexOf(label);
+  assert.ok(at>previous,'KPI label should appear in reference order: '+label);
+  previous=at;
+ }
+ for(const caption of captions)assert.ok(html.includes(caption),caption);
+ assert.equal((html.match(/class="admin-metric-card"/g)||[]).length,4);
+ assert.equal((html.match(/class="admin-metric-icon admin-tone-/g)||[]).length,4);
+ assert.match(html,/<strong>6<\/strong>/);
+ assert.ok((html.match(/<strong>0<\/strong>/g)||[]).length>=3);
+ for(const marker of ['<circle cx="24" cy="14"','viewBox="0 0 48 48"','M13 7 35 43','<rect x="7" y="2.5"']) assert.ok(html.includes(marker),'missing reference KPI artwork: '+marker);
+ const missing=adminDashboard({summary:null});
+ assert.doesNotMatch(missing,/class="admin-metric-card"[^]*?<strong>6<\/strong>/,'offline dashboard must not reuse reference totals');
+});
+test('Reference KPI styling stays inside the admin metrics area',async()=>{
+ const css=await (await import('node:fs/promises')).readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
+ for(const rule of ['.admin-console .admin-metrics .admin-metric-card','.admin-console .admin-metrics .admin-metric-icon','.admin-console .admin-metrics .admin-metric-label','min-height:102px','flex:0 0 56px'])assert.ok(css.includes(rule),rule);
 });

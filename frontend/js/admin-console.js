@@ -40,6 +40,15 @@ const adminIcon = key => ({
     "refresh": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2 6"/><path d="M20 4v7h-7"/></svg>'
 })[key] || "";
 
+
+// Dashboard-only pictograms. The admin navigation keeps its own outline icons.
+const adminMetricIcon = key => ({
+ "users": '<svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="24" cy="14" r="6"/><circle cx="10.5" cy="20" r="4.5"/><circle cx="37.5" cy="20" r="4.5"/><path d="M13 37v-2.8C13 27.7 18 23 24 23s11 4.7 11 11.2V37a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2Z"/><path d="M3 36.8v-2.5c0-5.1 3.1-8.4 7.8-8.4 1 0 2 .1 2.9.5-2.6 2.8-4 6.1-4 10.2v2.1H5a2 2 0 0 1-2-1.9ZM45 36.8v-2.5c0-5.1-3.1-8.4-7.8-8.4-1 0-2 .1-2.9.5 2.6 2.8 4 6.1 4 10.2v2.1H43a2 2 0 0 0 2-1.9Z"/></svg>',
+ "camel": '<svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false"><path d="M6 25c.4-1.7 2.2-2.9 4.3-3l3.5-.2 2.4-4.5c1.1-2.1 2.8-3.5 5.1-3.4 2.3.1 3.3 2.1 4.1 4.1l1.7 3.4 5.4.8 2-11.3c.8-4.6 3.5-6.9 6.6-6.9h2.2L46 6l-1.9 3.1-4.2.6-1.3 8.5-1.2 7.6c-.6 3.4-2 5.4-4.4 6.6l.9 10.6h-3.4l-3.2-10.9H17.6l-2.1 10.9h-3.7l.7-12.3c-2.1-.6-3.6-1.5-4.7-3.3l-2.8 1.2-3.1-1.8.6-2.8L6 25Z"/></svg>',
+ "race": '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false"><path d="M13 7 35 43M35 7 13 43" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M12 7 2 17l7 10 13-12-10-8Z" fill="currentColor"/><path d="M35 7 45 13l-7 13-10-7 7-12Z" fill="currentColor"/><path d="m35 7 5 3-3 4-5-3 3-4Zm-5 7 5 3-3 4-5-3 3-4Zm10-4 5 3-3 5-5-3 3-5Z" fill="#fff"/></svg>',
+ "market": '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false"><rect x="7" y="2.5" width="34" height="43" rx="3" stroke="currentColor" stroke-width="2.5"/><path d="M12 33.5h24M12 38.5h24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 25c.4-1.7 2.2-2.9 4.3-3l3.5-.2 2.4-4.5c1.1-2.1 2.8-3.5 5.1-3.4 2.3.1 3.3 2.1 4.1 4.1l1.7 3.4 5.4.8 2-11.3c.8-4.6 3.5-6.9 6.6-6.9h2.2L46 6l-1.9 3.1-4.2.6-1.3 8.5-1.2 7.6c-.6 3.4-2 5.4-4.4 6.6l.9 10.6h-3.4l-3.2-10.9H17.6l-2.1 10.9h-3.7l.7-12.3c-2.1-.6-3.6-1.5-4.7-3.3l-2.8 1.2-3.1-1.8.6-2.8L6 25Z" transform="translate(13 7) scale(.47)" fill="currentColor"/></svg>'
+})[key] || '';
+
 export function adminShell({ user, active = '/admin', body = '' }) {
     const chosen = active.startsWith('/admin/audit-logs')
         ? '/admin/audit-logs'
@@ -190,11 +199,11 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
  const metrics=[
   {label:'Total Users',value:totalUsers,icon:'users',tone:'users',sub:'Registered platform users'},
   {label:'Registered Camels',value:live?.activeCamels,icon:'camel',tone:'camels',sub:'Camels in the system'},
-  {label:'Upcoming Races',value:live?.upcomingRaces,icon:'race',tone:'races',sub:'Open for registration'},
-  {label:'Active Listings',value:live?.activeListings,icon:'market',tone:'market',sub:'Live marketplace listings'}
+  {label:'Upcoming / Open Races',value:live?.upcomingRaces,icon:'race',tone:'races',sub:'Open for registration'},
+  {label:'Active Listings',value:live?.activeListings,icon:'market',tone:'market',sub:'Active marketplace listings'}
  ];
  const cards=metrics.map(m=>'<article class="admin-metric-card">'+
-   '<span class="admin-metric-icon admin-tone-'+m.tone+'">'+adminIcon(m.icon)+'</span>'+
+   '<span class="admin-metric-icon admin-tone-'+m.tone+'">'+adminMetricIcon(m.icon)+'</span>'+
    '<div><span class="admin-metric-label">'+m.label+'</span><strong>'+number(m.value)+'</strong>'+
    '<small>'+m.sub+'</small></div></article>').join('');
  const events=Array.isArray(live?.recentEvents)?live.recentEvents.slice(0,4):[];
