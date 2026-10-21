@@ -94,7 +94,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
    '<a class="admin-sidebar-brand" href="/admin" data-link aria-label="Medhmar administration home">'+
    '<img src="/assets/medhmar-admin-logo-approved.webp" alt="Medhmar Camel Racing Platform" width="210" height="124"></a>'+
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+groupedNav+'</nav>'+
-   '<div class="admin-sidebar-bottom"><a href="/" data-link class="admin-back-website"><span class="admin-nav-icon">'+adminIcon('external')+'</span><span>Back to Website</span></a><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
+   '<div class="admin-sidebar-bottom"><a href="/home?view=website" data-link class="admin-back-website"><span class="admin-nav-icon">'+adminIcon('external')+'</span><span>Back to Website</span></a><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
    '<div class="admin-workspace"><header class="admin-topbar">'+
    (chosen==='/admin/challenges'?'<span class="mhch-breadcrumb-home" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/></svg></span>':'')+
    '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+
