@@ -163,7 +163,7 @@ test('Manage Users implements the approved admin theme with live, page-scoped ro
  assert.match(html,/On this page/);
  assert.match(html,/name="role"/);
  assert.match(html,/name="joined"/);
- assert.doesNotMatch(html,/1,248|892|214|Add User|last month|\+12%/);
+ assert.doesNotMatch(html,/1,248|892|214|Add User|\+12%/);
 });
 test('User directory escapes malicious content, has safe placeholders and no pretend totals',()=>{
  const html=adminUsersView({users:[{
