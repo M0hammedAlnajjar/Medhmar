@@ -72,6 +72,11 @@ export async function checkAdminRaces(browser, origin) {
     assert.equal(await page.locator('.admin-sidebar-nav a[href="/admin/races"]').getAttribute("aria-current"), "page");
     assert.equal(await page.locator(".admin-sidebar-bottom a").count(), 0);
     assert.equal(await page.locator("#admin-signout").isVisible(), true);
+    assert.equal(await page.locator("[data-admin-race-create]").count(), 1, "Race Management still has an editable Create Race button");
+    assert.equal(await page.locator(".admin-race-photo-credit").getAttribute("href"), "https://omannews.gov.om/topics/ar/119/show/463138");
+    assert.equal(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("omannews.gov.om/images/topics/story-images/698094d5cb92a.jpeg")), true, "banner uses the selected ONA photo");
+    assert.equal(await page.locator(".admin-race-hero").evaluate(hero => getComputedStyle(hero).backgroundImage.includes("/assets/admin-races/hero.webp")), true, "banner preserves a local fallback");
+    assert.equal(await page.locator(".admin-race-hero").innerText().then(text => text.includes("GREATER HERITAGE")), false, "hero contains no old decorative tagline");
     assert.equal(await page.locator(".admin-race-list-panel .admin-race-heading-icon").count(), 0, "Race List heading should have no camel badge");
     assert.equal(await page.locator(".admin-race-requests-panel .admin-race-heading-icon").count(), 1, "Requests heading keeps its icon");
     assert.equal(await page.locator(".admin-race-metric-total strong").innerText(), "3");
