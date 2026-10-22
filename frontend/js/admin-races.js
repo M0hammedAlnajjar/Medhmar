@@ -12,7 +12,7 @@ const formatElapsedTime = value => {
 };
 
 const parseElapsedTime = value => {
-  const match = /^(\\d+):([0-5]\\d)(?:\\.(\\d{1,3}))?$/.exec(String(value).trim());
+  const match = /^(\d+):([0-5]\d)(?:\.(\d{1,3}))?$/.exec(String(value).trim());
   if (!match) return null;
   const elapsedMs = Number(match[1]) * 60000 + Number(match[2]) * 1000 +
     Number((match[3] || "").padEnd(3, "0") || 0);
