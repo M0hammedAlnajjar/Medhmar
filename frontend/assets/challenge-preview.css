@@ -1240,3 +1240,184 @@
  .app-shell:has(.broadcast-preview) .broadcast-scene-image,
  .app-shell:has(.broadcast-preview) .broadcast-demo-progress>span{animation:none}
 }
+
+
+/* Livestream standby: black video canvas, not an invented stream.
+   Keep challenge metadata above the screen and vote panel beside it. */
+.app-shell:has(.broadcast-preview) .broadcast-player{
+ display:flex;
+ flex-direction:column;
+ min-width:0;
+ min-height:575px;
+ height:auto;
+ background:#fffdfb;
+}
+.app-shell:has(.broadcast-preview) .broadcast-player:before,
+.app-shell:has(.broadcast-preview) .broadcast-scene-image{
+ display:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading{
+ position:relative;
+ top:auto;
+ left:auto;
+ right:auto;
+ flex:0 0 auto;
+ display:flex;
+ flex-wrap:wrap;
+ align-items:flex-start;
+ gap:10px;
+ padding:22px 23px 20px;
+ background:linear-gradient(155deg,#fffdfb,#faf6f1);
+ z-index:2;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading>div:first-child{
+ flex:1 1 380px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading h1{
+ margin:10px 0 5px;
+ font-size:clamp(26px,2.1vw,39px);
+ color:#271d17;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading p{
+ margin-bottom:12px;
+ color:#5b4e46;
+}
+.app-shell:has(.broadcast-preview) .broadcast-meta{
+ gap:7px 15px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading .broadcast-demo-tag{
+ position:relative;
+ top:auto;
+ right:auto;
+ align-self:flex-start;
+ margin-left:auto;
+ flex-shrink:0;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage{
+ position:relative;
+ display:grid;
+ place-items:center;
+ flex:1 1 auto;
+ min-height:350px;
+ overflow:hidden;
+ background:#000;
+ border-radius:12px 12px 0 0;
+ isolation:isolate;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage-center{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:19px;
+ padding:0 15px 36px;
+ color:#fff;
+ font-weight:900;
+ pointer-events:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage-center strong{
+ font-family:Arial,Helvetica,sans-serif;
+ font-size:clamp(56px,6vw,88px);
+ line-height:1;
+ letter-spacing:-.045em;
+ font-weight:850;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage-dot{
+ width:clamp(23px,2.2vw,35px);
+ height:clamp(23px,2.2vw,35px);
+ border-radius:50%;
+ background:#df1624;
+ box-shadow:0 0 21px rgba(211,22,38,.5);
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-demo-player{
+ bottom:0;
+ left:0;
+ right:0;
+ padding:0 18px 14px;
+ background:transparent;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-demo-progress{
+ background:#575757;
+ height:4px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-demo-progress>span{
+ width:66%;
+ transform:none;
+ animation:none;
+ background:#cf1727;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-toolbar{
+ justify-content:space-between;
+ padding:0;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-toolbar-note{
+ flex:1;
+ font-size:11px;
+ color:#fff;
+ text-shadow:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage [data-preview-fullscreen]{
+ min-height:36px;
+ font-size:11px;
+ border:1px solid #aaa;
+ border-radius:8px;
+ color:white;
+ background:#292929;
+ cursor:pointer;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stage [data-preview-fullscreen]:hover{
+ background:#424242;
+}
+.app-shell:has(.broadcast-preview) .broadcast-player:fullscreen{
+ display:flex;
+ height:100vh;
+ min-height:0;
+ background:#000;
+ overflow:auto;
+}
+.app-shell:has(.broadcast-preview) .broadcast-player:fullscreen .broadcast-heading{
+ flex:0 0 auto;
+}
+.app-shell:has(.broadcast-preview) .broadcast-player:fullscreen .broadcast-stage{
+ flex:1 1 auto;
+ min-height:240px;
+}
+@media(max-width:1250px){
+ .app-shell:has(.broadcast-preview) .broadcast-heading{
+  padding:15px 14px;
+  right:auto;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-heading>div:first-child{flex-basis:230px}
+}
+@media(max-width:970px){
+ .app-shell:has(.broadcast-preview) .broadcast-player{
+  min-height:0;
+  height:auto;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-left{min-height:0}
+ .app-shell:has(.broadcast-preview) .broadcast-stage{min-height:360px}
+}
+@media(max-width:660px){
+ .app-shell:has(.broadcast-preview) .broadcast-heading{
+  top:auto;
+  right:auto;
+  padding:14px 13px 15px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-heading>div:first-child{flex-basis:100%}
+ .app-shell:has(.broadcast-preview) .broadcast-heading .broadcast-demo-tag{
+  position:absolute;
+  top:8px;
+  right:9px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-heading .kicker{
+  padding-right:116px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-heading h1{margin-top:13px}
+ .app-shell:has(.broadcast-preview) .broadcast-stage{min-height:320px}
+ .app-shell:has(.broadcast-preview) .broadcast-stage-center{gap:13px}
+ .app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-demo-player{padding:0 10px 11px}
+}
+@media(max-width:390px){
+ .app-shell:has(.broadcast-preview) .broadcast-player{height:auto;min-height:0}
+ .app-shell:has(.broadcast-preview) .broadcast-stage{min-height:300px}
+ .app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-toolbar-note{font-size:9px}
+}
