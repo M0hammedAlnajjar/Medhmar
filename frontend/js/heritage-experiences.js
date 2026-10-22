@@ -25,22 +25,16 @@ export function filterHeritage(category='all',query='',records=sampleItems) {
   const term=query.trim().toLowerCase();
   return records.filter(item=>(category==='all'||item.category===category)&&`${item.title} ${item.location} ${item.description}`.toLowerCase().includes(term));
 }
-// CC BY-SA credits stay available directly on each photo rather than in a long page section.
+// CC BY-SA credits stay accessible in the existing story details dialog,
+// without covering any of the heritage photographs with an icon.
 const heritageImageSources = Object.freeze({
   training: {author:'Lintophilip',url:'https://commons.wikimedia.org/wiki/File:Camel_Race_Training.jpg'},
   'robot-jockeys': {author:'Houssain tork',url:'https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg'},
   'finish-line': {author:'Tmsprophoto.photography',url:'https://commons.wikimedia.org/wiki/File:Camel_Race_Finishing_Line.jpg'}
 });
-const heritagePhotoCredit = imageName => {
- const source=heritageImageSources[imageName];
- return source ? '<a class="heritage-photo-credit" href="'+source.url+
-  '" target="_blank" rel="noopener noreferrer" title="Photo: '+source.author+
-  ' · CC BY-SA 4.0" aria-label="Photo by '+source.author+
-  '. CC BY-SA 4.0 license; view source">ⓘ</a>' : '';
-};
 export function heritageExperiences(data=null) {
   const live=Boolean(data),items=live?fromApi(data):sampleItems;
-  return `<section class="heritage-experiences"><header class="heritage-heading"><p class="kicker">MEDHMAR</p><h1>Camel Racing Heritage</h1><p>Explore the traditions, people and experiences behind the race.</p></header><div class="heritage-toolbar"><div class="heritage-categories" role="group" aria-label="Experience category"><button type="button" data-heritage-category="all" aria-pressed="true">All Experiences</button><button type="button" data-heritage-category="stories" aria-pressed="false">Cultural Stories</button><button type="button" data-heritage-category="events" aria-pressed="false">Visitor Events</button></div><label class="heritage-search"><span class="heritage-sr-only">Search experiences</span><input type="search" id="heritage-search" placeholder="Search experiences, stories or topics…"></label></div><div class="heritage-results-heading"><span>${live?'Cultural stories & visitor events':'Sample experiences'}</span><p id="heritage-count" role="status"></p></div><div class="heritage-cards"></div><dialog class="heritage-dialog" aria-labelledby="heritage-dialog-title"><form method="dialog"><button aria-label="Close details" class="heritage-close">×</button></form><p class="kicker">MEDHMAR HERITAGE</p><h2 id="heritage-dialog-title"></h2><p class="heritage-dialog-meta"></p><p class="heritage-dialog-body"></p><a class="heritage-dialog-link" target="_blank" rel="noopener" hidden>Open related resource</a><form method="dialog"><button class="btn btn-primary">Close</button></form></dialog></section>`;
+  return `<section class="heritage-experiences"><header class="heritage-heading"><p class="kicker">MEDHMAR</p><h1>Camel Racing Heritage</h1><p>Explore the traditions, people and experiences behind the race.</p></header><div class="heritage-toolbar"><div class="heritage-categories" role="group" aria-label="Experience category"><button type="button" data-heritage-category="all" aria-pressed="true">All Experiences</button><button type="button" data-heritage-category="stories" aria-pressed="false">Cultural Stories</button><button type="button" data-heritage-category="events" aria-pressed="false">Visitor Events</button></div><label class="heritage-search"><span class="heritage-sr-only">Search experiences</span><input type="search" id="heritage-search" placeholder="Search experiences, stories or topics…"></label></div><div class="heritage-results-heading"><span>${live?'Cultural stories & visitor events':'Sample experiences'}</span><p id="heritage-count" role="status"></p></div><div class="heritage-cards"></div><dialog class="heritage-dialog" aria-labelledby="heritage-dialog-title"><form method="dialog"><button aria-label="Close details" class="heritage-close">×</button></form><p class="kicker">MEDHMAR HERITAGE</p><h2 id="heritage-dialog-title"></h2><p class="heritage-dialog-meta"></p><p class="heritage-dialog-body"></p><a class="heritage-dialog-photo-source" target="_blank" rel="noopener noreferrer" hidden></a><a class="heritage-dialog-link" target="_blank" rel="noopener" hidden>Open related resource</a><form method="dialog"><button class="btn btn-primary">Close</button></form></dialog></section>`;
 }
 export function bindHeritageExperiences(root,data=null) {
   const section=root.querySelector('.heritage-experiences');if(!section)return;
@@ -49,7 +43,7 @@ export function bindHeritageExperiences(root,data=null) {
     const visible=filterHeritage(category,search.value,items);
     section.querySelector('#heritage-count').textContent=`${visible.length} result${visible.length===1?'':'s'}`;
     section.querySelectorAll('[data-heritage-category]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.heritageCategory===category)));
-    section.querySelector('.heritage-cards').innerHTML=visible.map((item,index)=>`<article class="heritage-card"><img src="${photo(imageFor(item,index))}" alt="Camel racing heritage" width="1280" height="853">${heritagePhotoCredit(imageFor(item,index))}<div class="heritage-card-body"><span class="heritage-label">${esc(item.label)}</span><h2>${esc(item.title)}</h2><p class="heritage-meta">${esc(item.location)} · ${esc(item.date)}</p><p class="heritage-description">${esc(item.description)}</p><button type="button" data-heritage-item="${esc(item.id)}">${item.category==='events'?'View Experience':'Read Story'} <span aria-hidden="true">→</span></button></div></article>`).join('')||'<div class="heritage-empty"><h2>No experiences found</h2><p>There are no published stories or visitor events matching this search.</p></div>';
+    section.querySelector('.heritage-cards').innerHTML=visible.map((item,index)=>`<article class="heritage-card"><img src="${photo(imageFor(item,index))}" alt="Camel racing heritage" width="1280" height="853"><div class="heritage-card-body"><span class="heritage-label">${esc(item.label)}</span><h2>${esc(item.title)}</h2><p class="heritage-meta">${esc(item.location)} · ${esc(item.date)}</p><p class="heritage-description">${esc(item.description)}</p><button type="button" data-heritage-item="${esc(item.id)}" data-heritage-photo="${imageFor(item,index)}">${item.category==='events'?'View Experience':'Read Story'} <span aria-hidden="true">→</span></button></div></article>`).join('')||'<div class="heritage-empty"><h2>No experiences found</h2><p>There are no published stories or visitor events matching this search.</p></div>';
   }
   search.addEventListener('input',update);
   section.addEventListener('click',event=>{
@@ -59,6 +53,17 @@ export function bindHeritageExperiences(root,data=null) {
     section.querySelector('#heritage-dialog-title').textContent=item.title;
     section.querySelector('.heritage-dialog-meta').textContent=`${item.location} · ${item.date}`;
     section.querySelector('.heritage-dialog-body').textContent=item.body||item.description||'';
+    const photoSource=heritageImageSources[button.dataset.heritagePhoto];
+    const photoLink=section.querySelector('.heritage-dialog-photo-source');
+    if(photoSource){
+      photoLink.href=photoSource.url;
+      photoLink.textContent='Photo: '+photoSource.author+' · CC BY-SA 4.0';
+      photoLink.hidden=false;
+    }else{
+      photoLink.hidden=true;
+      photoLink.removeAttribute('href');
+      photoLink.textContent='';
+    }
     const link=section.querySelector('.heritage-dialog-link');
     if(item.url&&/^https?:\/\//i.test(item.url)){link.href=item.url;link.hidden=false;}else link.hidden=true;
     section.querySelector('dialog').showModal();

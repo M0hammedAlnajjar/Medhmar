@@ -22,6 +22,8 @@ test('heritage keeps photograph license attribution without visitor tips or cred
  assert.doesNotMatch(html,/heritage-tips|heritage-credits|Photo credits|Plan your visit|Track etiquette/);
  const {readFile}=await import('node:fs/promises');
  const css=await readFile(new URL('../assets/heritage-experiences.css',import.meta.url),'utf8');
- assert.ok(css.includes('.heritage-photo-credit'));
+ assert.ok(css.includes('.heritage-dialog-photo-source'));
+ assert.doesNotMatch(html,/heritage-photo-credit|ⓘ/);
+ assert.match(html,/heritage-dialog-photo-source/);
  assert.doesNotMatch(css,/\.heritage-tips\b|\.heritage-credits\b/);
 });

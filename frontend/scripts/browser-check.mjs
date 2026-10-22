@@ -306,11 +306,10 @@ try {
   assert.equal(await page.locator('.heritage-tips, .heritage-credits').count(),0,
     'Visitor Tips and Photo credits must not appear on the heritage page');
   assert.equal(await page.getByText('Make the most of your experience').count(),0);
-  assert.equal(await page.locator('.heritage-photo-credit').count(),3,
-    'Licensed photographs must retain a compact attribution link');
-  assert.ok(await page.locator('.heritage-photo-credit').evaluateAll(links=>
-    links.every(a=>a.href.startsWith('https://commons.wikimedia.org/') &&
-      a.getAttribute('aria-label')?.includes('CC BY-SA 4.0'))));
+  assert.equal(await page.locator('.heritage-photo-credit').count(),0,
+    'heritage photographs must not have overlaid info icons');
+  assert.equal(await page.locator('.heritage-dialog-photo-source').count(),1,
+    'the existing story dialog retains licensed photo attribution');
   assert.equal(await page.locator('.tourism-hero').count(),0);
   assert.ok(await page.locator('.heritage-card > img').evaluateAll(images=>images.every(i=>i.complete && i.naturalWidth>0)), 'heritage photographs must load');
   await page.locator('[data-heritage-category="stories"]').click();
@@ -321,6 +320,10 @@ try {
   assert.equal(await page.locator('.heritage-card').count(),1);
   await page.locator('[data-heritage-item="2"]').click();
   assert.equal(await page.locator('.heritage-dialog').evaluate(d=>d.open),true);
+  const credits=page.locator('.heritage-dialog-photo-source');
+  assert.equal(await credits.isVisible(),true,'attribution remains available in story details');
+  assert.match(await credits.innerText(),/Houssain tork.*CC BY-SA 4.0/);
+  assert.match(await credits.getAttribute('href'),/commons.wikimedia.org/);
   await page.keyboard.press('Escape');
   await page.locator('#heritage-search').fill('');
   await page.locator('[data-heritage-category="all"]').click();
