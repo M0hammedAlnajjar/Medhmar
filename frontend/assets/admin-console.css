@@ -1188,7 +1188,7 @@ html:has(.admin-console){scrollbar-gutter:stable}
   display:block;
   width:40px;
   height:40px;
-  stroke-width:initial;
+  stroke-width:2.7px;
 }
 .admin-console .admin-metrics .admin-tone-users,
 .admin-console .admin-metrics .admin-tone-races{
