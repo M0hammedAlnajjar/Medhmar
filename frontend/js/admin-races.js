@@ -1,5 +1,5 @@
 import { adminApi, camelApi, apiAssetUrl } from "./api.js";
-import { raceApi, raceEntryApi } from "./race-api.js";
+import { raceApi, raceEntryApi, raceResultApi } from "./race-api.js";
 
 const esc = value => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -96,6 +96,7 @@ function raceRowsMarkup(races, userName) {
           <button type="button" data-admin-race-edit="${esc(race.raceId)}" data-race-field="organizerId">Assign organizer</button>
           <button type="button" data-admin-race-edit="${esc(race.raceId)}" data-race-field="status">Change status</button>
           <button type="button" data-admin-race-requests="${esc(race.raceId)}">Review requests</button>
+          <button type="button" data-admin-race-results="${esc(race.raceId)}">Record Results</button>
         </div></details>
       </div></td>
     </tr>`;
@@ -381,6 +382,72 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
     modal.querySelectorAll("[data-admin-race-view-close]").forEach(button => button.addEventListener("click", closeModals));
     modal.querySelector("[data-admin-race-view-edit]").addEventListener("click", () => openEdit(race));
   };
+  const openResults = async race => {
+    if (!alive()) return;
+    const modal = showModal(`<div class="modal-backdrop"><div class="modal admin-race-modal" role="dialog" aria-modal="true" aria-labelledby="admin-race-results-title">
+      <div class="admin-race-modal-head"><div><span>RACE RESULTS</span><h2 id="admin-race-results-title">Record Results — ${esc(race.name)}</h2></div><button type="button" data-results-close aria-label="Close">×</button></div>
+      <div class="admin-race-form" data-results-body role="status">Loading accepted participants…</div>
+    </div></div>`);
+    const body = modal.querySelector("[data-results-body]");
+    modal.querySelector("[data-results-close]").addEventListener("click", closeModals);
+    try {
+      const entries = await raceEntryApi.getForRace(race.raceId);
+      if (!alive() || !modal.isConnected) return;
+      const accepted = (entries || []).filter(entry => String(entry.entryStatus).toUpperCase() === "ACCEPTED");
+      if (!accepted.length) {
+        body.textContent = "No accepted participants. Approve entries before recording results.";
+        return;
+      }
+      if (!["CLOSED", "COMPLETED"].includes(String(race.status).toUpperCase()) || new Date(race.startsAt).getTime() > Date.now()) {
+        body.textContent = "Results can only be recorded after the race starts when its status is CLOSED or COMPLETED.";
+        return;
+      }
+      const rows = await Promise.all(accepted.map(async entry => {
+        let result = null;
+        try { result = await raceResultApi.getByEntryId(entry.entryId); }
+        catch (error) { if (error?.status !== 404) throw error; }
+        return { entry, result };
+      }));
+      if (!alive() || !modal.isConnected) return;
+      body.removeAttribute("role");
+      body.innerHTML = rows.map(({ entry, result }) => `
+        <form class="admin-race-form span-2" data-admin-result-entry="${esc(entry.entryId)}" data-existing-result="${Boolean(result)}">
+          <div class="span-2"><strong>Participant #${esc(entry.participantNumber)} · Camel #${esc(entry.camelId)}</strong></div>
+          <label><span>Position</span><input type="number" name="finishPosition" min="1" step="1" required value="${esc(result?.finishPosition ?? "")}"></label>
+          <label><span>Elapsed (ms)</span><input type="number" name="elapsedMs" min="1" step="1" required value="${esc(result?.elapsedMs ?? "")}"></label>
+          <div class="admin-race-form-feedback span-2" role="status" data-result-feedback hidden></div>
+          <div class="admin-race-form-actions span-2"><button type="submit" class="admin-race-primary">${result ? "Update Result" : "Save Result"}</button></div>
+        </form>`).join("");
+      body.querySelectorAll("[data-admin-result-entry]").forEach(form => form.addEventListener("submit", async event => {
+        event.preventDefault();
+        const button = form.querySelector('[type="submit"]');
+        const feedback = form.querySelector("[data-result-feedback]");
+        const entryId = Number(form.dataset.adminResultEntry);
+        const data = new FormData(form);
+        const payload = { entryId, finishPosition: Number(data.get("finishPosition")), elapsedMs: Number(data.get("elapsedMs")) };
+        if (!Number.isSafeInteger(entryId) || !Number.isSafeInteger(payload.finishPosition) || payload.finishPosition < 1 || !Number.isSafeInteger(payload.elapsedMs) || payload.elapsedMs < 1) return;
+        button.disabled = true;
+        feedback.hidden = true;
+        try {
+          if (form.dataset.existingResult === "true") await raceResultApi.update(entryId, payload);
+          else await raceResultApi.create(payload);
+          if (!alive() || !modal.isConnected) return;
+          form.dataset.existingResult = "true";
+          button.textContent = "Update Result";
+          feedback.hidden = false;
+          feedback.textContent = "Result saved successfully.";
+          notify("Race result saved successfully.", "success");
+        } catch (error) {
+          if (!alive() || !modal.isConnected || failAuthorization(error)) return;
+          feedback.hidden = false;
+          feedback.textContent = error?.message || "Unable to save the result.";
+        } finally { if (modal.isConnected) button.disabled = false; }
+      }));
+    } catch (error) {
+      if (!alive() || !modal.isConnected || failAuthorization(error)) return;
+      body.textContent = error?.message || "Unable to load race participants.";
+    }
+  };
   const chooseRace = action => {
     const title = { organizerId: "Assign organizer", status: "Manage race status", view: "View race information" }[action];
     const modal = showModal(`<div class="modal-backdrop"><div class="modal admin-race-view-modal" role="dialog" aria-modal="true" aria-labelledby="admin-race-choose-title"><div class="admin-race-modal-head"><div><span>RACE MANAGEMENT</span><h2 id="admin-race-choose-title">${title}</h2></div><button type="button" data-race-choose-close aria-label="Close">×</button></div><form class="admin-race-choose-form"><label for="admin-race-choice">Select a race</label><select id="admin-race-choice" name="raceId" required><option value="">Choose race</option>${current.races.map(race => `<option value="${esc(race.raceId)}">${esc(race.name)}</option>`).join("")}</select>${current.races.length ? "" : "<p>No races available. Create a race first.</p>"}<div class="admin-race-form-actions"><button class="admin-race-secondary" type="button" data-race-choose-close>Cancel</button><button class="admin-race-primary" type="submit" ${current.races.length ? "" : "disabled"}>Continue</button></div></form></div></div>`);
@@ -400,6 +467,11 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
       button.closest("details")?.removeAttribute("open");
       const race = current.races.find(item => String(item.raceId) === button.dataset.adminRaceEdit);
       if (race) openEdit(race, button.dataset.raceField || "name");
+    }));
+    page.querySelectorAll("[data-admin-race-results]").forEach(button => button.addEventListener("click", () => {
+      button.closest("details")?.removeAttribute("open");
+      const race = current.races.find(item => String(item.raceId) === button.dataset.adminRaceResults);
+      if (race) openResults(race);
     }));
     page.querySelectorAll("[data-admin-race-requests]").forEach(button => button.addEventListener("click", () => {
       button.closest("details").removeAttribute("open");
