@@ -315,6 +315,11 @@ try {
 
   await page.goto(`http://localhost:${port}/races`);
   await page.locator('.medhmar-race-row').first().waitFor();
+  assert.equal(await page.locator('.medhmar-race-photo-credits, .visitor-tips').count(),0,
+    'Races must not show the removed visitor tips or photo-credit sections');
+  assert.equal(await page.getByText('Make the most of your experience').count(),0);
+  assert.ok(await page.locator('.medhmar-race-image-credit').count()>0,
+    'Licensed race imagery must retain accessible source attribution');
   await page.waitForFunction(()=>[...document.querySelectorAll('.medhmar-race-image img')].every(i=>i.complete && i.naturalWidth>0));
   const raceSources=await page.locator('.medhmar-race-image img').evaluateAll(images=>images.map(i=>i.getAttribute('src')));
   assert.equal(new Set(raceSources).size,3,'upcoming races use three different real photographs');

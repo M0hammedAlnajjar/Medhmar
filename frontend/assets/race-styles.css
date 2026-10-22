@@ -1557,4 +1557,19 @@
     }
 }
 
-.medhmar-race-photo-credits{margin:12px 0;font-size:12px;color:#806e5b;line-height:1.7}.medhmar-race-photo-credits summary{cursor:pointer}.medhmar-race-photo-credits a{color:#795333}
+
+
+/* Compact on-photo attribution replaces the long Photo credits section.
+   Source links retain artist and CC BY-SA details for supplied race photography. */
+.medhmar-race-image{position:relative}
+.medhmar-race-image-credit{
+ position:absolute;right:8px;bottom:8px;z-index:2;
+ width:27px;height:27px;border-radius:50%;
+ display:flex;align-items:center;justify-content:center;
+ color:#fff;background:#2e2119cc;border:1px solid #ffffff9e;
+ font-size:15px;text-decoration:none;
+ box-shadow:0 1px 7px #0004;
+}
+.medhmar-race-image-credit:hover,.medhmar-race-image-credit:focus-visible{
+ background:#8b5a2e;color:white;outline:2px solid #f4d2a6;outline-offset:2px
+}
