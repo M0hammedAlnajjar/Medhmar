@@ -19,6 +19,8 @@ test('published challenge replaces all old sample details with recorded data',()
  assert.match(html,/data-challenge="42" data-camel="1"/);
  assert.match(html,/data-challenge="42" data-camel="2"/);
  assert.match(html,/No live stream is connected|Not connected/);
+ assert.match(html,/class="broadcast-stage"/);
+ assert.match(html,/broadcast-stage-center/);
  assert.match(html,/No photo/);
  assert.doesNotMatch(html,/744 votes|456 votes|1\.2K watching|Al Bashaer Evening Challenge|Try one sample vote|Reset preview vote/);
  assert.doesNotMatch(html,/data-preview-vote/);
@@ -54,28 +56,30 @@ test('the challenge keeps the real voting actions and gallery but omits the old 
  const html=broadcastPreview(challenge,{signedIn:true});
  for(const removed of ['broadcast-bottom-tools','broadcast-tabs','broadcast-info',
    'data-preview-tab','Refresh results','Voting opens'])assert.ok(!html.includes(removed),removed);
- assert.match(html,/data-preview-image="next"|data-preview-fullscreen/);
+ assert.match(html,/data-preview-fullscreen/);
+ assert.doesNotMatch(html,/data-preview-image|data-preview-motion|broadcast-scene-image/);
  assert.match(html,/data-challenge="42" data-camel="1"/);
 });
 
-test('approved hero renders photograph, gallery controls and real voting data',()=>{
+test('approved black live standby keeps real challenge metadata and voting data',()=>{
  const html=broadcastPreview(challenge,{signedIn:true});
  assert.match(html,/class="broadcast-grid"/);
  assert.match(html,/class="broadcast-player"/);
  assert.match(html,/class="broadcast-heading"/);
  assert.match(html,/class="broadcast-voting"/);
- assert.match(html,/data-preview-image="next"/);
- assert.match(html,/data-preview-image="prev"/);
+ assert.match(html,/class="broadcast-stage"/);
+ assert.match(html,/broadcast-stage-dot/);
  assert.match(html,/data-preview-fullscreen/);
+ assert.doesNotMatch(html,/data-preview-image|data-preview-motion|broadcast-scene-image/);
  assert.doesNotMatch(html,/data-preview-tab|data-results=|broadcast-info/);
  assert.match(html,/3 votes|75%/);
  assert.doesNotMatch(html,/class="broadcast-facts"|Opens \(UTC\)|Closes \(UTC\)|<small>Broadcast<\/small>/);
  assert.match(html,/CLOSED · RESULTS|VOTING OPEN|VOTING SCHEDULED/);
- assert.match(html,/Illustrative racetrack photograph\. No live stream is connected/);
+ assert.match(html,/DEMO PREVIEW · No live stream is connected/);
  assert.match(html,/broadcast-demo-tag|LIVE<\/strong>/);
  assert.match(html,/DEMO|PHOTO PREVIEW/);
- assert.match(html,/data-preview-motion/);
  assert.match(html,/broadcast-demo-progress/);
+ assert.match(html,/Black livestream placeholder/);
  assert.doesNotMatch(html,/2,300 viewers|Live broadcast connected|1234 votes/);
 });
 test('published cards show only API data and use safe fallback illustration',()=>{
@@ -101,19 +105,18 @@ test('published cards show only API data and use safe fallback illustration',()=
  assert.match(empty,/More published challenges will appear here/);
  assert.doesNotMatch(empty,/broadcast-published-card|Desert Speed Challenge/);
 });
-test('gallery controls update the photograph without mutating votes',()=>{
- let gallerySource='/assets/home-racetrack.jpg';
- const photo={get src(){return gallerySource;},set src(value){gallerySource=value;}};
- const buttons=['prev','next'].map(direction=>({dataset:{previewImage:direction},addEventListener(_,cb){this.cb=cb;}}));
- const section={
-  querySelector(sel){return sel==='.broadcast-scene-image'?photo:null;},
-  querySelectorAll(sel){return sel==='[data-preview-image]'?buttons:[];}
- };
+test('live standby exposes a working fullscreen action and no fictional player actions',()=>{
+ const html=broadcastPreview(challenge,{signedIn:true});
+ assert.match(html,/data-preview-fullscreen/);
+ assert.doesNotMatch(html,/data-preview-image|data-preview-motion|broadcast-scene-image/);
+ assert.match(html,/DEMO/);
+ const button={addEventListener(kind,listener){this.click=listener;}};
+ let requested=0;
+ const player={requestFullscreen(){requested++;return Promise.resolve();}};
+ const section={querySelector(sel){if(sel==='[data-preview-fullscreen]')return button;if(sel==='.broadcast-player')return player;return null;}};
  bindBroadcastPreview({querySelector:sel=>sel==='.broadcast-preview'?section:null});
- buttons[1].cb();
- assert.equal(gallerySource,'/assets/racing-hero.webp');
- buttons[0].cb();
- assert.equal(gallerySource,'/assets/home-racetrack.jpg');
+ assert.equal(typeof button.click,'function');
+ return button.click().then(()=>assert.equal(requested,1));
 });
 
 test('challenge retains schedule on hero but removes extra navigation and times row',()=>{
@@ -125,7 +128,7 @@ test('challenge retains schedule on hero but removes extra navigation and times 
  assert.match(html,/No live stream is connected/);
 });
 
-test('approved compact challenge layout uses existing photos and keeps gallery controls',async()=>{
+test('approved compact challenge layout keeps true status and fullscreen',async()=>{
  const {readFile}=await import('node:fs/promises');
  const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
  const html=broadcastPreview(challenge,{signedIn:false});
@@ -141,7 +144,7 @@ test('approved compact challenge layout uses existing photos and keeps gallery c
  assert.match(css,/grid-template-columns:minmax\(0,33%\) minmax\(0,1fr\)/);
  assert.doesNotMatch(css,/fonts\.googleapis\.com|https?:\/\/|@import/);
  assert.match(css,/url\('\/assets\/racing-hero\.webp'\)/);
- for(const label of ['data-preview-fullscreen','data-preview-image="prev"','data-preview-image="next"'])assert.ok(html.includes(label),label);
+ for(const label of ['data-preview-fullscreen','class="broadcast-stage"','DEMO PREVIEW'])assert.ok(html.includes(label),label);
  assert.doesNotMatch(html,/data-preview-tab|id="refresh-challenges"|broadcast-bottom-tools/);
  assert.match(html,/Sign in to vote/);
  assert.doesNotMatch(html,/broadcast-facts/);

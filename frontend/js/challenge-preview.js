@@ -1,5 +1,5 @@
 // Real challenge feature: every title, contender and vote total originates from /api/challenges.
-// The hero photograph is illustrative, not a live stream or a source of vote results.
+// The spotlight is a black placeholder for a future stream; voting results still come from the API.
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
 }[char]));
@@ -73,29 +73,24 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
   'Sign in to cast one recorded vote.';
  return '<section class="broadcast-preview broadcast-live-data" aria-label="Featured published challenge">'+
   '<div class="broadcast-grid"><div class="broadcast-left">'+
-    '<div class="broadcast-player" id="broadcast-player">'+
-      '<img class="broadcast-scene-image" src="/assets/home-racetrack.jpg" alt="Illustrative photograph of camels racing on a track">'+
-      '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR <span aria-hidden="true">›</span> CHALLENGE #'+escapeHtml(id)+'</div>'+
-        '<h1>'+escapeHtml(challenge.title||'Camel Challenge')+'</h1>'+
-        '<p>Support your champion. Results come from the Medhmar platform.</p>'+
-        '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
-        '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div></div>'+
-      '<div class="broadcast-demo-tag" aria-label="Simulated livestream appearance, not an actual broadcast"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div>'+
-      '<div class="broadcast-demo-player" role="group" aria-label="Animated race photo preview controls">'+
-        '<div class="broadcast-demo-progress" aria-hidden="true"><span></span></div>'+
-        '<div class="broadcast-toolbar">'+
-          '<div class="broadcast-demo-actions"><button type="button" data-preview-motion aria-pressed="false" aria-label="Pause animated race preview">'+
-            '<span class="broadcast-motion-pause">'+ico('pause',18)+'</span><span class="broadcast-motion-play">'+ico('play',18)+'</span></button>'+
-            '<span class="broadcast-demo-label">PHOTO PREVIEW</span></div>'+
-          '<span class="broadcast-toolbar-note">Illustrative racetrack photograph. No live stream is connected.</span>'+
-          '<div class="broadcast-photo-actions"><button type="button" data-preview-fullscreen aria-label="Expand race photograph">'+ico('expand',16)+' Full screen</button>'+
-          '<button type="button" data-preview-image="prev" aria-label="Previous illustrative photograph">‹</button>'+
-          '<button type="button" data-preview-image="next" aria-label="Next illustrative photograph">›</button></div>'+
-        '</div>'+
+   '<div class="broadcast-player" id="broadcast-player">'+
+    '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR <span aria-hidden="true">›</span> CHALLENGE #'+escapeHtml(id)+'</div>'+
+      '<h1>'+escapeHtml(challenge.title||'Camel Challenge')+'</h1>'+
+      '<p>Support your champion. Results come from the Medhmar platform.</p>'+
+      '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
+      '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
+      '<div class="broadcast-demo-tag" aria-label="Live-style demonstration; no actual livestream"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div></div>'+
+    '<div class="broadcast-stage" role="img" aria-label="Black livestream placeholder. Demo only; no live video is connected.">'+
+      '<div class="broadcast-stage-center" aria-hidden="true"><span class="broadcast-stage-dot"></span><strong>Live</strong></div>'+
+      '<div class="broadcast-demo-player" role="group" aria-label="Broadcast placeholder controls">'+
+       '<div class="broadcast-demo-progress" aria-hidden="true"><span></span></div>'+
+       '<div class="broadcast-toolbar"><span class="broadcast-toolbar-note">DEMO PREVIEW · No live stream is connected.</span>'+
+        '<div class="broadcast-photo-actions"><button type="button" data-preview-fullscreen aria-label="Expand broadcast preview">'+ico('expand',16)+' Full screen</button></div>'+
+       '</div>'+
       '</div>'+
     '</div>'+
-  '</div><aside class="broadcast-voting">'+
-    '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
+   '</div>'+
+  '</div><aside class="broadcast-voting">    '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
     '<p>'+escapeHtml(votingNote)+'</p>'+
     '<div class="broadcast-voting-status"><span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
     candidateCards+
@@ -219,23 +214,6 @@ export function bindBroadcastPreview(root) {
   try{if(player?.requestFullscreen)await player.requestFullscreen();}
   catch{/* Fullscreen is optional and cannot change voting data. */}
  });
- // This gallery deliberately uses only shipped illustrative photography.
- const player=section.querySelector('.broadcast-player');
- const motion=section.querySelector('[data-preview-motion]');
- motion?.addEventListener('click',()=>{
-  if(!player)return;
-  const paused=player.dataset.previewPaused!=='true';
-  player.dataset.previewPaused=String(paused);
-  motion.setAttribute('aria-pressed',String(paused));
-  motion.setAttribute('aria-label',paused?'Resume animated race preview':'Pause animated race preview');
- });
- const gallery=['/assets/home-racetrack.jpg','/assets/racing-hero.webp'];
- const scene=section.querySelector('.broadcast-scene-image');
- let photoIndex=0;
- section.querySelectorAll('[data-preview-image]').forEach(button=>button.addEventListener('click',()=>{
-  if(!scene)return;
-  photoIndex=(photoIndex+(button.dataset.previewImage==='next'?1:-1)+gallery.length)%gallery.length;
-  scene.src=gallery[photoIndex];
- }));
+ // The video canvas is intentionally inert until a real, authorized stream is configured.
 
 }

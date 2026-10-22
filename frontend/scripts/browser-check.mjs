@@ -99,18 +99,15 @@ try {
   assert.match(championArtwork.url,/\/assets\/champion-vote-landscape\.webp/,'vote hero must reference packaged landscape');
   assert.ok(championArtwork.loaded,'champion voting backdrop must load successfully');
 
-  // The broadcast-look hero is one shared frame, explicitly marked as a demo.
+  // The frame is black, displays Live, and never implies a connected stream.
   assert.equal(await page.locator('.broadcast-grid').count(),1);
-  assert.equal(await page.locator('.broadcast-demo-tag').count(),1);
+  assert.equal(await page.locator('.broadcast-stage').count(),1);
+  assert.equal(await page.locator('.broadcast-scene-image, [data-preview-image], [data-preview-motion]').count(),0);
+  assert.match(await page.locator('.broadcast-stage-center').innerText(),/Live/);
   assert.match(await page.locator('.broadcast-demo-tag').innerText(),/LIVE|DEMO/);
   assert.match(await page.locator('.broadcast-toolbar-note').innerText(),/No live stream is connected/);
-  const motion=page.locator('[data-preview-motion]');
-  assert.equal(await motion.getAttribute('aria-pressed'),'false');
-  await motion.click();
-  assert.equal(await motion.getAttribute('aria-pressed'),'true');
-  assert.equal(await page.locator('.broadcast-player').getAttribute('data-preview-paused'),'true');
-  await motion.click();
-  assert.equal(await motion.getAttribute('aria-pressed'),'false');
+  assert.equal(await page.locator('.broadcast-stage').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(0, 0, 0)');
+  assert.equal(await page.locator('[data-preview-fullscreen]').count(),1);
   assert.equal(await page.locator('.broadcast-published-card').count(),1);
   assert.equal(await page.locator('.broadcast-published-placeholder').count(),1);
   assert.match(await page.locator('.broadcast-published-placeholder').innerText(),/Only real challenge results/);
@@ -161,11 +158,7 @@ try {
     'race preview and voting must share one seamless card: '+JSON.stringify(unifiedCard));
   assert.ok(parseFloat(unifiedCard.border)>=1 && parseFloat(unifiedCard.radius)>=12,
     'shared race card must have its own visible frame');
-  const imageBefore=await page.locator('.broadcast-scene-image').getAttribute('src');
-  await page.locator('[data-preview-image="next"]').click();
-  assert.notEqual(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
-  await page.locator('[data-preview-image="prev"]').click();
-  assert.equal(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
+  assert.equal(await page.locator('.broadcast-stage').count(),1);
   assert.equal(await page.locator('.broadcast-bottom-tools, .broadcast-tabs, #broadcast-info').count(),0,
     'obsolete challenge tabs, refresh strip and details row must not render');
   assert.equal(await page.locator('#refresh-challenges').count(),0,
