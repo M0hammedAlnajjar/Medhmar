@@ -1,6 +1,24 @@
 import { adminApi, camelApi, apiAssetUrl } from "./api.js";
 import { raceApi, raceEntryApi, raceResultApi } from "./race-api.js";
 
+const formatElapsedTime = value => {
+  if (value == null || value === "") return "";
+  const milliseconds = Number(value);
+  if (!Number.isSafeInteger(milliseconds) || milliseconds < 0) return "";
+  const minutes = Math.floor(milliseconds / 60000);
+  const seconds = Math.floor(milliseconds % 60000 / 1000);
+  const fraction = milliseconds % 1000;
+  return `${minutes}:${String(seconds).padStart(2, "0")}${fraction ? "." + String(fraction).padStart(3, "0").replace(/0+$/, "") : ""}`;
+};
+
+const parseElapsedTime = value => {
+  const match = /^(\\d+):([0-5]\\d)(?:\\.(\\d{1,3}))?$/.exec(String(value).trim());
+  if (!match) return null;
+  const elapsedMs = Number(match[1]) * 60000 + Number(match[2]) * 1000 +
+    Number((match[3] || "").padEnd(3, "0") || 0);
+  return Number.isSafeInteger(elapsedMs) && elapsedMs > 0 ? elapsedMs : null;
+};
+
 const esc = value => String(value ?? "")
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
@@ -414,7 +432,7 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
         <form class="admin-race-form span-2" data-admin-result-entry="${esc(entry.entryId)}" data-existing-result="${Boolean(result)}">
           <div class="span-2"><strong>Participant #${esc(entry.participantNumber)} · Camel #${esc(entry.camelId)}</strong></div>
           <label><span>Position</span><input type="number" name="finishPosition" min="1" step="1" required value="${esc(result?.finishPosition ?? "")}"></label>
-          <label><span>Elapsed (ms)</span><input type="number" name="elapsedMs" min="1" step="1" required value="${esc(result?.elapsedMs ?? "")}"></label>
+          <label><span>Elapsed (MM:SS)</span><input type="text" name="elapsedTime" inputmode="decimal" placeholder="2:50" pattern="[0-9]+:[0-5][0-9](\\.[0-9]{1,3})?" title="Enter minutes and seconds, e.g. 2:50" required value="${esc(formatElapsedTime(result?.elapsedMs))}"></label>
           <div class="admin-race-form-feedback span-2" role="status" data-result-feedback hidden></div>
           <div class="admin-race-form-actions span-2"><button type="submit" class="admin-race-primary">${result ? "Update Result" : "Save Result"}</button></div>
         </form>`).join("");
@@ -424,8 +442,13 @@ export function bindAdminRaces(root = document, { notify = () => {} } = {}) {
         const feedback = form.querySelector("[data-result-feedback]");
         const entryId = Number(form.dataset.adminResultEntry);
         const data = new FormData(form);
-        const payload = { entryId, finishPosition: Number(data.get("finishPosition")), elapsedMs: Number(data.get("elapsedMs")) };
-        if (!Number.isSafeInteger(entryId) || !Number.isSafeInteger(payload.finishPosition) || payload.finishPosition < 1 || !Number.isSafeInteger(payload.elapsedMs) || payload.elapsedMs < 1) return;
+        const elapsedMs = parseElapsedTime(data.get("elapsedTime"));
+        const payload = { entryId, finishPosition: Number(data.get("finishPosition")), elapsedMs };
+        if (!Number.isSafeInteger(entryId) || !Number.isSafeInteger(payload.finishPosition) || payload.finishPosition < 1 || elapsedMs === null) {
+          feedback.hidden = false;
+          feedback.textContent = "Enter a valid position and time (MM:SS), for example 2:50.";
+          return;
+        }
         button.disabled = true;
         feedback.hidden = true;
         try {
