@@ -297,6 +297,14 @@ try {
   await page.goto(`http://localhost:${port}/tourism`);
   await page.locator('.heritage-card').first().waitFor();
   assert.equal(await page.locator('.heritage-card').count(),3);
+  assert.equal(await page.locator('.heritage-tips, .heritage-credits').count(),0,
+    'Visitor Tips and Photo credits must not appear on the heritage page');
+  assert.equal(await page.getByText('Make the most of your experience').count(),0);
+  assert.equal(await page.locator('.heritage-photo-credit').count(),3,
+    'Licensed photographs must retain a compact attribution link');
+  assert.ok(await page.locator('.heritage-photo-credit').evaluateAll(links=>
+    links.every(a=>a.href.startsWith('https://commons.wikimedia.org/') &&
+      a.getAttribute('aria-label')?.includes('CC BY-SA 4.0'))));
   assert.equal(await page.locator('.tourism-hero').count(),0);
   assert.ok(await page.locator('.heritage-card > img').evaluateAll(images=>images.every(i=>i.complete && i.naturalWidth>0)), 'heritage photographs must load');
   await page.locator('[data-heritage-category="stories"]').click();
