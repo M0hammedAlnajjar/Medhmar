@@ -382,7 +382,7 @@ export function adminUsersView({users,page,statistics=null,error=''}) {
  '<div class="admin-users-hero-copy"><span class="admin-users-kicker">MEDHMAR · RACE ADMINISTRATION</span>'+
  '<h1 id="admin-users-title">Manage Users</h1>'+
  '<p>Manage the people behind every race.</p></div>'+
- '<img class="admin-users-racing-art" src="/assets/admin-users-racing.svg" alt="" aria-hidden="true" width="1000" height="250">'+
+ '<img class="admin-users-racing-art" src="/assets/admin-users-racing.svg" alt="" aria-hidden="true" width="1000" height="209">'+
  '<div class="admin-users-date">'+iconUser('calendar')+'<span>'+esc(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Muscat'}))+'</span></div></section>'+
  '<section class="admin-users-stats" aria-label="Account statistics">'+stats+'</section>'+
  '<p class="admin-users-role-note">Accounts can have multiple roles. <span>'+ (aggregate?'Role counts cover all accounts.':'Role counts are from this page only.')+'</span></p>'+
