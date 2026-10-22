@@ -50,10 +50,10 @@ const adminMetricIcon = key => {
             '<circle cx="10" cy="19" r="4"/><circle cx="38" cy="19" r="4"/>' +
             '<path d="M13 39v-3c0-6.2 4.9-11 11-11s11 4.8 11 11v3H13Z"/>' +
             '<path d="M10 28c-3.5 0-6 2.8-6 6v5h6m28-11c3.5 0 6 2.8 6 6v5h-6"/>',
-        // High-contrast, single-hump dromedary silhouette stays recognizable at 40px.
-        camel: '<path fill="currentColor" stroke="none" d="M4.5 29c1.3-.6 3.1-.8 4.5-1.9 2.4-1.7 3.8-4.3 5.7-8.4 2.2-4.6 4.6-6.2 7.3-6.2 3.6 0 5.5 3.2 7.6 9.9 1 3.1 2.8 4.5 5 4.5 2.2 0 3.6-2.6 4.2-6.7l.9-8c.3-2.9 1.9-4.6 4-4.6h2.5l1.2 2.7-2.5 1.6-2.4.2-.8 9.8c-.4 6.8-2.9 10.4-7.3 11.4l.4 9.7h-3.5l-2.1-9.2h-2.8l-2.2 9.2h-3.5l.9-10H15l-1.3 10h-3.5l-.7-11.5C5.2 33.4 4 31.3 4.5 29Z"/>' +
-            '<path fill="none" d="M6 30.3 2.4 27" stroke-width="2" />' +
-            '<circle cx="43.5" cy="9.6" r=".7" fill="#faf3e9" stroke="none" />',
+        // Solid one-hump camel with four distinct legs; readable at 40px.
+        camel: '<path fill="currentColor" stroke="none" d="M3.5 29.2c2.1-.9 4.7-1.6 7.4-1.5 3.2-3.4 4.4-10.6 8.5-13.6 4.1-2.9 6.5-.4 9.2 6.6l1.9 4.5c2.8 1 5.4-1.7 5.6-5.4l1.7-10.3c.5-3.3 1.9-5 4.3-5.2l3.3.3 1.2 3.4-2.3 2.1-3.2-.4-1.1 11c-.5 7-3.2 10.6-7 11.4l.7 11.8h-3.8L26.4 33h-6l-2.1 10h-3.8l.6-10.1h-4.1l-.7 10.1H7L6.2 32.6c-2.6-.7-4-1.7-2.7-3.4Z"/>' +
+            '<path d="M5 28.5 2.4 26" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>' +
+            '<circle cx="43.3" cy="7.2" r=".6" fill="#faf3e9" stroke="none"/>',
         race: '<path d="M14 7 34 42M34 7 14 42"/>' +
             '<path d="m14 7-10 6 7 10 11-10-8-6Zm20 0 10 6-7 10-11-10 8-6Z"/>' +
             '<path d="m10 10 7 8m-2-11 7 6m11-3-6 7m11-6-7 8"/>',
