@@ -28,6 +28,8 @@ const symbols = {
   trophy:'<path d="M7 3h10v9a5 5 0 0 1-10 0zM7 6H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4M12 17v4m-5 0h10"/>',
   radio:'<circle cx="12" cy="12" r="2"/><path d="M7.5 7.5a6.5 6.5 0 0 0 0 9m9-9a6.5 6.5 0 0 1 0 9M4 4a11.3 11.3 0 0 0 0 16m16-16a11.3 11.3 0 0 1 0 16"/>',
   expand:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
+  pause:'<path d="M8 5v14m8-14v14"/>',
+  play:'<path d="m8 5 11 7-11 7z"/>',
   file:'<path d="M6 3h9l5 5v13H6zM15 3v6h5M9 13h8M9 17h8"/>',
   check:'<path d="m5 12 4 4L19 6"/>',
   chevron:'<path d="m9 5 7 7-7 7"/>'
@@ -77,17 +79,26 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
         '<h1>'+escapeHtml(challenge.title||'Camel Challenge')+'</h1>'+
         '<p>Support your champion. Results come from the Medhmar platform.</p>'+
         '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
-        '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
-        '<span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
-      '<span class="broadcast-label">RACE PHOTO</span>'+
-      '<div class="broadcast-toolbar"><span>Real challenge data · Illustrative racetrack photograph. No live stream is connected.</span>'+
-      '<div class="broadcast-photo-actions"><button type="button" data-preview-fullscreen aria-label="Expand race photograph">'+ico('expand',16)+' Full screen</button>'+
-      '<button type="button" data-preview-image="prev" aria-label="Previous illustrative photograph">‹</button>'+
-      '<button type="button" data-preview-image="next" aria-label="Next illustrative photograph">›</button></div></div>'+
+        '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div></div>'+
+      '<div class="broadcast-demo-tag" aria-label="Simulated livestream appearance, not an actual broadcast"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div>'+
+      '<div class="broadcast-demo-player" role="group" aria-label="Animated race photo preview controls">'+
+        '<div class="broadcast-demo-progress" aria-hidden="true"><span></span></div>'+
+        '<div class="broadcast-toolbar">'+
+          '<div class="broadcast-demo-actions"><button type="button" data-preview-motion aria-pressed="false" aria-label="Pause animated race preview">'+
+            '<span class="broadcast-motion-pause">'+ico('pause',18)+'</span><span class="broadcast-motion-play">'+ico('play',18)+'</span></button>'+
+            '<span class="broadcast-demo-label">PHOTO PREVIEW</span></div>'+
+          '<span class="broadcast-toolbar-note">Illustrative racetrack photograph. No live stream is connected.</span>'+
+          '<div class="broadcast-photo-actions"><button type="button" data-preview-fullscreen aria-label="Expand race photograph">'+ico('expand',16)+' Full screen</button>'+
+          '<button type="button" data-preview-image="prev" aria-label="Previous illustrative photograph">‹</button>'+
+          '<button type="button" data-preview-image="next" aria-label="Next illustrative photograph">›</button></div>'+
+        '</div>'+
+      '</div>'+
     '</div>'+
   '</div><aside class="broadcast-voting">'+
     '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
-    '<p>'+escapeHtml(votingNote)+'</p>'+candidateCards+
+    '<p>'+escapeHtml(votingNote)+'</p>'+
+    '<div class="broadcast-voting-status"><span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
+    candidateCards+
     '<p class="broadcast-vote-note">'+ico('check',15)+'Votes shown here are recorded results, not simulated votes.</p>'+
     '<a data-link class="broadcast-challenge-link" href="/challenges/'+safeId(id)+'">View challenge details →</a>'+
   '</aside></div></section>';
@@ -209,6 +220,15 @@ export function bindBroadcastPreview(root) {
   catch{/* Fullscreen is optional and cannot change voting data. */}
  });
  // This gallery deliberately uses only shipped illustrative photography.
+ const player=section.querySelector('.broadcast-player');
+ const motion=section.querySelector('[data-preview-motion]');
+ motion?.addEventListener('click',()=>{
+  if(!player)return;
+  const paused=player.dataset.previewPaused!=='true';
+  player.dataset.previewPaused=String(paused);
+  motion.setAttribute('aria-pressed',String(paused));
+  motion.setAttribute('aria-label',paused?'Resume animated race preview':'Pause animated race preview');
+ });
  const gallery=['/assets/home-racetrack.jpg','/assets/racing-hero.webp'];
  const scene=section.querySelector('.broadcast-scene-image');
  let photoIndex=0;

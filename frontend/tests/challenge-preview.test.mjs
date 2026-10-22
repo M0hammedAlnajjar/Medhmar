@@ -72,6 +72,10 @@ test('approved hero renders photograph, gallery controls and real voting data',(
  assert.doesNotMatch(html,/class="broadcast-facts"|Opens \(UTC\)|Closes \(UTC\)|<small>Broadcast<\/small>/);
  assert.match(html,/CLOSED · RESULTS|VOTING OPEN|VOTING SCHEDULED/);
  assert.match(html,/Illustrative racetrack photograph\. No live stream is connected/);
+ assert.match(html,/broadcast-demo-tag|LIVE<\/strong>/);
+ assert.match(html,/DEMO|PHOTO PREVIEW/);
+ assert.match(html,/data-preview-motion/);
+ assert.match(html,/broadcast-demo-progress/);
  assert.doesNotMatch(html,/2,300 viewers|Live broadcast connected|1234 votes/);
 });
 test('published cards show only API data and use safe fallback illustration',()=>{

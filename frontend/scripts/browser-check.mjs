@@ -99,7 +99,18 @@ try {
   assert.match(championArtwork.url,/\/assets\/champion-vote-landscape\.webp/,'vote hero must reference packaged landscape');
   assert.ok(championArtwork.loaded,'champion voting backdrop must load successfully');
 
+  // The broadcast-look hero is one shared frame, explicitly marked as a demo.
   assert.equal(await page.locator('.broadcast-grid').count(),1);
+  assert.equal(await page.locator('.broadcast-demo-tag').count(),1);
+  assert.match(await page.locator('.broadcast-demo-tag').innerText(),/LIVE|DEMO/);
+  assert.match(await page.locator('.broadcast-toolbar-note').innerText(),/No live stream is connected/);
+  const motion=page.locator('[data-preview-motion]');
+  assert.equal(await motion.getAttribute('aria-pressed'),'false');
+  await motion.click();
+  assert.equal(await motion.getAttribute('aria-pressed'),'true');
+  assert.equal(await page.locator('.broadcast-player').getAttribute('data-preview-paused'),'true');
+  await motion.click();
+  assert.equal(await motion.getAttribute('aria-pressed'),'false');
   assert.equal(await page.locator('.broadcast-published-card').count(),1);
   assert.equal(await page.locator('.broadcast-published-placeholder').count(),1);
   assert.match(await page.locator('.broadcast-published-placeholder').innerText(),/Only real challenge results/);
@@ -138,6 +149,18 @@ try {
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
   const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
   assert.equal(desktopCols,2,'desktop challenges must have hero and voting columns');
+  const unifiedCard=await page.locator('.broadcast-grid').evaluate(el=>{
+    const frame=el.getBoundingClientRect();
+    const player=el.querySelector('.broadcast-player').getBoundingClientRect();
+    const panel=el.querySelector('.broadcast-voting').getBoundingClientRect();
+    return {gap:panel.left-player.right,topDelta:Math.abs(player.top-panel.top),
+      border:getComputedStyle(el).borderTopWidth,radius:getComputedStyle(el).borderTopLeftRadius,
+      heightDelta:Math.abs(player.height-panel.height),frameWidth:frame.width};
+  });
+  assert.ok(Math.abs(unifiedCard.gap)<2 && unifiedCard.topDelta<2 && unifiedCard.heightDelta<2,
+    'race preview and voting must share one seamless card: '+JSON.stringify(unifiedCard));
+  assert.ok(parseFloat(unifiedCard.border)>=1 && parseFloat(unifiedCard.radius)>=12,
+    'shared race card must have its own visible frame');
   const imageBefore=await page.locator('.broadcast-scene-image').getAttribute('src');
   await page.locator('[data-preview-image="next"]').click();
   assert.notEqual(await page.locator('.broadcast-scene-image').getAttribute('src'),imageBefore);
