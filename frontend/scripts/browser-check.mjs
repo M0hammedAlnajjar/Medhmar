@@ -296,6 +296,12 @@ try {
 
   await page.goto(`http://localhost:${port}/tourism`);
   await page.locator('.heritage-card').first().waitFor();
+  assert.equal(await page.locator('.page-head').count(),0,
+    'heritage must not render the redundant outer MEDHMAR heading');
+  assert.equal(await page.locator('.heritage-heading').count(),1,
+    'keep the original heritage title immediately above the content');
+  assert.match(await page.locator('.heritage-heading h1').innerText(),/Camel Racing Heritage/);
+  assert.equal(await page.getByText('Explore cultural stories and visitor events.').count(),0);
   assert.equal(await page.locator('.heritage-card').count(),3);
   assert.equal(await page.locator('.heritage-tips, .heritage-credits').count(),0,
     'Visitor Tips and Photo credits must not appear on the heritage page');

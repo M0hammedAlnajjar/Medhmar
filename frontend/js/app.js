@@ -425,7 +425,12 @@ function denyRoleAccess(route) {
 function pedigree(){ return shell(pedigreeView(state.view), '/pedigree', true); }
 
 function organizations(){ return shell(organizationDirectory(demo.organizations),'/organizations'); }
-function tourism(){ return scr('/tourism','','Camel Racing Heritage',d=>({title:'Camel Racing Heritage',sub:'Explore cultural stories and visitor events.',body:heritageExperiences(d)})); }
+function tourism(){
+ const view=state.view;
+ if(view.status!=='ready')return shell(view.status==='error'?errorCard(view.error):loadingCard(),'/tourism');
+ // Heritage already renders its own page title. Avoid a duplicate shell heading.
+ return shell(heritageExperiences(view.data),'/tourism');
+}
 function adminHeritagePage(){return adminShell({user:state.user,active:'/admin/heritage',body:adminHeritageView({...state.adminHeritageData,error:state.adminHeritageError})});}
 
 const raceRows = () => `<table><thead><tr><th>No.</th><th>Camel</th><th>Owner</th><th>Trainer</th><th>Category</th></tr></thead><tbody>${[['01','Barq','Ahmed Al Balushi','Salim Al Rashidi','Racing'],['02','Shahin','Khalid Al Maamari','Nasser Al Hinai','Racing'],['03','Al Sahab','Mohammed Al Naqbi','Rashid Al Kindi','Racing'],['04','Najm','Saif Al Busaidi','Khalid Al Harthy','Racing']].map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
