@@ -56,10 +56,11 @@ function statCards(stats) {
 }
 
 function hero() {
-  return '<section class="admin-users-hero" aria-labelledby="admin-market-title"><span class="admin-users-kicker">MARKETPLACE ADMINISTRATION</span>' +
+  return '<section class="admin-users-hero" aria-labelledby="admin-market-title"><div class="mkt-hero-copy"><span class="admin-users-kicker">MARKETPLACE ADMINISTRATION</span>' +
     '<h1 id="admin-market-title">Marketplace Management</h1>' +
-    '<p>Monitor, review, and manage all marketplace listings across the Medhmar platform.</p>' +
-    '<button type="button" id="admin-market-refresh" class="admin-users-refresh-btn mkt-hero-refresh">' + icon('refresh') + ' Refresh</button></section>';
+    '<p>Monitor, review, and manage all marketplace listings across the Medhmar platform.</p></div>' +
+    '<button type="button" id="admin-market-refresh" class="admin-users-refresh-btn mkt-hero-refresh">' + icon('refresh') + ' Refresh</button>' +
+    '<img class="mkt-hero-art" src="/assets/admin-marketplace-racing.svg" alt="" aria-hidden="true" width="1024" height="327"></section>';
 }
 
 function row(l) {
@@ -103,7 +104,7 @@ function auditPanel(events, error) {
 
 export function adminMarketplaceView({data = null, filters = {}, error = '', auditEvents = [], auditError = ''} = {}) {
   if (error || !data || !validStats(data.stats) || !validPage(data.page)) {
-    return '<div class="admin-users-view">' + hero() + statCards(null) +
+    return '<div class="admin-users-view admin-marketplace-view">' + hero() + statCards(null) +
       '<section class="admin-users-error" role="alert"><h2>Marketplace data unavailable</h2><p>' + esc(error || 'The server returned an unexpected response.') +
       '</p><button type="button" id="admin-retry" class="btn btn-secondary">Retry</button></section></div>';
   }
@@ -130,7 +131,7 @@ export function adminMarketplaceView({data = null, filters = {}, error = '', aud
   const pager = '<div class="admin-users-pagination"><button type="button" data-mkt-page="' + (page.page - 1) + '"' + (page.page <= 0 ? ' disabled' : '') + ' aria-label="Previous page">‹</button>' +
     '<span>Page ' + (page.page + 1) + ' of ' + Math.max(1, page.totalPages) + '</span>' +
     '<button type="button" data-mkt-page="' + (page.page + 1) + '"' + (page.page + 1 >= page.totalPages ? ' disabled' : '') + ' aria-label="Next page">›</button></div>';
-  return '<div class="admin-users-view">' + hero() + statCards(stats) +
+  return '<div class="admin-users-view admin-marketplace-view">' + hero() + statCards(stats) +
     '<section class="admin-users-panel" aria-label="Marketplace listings"><div class="admin-users-toolbar"><div><h2>Marketplace listings</h2>' +
     '<p>Review, edit, approve, reject or remove listings. Changes apply to the live marketplace.</p></div>' +
     '<span class="admin-users-live-count">' + count(page.totalElements) + ' listings' + (filtered ? ' match' : '') + '</span></div>' + filtersForm +

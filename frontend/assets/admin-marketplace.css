@@ -1,0 +1,109 @@
+/* Marketplace header: approved camel and listing artwork, with live HTML controls. */
+.admin-console .admin-marketplace-view .admin-users-hero {
+  min-height: 238px;
+  padding: 30px 12px 48px;
+  background: none;
+}
+
+.admin-console .admin-marketplace-view .mkt-hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 48%;
+}
+
+.admin-console .admin-marketplace-view .admin-users-kicker {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+  font-size: 10px;
+  letter-spacing: .15em;
+}
+
+.admin-console .admin-marketplace-view .admin-users-kicker::after {
+  content: "";
+  flex: 1;
+  max-width: 150px;
+  border-top: 1px solid #b78238;
+}
+
+.admin-console .admin-marketplace-view .admin-users-hero h1 {
+  font-size: clamp(28px, 2.55vw, 42px);
+  line-height: 1.16;
+}
+
+.admin-console .admin-marketplace-view .admin-users-hero p {
+  max-width: 560px;
+  font-size: clamp(13px, 1.05vw, 16px);
+  line-height: 1.6;
+}
+
+.admin-console .admin-marketplace-view .mkt-hero-refresh {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 12px;
+  margin: 0;
+  min-height: 40px;
+  padding: 9px 18px;
+  border: 1px solid #b6092d;
+  border-radius: 8px;
+  background: #b6092d;
+  color: #fff;
+}
+
+.admin-console .admin-marketplace-view .mkt-hero-refresh:hover { background: #940825; }
+.admin-console .admin-marketplace-view .mkt-hero-refresh:focus-visible {
+  outline: 3px solid #b78238;
+  outline-offset: 3px;
+}
+
+.admin-console .admin-marketplace-view .mkt-hero-art {
+  position: absolute;
+  right: -4px;
+  bottom: 6px;
+  width: 55%;
+  height: auto;
+  max-height: 225px;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+}
+
+.admin-console .admin-marketplace-view .admin-users-stats .admin-users-stat-label,
+.admin-console .admin-marketplace-view .admin-users-stats .admin-users-stat small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1000px) and (min-width: 761px) {
+  .admin-console .admin-marketplace-view .admin-users-hero { min-height: 225px; }
+  .admin-console .admin-marketplace-view .mkt-hero-copy { max-width: 49%; }
+}
+
+@media (max-width: 760px) {
+  .admin-console .admin-marketplace-view .admin-users-hero {
+    min-height: 0;
+    padding: 20px 4px 12px;
+    gap: 0;
+  }
+  .admin-console .admin-marketplace-view .mkt-hero-copy { max-width: 100%; }
+  .admin-console .admin-marketplace-view .admin-users-kicker {
+    gap: 12px;
+    font-size: 9px;
+    margin-bottom: 12px;
+  }
+  .admin-console .admin-marketplace-view .admin-users-hero h1 { font-size: clamp(28px, 5.3vw, 36px); }
+  .admin-console .admin-marketplace-view .admin-users-hero p { font-size: 14px; }
+  .admin-console .admin-marketplace-view .mkt-hero-refresh {
+    position: static;
+    align-self: flex-start;
+    margin-top: 16px;
+  }
+  .admin-console .admin-marketplace-view .mkt-hero-art {
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin-top: 12px;
+  }
+}
