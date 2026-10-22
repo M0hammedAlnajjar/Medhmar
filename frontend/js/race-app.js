@@ -14,7 +14,28 @@ const RACE_IMAGES = [
     HERO_IMAGE,
     "/assets/organization-photos/training.webp"
 ];
-const RACE_PHOTO_CREDITS = `<details class="medhmar-race-photo-credits"><summary>Photo credits</summary><p>Illustrative photographs from the UAE and Morocco; not official photographs of these races. Converted to WebP; cropped for display.</p><ul><li><a href="https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg" target="_blank" rel="noopener">Camel race using robot jockeys</a> — Houssain tork (Morocco)</li><li><a href="https://commons.wikimedia.org/wiki/File:Camel_Race_Training.jpg" target="_blank" rel="noopener">Camel Race Training</a> — Lintophilip (UAE)</li><li><a href="https://commons.wikimedia.org/wiki/File:Camel_Race_Finishing_Line.jpg" target="_blank" rel="noopener">Camel Race Finishing Line</a> — Tmsprophoto.photography (UAE)</li></ul><p>All three images: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. No endorsement implied.</p></details>`;
+// Preserve CC BY-SA attribution without the large, unrelated credits section.
+const RACE_IMAGE_CREDITS = Object.freeze({
+    "/assets/organization-photos/robot-jockeys.webp": {
+        author: "Houssain tork",
+        source: "https://commons.wikimedia.org/wiki/File:Camel_race_using_robot_jockeys.jpg"
+    },
+    "/assets/organization-photos/training.webp": {
+        author: "Lintophilip",
+        source: "https://commons.wikimedia.org/wiki/File:Camel_Race_Training.jpg"
+    },
+    "/assets/organization-photos/finish-line.webp": {
+        author: "Tmsprophoto.photography",
+        source: "https://commons.wikimedia.org/wiki/File:Camel_Race_Finishing_Line.jpg"
+    }
+});
+function raceImageAttribution(src) {
+    const source=RACE_IMAGE_CREDITS[src];
+    if(!source)return "";
+    return '<a class="medhmar-race-image-credit" href="'+source.source+'" target="_blank" rel="noopener noreferrer" '+
+      'title="Photo: '+source.author+' · CC BY-SA 4.0" aria-label="Photo by '+source.author+', CC BY-SA 4.0. View source">'+
+      'ⓘ</a>';
+}
 
 function fallbackRaceImage(race) {
     // Stable by ID/name: filtering or tab changes never swap a race's photo.
@@ -468,6 +489,7 @@ function raceRow(race, index) {
           src="${escapeHtml(race.coverImage || HERO_IMAGE)}"
           alt="${escapeHtml(race.name)}"
         >
+        ${raceImageAttribution(race.coverImage || HERO_IMAGE)}
       </div>
 
       <div class="medhmar-race-content">
@@ -823,7 +845,6 @@ export async function renderRacesListing(container) {
 
       </div>
 
-      ${RACE_PHOTO_CREDITS}
       <div class="medhmar-race-list">
 
         ${
