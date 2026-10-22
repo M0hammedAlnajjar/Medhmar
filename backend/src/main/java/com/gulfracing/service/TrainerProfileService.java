@@ -21,6 +21,7 @@ public class TrainerProfileService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final TrainerPhotoStorageService trainerPhotoStorage;
+    private final ProfilePhotoLifecycle photoLifecycle;
 
     @Transactional
     public Long create(Long actorId, String bio, String location) {
@@ -82,13 +83,15 @@ public class TrainerProfileService {
 
     @Transactional
     public String uploadPhoto(Long actorId, MultipartFile photo) {
-        var user = userService.getActive(actorId);
+        var user = userRepository.findLockedById(actorId).orElseThrow(ApiException::unauthorized);
+        if (user.getAccountStatus() != AccountStatus.ACTIVE) throw ApiException.unauthorized();
         boolean trainerRole = user.getRoles().stream().anyMatch(role -> "TRAINER".equals(role.getRoleName()));
         if (!trainerRole) throw ApiException.forbidden();
         if (!trainerProfileRepository.existsById(actorId)) {
             throw ApiException.notFound("Trainer profile");
         }
         String photoUrl = trainerPhotoStorage.store(photo);
+        photoLifecycle.replaced(user.getAvatarUrl(), photoUrl, true);
         user.setAvatarUrl(photoUrl);
         return photoUrl;
     }

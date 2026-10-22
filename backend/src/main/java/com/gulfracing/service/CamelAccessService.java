@@ -8,6 +8,7 @@ import com.gulfracing.repository.OwnershipRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import java.time.Clock;
 import java.util.Date;
@@ -69,6 +70,32 @@ public class CamelAccessService {
         if (share == null || share < 99.999d) {
             throw ApiException.forbidden();
         }
+    }
+
+    // The same camel lock is held by marketplace sales and ownership changes.
+    // Recheck ownership AFTER acquiring it and keep it until the mutation commits.
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public CamelDTO update(CamelDTO request, Long actorId) {
+        lockCamel(request.getCamelId());
+        requireOwner(request.getCamelId(), actorId);
+        return CamelDTO.convertToDTO(camels.updateCamel(
+                request.getCamelId(), request.getName(), request.getGender(), request.getBirthDate(),
+                request.getBreed(), request.getPhotoUrl(), request.getSire(), request.getDam(),
+                request.getCategory(), request.getStatus()));
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Boolean delete(Long camelId, Long actorId) {
+        lockCamel(camelId);
+        requireOwner(camelId, actorId);
+        return camels.deleteById(camelId);
+    }
+
+    private void lockCamel(Long camelId) {
+        validateCamelId(camelId);
+        camelRepository.findLockedById(camelId)
+                .filter(camel -> Boolean.TRUE.equals(camel.getIsActive()))
+                .orElseThrow(() -> ApiException.notFound("Camel"));
     }
 
     @Transactional(readOnly = true)

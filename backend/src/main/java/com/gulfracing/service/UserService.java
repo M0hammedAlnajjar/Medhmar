@@ -28,6 +28,7 @@ public class UserService {
     private final AuthAccountRepository accounts;
     private final PasswordEncoder passwords;
     private final Clock clock;
+    private final ProfilePhotoLifecycle photoLifecycle;
 
     public static String normalizeEmail(String email) {
         return email == null ? "" : email.strip().toLowerCase(Locale.ROOT);
@@ -110,7 +111,15 @@ public class UserService {
 
     @Transactional
     public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
-        var user = getActive(id);
+        var user = users.findLockedById(id).orElseThrow(ApiException::unauthorized);
+        if (user.getAccountStatus() != AccountStatus.ACTIVE) throw ApiException.unauthorized();
+        // Managed files are assigned by the authenticated upload endpoint only.
+        // A profile edit may retain its own image, remove it, or use an external URL.
+        if (request.avatarUrl() != null && request.avatarUrl().startsWith("/uploads/")
+                && !Objects.equals(request.avatarUrl(), user.getAvatarUrl())) {
+            throw ApiException.badRequest("Upload a photo through your own trainer profile.");
+        }
+        photoLifecycle.replaced(user.getAvatarUrl(), request.avatarUrl(), false);
         user.setFullName(request.fullName().strip());
         user.setPreferredLanguage(request.preferredLanguage());
         user.setAvatarUrl(request.avatarUrl());

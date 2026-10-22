@@ -71,6 +71,13 @@ example localhost on different ports). Configure `FRONTEND_ORIGINS` as a
 comma-separated list of exact origins. Production requires HTTPS and
 `SESSION_COOKIE_SECURE=true`. Sessions expire after 30 minutes of inactivity.
 
+For deployment, include `prod` in `SPRING_PROFILES_ACTIVE` (for example
+`prod,google,mail`). That profile enforces Secure session cookies even when the
+local `.env` still contains `SESSION_COOKIE_SECURE=false`; HTTPS must be supplied
+by the server or trusted reverse proxy. `DB_USERNAME` selects the database
+account; production requires an explicit value. Use a dedicated account with
+permissions limited to the application database, not MySQL `root`.
+
 ## Accounts and access
 
 | Method | Endpoint | Access | Request / behavior |
@@ -104,6 +111,39 @@ authentication action per IP per 15 minutes. Password reset emails also have a
 3-minute per-account cooldown. The limiter does not trust X-Forwarded-For.
 For multiple application instances, replace it with a shared limiter at the
 trusted gateway or a shared backing store.
+
+Resource endpoints have separate, bounded in-process limits enabled by default:
+
+| Endpoint | Limit | Retry-After on HTTP 429 |
+| --- | --- | --- |
+| POST /trainer-profile/photo | 5 requests per account and 20 per IP in 15 minutes | 900 seconds |
+| POST /api/tourism/events/{id}/visits | 60 requests per IP and, when signed in, per account in 1 minute, across events | 60 seconds |
+
+These limits count attempts, including rejected requests, and do not trust a
+client-supplied `X-Forwarded-For` header. Enforce equivalent shared limits at a
+trusted gateway when deploying multiple application instances. CSRF remains
+required on both endpoints.
+
+Trainer images must be JPEG or PNG, at most 5 MB and 16 million input pixels.
+Stored images are resized to fit 1024 by 1024 pixels, re-encoded, and capped at
+5 MB. At most two images are decoded concurrently per application instance.
+Each account retains its current uploaded avatar; replacing it or switching to
+an external URL removes its old managed file after commit if no profile still
+references it. Rollback removes a new, uncommitted upload. Concurrent replacements
+serialize on the user row. Profile edits cannot adopt another user's managed URL.
+Pre-existing orphan files are not deleted in bulk; cleanup failures are logged
+for operator attention. A durable filesystem quota is still recommended.
+
+Tourism visits are deduplicated for 15 minutes per event and signed-in user, or
+per event/IP/User-Agent for anonymous requests. The latter is an approximation,
+not a count of distinct people. Repeats return the existing `infoId` (HTTP 201
+is retained for API compatibility) without inserting a row. Duplicate responses
+use the current request's metadata, never a previous anonymous visitor's referrer.
+The check and insert share a database lock, so concurrent instances also deduplicate.
+
+Camel update/delete operations hold the camel row lock from the ownership check
+through commit, sharing that lock with sales and ownership changes. A sale cannot
+commit in the gap between checking the seller's ownership and saving a mutation.
 
 ### First administrator
 

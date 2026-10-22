@@ -100,27 +100,12 @@ public class CamelController {
     //Update API
     @PutMapping("update")
     public CamelDTO updateCamel(@Valid @RequestBody CamelDTO dto, Authentication auth) {
-        access.requireOwner(dto.getCamelId(), AccountAccess.requiredId(auth));
-        return CamelDTO.convertToDTO(
-                camelService.updateCamel(
-                        dto.getCamelId(),
-                        dto.getName(),
-                        dto.getGender(),
-                        dto.getBirthDate(),
-                        dto.getBreed(),
-                        dto.getPhotoUrl(),
-                        dto.getSire(),
-                        dto.getDam(),
-                        dto.getCategory(),
-                        dto.getStatus()
-                )
-        );
+        return access.update(dto, AccountAccess.requiredId(auth));
     }
 
     //Delete API
     @DeleteMapping("deleteById")
     public Boolean deleteCamel(@RequestParam Long id, Authentication auth) {
-        access.requireOwner(id, AccountAccess.requiredId(auth));
-        return camelService.deleteById(id);
+        return access.delete(id, AccountAccess.requiredId(auth));
     }
 }

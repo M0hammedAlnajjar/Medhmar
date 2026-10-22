@@ -10,6 +10,9 @@ import com.gulfracing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 
 import java.time.Clock;
 import java.util.Date;
@@ -25,6 +28,7 @@ public class OwnershipRecordService {
     private final UserRepository users;
     private final Clock clock;
     private final TrainingAgreementService trainingAgreementService;
+    private final EntityManager entityManager;
 
     @Transactional
     public Long addOwnershipRecord(
@@ -105,7 +109,7 @@ public class OwnershipRecordService {
         }
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public OwnershipRecord updateOwnershipRecord(
             Long id,
             Double updateSharePercent,
@@ -121,6 +125,8 @@ public class OwnershipRecordService {
         OwnershipRecord initial = getById(id);
         Long camelId = initial.getCamel().getCamelId();
         camels.findLockedById(camelId).orElseThrow(() -> ApiException.notFound("Camel"));
+        entityManager.refresh(initial, LockModeType.PESSIMISTIC_WRITE);
+        if (!Boolean.TRUE.equals(initial.getIsActive())) throw ApiException.notFound("Ownership record");
         validateOwnershipTotal(camelId, id, updateSharePercent, updateStartAt, updateEndAt);
         OwnershipRecord record = getById(id);
         record.setSharePercent(updateSharePercent);
@@ -135,9 +141,13 @@ public class OwnershipRecordService {
         return record;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Boolean deleteById(Long id) {
         OwnershipRecord record = getById(id);
+        camels.findLockedById(record.getCamel().getCamelId())
+                .orElseThrow(() -> ApiException.notFound("Camel"));
+        entityManager.refresh(record, LockModeType.PESSIMISTIC_WRITE);
+        if (!Boolean.TRUE.equals(record.getIsActive())) throw ApiException.notFound("Ownership record");
         record.setIsActive(false);
         Date now = Date.from(clock.instant());
         record.setEndAt(record.getEndAt() == null ? now : record.getEndAt());
