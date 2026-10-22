@@ -319,9 +319,6 @@
 
 
 
-.app-shell:has(.broadcast-preview) .broadcast-tabs button[aria-selected="true"]:before,
-
-
 .app-shell:has(.broadcast-preview) .broadcast-refresh{
  font-size:12px;
  border-radius:22px;
@@ -899,4 +896,347 @@
  .app-shell:has(.broadcast-preview) .broadcast-voting{
   background-size:100% 168px,100% 168px,100% 100%;
  }
+}
+
+
+/* Unified race + champion vote hero. The player is an animated photograph,
+   deliberately marked DEMO; no live transport, media audio or fake viewer count. */
+.app-shell:has(.broadcast-preview) .broadcast-grid{
+ display:grid;
+ grid-template-columns:minmax(0,2.15fr) minmax(350px,1fr);
+ align-items:stretch;
+ gap:0;
+ overflow:hidden;
+ border:1px solid #d6ae78;
+ border-radius:20px;
+ background:#fff9f0;
+ box-shadow:0 15px 42px rgba(69,41,20,.13);
+}
+.app-shell:has(.broadcast-preview) .broadcast-left{
+ display:flex;
+ min-width:0;
+ min-height:575px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-player{
+ position:relative;
+ flex:1;
+ height:auto;
+ min-height:575px;
+ border:0;
+ border-radius:0;
+ box-shadow:none;
+ overflow:hidden;
+}
+.app-shell:has(.broadcast-preview) .broadcast-player:before{
+ z-index:1;
+ background:linear-gradient(180deg,
+  rgba(247,246,245,.87) 0%,
+  rgba(250,246,240,.7) 18%,
+  rgba(255,250,244,0) 48%,
+  rgba(22,16,10,.06) 67%,
+  rgba(22,14,9,.82) 100%);
+}
+.app-shell:has(.broadcast-preview) .broadcast-scene-image{
+ object-fit:cover;
+ object-position:center 50%;
+ animation:medhmar-race-photo-preview 16s ease-in-out infinite alternate;
+ transform-origin:center 55%;
+ will-change:transform;
+}
+@keyframes medhmar-race-photo-preview{
+ from{transform:scale(1)}
+ to{transform:scale(1.065)}
+}
+.app-shell:has(.broadcast-preview) .broadcast-player[data-preview-paused="true"] .broadcast-scene-image{
+ animation-play-state:paused;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading{
+ top:0;
+ left:0;
+ right:100px;
+ padding:24px 25px 0;
+ z-index:3;
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading h1{
+ font-size:clamp(30px,2.25vw,42px);
+}
+.app-shell:has(.broadcast-preview) .broadcast-heading p{
+ color:#3c3027;
+}
+.app-shell:has(.broadcast-preview) .broadcast-meta{
+ gap:7px 17px;
+ color:#4d3a2b;
+ font-size:11px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-tag{
+ position:absolute;
+ top:19px;
+ right:19px;
+ z-index:4;
+ display:inline-flex;
+ align-items:stretch;
+ overflow:hidden;
+ border:1px solid #ffffffb8;
+ border-radius:10px;
+ box-shadow:0 4px 12px rgba(69,21,13,.2);
+ font-size:11px;
+ line-height:1;
+ font-weight:900;
+ letter-spacing:.03em;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-tag strong{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:6px;
+ padding:10px 11px;
+ background:#bd1621;
+ color:#fff;
+ font-weight:900;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-tag span{
+ display:inline-flex;
+ align-items:center;
+ padding:10px 8px;
+ background:#fffaf3;
+ color:#743a2e;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-player{
+ position:absolute;
+ z-index:4;
+ bottom:0;
+ left:0;
+ right:0;
+ padding:0 20px 14px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-progress{
+ position:relative;
+ height:4px;
+ margin:0 1px 9px;
+ overflow:hidden;
+ border-radius:99px;
+ background:#ffffff75;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-progress>span{
+ display:block;
+ height:100%;
+ width:100%;
+ border-radius:99px;
+ background:linear-gradient(90deg,#b91520,#f15a53);
+ transform-origin:left center;
+ animation:medhmar-race-preview-progress 16s linear infinite;
+}
+@keyframes medhmar-race-preview-progress{
+ from{transform:scaleX(0)}
+ to{transform:scaleX(1)}
+}
+.app-shell:has(.broadcast-preview) .broadcast-player[data-preview-paused="true"] .broadcast-demo-progress>span{
+ animation-play-state:paused;
+}
+.app-shell:has(.broadcast-preview) .broadcast-toolbar{
+ position:relative;
+ z-index:auto;
+ bottom:auto;
+ left:auto;
+ right:auto;
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px 11px;
+ padding:0;
+ background:none;
+ color:#fff;
+ font-size:11px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-actions{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ flex-shrink:0;
+}
+.app-shell:has(.broadcast-preview) .broadcast-demo-label{
+ font-size:10px;
+ font-weight:850;
+ letter-spacing:.055em;
+ white-space:nowrap;
+}
+.app-shell:has(.broadcast-preview) .broadcast-toolbar-note{
+ min-width:120px;
+ flex:1 1 150px;
+ font-size:10px;
+ line-height:1.35;
+ color:#fff3df;
+ text-shadow:0 1px 3px #190e0abb;
+}
+.app-shell:has(.broadcast-preview) .broadcast-toolbar [data-preview-motion]{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ padding:4px;
+ min-width:36px;
+ min-height:36px;
+ color:#fff;
+ border:1px solid #ffffff99;
+ background:#28170e8c;
+ border-radius:8px;
+ cursor:pointer;
+}
+.app-shell:has(.broadcast-preview) .broadcast-motion-play{display:none}
+.app-shell:has(.broadcast-preview) .broadcast-player[data-preview-paused="true"] .broadcast-motion-play{display:inline-flex}
+.app-shell:has(.broadcast-preview) .broadcast-player[data-preview-paused="true"] .broadcast-motion-pause{display:none}
+.app-shell:has(.broadcast-preview) .broadcast-photo-actions{
+ gap:6px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-photo-actions button{
+ min-height:35px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting{
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ min-width:0;
+ min-height:575px;
+ margin:0;
+ padding:22px 19px;
+ border:0;
+ border-left:2px solid #d6ad72;
+ border-radius:0;
+ box-shadow:none;
+ background-position:center top,center top,center;
+ background-size:100% 185px,100% 185px,100% 100%;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting:before{display:none}
+.app-shell:has(.broadcast-preview) .broadcast-voting-title{
+ gap:8px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting-title .broadcast-trophy{
+ width:45px;
+ height:45px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting-title h2{
+ font-size:clamp(22px,1.72vw,30px);
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting>p:first-of-type{
+ margin:7px auto 5px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting-status{
+ display:flex;
+ justify-content:center;
+ margin:0 0 8px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting-status .broadcast-live{
+ align-items:center;
+ padding:5px 10px;
+ max-width:none;
+ flex-direction:row;
+ gap:7px;
+ background:rgba(216,241,226,.84);
+ border:1px solid #cce7d1;
+ font-size:10px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting-status .broadcast-live small{
+ font-size:10px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-candidate{
+ grid-template-columns:clamp(84px,7.6vw,126px) minmax(0,1fr);
+ gap:12px;
+ padding:11px;
+ margin-bottom:10px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-camel-photo{
+ height:128px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-voting .broadcast-vote-note{
+ margin-top:8px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-challenge-link{
+ margin-top:5px;
+ font-size:12px;
+}
+/* Keep fullscreen a real user action, independent from the demo animation. */
+.app-shell:has(.broadcast-preview) .broadcast-player:fullscreen{
+ height:100vh;
+ min-height:0;
+}
+@media(max-width:1250px){
+ .app-shell:has(.broadcast-preview) .broadcast-grid{
+  grid-template-columns:minmax(0,1.95fr) minmax(330px,1fr);
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-heading{right:80px;padding:17px 15px 0}
+ .app-shell:has(.broadcast-preview) .broadcast-meta{font-size:10px}
+ .app-shell:has(.broadcast-preview) .broadcast-voting{padding:16px 12px}
+ .app-shell:has(.broadcast-preview) .broadcast-candidate{grid-template-columns:88px minmax(0,1fr);gap:10px}
+ .app-shell:has(.broadcast-preview) .broadcast-camel-photo{height:122px}
+ .app-shell:has(.broadcast-preview) .broadcast-demo-player{padding:0 12px 12px}
+ .app-shell:has(.broadcast-preview) .broadcast-toolbar-note{flex-basis:100%;order:3}
+}
+@media(max-width:970px){
+ .app-shell:has(.broadcast-preview) .broadcast-grid{
+  grid-template-columns:minmax(0,1fr);
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-left,
+ .app-shell:has(.broadcast-preview) .broadcast-player{min-height:470px}
+ .app-shell:has(.broadcast-preview) .broadcast-player{height:470px}
+ .app-shell:has(.broadcast-preview) .broadcast-voting{
+  min-height:0;
+  padding:23px 18px 20px;
+  border:0;
+  border-top:2px solid #d6ad72;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-candidate{
+  grid-template-columns:120px minmax(0,1fr);
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-camel-photo{height:129px}
+}
+@media(max-width:660px){
+ .app-shell:has(.broadcast-preview) .broadcast-grid{border-radius:15px}
+ .app-shell:has(.broadcast-preview) .broadcast-left,
+ .app-shell:has(.broadcast-preview) .broadcast-player{min-height:440px}
+ .app-shell:has(.broadcast-preview) .broadcast-player{height:440px}
+ .app-shell:has(.broadcast-preview) .broadcast-heading{
+  right:0;
+  top:28px;
+  padding:17px 13px 0;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-heading h1{font-size:clamp(24px,6vw,31px)}
+ .app-shell:has(.broadcast-preview) .broadcast-heading p{font-size:11px}
+ .app-shell:has(.broadcast-preview) .broadcast-demo-tag{
+  top:8px;
+  right:9px;
+  font-size:9px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-demo-tag strong,
+ .app-shell:has(.broadcast-preview) .broadcast-demo-tag span{padding:6px}
+ .app-shell:has(.broadcast-preview) .broadcast-demo-player{padding:0 10px 10px}
+ .app-shell:has(.broadcast-preview) .broadcast-toolbar{gap:5px}
+ .app-shell:has(.broadcast-preview) .broadcast-toolbar-note{font-size:9px}
+ .app-shell:has(.broadcast-preview) .broadcast-photo-actions button{
+  min-width:29px;
+  min-height:32px;
+  padding:4px 6px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-voting{padding:16px 12px}
+ .app-shell:has(.broadcast-preview) .broadcast-candidate{
+  grid-template-columns:clamp(82px,26vw,110px) minmax(0,1fr);
+  gap:9px;
+  padding:9px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-camel-photo{height:125px}
+}
+@media(max-width:390px){
+ .app-shell:has(.broadcast-preview) .broadcast-left,
+ .app-shell:has(.broadcast-preview) .broadcast-player{min-height:475px}
+ .app-shell:has(.broadcast-preview) .broadcast-player{height:475px}
+ .app-shell:has(.broadcast-preview) .broadcast-meta{font-size:9px}
+ .app-shell:has(.broadcast-preview) .broadcast-toolbar-note{flex-basis:100%}
+ .app-shell:has(.broadcast-preview) .broadcast-photo-actions{gap:4px}
+ .app-shell:has(.broadcast-preview) .broadcast-voting-status .broadcast-live{
+  flex-wrap:wrap;
+  justify-content:center;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .app-shell:has(.broadcast-preview) .broadcast-scene-image,
+ .app-shell:has(.broadcast-preview) .broadcast-demo-progress>span{animation:none}
 }
