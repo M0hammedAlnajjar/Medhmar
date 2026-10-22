@@ -353,7 +353,7 @@ function adminOrganizationsPage() {
 }
 function adminUsersPage() {
  if (!canAccessRoute(matchRoute('/admin/users').route,state.user)) return adminDenied();
- return shell(adminUsersView({users:state.adminUsers,page:state.adminPageData,stats:state.adminUserStats,error:state.adminError}),'/admin/users');
+ return shell(adminUsersView({users:state.adminUsers,page:state.adminPageData,statistics:state.adminUserStats,error:state.adminError}),'/admin/users');
 }
 function adminRacesPage() {
  if (!canAccessRoute(matchRoute('/admin/races').route,state.user)) return adminDenied();
@@ -1177,11 +1177,13 @@ function bindAdminUserControls() {
  const form=$('#admin-user-filters');
  if(!form)return;
  const rows=[...document.querySelectorAll('.admin-user-row')];
+ const roleFilters=[...document.querySelectorAll('.admin-users-role-filter')];
  const empty=$('#admin-users-empty-filter'), count=$('#admin-users-count');
  const originalCount=count?.textContent||'';
  const apply=()=>{
   const term=String(form.elements.search?.value||'').toLowerCase().trim();
   const role=form.elements.role?.value||'';
+  for(const button of roleFilters)button.setAttribute('aria-pressed',String(button.dataset.role===role));
   const status=form.elements.status?.value||'';
   const days=Number(form.elements.joined?.value||0);
   const cutoff=days?Date.now()-days*86400000:null;
@@ -1199,10 +1201,18 @@ function bindAdminUserControls() {
    ? 'Showing '+visible+' matching users on this page · '+originalCount:originalCount;
  };
  form.addEventListener('submit',e=>{e.preventDefault();apply();});
- // Native reset restores all four fields before reapplying the page-only filter.
- form.addEventListener('reset',()=>setTimeout(apply,0));
+ // A hidden input reflects value changes into its default value, so reset the
+ // role explicitly before native reset restores the other page-only filters.
+ form.addEventListener('reset',()=>{
+  form.elements.role.value='';
+  setTimeout(apply,0);
+ });
  form.elements.search?.addEventListener('input',apply);
  for(const key of ['role','status','joined'])form.elements[key]?.addEventListener('change',apply);
+ roleFilters.forEach(button=>button.addEventListener('click',()=>{
+  form.elements.role.value=button.dataset.role||'';
+  apply();
+ }));
  $('#admin-users-refresh')?.addEventListener('click',()=>render());
  document.querySelectorAll('.view-admin-user').forEach(button=>button.addEventListener('click',()=>{
   if(!canAccessRoute(matchRoute('/admin/users').route,state.user)||!Array.isArray(state.adminUsers))return;

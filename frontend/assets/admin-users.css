@@ -1,0 +1,240 @@
+/* Approved camel-racing theme. Only the existing Manage Users screen changes. */
+.admin-console .admin-users-topbar .admin-user-chip { margin-left: auto; border-left: 0; }
+.admin-console .admin-users-view {
+  --users-ink: #302116;
+  --users-muted: #687180;
+  --users-gold: #b78238;
+  --users-red: #b6092d;
+  --users-line: #eae4dc;
+  color: var(--users-ink);
+  padding: 12px 6px 24px;
+}
+
+.admin-console .admin-users-view .admin-users-hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 184px;
+  padding: 30px 12px 36px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--users-ink);
+  overflow: hidden;
+}
+.admin-console .admin-users-view .admin-users-hero-copy { position: relative; z-index: 1; max-width: 44%; }
+.admin-console .admin-users-view .admin-users-kicker {
+  margin-bottom: 15px;
+  color: #986423;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: .14em;
+}
+.admin-console .admin-users-view .admin-users-hero h1 {
+  margin: 0 0 7px;
+  color: #291d14;
+  font-size: clamp(29px, 2.6vw, 42px);
+  line-height: 1.18;
+  letter-spacing: -.035em;
+}
+.admin-console .admin-users-view .admin-users-hero p {
+  color: var(--users-muted);
+  font-size: clamp(13px, 1.15vw, 17px);
+  line-height: 1.55;
+}
+.admin-console .admin-users-view .admin-users-racing-art {
+  position: absolute;
+  right: -4px;
+  bottom: 0;
+  width: 65%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+}
+.admin-console .admin-users-view .admin-users-date {
+  top: 10px;
+  right: 12px;
+  color: #636b76;
+  font-size: 12px;
+}
+
+/* A single role strip, with native toggle buttons rather than decorative cards. */
+.admin-console .admin-users-view .admin-users-stats {
+  display: grid;
+  grid-template-columns: 1.12fr repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--users-line);
+  border-radius: 12px;
+  box-shadow: none;
+}
+.admin-console .admin-users-view .admin-users-stats .admin-users-stat {
+  display: block;
+  position: relative;
+  min-height: 88px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.admin-console .admin-users-view .admin-users-stat + .admin-users-stat::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 21px;
+  bottom: 21px;
+  border-left: 1px solid var(--users-line);
+}
+.admin-console .admin-users-view .admin-users-role-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  min-height: 88px;
+  margin: 0;
+  padding: 14px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--users-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.admin-console .admin-users-view .admin-users-role-filter:hover:not(:disabled) { background: #faf5ed; }
+.admin-console .admin-users-view .admin-users-role-filter[aria-pressed="true"] {
+  background: #322013;
+  color: #fff4e4;
+  border-color: #5c3d24;
+}
+.admin-console .admin-users-view .admin-users-role-filter:focus-visible { outline: 3px solid #b6092d; outline-offset: 2px; z-index: 1; position: relative; }
+.admin-console .admin-users-view .admin-users-role-filter:disabled { cursor: default; opacity: .65; }
+.admin-console .admin-users-view .admin-users-stats .admin-users-stat-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 36px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--users-red);
+}
+.admin-console .admin-users-view .admin-users-stat-owner .admin-users-stat-icon { color: #9c6a25; }
+.admin-console .admin-users-view .admin-users-stats .admin-users-stat-icon svg { width: 32px; height: 32px; }
+.admin-console .admin-users-view .admin-users-stat-copy { display: grid; gap: 5px; }
+.admin-console .admin-users-view .admin-users-stats .admin-users-stat-label { font-size: 12px; font-weight: 600; color: #5c6370; }
+.admin-console .admin-users-view .admin-users-stats .admin-users-stat strong { font-size: 29px; line-height: 1.1; color: #2c2520; }
+.admin-console .admin-users-view .admin-users-role-filter[aria-pressed="true"] .admin-users-stat-label { color: #fff4e4; }
+.admin-console .admin-users-view .admin-users-role-filter[aria-pressed="true"] .admin-users-stat-icon,
+.admin-console .admin-users-view .admin-users-role-filter[aria-pressed="true"] strong { color: #f0bd69; }
+.admin-console .admin-users-view .admin-users-role-note { margin: 10px 12px 20px; color: #626b79; font-size: 12px; line-height: 1.5; }
+.admin-console .admin-users-view .admin-users-role-note span { margin-left: 8px; color: #757b84; }
+.admin-console .admin-users-view .admin-users-stat-context {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.admin-console .admin-users-view .admin-users-panel { margin: 0; padding: 23px; border: 1px solid var(--users-line); border-radius: 12px; box-shadow: none; }
+.admin-console .admin-users-view .admin-users-toolbar { margin: 0 0 20px; gap: 16px; }
+.admin-console .admin-users-view .admin-users-toolbar h2 { font-size: 23px; color: #211b18; letter-spacing: -.025em; }
+.admin-console .admin-users-view .admin-users-toolbar p { color: #6c7380; font-size: 13px; }
+.admin-console .admin-users-view .admin-users-live-count { font-size: 12px; color: #885c28; background: #f6efe5; border: 0; border-radius: 12px; padding: 10px 14px; white-space: nowrap; }
+.admin-console .admin-users-view .admin-users-filters {
+  grid-template-columns: minmax(220px, 2.1fr) repeat(2, minmax(125px, 1fr)) auto;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  align-items: end;
+}
+.admin-console .admin-users-view .admin-users-filters input[type="hidden"] { display: none; }
+.admin-console .admin-users-view .admin-users-field { gap: 7px; min-width: 0; }
+.admin-console .admin-users-view .admin-users-field > span:first-child { font-size: 12px; color: #43362c; font-weight: 600; }
+.admin-console .admin-users-view .admin-users-field-search { grid-column: auto; }
+.admin-console .admin-users-view .admin-users-field > select,
+.admin-console .admin-users-view .admin-users-search { height: 44px; border-color: #dedbd5; border-radius: 8px; background: #fff; }
+.admin-console .admin-users-view .admin-users-field input,
+.admin-console .admin-users-view .admin-users-field > select { font-size: 13px; }
+.admin-console .admin-users-view .admin-users-search input { height: 100%; }
+.admin-console .admin-users-view .admin-users-filter-actions { grid-column: auto; gap: 17px; }
+.admin-console .admin-users-view .admin-users-clear-btn { padding: 0 2px; min-height: 44px; border: 0; background: transparent; border-radius: 3px; text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+.admin-console .admin-users-view .admin-users-clear-btn:hover { color: var(--users-red); background: transparent; }
+.admin-console .admin-users-view .admin-users-refresh-btn { min-height: 44px; padding: 0 17px; font-size: 13px; border-radius: 8px; }
+.admin-console .admin-users-view .admin-users-page-hint { padding: 0; margin: 12px 0 16px; font-size: 11px; color: #6f7580; line-height: 1.5; }
+.admin-console .admin-users-view .admin-users-scroll { border-color: var(--users-line); border-radius: 9px; }
+.admin-console .admin-users-view .admin-users-table { min-width: 940px; }
+.admin-console .admin-users-view .admin-users-table th { padding: 15px 18px; color: #5f544a; font-size: 11px; background: #faf7f3; text-transform: uppercase; }
+.admin-console .admin-users-view .admin-users-table td { padding: 20px 18px; font-size: 13px; border-bottom-color: #eee9e3; }
+.admin-console .admin-users-view .admin-users-person { min-width: 175px; gap: 12px; }
+.admin-console .admin-users-view .admin-users-initials { width: 44px; height: 44px; flex-basis: 44px; background: #ead2b5; color: #493020; font-size: 15px; }
+.admin-console .admin-users-view .admin-users-identity strong { font-size: 13px; }
+.admin-console .admin-users-view .admin-users-identity small { font-size: 11px; color: #6f7786; }
+.admin-console .admin-users-view .admin-users-email { color: #5f6877; }
+.admin-console .admin-users-view .admin-users-role { padding: 7px 10px; font-size: 10px; background: #eeece9; color: #4a4c51; }
+.admin-console .admin-users-view .role-owner,
+.admin-console .admin-users-view .role-admin { background: #f6ebdc; color: #8a581e; }
+.admin-console .admin-users-view .role-viewer { background: #eeeff1; color: #505762; }
+.admin-console .admin-users-view .role-trainer { background: #eee9e3; color: #64503c; }
+.admin-console .admin-users-view .role-organizer { background: #f6ecee; color: #914454; }
+.admin-console .admin-users-view .admin-users-status { font-size: 11px; }
+.admin-console .admin-users-view .admin-users-status.status-active { background: #e8f6ee; color: #137747; }
+.admin-console .admin-users-view .admin-users-actions { min-width: 156px; }
+.admin-console .admin-users-view .admin-users-action { width: auto; height: 36px; min-width: 64px; padding: 0 9px; margin: 0 5px 0 0; gap: 6px; font-size: 12px; font-weight: 500; border-color: #dedfe4; color: #493b31; }
+.admin-console .admin-users-view .admin-users-action svg { width: 16px; height: 16px; }
+.admin-console .admin-users-view .admin-users-foot { padding: 20px 0 0; }
+.admin-console .admin-users-view .admin-users-pagination button:disabled { opacity: .55; }
+
+@media (max-width: 1250px) {
+  .admin-console .admin-users-view .admin-users-role-filter { gap: 9px; padding: 13px 8px; }
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat-icon { flex-basis: 27px; width: 27px; }
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat-icon svg { width: 27px; height: 27px; }
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat-label { font-size: 11px; }
+  .admin-console .admin-users-view .admin-users-filters { grid-template-columns: minmax(200px, 2fr) repeat(2, minmax(115px, 1fr)); }
+  .admin-console .admin-users-view .admin-users-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
+@media (max-width: 700px) {
+  .admin-console .admin-users-view { padding: 4px 0 16px; }
+  .admin-console .admin-users-view .admin-users-hero { min-height: 260px; justify-content: flex-start; padding: 37px 6px 130px; }
+  .admin-console .admin-users-view .admin-users-hero-copy { max-width: 100%; }
+  .admin-console .admin-users-view .admin-users-racing-art { width: 100%; max-height: 120px; }
+  .admin-console .admin-users-view .admin-users-date { top: 2px; right: 6px; font-size: 11px; }
+  .admin-console .admin-users-view .admin-users-kicker { font-size: 10px; margin-bottom: 10px; }
+  .admin-console .admin-users-view .admin-users-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat { min-height: 80px; }
+  .admin-console .admin-users-view .admin-users-role-filter { min-height: 80px; }
+  .admin-console .admin-users-view .admin-users-stat:nth-child(4)::before { display: none; }
+  .admin-console .admin-users-view .admin-users-stat:nth-child(n+4) { border-top: 1px solid var(--users-line); }
+  .admin-console .admin-users-view .admin-users-role-note { margin: 10px 4px 17px; font-size: 11px; }
+  .admin-console .admin-users-view .admin-users-role-note span { display: block; margin: 3px 0 0; }
+  .admin-console .admin-users-view .admin-users-panel { padding: 17px 13px; }
+  .admin-console .admin-users-view .admin-users-toolbar { margin-bottom: 17px; flex-wrap: wrap; }
+  .admin-console .admin-users-view .admin-users-toolbar h2 { font-size: 21px; }
+  .admin-console .admin-users-view .admin-users-toolbar p { font-size: 12px; }
+  .admin-console .admin-users-view .admin-users-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+  .admin-console .admin-users-view .admin-users-field-search { grid-column: 1 / -1; }
+  .admin-console .admin-users-view .admin-users-filter-actions { grid-column: 1 / -1; }
+  .admin-console .admin-users-view .admin-users-foot { align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+  .admin-console .admin-users-view .admin-users-foot p { font-size: 11px; }
+}
+@media (max-width: 420px) {
+  .admin-console .admin-users-view .admin-users-filters { grid-template-columns: 1fr; }
+  .admin-console .admin-users-view .admin-users-role-filter { gap: 7px; padding: 10px 5px; }
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat-icon,
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat-icon svg { flex-basis: 23px; width: 23px; height: 23px; }
+  .admin-console .admin-users-view .admin-users-stats .admin-users-stat strong { font-size: 25px; }
+}

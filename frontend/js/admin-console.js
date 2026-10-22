@@ -122,18 +122,18 @@ export function adminShell({ user, active = '/admin', body = '' }) {
    '<img src="/assets/medhmar-admin-logo-approved.webp" alt="Medhmar Camel Racing Platform" width="210" height="124"></a>'+
    '<nav class="admin-sidebar-nav" aria-label="Administration">'+groupedNav+'</nav>'+
    '<div class="admin-sidebar-bottom"><button id="admin-signout" type="button">'+adminIcon('logout')+'<span>Sign Out</span></button></div></aside>'+
-   '<div class="admin-workspace"><header class="admin-topbar">'+
+   '<div class="admin-workspace"><header class="admin-topbar'+(chosen==='/admin/users'?' admin-users-topbar':'')+'">'+
    (chosen==='/admin/challenges'?'<span class="mhch-breadcrumb-home" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/></svg></span>':'')+
    '<a href="/admin" data-link class="admin-topbar-breadcrumb">Administration</a><span class="admin-breadcrumb-separator">/</span><strong class="admin-topbar-section">'+esc(section)+'</strong>'+
    '<a href="/admin" class="admin-mobile-brand" data-link aria-label="Medhmar administration home"><img src="/assets/medhmar-admin-logo-compact.webp" alt="Medhmar Camel Racing Platform" width="154" height="39"></a>'+
    '<details class="admin-mobile-nav"><summary aria-label="Open administration navigation">☰ Menu</summary>'+
    '<nav aria-label="Mobile administration">'+nav+'</nav></details>'+
-   (chosen==='/admin/challenges'?'<span class="mhch-topbar-location"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Muscat · GMT+4</span>':'<span class="admin-topbar-pill" title="Administrator workspace">Administrator</span>')+
+   (chosen==='/admin/challenges'?'<span class="mhch-topbar-location"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Muscat · GMT+4</span>':chosen==='/admin/users'?'':'<span class="admin-topbar-pill" title="Administrator workspace">Administrator</span>')+
    '<div class="admin-user-chip"><span class="admin-user-avatar" aria-hidden="true">'+esc(initial)+'</span>'+
    (chosen==='/admin/challenges'?'<span class="mhch-topbar-admin"><strong>Admin</strong><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>':'<span><strong>'+esc(name)+'</strong><small>Administrator</small></span>')+'</div>'+
    '<button type="button" id="admin-mobile-signout" class="admin-mobile-signout" aria-label="Sign out">Sign Out</button>'+
    '</header><main class="admin-main">'+body+'</main>'+
-   '<footer class="admin-footer">'+(chosen==='/admin'?'<span>Administration workspace</span><span>Timestamps GMT+4 · Chart dates UTC</span>':'© '+new Date().getFullYear()+' Medhmar. All rights reserved.')+'</footer></div></div>';
+   (chosen==='/admin/users'?'':'<footer class="admin-footer">'+(chosen==='/admin'?'<span>Administration workspace</span><span>Timestamps GMT+4 · Chart dates UTC</span>':'© '+new Date().getFullYear()+' Medhmar. All rights reserved.')+'</footer>')+'</div></div>';
 }
 
 // The admin shell is rebuilt during navigation and API refreshes. Retain the
@@ -279,7 +279,7 @@ const usersIcon = key => ({
   eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
   edit:'<path d="m4 20 4.5-1 11-11-3.5-3.5-11 11L4 20Zm10-14 3.5 3.5"/>',
   calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>',
-  viewer:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  viewer:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
   owner:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 11l2 2 3-3"/>',
   trainer:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 17l2 2 4-5"/>',
   organizer:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 21v-2a6 6 0 0 1 12 0v2m2-8a6 6 0 0 1 6 6v2"/>',
@@ -340,12 +340,20 @@ export function adminUsersView({users,page,statistics=null,error=''}) {
          (percent>0?'↑ ':percent<0?'↓ ':'')+Math.abs(percent)+'%</span>';
      }
    }
+   // Native buttons keep the role summary usable with a keyboard. The counts
+   // retain their API scope; selecting a role filters the loaded page only.
    return '<article class="admin-users-stat admin-users-stat-'+c.tone+'">'+
-     '<span class="admin-users-stat-icon">'+iconUserStat(c.icon)+'</span><div>'+
-     '<span class="admin-users-stat-label">'+esc(c.title)+'</span>'+
-     '<strong>'+actual+'</strong>'+change+'<small>'+esc(sub)+'</small></div></article>';
+     '<button type="button" class="admin-users-role-filter" data-role="'+(c.role||'')+'"'+
+     ' aria-pressed="'+!c.role+'" aria-controls="admin-users-table"'+
+     ' aria-describedby="admin-users-stat-context-'+c.tone+'"'+(!live?' disabled':'')+'>'+
+     '<span class="admin-users-stat-icon">'+(c.role?iconUser(c.icon):iconUserStat('total'))+'</span><span class="admin-users-stat-copy">'+
+     '<span class="admin-users-stat-label">'+(c.role?esc(c.title):'All users')+'</span>'+
+     '<strong>'+actual+'</strong></span></button>'+
+     '<span class="admin-users-stat-context" id="admin-users-stat-context-'+c.tone+'">'+
+     (c.role?(aggregate?'Role count across all accounts. ':'On this page. '):'Total Users across all registered accounts. ')+
+     'Filters apply to this page only. '+change+'<small>'+esc(sub)+'</small></span></article>';
  }).join('');
- const rows=all.map((u,i)=>{
+ const rows=all.map(u=>{
   const roles=Array.isArray(u.roles)?u.roles:[];
   const status=String(u.accountStatus||'UNKNOWN').toUpperCase();
   const roleBadges=roles.length?roles.map(r=>'<span class="admin-users-role role-'+safeRole(r).toLowerCase()+'">'+esc(r)+'</span>').join(' '):'<span class="admin-users-role">—</span>';
@@ -353,7 +361,6 @@ export function adminUsersView({users,page,statistics=null,error=''}) {
   const joined=date&&!Number.isNaN(date.valueOf())?date.toISOString().slice(0,10):'';
   return '<tr class="admin-user-row" data-user-search="'+esc(String(u.fullName||'')+' '+String(u.email||'')+' '+String(u.userId??''))+
     '" data-user-roles="'+esc(roles.join(' '))+'" data-user-status="'+esc(status)+'" data-user-joined="'+joined+'">'+
-    '<td class="admin-users-rownum">'+(current*pageSize+i+1)+'</td>'+
     '<td><span class="admin-users-person"><span class="admin-users-initials" aria-hidden="true">'+esc(initials(u.fullName))+'</span>'+
     '<span class="admin-users-identity"><strong>'+esc(u.fullName||'Unnamed account')+'</strong>'+
     '<small>#USR-'+esc(u.userId??'—')+'</small></span></span></td>'+
@@ -362,8 +369,8 @@ export function adminUsersView({users,page,statistics=null,error=''}) {
     '<td><span class="admin-users-status status-'+esc(status.toLowerCase())+'"><span aria-hidden="true">●</span>'+esc(status)+'</span></td>'+
     '<td><time'+(joined?' datetime="'+joined+'"':'')+'>'+safeDate(u.joinedAt)+'</time></td>'+
     '<td class="admin-users-actions">'+
-    '<button class="admin-users-action view-admin-user" type="button" data-user="'+esc(u.userId)+'" aria-label="View '+esc(u.fullName||'user')+'">'+iconUser('eye')+'</button>'+
-    '<button class="small-btn manage-user admin-users-action" type="button" data-user="'+esc(u.userId)+'" aria-label="Manage '+esc(u.fullName||'user')+'">'+iconUser('edit')+'</button></td></tr>';
+    '<button class="admin-users-action view-admin-user" type="button" data-user="'+esc(u.userId)+'" aria-label="View '+esc(u.fullName||'user')+'">'+iconUser('eye')+'<span>View</span></button>'+
+    '<button class="small-btn manage-user admin-users-action" type="button" data-user="'+esc(u.userId)+'" aria-label="Edit '+esc(u.fullName||'user')+'">'+iconUser('edit')+'<span>Edit</span></button></td></tr>';
  }).join('');
  const from=totalElements===null?null:totalElements===0?0:current*pageSize+1;
  const to=totalElements===null?null:Math.min(current*pageSize+all.length,totalElements);
@@ -372,30 +379,31 @@ export function adminUsersView({users,page,statistics=null,error=''}) {
  '<button class="admin-page" type="button" data-page="'+(current+1)+'"'+(current+1>=total?' disabled':'')+' aria-label="Next page">›</button></div>';
  return '<div class="admin-users-view">'+
  '<section class="admin-users-hero" aria-labelledby="admin-users-title">'+
- '<span class="admin-users-kicker">ACCOUNT ADMINISTRATION</span>'+
+ '<div class="admin-users-hero-copy"><span class="admin-users-kicker">MEDHMAR · RACE ADMINISTRATION</span>'+
  '<h1 id="admin-users-title">Manage Users</h1>'+
- '<p>View and manage all platform users</p>'+
- '<div class="admin-users-date">'+iconUser('calendar')+'<span>'+esc(new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}))+'</span></div></section>'+
+ '<p>Manage the people behind every race.</p></div>'+
+ '<img class="admin-users-racing-art" src="/assets/admin-users-racing.svg" alt="" aria-hidden="true" width="1000" height="250">'+
+ '<div class="admin-users-date">'+iconUser('calendar')+'<span>'+esc(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Muscat'}))+'</span></div></section>'+
  '<section class="admin-users-stats" aria-label="Account statistics">'+stats+'</section>'+
+ '<p class="admin-users-role-note">Accounts can have multiple roles. <span>'+ (aggregate?'Role counts cover all accounts.':'Role counts are from this page only.')+'</span></p>'+
  (!live?'<section class="admin-users-error" role="alert"><h2>Administrator access unavailable</h2><p>'+esc(error||'Unable to load accounts.')+'</p><button type="button" id="admin-retry" class="btn btn-secondary">Retry</button></section>':
  '<section class="admin-users-panel" aria-label="User directory">'+
  '<div class="admin-users-toolbar"><div><h2>User directory</h2><p>Search, review, and manage registered accounts.</p></div>'+
  '<span class="admin-users-live-count">'+esc(String(all.length))+' accounts loaded</span></div>'+
  '<form class="admin-users-filters" id="admin-user-filters" autocomplete="off" role="search">'+
+ '<input type="hidden" id="admin-role-filter" name="role" value="">'+
  '<label class="admin-users-field admin-users-field-search"><span>Search users</span>'+
  '<span class="admin-users-search">'+iconUser('search')+'<input type="search" name="search" placeholder="Name, email or user ID" autocomplete="off"></span></label>'+
- '<label class="admin-users-field"><span>Role</span><select id="admin-role-filter" name="role"><option value="">All roles</option>'+
- ['VIEWER','OWNER','TRAINER','ORGANIZER','ADMIN'].map(r=>'<option value="'+r+'">'+r.charAt(0)+r.slice(1).toLowerCase()+'</option>').join('')+'</select></label>'+
  '<label class="admin-users-field"><span>Status</span><select id="admin-status-filter" name="status"><option value="">All statuses</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option><option value="SUSPENDED">Suspended</option></select></label>'+
  '<label class="admin-users-field"><span>Joined</span><select id="admin-joined-filter" name="joined"><option value="">Any time</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select></label>'+
  '<div class="admin-users-filter-actions"><button class="admin-users-clear-btn" type="reset" id="admin-users-clear">Clear filters</button>'+
  '<button class="admin-users-refresh-btn" type="button" id="admin-users-refresh">'+iconUser('refresh')+' Refresh</button></div></form>'+
  '<p class="admin-users-page-hint" id="admin-users-filter-note">Filtering is instant and applies to this page only. '+
- 'Total Users includes all registered accounts; role totals may overlap. Monthly percentages compare new registrations with the same elapsed period last month. When aggregate data is unavailable, role counts are from this page only.</p>'+
- '<div class="admin-users-scroll"><table class="admin-users-table"><thead><tr><th>#</th><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>'+
- '<tbody>'+rows+(rows?'':'<tr><td colspan="7" class="admin-users-no-data">No registered users found.</td></tr>')+
+ 'Total Users includes all registered accounts; role totals may overlap.</p>'+
+ '<div class="admin-users-scroll" role="region" aria-label="User directory table" tabindex="0"><table class="admin-users-table" id="admin-users-table"><thead><tr><th scope="col">User</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Joined</th><th scope="col">Actions</th></tr></thead>'+
+ '<tbody>'+rows+(rows?'':'<tr><td colspan="6" class="admin-users-no-data">No registered users found.</td></tr>')+
  '</tbody></table></div>'+
- '<div class="admin-users-empty-filter" id="admin-users-empty-filter" hidden>No users match these filters on this page.</div>'+
+ '<div class="admin-users-empty-filter" id="admin-users-empty-filter" role="status" hidden>No users match these filters on this page.</div>'+
  '<footer class="admin-users-foot"><p id="admin-users-count">'+(totalElements!==null?'Showing '+from+' to '+to+' of '+number(totalElements)+' registered users':'User count unavailable')+'</p>'+nav+'</footer></section>')+
  '</div>';
 }

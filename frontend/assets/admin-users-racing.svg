@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250" fill="none">
+  <title>Medhmar camel racing line artwork</title>
+  <desc>Three single-hump racing camels with numbered saddlecloths and robot jockeys, above a gold racetrack and finish flag.</desc>
+  <defs>
+    <g id="racing-camel" stroke="#bd8739" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Four extended legs, a single hump, and the long neck of a racing camel. -->
+      <path d="M98 132 80 172 29 211l-7 9 17-2 64-36 19-43M126 140q-5 22 8 36l42 35 14 1-8-9-31-35-9-32" fill="#faf8f4"/>
+      <path d="m210 135 30 36 60 20 10 9-15-1-67-21-28-30M235 130l-11 40-20 37-10 13 17-1 34-40 12-44" fill="#faf8f4"/>
+      <path d="M81 117q-12 25-42 27l-9-3m49-19q-14 18-31 19"/>
+      <path d="M79 112q14-28 45-26 13 1 22-24 9-23 25-10 9 8 16 31 11 17 37 15 23-2 39-21l16-34q-5-10 5-15l10-7q13-4 25 5l14 4q8 4-1 9l-20 2q-8 6-15 0l-11 41q-7 31-25 47-17 20-47 19l-88 2q-31-1-42-15-11-11-5-23Z" fill="#faf8f4"/>
+      <path d="M288 28q-5-10 2-11l8 8m8 1q8-6 13 0M301 32l-13 43M308 40l-22 39"/>
+      <path d="m312 30 14 3m-21 6 18-2M91 127q35 17 75 9m38 1q24 0 42-14M136 92q12-3 20-22m-60 35-8 23m153-17q17-12 25-29"/>
+      <circle cx="309" cy="30" r="1.7" fill="#392519" stroke="none"/>
+      <path d="m294 31-16 50m18-43-15 44" stroke="#b6092d"/>
+      <path d="m133 91 36-13 37 18 3 41-42-3-34-11Z" fill="#b6092d" stroke="#a57a39"/>
+      <path d="m138 94 29-10 34 16m-62 20 30 9 33 3" stroke="#f8dcaa" stroke-width="1.3"/>
+      <!-- Compact remote-controlled jockey equipment, rather than human riders. -->
+      <g stroke="#392519" fill="#392519">
+        <rect x="163" y="60" width="23" height="25" rx="4"/>
+        <circle cx="175" cy="52" r="6"/>
+        <path d="M175 45V33l6-3M166 69l-18-5-14 6" fill="none" stroke-width="2.5"/>
+      </g>
+      <path d="m169 64 12 3m-5 4 6 2" stroke="#f2cc8c" stroke-width="1.5"/>
+      <path d="m147 65 140-27" stroke="#b68b50" stroke-width=".8"/>
+      <path d="m26 217 13-1m140-6h10m108-13 11 2m-110 19h13" stroke="#664629" stroke-width="2.4"/>
+    </g>
+  </defs>
+  <!-- Fine racetrack lanes; no raster image, scenery or external resources. -->
+  <g stroke="#c59348" stroke-width="1.4">
+    <path d="M0 233h854q132 0 132-29t-132-29h-72"/>
+    <path d="M0 241h847q146 0 146-37t-146-37h-77" opacity=".65"/>
+    <path d="M0 249h840q160 0 160-45t-160-45h-83" opacity=".4"/>
+    <path d="M745 228h106q112 0 112-24t-112-24h-61" opacity=".55"/>
+  </g>
+  <g stroke="#d5b582" stroke-width="1.1" stroke-linecap="round" opacity=".6">
+    <path d="M14 211h32m-18 10h39m246-6h26m-17 10h35m245-6h32m-14 8h38M57 205q5-8 11-3m265 4q6-7 12-3m264 7q5-7 11-3"/>
+  </g>
+  <g transform="translate(15 5) scale(.96)">
+    <use href="#racing-camel"/>
+    <text x="170" y="119" fill="#fff7e9" font-family="Arial,sans-serif" font-size="26" font-weight="700" font-style="italic" text-anchor="middle">01</text>
+  </g>
+  <g transform="translate(321 23) scale(.88)">
+    <use href="#racing-camel"/>
+    <text x="170" y="119" fill="#fff7e9" font-family="Arial,sans-serif" font-size="26" font-weight="700" font-style="italic" text-anchor="middle">02</text>
+  </g>
+  <g transform="translate(600 40) scale(.8)">
+    <use href="#racing-camel"/>
+    <text x="170" y="119" fill="#fff7e9" font-family="Arial,sans-serif" font-size="26" font-weight="700" font-style="italic" text-anchor="middle">03</text>
+  </g>
+  <path d="m909 248 26-78" stroke="#b6092d" stroke-width="8"/>
+  <g transform="translate(940 96) rotate(14)" stroke="#b88638" stroke-linejoin="round">
+    <path d="M0 60V0q15-9 28-3t26-3v34q-14 9-27 3T0 34" stroke-width="2"/>
+    <path d="M0 1q7-4 14-4v12q-7-1-14 3Zm14 8q7 1 14 4V1q-7-3-14-4Zm14 4q7 2 14 0V1q-7 2-14 0Zm14-12q6-1 12-5V8q-6 4-12 5ZM0 24q7-4 14-3v13q-7-2-14 2Zm14-3q7 0 14 3V13q-7-3-14-4Zm14 3q7 2 14 0v12q-7 2-14 0Zm14-12q6-1 12-5v13q-6 4-12 4Z" fill="#c69749" stroke="none"/>
+  </g>
+</svg>
