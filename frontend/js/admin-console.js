@@ -42,13 +42,27 @@ const adminIcon = key => ({
 })[key] || "";
 
 
-// Dashboard-only pictograms. The admin navigation keeps its own outline icons.
-const adminMetricIcon = key => ({
- "users": '<svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="24" cy="14" r="6"/><circle cx="10.5" cy="20" r="4.5"/><circle cx="37.5" cy="20" r="4.5"/><path d="M13 37v-2.8C13 27.7 18 23 24 23s11 4.7 11 11.2V37a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2Z"/><path d="M3 36.8v-2.5c0-5.1 3.1-8.4 7.8-8.4 1 0 2 .1 2.9.5-2.6 2.8-4 6.1-4 10.2v2.1H5a2 2 0 0 1-2-1.9ZM45 36.8v-2.5c0-5.1-3.1-8.4-7.8-8.4-1 0-2 .1-2.9.5 2.6 2.8 4 6.1 4 10.2v2.1H43a2 2 0 0 0 2-1.9Z"/></svg>',
- "camel": '<svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false"><path d="M6 25c.4-1.7 2.2-2.9 4.3-3l3.5-.2 2.4-4.5c1.1-2.1 2.8-3.5 5.1-3.4 2.3.1 3.3 2.1 4.1 4.1l1.7 3.4 5.4.8 2-11.3c.8-4.6 3.5-6.9 6.6-6.9h2.2L46 6l-1.9 3.1-4.2.6-1.3 8.5-1.2 7.6c-.6 3.4-2 5.4-4.4 6.6l.9 10.6h-3.4l-3.2-10.9H17.6l-2.1 10.9h-3.7l.7-12.3c-2.1-.6-3.6-1.5-4.7-3.3l-2.8 1.2-3.1-1.8.6-2.8L6 25Z"/></svg>',
- "race": '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false"><path d="M13 7 35 43M35 7 13 43" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M12 7 2 17l7 10 13-12-10-8Z" fill="currentColor"/><path d="M35 7 45 13l-7 13-10-7 7-12Z" fill="currentColor"/><path d="m35 7 5 3-3 4-5-3 3-4Zm-5 7 5 3-3 4-5-3 3-4Zm10-4 5 3-3 5-5-3 3-5Z" fill="#fff"/></svg>',
- "market": '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false"><rect x="7" y="2.5" width="34" height="43" rx="3" stroke="currentColor" stroke-width="2.5"/><path d="M12 33.5h24M12 38.5h24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 25c.4-1.7 2.2-2.9 4.3-3l3.5-.2 2.4-4.5c1.1-2.1 2.8-3.5 5.1-3.4 2.3.1 3.3 2.1 4.1 4.1l1.7 3.4 5.4.8 2-11.3c.8-4.6 3.5-6.9 6.6-6.9h2.2L46 6l-1.9 3.1-4.2.6-1.3 8.5-1.2 7.6c-.6 3.4-2 5.4-4.4 6.6l.9 10.6h-3.4l-3.2-10.9H17.6l-2.1 10.9h-3.7l.7-12.3c-2.1-.6-3.6-1.5-4.7-3.3l-2.8 1.2-3.1-1.8.6-2.8L6 25Z" transform="translate(13 7) scale(.47)" fill="currentColor"/></svg>'
-})[key] || '';
+// Dashboard-only SVG icons share one viewBox, stroke style and optical weight.
+// Decorative icons are hidden from assistive technology; card labels carry meaning.
+const adminMetricIcon = key => {
+    const artwork = {
+        users: '<circle cx="24" cy="14" r="6"/>' +
+            '<circle cx="10" cy="19" r="4"/><circle cx="38" cy="19" r="4"/>' +
+            '<path d="M13 39v-3c0-6.2 4.9-11 11-11s11 4.8 11 11v3H13Z"/>' +
+            '<path d="M10 28c-3.5 0-6 2.8-6 6v5h6m28-11c3.5 0 6 2.8 6 6v5h-6"/>',
+        camel: '<path d="M5 28c2-2 4-3 7-3l3.1-8.4c1.4-4.3 5.4-4.4 7.2-.3l2.6 6.4 6.2 1 3-4.5L36 9.2c.6-3.6 2.7-5.2 5.2-5.2H44l1.5 3-4.4 1.2-1.6 13.5c-.7 6-4.1 9.2-10.5 9.2H14c-4 0-7.2-1.5-9-4.4l-3.5 1.2"/>' +
+            '<path d="m13 31-1 11h4l3-11m9 0 4 11h4l-1-12"/>',
+        race: '<path d="M14 7 34 42M34 7 14 42"/>' +
+            '<path d="m14 7-10 6 7 10 11-10-8-6Zm20 0 10 6-7 10-11-10 8-6Z"/>' +
+            '<path d="m10 10 7 8m-2-11 7 6m11-3-6 7m11-6-7 8"/>',
+        market: '<path d="M10 10h28l4 11H6l4-11ZM14 10V6h20v4"/>' +
+            '<path d="M9 26v15h30V26M19 41V30h10v11"/>' +
+            '<path d="M6 21c0 3 3 5 6 5s6-2 6-5c0 3 3 5 6 5s6-2 6-5c0 3 3 5 6 5s6-2 6-5"/>'
+    }[key];
+    return artwork
+        ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + artwork + '</svg>'
+        : '';
+};
 
 export function adminShell({ user, active = '/admin', body = '' }) {
     const chosen = active.startsWith('/admin/audit-logs')
