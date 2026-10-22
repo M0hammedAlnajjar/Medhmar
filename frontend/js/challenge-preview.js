@@ -80,7 +80,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
       '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
       '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
       '<div class="broadcast-demo-tag" aria-label="Live-style demonstration; no actual livestream"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div></div>'+
-    '<div class="broadcast-stage" role="img" aria-label="Black livestream placeholder. Demo only; no live video is connected.">'+
+    '<div class="broadcast-stage" role="group" aria-label="Black livestream placeholder. Demo only; no live video is connected.">'+
       '<div class="broadcast-stage-center" aria-hidden="true"><span class="broadcast-stage-dot"></span><strong>Live</strong></div>'+
       '<div class="broadcast-demo-player" role="group" aria-label="Broadcast placeholder controls">'+
        '<div class="broadcast-demo-progress" aria-hidden="true"><span></span></div>'+
@@ -90,7 +90,8 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
       '</div>'+
     '</div>'+
    '</div>'+
-  '</div><aside class="broadcast-voting">    '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
+  '</div><aside class="broadcast-voting">'+
+    '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
     '<p>'+escapeHtml(votingNote)+'</p>'+
     '<div class="broadcast-voting-status"><span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
     candidateCards+
