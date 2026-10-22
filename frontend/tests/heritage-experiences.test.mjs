@@ -11,6 +11,17 @@ test('heritage combines search and categories',()=>{
 test('heritage clearly marks sample content and has no hero or approval badges',()=>{
  const html=heritageExperiences();
  assert.match(html,/Sample experiences/);
- assert.match(html,/Photo credits/);
+ assert.doesNotMatch(html,/VISITOR TIPS|Make the most of your experience|Photo credits|heritage-tips|heritage-credits/);
+ assert.match(html,/class="heritage-cards"/);
+ assert.match(html,/class="heritage-dialog"/);
  assert.doesNotMatch(html,/tourism-hero|Explore Experiences|PENDING|APPROVED/);
+});
+
+test('heritage keeps photograph license attribution without visitor tips or credits panels',async()=>{
+ const html=heritageExperiences();
+ assert.doesNotMatch(html,/heritage-tips|heritage-credits|Photo credits|Plan your visit|Track etiquette/);
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/heritage-experiences.css',import.meta.url),'utf8');
+ assert.ok(css.includes('.heritage-photo-credit'));
+ assert.doesNotMatch(css,/\.heritage-tips\b|\.heritage-credits\b/);
 });
