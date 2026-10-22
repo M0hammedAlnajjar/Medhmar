@@ -10,6 +10,12 @@ discover their components as the team implements them.
 - Maven 3.6.3 or newer.
 - A running MySQL database for normal application startup.
 
+For HTTPS production, include `prod` in `SPRING_PROFILES_ACTIVE` and set
+`DB_USERNAME` to a dedicated application account. The `prod` profile enforces
+Secure session cookies; local HTTP development continues to use the base profile.
+See [API security and resource limits](../docs/API.md#accounts-and-access) for
+upload limits, photo cleanup, visit deduplication, and proxy configuration notes.
+
 The POM uses Spring Boot 4.1.1 and Spring AI 2.0.1. Spring AI 2.0 supports Spring
 Boot 4.0 and 4.1. Dependencies use versions managed by the Spring Boot parent and
 Spring AI BOM. Lombok is pinned to 1.18.48 for both the library and annotation

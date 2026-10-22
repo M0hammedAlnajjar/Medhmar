@@ -90,7 +90,8 @@ public class SecurityConfig {
             ObjectProvider<ClientRegistrationRepository> registrations,
             GoogleOidcUserService google,
             @Value("${app.oauth2.success-url:/api/users/me}") String successUrl,
-            @Value("${app.security.rate-limit-enabled:true}") boolean rateLimit
+            @Value("${app.security.rate-limit-enabled:true}") boolean rateLimit,
+            @Value("${app.security.resource-rate-limit-enabled:true}") boolean resourceRateLimit
     ) throws Exception {
 
         http.cors(cors -> {})
@@ -224,6 +225,10 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(
                         new AuthRateLimitFilter(errors, rateLimit),
+                        CsrfFilter.class
+                )
+                .addFilterBefore(
+                        new ResourceRateLimitFilter(errors, resourceRateLimit),
                         CsrfFilter.class
                 )
                 .addFilterAfter(

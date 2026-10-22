@@ -10,6 +10,8 @@ import com.gulfracing.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -56,15 +58,33 @@ public class TourismService {
         return EventView.from(event);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public VisitView recordVisit(Long eventId, Long actorId, String ipAddress, String deviceInfo, String referrerUrl) {
+        if (eventId == null || eventId <= 0) throw ApiException.badRequest("Event ID must be greater than zero.");
+        // Lock the event so concurrent requests, including separate app instances,
+        // cannot both insert the same visit. Reads must see the previous commit.
+        var event = events.findLockedById(eventId)
+                .orElseThrow(() -> ApiException.notFound("Tourist event"));
+        String ip = limit(ipAddress, 64);
+        String device = limit(deviceInfo, 500);
+        var visitor = actorId == null ? null : users.getActive(actorId);
+        Instant now = clock.instant();
+        var recent = visits.findRecentVisit(eventId, actorId, ip, device,
+                now.minusSeconds(900), PageRequest.of(0, 1));
+        if (!recent.isEmpty()) {
+            // Anonymous clients behind one NAT may share IP/device values. Never
+            // disclose the previous request's referrer or device metadata to them.
+            var previous = recent.getFirst();
+            return new VisitView(previous.getInfoId(), eventId, actorId, ip, device,
+                    limit(referrerUrl, 2048), previous.getVisitDate());
+        }
         var visit = new VisitorInfo();
-        visit.setEvent(event(eventId));
-        if (actorId != null) visit.setUser(users.getActive(actorId));
-        visit.setIpAddress(limit(ipAddress, 64));
-        visit.setDeviceInfo(limit(deviceInfo, 500));
+        visit.setEvent(event);
+        visit.setUser(visitor);
+        visit.setIpAddress(ip);
+        visit.setDeviceInfo(device);
         visit.setReferrerUrl(limit(referrerUrl, 2048));
-        visit.setVisitDate(clock.instant());
+        visit.setVisitDate(now);
         return VisitView.from(visits.saveAndFlush(visit));
     }
 
