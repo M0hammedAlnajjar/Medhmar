@@ -132,7 +132,8 @@ function pageDataMarkup({ races, entries, users, camelNames }) {
   const sortHeader = (key, label) => `<th scope="col" aria-sort="none"><button type="button" data-race-sort="${key}">${label}${icon("sort")}</button></th>`;
   return `
     <section class="admin-race-hero" aria-labelledby="admin-race-title">
-      <div class="admin-race-hero-copy"><span>RACE MANAGEMENT</span><h1 id="admin-race-title">Race Management</h1><p>Create new races and review camel registration requests<br class="admin-race-desktop-break"> for all races on the Medhmar platform.</p></div>
+      <div class="admin-race-hero-copy"><span>RACE MANAGEMENT</span><h1 id="admin-race-title">Race Management</h1><p>Create new races and review camel registration requests for all races on the Medhmar platform.</p></div>
+      <img class="admin-race-hero-art" src="/assets/admin-races/hero.svg" width="1275" height="460" alt="" aria-hidden="true">
     </section>
     <div class="admin-race-content">
       <div class="admin-race-create-toolbar">
