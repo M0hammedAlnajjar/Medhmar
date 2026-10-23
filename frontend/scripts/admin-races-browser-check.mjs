@@ -105,7 +105,10 @@ export async function checkAdminRaces(browser, origin) {
       };
     });
     assert.ok(!bannerStyles.background.includes("url("), "banner uses only the brown gradient background");
-    assert.equal(await page.locator(".admin-race-hero img, .admin-race-hero svg").count(), 0, "banner illustration is removed");
+    const raceArtwork = page.locator(".admin-race-hero img.admin-race-hero-art");
+    assert.equal(await raceArtwork.count(), 1, "approved Race Management SVG artwork is shown");
+    assert.equal(await raceArtwork.getAttribute("src"), "/assets/admin-races/hero.svg");
+    assert.equal(await raceArtwork.getAttribute("alt"), "", "hero artwork stays decorative for assistive technology");
     assert.equal(bannerStyles.headingColor, "rgb(255, 255, 255)", "title is white on the dark hero");
     assert.equal(bannerStyles.cornerRadius, "14px", "hero corners match the Audit Logs design");
     assert.ok(bannerStyles.height >= 165 && bannerStyles.height <= 225, "hero proportions match other admin banners");
