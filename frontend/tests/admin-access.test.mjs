@@ -1,3 +1,4 @@
+import { adminTrainingView, loadAdminTraining } from '../js/admin-training.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -16,7 +17,7 @@ const source = (await readFile(new URL('../js/app.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace("window.addEventListener('popstate',render); init();", '');
 
-function harness(user, { me = async () => user, users, dashboard, audits, auditDetail, challengeList, organizationList, health } = {}) {
+function harness(user, { me = async () => user, users, dashboard, audits, auditDetail, challengeList, organizationList, health, trainingLogs } = {}) {
   const root = { innerHTML: '', querySelector: () => null, addEventListener: () => {} };
   const location = { pathname: '/admin', hash: '', search: '' };
   const requests = [];
@@ -32,6 +33,9 @@ function harness(user, { me = async () => user, users, dashboard, audits, auditD
       organizations:async () => {requests.push('organizations');return organizationList
         ?organizationList():{content:[],page:0,size:20,totalElements:0,totalPages:0};}
     },
+    agreementApi:{list:async()=>{requests.push('agreements');return [{agreementId:15,camelId:8,ownerUserId:2,trainerUserId:3,status:'ACTIVE'}];}},
+    trainingApi:{logs:async id=>{requests.push('training-logs');return trainingLogs?trainingLogs():[{logId:7,agreementId:id,durationMinutes:45,notes:'Live session',sessionAt:'2026-10-20T00:00:00Z'}];}},
+    adminTrainingView,loadAdminTraining,
     URLSearchParams,
     adminAuditApi: {
       list: async () => { requests.push('audit-list'); return audits ? audits() :
@@ -268,5 +272,21 @@ test('system health API rejects expired sessions and failed authorization',async
   assert.deepEqual(app.requests,['me','system-health']);
   assert.doesNotMatch(app.root.innerHTML,/class="admin-system-count"|Total saved votes/);
   assert.doesNotMatch(app.root.innerHTML,/class="admin-console"/);
+ }
+});
+
+test('admin training route loads real agreement sessions after session verification',async()=>{
+ const app=harness({userId:10,roles:['ADMIN']});app.location.pathname='/admin/training';
+ await app.render();assert.deepEqual(app.requests,['me','agreements','training-logs']);
+ assert.match(app.root.innerHTML,/Live session/);assert.match(app.root.innerHTML,/45 min/);
+});
+test('revoked administrator cannot request training agreements or logs',async()=>{
+ const app=harness({userId:10,roles:['ADMIN']},{me:async()=>({userId:10,roles:['TRAINER']})});app.location.pathname='/admin/training';
+ await app.render();assert.deepEqual(app.requests,['me']);assert.doesNotMatch(app.root.innerHTML,/class="admin-training-page"/);
+});
+test('training authorization failures close the admin workspace',async()=>{
+ for(const status of [401,403]){
+ const app=harness({userId:10,roles:['ADMIN']},{trainingLogs:async()=>{throw Object.assign(new Error('Denied'),{status});}});app.location.pathname='/admin/training';
+ await app.render();assert.doesNotMatch(app.root.innerHTML,/class="admin-console"/);
  }
 });

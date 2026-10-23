@@ -9,6 +9,7 @@ const links = [
     ['/admin/heritage', 'Heritage'],
     ['/admin/challenges', 'Challenges'],
     ['/admin/organizations', 'Organizations'],
+    ['/admin/training', 'Training Log'],
     ['/admin/system-health', 'System Health'],
     ['/admin/audit-logs', 'Audit Logs'],
     ['/admin/races', 'Races'],
@@ -60,6 +61,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin/heritage': 'race',
         '/admin/challenges': 'challenge',
         '/admin/organizations': 'organization',
+        '/admin/training': 'audit',
         '/admin/system-health': 'database',
         '/admin/audit-logs': 'audit',
         '/admin/races': 'race',
@@ -73,8 +75,8 @@ export function adminShell({ user, active = '/admin', body = '' }) {
     const nav = links.map(navLink).join('');
     const groups = [
         ['OVERVIEW', links.slice(0, 1)],
-        ['MANAGEMENT', links.slice(1, 7)],
-        ['SYSTEM', links.slice(7)]
+        ['MANAGEMENT', links.slice(1, 8)],
+        ['SYSTEM', links.slice(8)]
     ];
     const groupedNav = groups.map(([heading, items]) =>
         '<div class="admin-sidebar-group"><p class="admin-sidebar-label">' + heading +
@@ -89,6 +91,7 @@ export function adminShell({ user, active = '/admin', body = '' }) {
         '/admin/heritage': 'Heritage',
         '/admin/challenges': 'Challenges',
         '/admin/organizations': 'Organizations',
+        '/admin/training': 'Training Log',
         '/admin/system-health': 'System Health',
         '/admin/audit-logs': 'Audit Logs',
         '/admin/races': 'Races',

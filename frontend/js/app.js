@@ -1,3 +1,4 @@
+import { adminTrainingView, loadAdminTraining } from './admin-training.js';
 import { trainerProfile, bindTrainerProfile } from './trainer-profile.js';
 import { marketplaceBrowse, bindMarketplaceBrowse, loadMarketplaceBrowse } from './marketplace-view.js';
 import { pedigreeFinder, loadPedigreeFinder } from './pedigree-finder.js';
@@ -320,6 +321,7 @@ function challenge(id){
  return shell(`${head(esc(c.title),voteMessage,badge(c.status))}<article class="card challenge-card"><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h2>${esc(x.name)}</h2><div class="stat-value">${x.votePercent}%</div><p>${x.voteCount} votes</p><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div>${signedIn && open ? `<button class="btn btn-primary vote-btn" data-challenge="${c.challengeId}" data-camel="${x.camelId}">Vote ${esc(x.name)}</button>` : `<button class="btn btn-primary" disabled>${signedIn ? 'Voting unavailable' : 'Sign in to vote'}</button>`}</div>`).join('')}</div></article>`,'/challenges');
 }
 
+function adminTrainingPage(){return shell(adminTrainingView(state.adminTrainingData||{error:state.adminTrainingError}),'/admin/training');}
 function training(){ return shell(trainingJournal(), '/training'); }
 
 function admin() {
@@ -879,6 +881,7 @@ function screen(match){ const {name}=match.route, p=match.params; return {
   'Admin Marketplace':adminMarketplacePage,
    'Admin Challenges': adminChallengesPage,
   'Admin Organizations': adminOrganizationsPage,
+  'Admin Training Log': adminTrainingPage,
   'Admin System Health': adminHealthPage,
   'Admin Settings': adminSettingsPage,
   'Admin Races': adminRacesPage,
@@ -910,6 +913,7 @@ async function render() {
  state.adminAuditPageData=null;
  state.adminAuditDetail=null;
  state.adminAuditError='';
+ state.adminTrainingData=null;state.adminTrainingError='';
  state.adminHeritageData=null;
  state.adminHeritageError='';
  state.adminModuleData=null;
@@ -1141,6 +1145,18 @@ async function render() {
      if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
      state.terminationRequests=null;
      state.terminationRequestsError='Unable to load termination requests. Please retry.';
+    }
+   }
+   if(adminRoute&&path==='/admin/training') {
+    try {
+     const data=await loadAdminTraining({agreementId:new URLSearchParams(location.search).get('agreementId'),api:agreementApi,training:trainingApi,isCurrent:()=>epoch===renderEpoch});
+     if(epoch!==renderEpoch)return;
+     state.adminTrainingData=data;
+    } catch(err) {
+     if(epoch!==renderEpoch)return;
+     if(err.status===401)throw err;
+     if(err.status===403){state.user={...state.user,roles:(state.user.roles||[]).filter(role=>role!=='ADMIN'&&role!=='ROLE_ADMIN')};denyAdminAccess();bind();return;}
+     state.adminTrainingError='Unable to load training records. Check the selected agreement and retry.';
     }
    }
    if(adminRoute&&path==='/admin/heritage') {
