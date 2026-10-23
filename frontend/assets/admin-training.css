@@ -1,0 +1,29 @@
+.admin-console .admin-training-page {display:grid;gap:20px;min-width:0;color:#30251c;}
+.admin-console .admin-training-heading {display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0;}
+.admin-console .admin-training-heading h1 {font-size:32px;margin:4px 0 10px;}
+.admin-console .admin-training-heading p {margin:0;color:#77695c;}
+.admin-console .admin-training-heading .admin-training-eyebrow {font-size:11px;letter-spacing:2px;color:#98651e;font-weight:700;}
+.admin-console .admin-training-badge {border:1px solid #dcc7aa;border-radius:24px;padding:8px 14px;white-space:nowrap;font-size:12px;color:#805320;}
+.admin-console .admin-training-panel {padding:24px;background:#fffdf9;border:1px solid #e8ded1;border-radius:12px;min-width:0;}
+.admin-console .admin-training-filter {display:flex;align-items:end;gap:16px;}
+.admin-console .admin-training-filter>div {flex:1;min-width:0;}
+.admin-console .admin-training-filter label {display:block;font-weight:600;font-size:13px;margin-bottom:8px;}
+.admin-console .admin-training-filter select {width:100%;max-width:100%;min-width:0;padding:12px;border:1px solid #d9c9b6;border-radius:8px;background:white;color:#30251c;font:inherit;}
+.admin-console .admin-training-summary {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;}
+.admin-console .admin-training-summary span {display:block;color:#77695c;font-size:12px;margin-bottom:8px;}
+.admin-console .admin-training-summary strong {font-size:18px;overflow-wrap:anywhere;}
+.admin-console .admin-training-table-heading {display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;}
+.admin-console .admin-training-table-heading h2 {font-size:20px;margin:0;}
+.admin-console .admin-training-table-heading span {font-size:12px;color:#77695c;}
+.admin-console .admin-training-table-scroll {overflow:auto;max-height:640px;}
+.admin-console .admin-training-page table {width:100%;border-collapse:collapse;min-width:640px;}
+.admin-console .admin-training-page th,.admin-console .admin-training-page td {padding:14px;text-align:left;border-bottom:1px solid #eee5d9;font-size:13px;vertical-align:top;}
+.admin-console .admin-training-page th {background:#f8f1e8;color:#6d4a24;}
+.admin-console .admin-training-notes {min-width:200px;max-width:450px;white-space:pre-wrap;overflow-wrap:anywhere;}
+.admin-console .admin-training-error {color:#a52637;margin-top:16px;}
+@media(max-width:640px) {
+ .admin-console .admin-training-heading,.admin-console .admin-training-filter,.admin-console .admin-training-table-heading {align-items:stretch;flex-direction:column;}
+ .admin-console .admin-training-badge {align-self:flex-start;}
+ .admin-console .admin-training-summary {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .admin-console .admin-training-panel {padding:16px;}
+}

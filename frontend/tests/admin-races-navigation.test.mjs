@@ -38,6 +38,7 @@ test("admin sidebar stays identical when navigating from Dashboard to Races", ()
     "/admin/heritage",
     "/admin/challenges",
     "/admin/organizations",
+    "/admin/training",
     "/admin/system-health",
     "/admin/audit-logs",
     "/admin/races",
