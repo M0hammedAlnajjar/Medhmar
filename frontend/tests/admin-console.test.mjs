@@ -311,10 +311,10 @@ test('Dashboard KPIs match the four-card reference while retaining live counts',
  }
  for(const caption of captions)assert.ok(html.includes(caption),caption);
  assert.equal((html.match(/class="admin-metric-card"/g)||[]).length,4);
- assert.equal((html.match(/class="admin-metric-icon admin-tone-/g)||[]).length,4);
+ assert.equal((html.match(/class="admin-metric-art"/g)||[]).length,4);
  assert.match(html,/<strong>6<\/strong>/);
  assert.ok((html.match(/<strong>0<\/strong>/g)||[]).length>=3);
- for(const marker of ['<circle cx="24" cy="14"','viewBox="0 0 48 48"','M3.5 29.2c2.1-.9','M14 7 34 42','M10 10h28','stroke-width="2.7"']) assert.ok(html.includes(marker),'missing KPI SVG artwork: '+marker);
+ for(const key of ['users','camel','race','market'])assert.ok(html.includes('/assets/admin-metric-'+key+'.svg'),'missing metric illustration: '+key);
  const missing=adminDashboard({summary:null});
  assert.doesNotMatch(missing,/class="admin-metric-card"[^]*?<strong>6<\/strong>/,'offline dashboard must not reuse reference totals');
 });
