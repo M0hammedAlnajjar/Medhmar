@@ -265,7 +265,7 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    weeklyChart(live?.activity)+'</section>'+
    '<section class="admin-panel admin-panel-events"><div class="admin-panel-heading"><h2>Recent Activity</h2>'+
    '<a href="/admin/audit-logs" data-link>View audit logs <span aria-hidden="true">→</span></a></div>'+
-   '<ul class="admin-recent-list">'+activityList+'</ul><img class="admin-dashboard-track" src="/assets/admin-dashboard-track.svg" width="560" height="140" alt="" aria-hidden="true"></section></div>'+
+   '<ul class="admin-recent-list">'+activityList+'</ul><img class="admin-dashboard-track" src="/assets/admin-dashboard-track.svg" width="450" height="148" alt="" aria-hidden="true"></section></div>'+
    '<section class="admin-dashboard-quick" aria-label="Quick access"><h2>Quick access</h2><div class="admin-quick-links">'+
    '<a href="/admin/users" data-link><span class="admin-quick-icon">'+adminIcon('users')+'</span><span>Manage users</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a>'+
    '<a href="/admin/marketplace" data-link><span class="admin-quick-icon">'+adminIcon('market')+'</span><span>Review listings</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a>'+
