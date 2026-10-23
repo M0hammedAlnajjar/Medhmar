@@ -36,7 +36,7 @@ test('challenges show real draft with safe data and backend-supported actions',(
 });
 test('reference layout has summary metrics, filter tabs, paired camels and visible editor',()=>{
  const html=adminChallengesView({data:page([draft])});
- assert.match(html,/<h1>Challenges<\/h1>/);
+ assert.match(html,/<h1\b[^>]*>Challenges<\/h1>/);
  assert.match(html,/Total challenges|Open for voting|Drafts|Total votes/);
  assert.match(html,/role="tablist" aria-label="Challenge status"/);
  assert.match(html,/data-admin-challenge-filter="OPEN"/);
