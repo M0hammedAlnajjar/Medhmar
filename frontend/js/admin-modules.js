@@ -18,8 +18,6 @@ const status = raw => {
 };
 const message = (heading,error) => '<section class="admin-module-message" role="alert"><h2>'+esc(heading)+
   '</h2><p>'+esc(error||'Unable to load data. Please try again.')+'</p><button class="admin-module-button" data-admin-module-retry type="button">Retry</button></section>';
-const hero = (eyebrow,title,sub,notice) => '<header class="admin-module-hero"><div><span class="admin-module-eyebrow">'+esc(eyebrow)+
-  '</span><h1>'+esc(title)+'</h1><p>'+esc(sub)+'</p></div><span class="admin-module-pill">'+esc(notice)+'</span></header>';
 const pagination = (kind,page) => {
   const n=page.page, total=page.totalPages;
   return '<nav class="admin-module-pagination" aria-label="'+esc(kind)+' pagination"><span>'+
@@ -184,8 +182,9 @@ const organizationForm = (o=null) =>
   (o?'<label>Status<select name="status"><option value="ACTIVE"'+(o.status==='ACTIVE'?' selected':'')+'>Active</option>'+
     '<option value="INACTIVE"'+(o.status==='INACTIVE'?' selected':'')+'>Inactive</option></select></label>':'');
 export function adminOrganizationsView({data=null,error=''}={}) {
- const intro=hero('ORGANIZATION OPERATIONS','Organizations','Manage regional organizers, contact details and organization status.','Live data');
- if(error||!validPage(data))return intro+message('Organizations unavailable',error||'Unexpected response from the server.');
+ const ready=!error&&validPage(data);
+ const intro='<header class="admin-org-hero" aria-labelledby="admin-organizations-title"><div class="admin-org-hero-copy"><span class="admin-org-eyebrow">ORGANIZATION OPERATIONS</span><h1 id="admin-organizations-title">Organizations</h1><p>Manage regional organizers, contact details and organization status.</p></div><span class="admin-org-live'+(ready?'':' is-unavailable')+'">'+(ready?'Live data':'Data unavailable')+'</span><img class="admin-org-hero-art" src="/assets/admin-organizations-racing.svg" alt="" aria-hidden="true" width="1392" height="605"></header>';
+ if(!ready)return intro+message('Organizations unavailable',error||'Unexpected response from the server.');
  const list=data.content;
  const cards=list.map(o=>'<article class="admin-module-item"><div class="admin-module-item-top"><div>'+
    '<span class="admin-module-id">Organization #'+esc(o.organizationId)+'</span><h3>'+esc(o.name)+'</h3></div>'+status(o.status)+'</div>'+
