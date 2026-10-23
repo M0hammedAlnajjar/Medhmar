@@ -94,15 +94,17 @@ test('Backend API code icon has matching angle brackets and centered slash in bo
  assert.doesNotMatch(html,/l5 5-5-5/,'old malformed right bracket must never return');
 });
 
-test('system health vector illustration keeps all three service symbols clear and in its safe area',async()=>{
+test('approved camel and infrastructure artwork is decorative while status and refresh stay native',async()=>{
  const svg=await readFile(new URL('../assets/admin-system-health-hero.svg',import.meta.url),'utf8');
- const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
- assert.match(svg,/viewBox="0 0 1600 240"/);
+ assert.match(svg,/viewBox="0 0 725 580"/);
  assert.match(svg,/Decorative illustration, not live system status/);
- for(const landmark of ['translate(877 56)','translate(1068 56)','translate(1254 56)'])
-  assert.ok(svg.includes(landmark),'service icon should fit within the visible banner: '+landmark);
- assert.equal((svg.match(/width="130" height="126"/g)||[]).length,2,'server and database icon card dimensions');
- assert.match(svg,/stroke="#ffe0b0" stroke-width="3\.8"/,'prominent golden icon strokes');
- assert.ok(css.includes("admin-system-health-hero.svg"),'banner references the SVG source');
- assert.ok(css.includes("background:#241915ed"),'timestamp has a contrasting background');
+ assert.doesNotMatch(svg,/<image|<script|foreignObject|data:image/);
+ const html=adminSystemHealthView({data:live});
+ assert.match(html,/<img class="admin-sys-hero-art"[^>]*alt="" aria-hidden="true"/);
+ assert.match(html,/<h1 id="admin-sys-title">System Health<\/h1>/);
+ assert.match(html,/Last checked · 20 Oct 2026/);
+ assert.match(html,/id="admin-health-check"/);
+ const offline=adminSystemHealthView({error:'Unavailable'});
+ assert.match(offline,/Awaiting check/);
+ assert.doesNotMatch(offline,/Last checked ·/);
 });

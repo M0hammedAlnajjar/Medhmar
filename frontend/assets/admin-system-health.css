@@ -1,0 +1,42 @@
+/* Approved camel and infrastructure header. Actual status remains live HTML. */
+.admin-console .admin-sys-hero {
+ display:grid;grid-template-columns:minmax(0,1.05fr) minmax(250px,1fr) minmax(190px,.55fr);
+ align-items:center;gap:24px;min-height:330px;height:auto;margin:12px 0 18px;padding:18px 12px;
+ border:0;border-radius:0;background:none;color:#2b2016;
+}
+.admin-console .admin-sys-hero .admin-sys-hero-copy { width:100%;max-width:none;min-width:0; }
+.admin-console .admin-sys-hero .admin-system-eyebrow {
+ display:flex;align-items:center;gap:14px;color:#986423;font-size:11px;font-weight:800;letter-spacing:.15em;line-height:1.5;
+}
+.admin-console .admin-sys-hero .admin-system-eyebrow::after { content:"";flex:1;max-width:120px;border-top:1px solid #b78238; }
+.admin-console .admin-sys-hero h1 { margin:16px 0 12px;color:#231b14;font-size:clamp(30px,2.7vw,42px);line-height:1.12;letter-spacing:-.035em; }
+.admin-console .admin-sys-hero p { margin:0;color:#716d66;font-size:15px;line-height:1.65;max-width:480px; }
+.admin-console .admin-sys-hero-art { display:block;width:100%;height:auto;max-height:310px;object-fit:contain;pointer-events:none; }
+.admin-console .admin-sys-hero .admin-sys-hero-tools {
+ display:flex;flex-direction:column;align-self:stretch;align-items:flex-end;justify-content:space-between;gap:20px;min-width:0;padding:8px 0;
+}
+.admin-console .admin-sys-hero .admin-sys-checked {
+ display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:9px 12px;border:1px solid #c9a16c;border-radius:24px;
+ background:#fffdf9;color:#6b5440;box-shadow:none;font-size:11px;line-height:1.5;white-space:normal;
+}
+.admin-console .admin-sys-hero .admin-sys-checked svg { flex:0 0 16px; }
+.admin-console .admin-sys-hero .admin-system-refresh {
+ display:inline-flex;justify-content:center;gap:9px;align-items:center;border:1px solid #bf8b44;border-radius:9px;
+ padding:11px 15px;background:#fffdf9;color:#6b4727;box-shadow:none;font-size:12px;font-weight:700;line-height:1.4;white-space:nowrap;
+}
+.admin-console .admin-sys-hero .admin-system-refresh:hover { background:#fbf1e3;border-color:#916127; }
+@media(max-width:1250px) {
+ .admin-console .admin-sys-hero { grid-template-columns:minmax(0,1fr) minmax(220px,1fr);min-height:300px;gap:18px 22px; }
+ .admin-console .admin-sys-hero .admin-sys-hero-copy { grid-column:1;grid-row:1; }
+ .admin-console .admin-sys-hero-art { grid-column:2;grid-row:1 / 3;max-height:290px; }
+ .admin-console .admin-sys-hero .admin-sys-hero-tools { grid-column:1;grid-row:2;align-items:flex-start;justify-content:flex-start;gap:14px;padding:0; }
+}
+@media(max-width:760px) {
+ .admin-console .admin-sys-hero { grid-template-columns:minmax(0,1fr);min-height:0;gap:18px;padding:18px 4px 10px;margin:6px 0 18px; }
+ .admin-console .admin-sys-hero .admin-sys-hero-copy { grid-column:auto;grid-row:auto; }
+ .admin-console .admin-sys-hero h1 { font-size:32px;margin:12px 0 8px; }
+ .admin-console .admin-sys-hero p { font-size:14px; }
+ .admin-console .admin-sys-hero-art { grid-column:auto;grid-row:2;width:100%;max-height:300px;margin:auto; }
+ .admin-console .admin-sys-hero .admin-sys-hero-tools { grid-column:auto;grid-row:3;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;width:100%; }
+ .admin-console .admin-sys-hero .admin-sys-checked { font-size:10px; }
+}

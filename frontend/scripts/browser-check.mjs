@@ -624,13 +624,16 @@ try {
   assert.equal(await page.locator('#admin-health-check').isVisible(),true);
   // Decorative system infrastructure illustration must load as an actual SVG;
   // keep operational statuses and the refresh action in live HTML.
+  await page.locator('.admin-sys-hero-art').evaluate(image=>image.decode());
   const healthHero = await page.locator('.admin-sys-hero').evaluate(hero => ({
     background: getComputedStyle(hero).backgroundImage,
+    artwork: hero.querySelector('.admin-sys-hero-art')?.getAttribute('src'),
     title: hero.querySelector('#admin-sys-title')?.textContent,
     refresh: !!hero.querySelector('#admin-health-check'),
     toolsVisible: hero.querySelector('.admin-sys-hero-tools')?.getBoundingClientRect().width > 0
   }));
-  assert.ok(healthHero.background.includes('admin-system-health-hero.svg'), 'system hero uses the illustrated SVG');
+  assert.equal(healthHero.artwork,'/assets/admin-system-health-hero.svg', 'system hero uses the approved camel and infrastructure SVG');
+  assert.equal(healthHero.background,'none', 'system header uses the open ivory theme');
   assert.ok(!healthHero.background.includes('admin-dashboard-race.webp'), 'system hero must not show the racing photo');
   assert.equal(healthHero.title,'System Health');
   assert.ok(healthHero.refresh && healthHero.toolsVisible,'health controls stay in the accessible HTML overlay');
@@ -641,7 +644,7 @@ try {
   });
   assert.equal(svgAsset.ok,true,'system hero SVG asset loads');
   assert.ok(svgAsset.contentType.includes('image/svg+xml'), 'SVG is served as an SVG image');
-  assert.match(svgAsset.body,/<svg[^>]+viewBox="0 0 1600 240"/,'SVG artwork contains scalable vector markup');
+  assert.match(svgAsset.body,/<svg[^>]+viewBox="0 0 725 580"/,'SVG artwork contains scalable vector markup');
   assert.match(svgAsset.body,/Decorative illustration, not live system status/,'SVG does not pretend to show a live health reading');
   await page.screenshot({path:'test-results/admin-system-health-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
