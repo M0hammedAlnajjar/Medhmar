@@ -1460,24 +1460,61 @@ async function handleSettings(e) {
  const form = e.currentTarget;
  const fields = Object.fromEntries(new FormData(form));
  const submit = form.querySelector('[type="submit"]');
- if (submit.disabled) return;
+ if (!submit || submit.disabled) return;
+ const feedback = form.querySelector('#settings-feedback');
+ const label = submit.querySelector('[data-settings-save-label]') || submit;
+ const originalLabel = label.textContent;
+ const showError = message => {
+  if (feedback) {
+   feedback.textContent = message;
+   feedback.dataset.state = 'error';
+   feedback.setAttribute('role', 'alert');
+   feedback.hidden = false;
+  }
+  toast(message, 'error');
+ };
  const fullName = String(fields.fullName || '').trim();
- if (!fullName) { toast('Enter your full name.', 'error'); return; }
+ const language = String(fields.preferredLanguage || '');
+ if (!fullName || fullName.length > 150) {
+  showError('Enter a full name of up to 150 characters.');
+  form.querySelector('[name="fullName"]')?.focus();
+  return;
+ }
+ if (!['en','ar'].includes(language)) {
+  showError('Choose a supported language.');
+  return;
+ }
+ if (feedback) {
+  feedback.textContent = '';
+  feedback.hidden = true;
+ }
  submit.disabled = true;
+ form.setAttribute('aria-busy','true');
+ label.textContent = 'Saving…';
+ const currentUserId = state.user?.userId;
  try {
   const saved = await authApi.updateMe({
-   fullName, preferredLanguage: fields.preferredLanguage,
+   fullName, preferredLanguage: language,
    avatarUrl: state.user?.avatarUrl || null
   });
-  if (!saved?.userId) throw new Error('The backend did not confirm this profile update.');
+  if (!saved?.userId || String(saved.userId) !== String(currentUserId))
+   throw new Error('The backend did not confirm this account update.');
+  // Never apply a response to a different session after a route or auth change.
+  if (!form.isConnected || String(state.user?.userId) !== String(currentUserId)) return;
   state.user = saved;
-  state.lang = saved.preferredLanguage || state.lang;
-  localStorage.setItem('medhmar-lang', state.lang);
+  if (['en','ar'].includes(saved.preferredLanguage)) {
+   state.lang = saved.preferredLanguage;
+   try { localStorage.setItem('medhmar-lang', state.lang); } catch {}
+  }
   toast('Profile updated.', 'success');
   render();
  } catch (err) {
-  toast(err.message || 'Unable to save changes. Please retry.', 'error');
- } finally { submit.disabled = false; }
+  if (form.isConnected) showError(err?.message || 'Unable to save changes. Please retry.');
+ } finally {
+  submit.disabled = false;
+  form.removeAttribute('aria-busy');
+  label.textContent = originalLabel;
+ }
 }
 async function handleVote(e){ const b=e.currentTarget; if(!state.user?.userId){toast('Sign in before voting.','error');go('/signin');return;} b.disabled=true; try{await challengeApi.vote(b.dataset.challenge,Number(b.dataset.camel)); const updated=await challengeApi.one(b.dataset.challenge); state.challengeDetail=updated; state.challenges=state.challenges.map(c=>String(c.challengeId)===String(updated.challengeId)?updated:c); toast('Vote recorded successfully.','success'); render();}catch(err){toast(err.message,'error');b.disabled=false;} }
 async function handlePublish(e){ const b=e.currentTarget;b.disabled=true;try{await raceCardApi.publish(b.dataset.race);toast('New immutable race-card version published.','success');}catch(err){toast(`${err.message}. Preview data unchanged.`,'error');b.disabled=false;} }
