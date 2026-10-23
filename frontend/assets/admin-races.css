@@ -207,8 +207,9 @@
 @media (prefers-reduced-motion: reduce) { .admin-races-page * { scroll-behavior: auto; } }
 
 /* Approved scheduling-to-start illustration; headings remain native HTML. */
+.admin-console:has(.admin-races-page) .admin-main { padding-top:0; }
 .admin-console .admin-races-page .admin-race-hero {
- position:relative;display:flex;align-items:center;min-height:320px;margin:12px 18px 0;padding:28px 12px;
+ position:relative;display:flex;align-items:center;min-height:320px;margin:0 18px;padding:28px 12px;
  border:0;border-radius:0;background:none;color:#2b2016;isolation:isolate;overflow:hidden;
 }
 .admin-console .admin-races-page .admin-race-hero-copy { position:relative;z-index:1;min-width:0;width:36%;max-width:none; }
@@ -224,7 +225,7 @@
  .admin-console .admin-races-page .admin-race-hero-art { max-height:240px; }
 }
 @media(max-width:760px) {
- .admin-console .admin-races-page .admin-race-hero { flex-direction:column;align-items:flex-start;min-height:0;margin:6px 12px 0;padding:18px 4px 12px;gap:20px; }
+ .admin-console .admin-races-page .admin-race-hero { flex-direction:column;align-items:flex-start;min-height:0;margin:0 12px;padding:18px 4px 12px;gap:20px; }
  .admin-console .admin-races-page .admin-race-hero-copy { width:100%; }
  .admin-console .admin-races-page .admin-race-hero h1 { font-size:32px; }
  .admin-console .admin-races-page .admin-race-hero-copy p { max-width:none;font-size:14px; }
