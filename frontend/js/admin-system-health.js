@@ -69,10 +69,11 @@ export function adminSystemHealthView({data=null,error='',samples=[]}={}){
  '</strong><small>Health check · '+Math.round(s.durationMs)+' ms</small></span>'+
  '<time datetime="'+esc(s.checkedAt)+'">'+esc(time(s.checkedAt))+'</time></li>').join('');
  return '<section class="admin-system-hero admin-sys-hero" aria-labelledby="admin-sys-title">'+
- '<div><span class="admin-system-eyebrow">PLATFORM OPERATIONS</span><h1 id="admin-sys-title">System Health</h1>'+
+ '<div class="admin-sys-hero-copy"><span class="admin-system-eyebrow">PLATFORM OPERATIONS</span><h1 id="admin-sys-title">System Health</h1>'+
  '<p>Monitor database, API, and operational services across Medhmar.</p></div>'+
+ '<img class="admin-sys-hero-art" src="/assets/admin-system-health-hero.svg" width="725" height="580" alt="" aria-hidden="true">'+
  '<div class="admin-sys-hero-tools"><span class="admin-sys-checked">'+icon('clock')+
- esc(valid?time(data.checkedAt):'Awaiting check')+'</span>'+
+ esc(valid?'Last checked · '+time(data.checkedAt):'Awaiting check')+'</span>'+
  '<button type="button" id="admin-health-check" class="admin-system-refresh" aria-label="Check connection again">'+
  icon('refresh')+' Check Connection</button></div></section>'+
  (!valid?'<div class="admin-system-unavailable" role="alert"><strong>Health check unavailable.</strong> '+
