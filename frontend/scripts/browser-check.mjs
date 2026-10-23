@@ -680,15 +680,17 @@ try {
   const auditHero = page.locator('.admin-audit-hero');
   assert.equal(await auditHero.getByRole('heading',{name:'Audit Logs'}).count(),1);
   assert.equal(await auditHero.locator('.admin-audit-readonly').innerText(),'Read only');
-  assert.ok(await auditHero.evaluate(el=>getComputedStyle(el).backgroundImage.includes('/assets/admin-audit-hero.svg')),
-    'audit banner uses the symbolic SVG');
+  await auditHero.locator('.admin-audit-hero-art').evaluate(image=>image.decode());
+  assert.equal(await auditHero.locator('.admin-audit-hero-art').getAttribute('src'),'/assets/admin-audit-hero.svg');
+  assert.equal(await auditHero.evaluate(el=>getComputedStyle(el).backgroundImage),'none',
+    'audit header uses the open ivory theme');
   const auditAsset = await page.evaluate(async()=>{
     const response=await fetch('/assets/admin-audit-hero.svg');
     const text=await response.text();
     return {ok:response.ok,type:response.headers.get('content-type')||'',text};
   });
   assert.ok(auditAsset.ok && auditAsset.type.includes('image/svg+xml'),'audit SVG should load as image/svg+xml');
-  assert.match(auditAsset.text,/<svg[^>]+viewBox="0 0 1600 220"/);
+  assert.match(auditAsset.text,/<svg[^>]+viewBox="0 0 1225 475"/);
   await page.screenshot({path:'test-results/admin-audit-hero-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await auditHero.locator('.admin-audit-readonly').isVisible(),true,'mobile read-only badge is visible');

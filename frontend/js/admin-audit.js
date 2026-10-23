@@ -22,9 +22,10 @@ const queryUrl = (filters, page) => {
 const failure = message => '<section class="admin-audit-message" role="alert"><h2>Audit history unavailable</h2><p>' +
   esc(message || 'Could not load audit records. Please retry.') +
   '</p><a href="/admin/audit-logs" data-link class="admin-audit-button">Try again</a></section>';
-const heading = (title, sub) => '<header class="admin-audit-hero"><div><p class="admin-audit-eyebrow">PLATFORM SECURITY</p><h1>' +
+const heading = (title, sub) => '<header class="admin-audit-hero" aria-labelledby="admin-audit-title"><div class="admin-audit-hero-copy"><p class="admin-audit-eyebrow">PLATFORM SECURITY</p><h1 id="admin-audit-title">' +
   esc(title) + '</h1><p>' + esc(sub) +
-  '</p></div><span class="admin-audit-readonly" aria-label="Read-only history">Read only</span></header>';
+  '</p></div><img class="admin-audit-hero-art" src="/assets/admin-audit-hero.svg" width="1225" height="475" alt="" aria-hidden="true">'+
+  '<span class="admin-audit-readonly" aria-label="Read-only history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>Read only</span></header>';
 
 export function adminAuditListView({ data = null, filters = {}, error = '' } = {}) {
   if (error) return heading('Audit Logs','Track significant changes across Medhmar.') + failure(error);

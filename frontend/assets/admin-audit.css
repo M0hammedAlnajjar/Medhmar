@@ -1,0 +1,30 @@
+/* Approved traceability artwork, shared by the read-only list and detail header. */
+.admin-console .admin-audit-hero {
+ position:relative;display:flex;align-items:center;min-height:350px;margin:12px 0 18px;padding:30px 12px;
+ border:0;border-radius:0;background:none;color:#2b2016;overflow:hidden;
+}
+.admin-console .admin-audit-hero .admin-audit-hero-copy { position:relative;z-index:1;width:35%;max-width:none;min-width:0; }
+.admin-console .admin-audit-hero .admin-audit-eyebrow {
+ display:flex;align-items:center;gap:14px;margin:0 0 16px;color:#986423;font-size:11px;font-weight:800;letter-spacing:.15em;line-height:1.5;
+}
+.admin-console .admin-audit-hero .admin-audit-eyebrow::after { content:"";flex:1;max-width:120px;border-top:1px solid #b78238; }
+.admin-console .admin-audit-hero h1 { margin:0 0 12px;color:#261e18;font-size:clamp(30px,2.8vw,44px);line-height:1.12;letter-spacing:-.035em;overflow-wrap:anywhere; }
+.admin-console .admin-audit-hero .admin-audit-hero-copy > p:last-child { margin:0;max-width:480px;color:#716d66;font-size:15px;line-height:1.65; }
+.admin-console .admin-audit-hero-art { position:absolute;right:0;bottom:10px;display:block;width:63%;height:auto;max-height:320px;object-fit:contain;object-position:bottom right;pointer-events:none; }
+.admin-console .admin-audit-hero .admin-audit-readonly {
+ position:absolute;top:10px;right:12px;z-index:1;display:inline-flex;align-items:center;gap:9px;align-self:auto;
+ padding:9px 14px;border:1px solid #bf8b44;border-radius:24px;background:#fffdf9;color:#6b4727;font-size:12px;font-weight:700;line-height:1.5;box-shadow:none;
+}
+.admin-console .admin-audit-readonly svg { width:18px;height:18px;flex:0 0 18px; }
+@media(max-width:1250px) and (min-width:761px) {
+ .admin-console .admin-audit-hero { min-height:290px; }
+ .admin-console .admin-audit-hero-art { max-height:260px; }
+}
+@media(max-width:760px) {
+ .admin-console .admin-audit-hero { flex-direction:column;align-items:flex-start;min-height:0;gap:0;padding:18px 4px 12px;margin:6px 0 18px; }
+ .admin-console .admin-audit-hero .admin-audit-hero-copy { width:100%; }
+ .admin-console .admin-audit-hero h1 { font-size:32px; }
+ .admin-console .admin-audit-hero .admin-audit-hero-copy > p:last-child { font-size:14px; }
+ .admin-console .admin-audit-hero .admin-audit-readonly { position:static;order:1;margin-top:16px; }
+ .admin-console .admin-audit-hero-art { position:static;order:2;width:100%;max-height:none;margin-top:18px; }
+}
