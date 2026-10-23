@@ -9,13 +9,7 @@
 .admin-race-hero, .admin-race-content { position: relative; z-index: 1; }
 .admin-race-loading, .admin-race-error { min-height: 320px; padding: 40px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: #52617d; }
 .admin-race-error h2, .admin-race-error p { margin: 0; }
-/* Shared admin hero design language: dark brown and gold, matching Audit Logs. */
-.admin-race-hero { min-height: 198px; margin: 20px 18px 0; border: 1px solid #947057; border-radius: 14px; padding: 20px 32px; display: flex; align-items: center; color: #fff; isolation: isolate; background: radial-gradient(ellipse at 88% 70%, #ad78452b, transparent 65%), linear-gradient(110deg, #291c16, #4b3022 70%, #664229); }
-.admin-race-hero-copy { min-width: 0; max-width: 580px; }
-.admin-race-hero-copy > span:first-child { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #f0c8a4; }
 .admin-race-modal-head > div > span { font-size: 12px; font-weight: 650; letter-spacing: .16em; color: #a45708; }
-.admin-console .admin-race-hero h1 { margin: 10px 0 7px; font: 750 clamp(28px, 3vw, 38px)/1.15 'Segoe UI', Arial, sans-serif; letter-spacing: -.035em; color: #fff; }
-.admin-race-hero-copy p { margin: 0; color: #f1e4d8; font-size: 13px; line-height: 1.5; }
 .admin-race-content { padding: 14px 18px 16px 22px; }
 .admin-race-create-toolbar { display: flex; align-items: center; justify-content: flex-end; min-height: 44px; margin-bottom: 14px; }
 .admin-race-create-toolbar .admin-race-primary { min-height: 44px; padding: 10px 18px; font: 650 15px/1.25 'Segoe UI', Arial, sans-serif; white-space: nowrap; }
@@ -211,3 +205,28 @@
   .admin-race-form .span-2 { grid-column: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .admin-races-page * { scroll-behavior: auto; } }
+
+/* Approved scheduling-to-start illustration; headings remain native HTML. */
+.admin-console .admin-races-page .admin-race-hero {
+ position:relative;display:flex;align-items:center;min-height:320px;margin:12px 18px 0;padding:28px 12px;
+ border:0;border-radius:0;background:none;color:#2b2016;isolation:isolate;overflow:hidden;
+}
+.admin-console .admin-races-page .admin-race-hero-copy { position:relative;z-index:1;min-width:0;width:36%;max-width:none; }
+.admin-console .admin-races-page .admin-race-hero-copy > span:first-child {
+ display:flex;align-items:center;gap:14px;color:#986423;font-size:11px;font-weight:800;letter-spacing:.15em;line-height:1.5;
+}
+.admin-console .admin-races-page .admin-race-hero-copy > span:first-child::after { content:"";flex:1;max-width:120px;border-top:1px solid #b78238; }
+.admin-console .admin-races-page .admin-race-hero h1 { margin:16px 0 12px;color:#261e18;font:750 clamp(30px,2.6vw,42px)/1.12 'Segoe UI',Arial,sans-serif;letter-spacing:-.035em; }
+.admin-console .admin-races-page .admin-race-hero-copy p { margin:0;max-width:480px;color:#716d66;font-size:15px;line-height:1.65; }
+.admin-console .admin-races-page .admin-race-hero-art { position:absolute;right:0;bottom:12px;display:block;width:62%;height:auto;max-height:290px;object-fit:contain;object-position:bottom right;pointer-events:none; }
+@media(max-width:1250px) and (min-width:761px) {
+ .admin-console .admin-races-page .admin-race-hero { min-height:270px; }
+ .admin-console .admin-races-page .admin-race-hero-art { max-height:240px; }
+}
+@media(max-width:760px) {
+ .admin-console .admin-races-page .admin-race-hero { flex-direction:column;align-items:flex-start;min-height:0;margin:6px 12px 0;padding:18px 4px 12px;gap:20px; }
+ .admin-console .admin-races-page .admin-race-hero-copy { width:100%; }
+ .admin-console .admin-races-page .admin-race-hero h1 { font-size:32px; }
+ .admin-console .admin-races-page .admin-race-hero-copy p { max-width:none;font-size:14px; }
+ .admin-console .admin-races-page .admin-race-hero-art { position:static;width:100%;max-height:none; }
+}
