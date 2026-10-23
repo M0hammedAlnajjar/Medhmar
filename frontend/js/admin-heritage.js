@@ -17,7 +17,7 @@ function storyCard(story,organizations) {
 }
 export function adminHeritageView({events=[],stories=[],organizations=[],error=''}={}) {
   const orgs=Array.isArray(organizations)?organizations:[];
-  const intro='<header class="admin-heritage-hero"><span>CONTENT MANAGEMENT</span><h1>Heritage</h1><p>Add and update cultural stories and visitor events shown on the public Heritage page.</p></header>';
+  const intro='<header class="admin-heritage-hero" aria-labelledby="admin-heritage-title"><div class="admin-heritage-hero-copy"><span class="admin-heritage-eyebrow">CONTENT MANAGEMENT</span><h1 id="admin-heritage-title">Heritage</h1><p>Add and update cultural stories and visitor events shown on the public Heritage page.</p></div><img class="admin-heritage-art" src="/assets/admin-heritage-racing.svg" alt="" aria-hidden="true" width="1272" height="413"></header>';
   if(error)return intro+`<section class="admin-heritage-panel" role="alert"><h2>Heritage content unavailable</h2><p>${esc(error)}</p><button type="button" class="admin-heritage-submit" data-heritage-retry>Try again</button></section>`;
 
   const eventsList=Array.isArray(events)?events:[],storiesList=Array.isArray(stories)?stories:[];
