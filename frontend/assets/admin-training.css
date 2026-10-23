@@ -27,3 +27,20 @@
  .admin-console .admin-training-summary {grid-template-columns:repeat(2,minmax(0,1fr));}
  .admin-console .admin-training-panel {padding:16px;}
 }
+
+/* Approved camel, Omani trainer, stopwatch and journal illustration. */
+.admin-console .admin-training-heading {position:relative;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:16px;align-items:center;padding:20px 0;min-height:270px;}
+.admin-console .admin-training-copy {min-width:0;position:relative;z-index:1;}
+.admin-console .admin-training-heading h1 {font-size:40px;line-height:1.15;}
+.admin-console .admin-training-copy>p:last-child {font-size:15px;line-height:1.6;max-width:480px;}
+.admin-console .admin-training-art {display:block;width:100%;height:auto;max-height:340px;object-fit:contain;align-self:end;}
+.admin-console .admin-training-heading .admin-training-badge {position:absolute;right:0;top:0;background:#fffdf9;}
+@media(max-width:900px) {
+ .admin-console .admin-training-heading {grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);min-height:230px;}
+ .admin-console .admin-training-heading h1 {font-size:32px;}
+}
+@media(max-width:640px) {
+ .admin-console .admin-training-heading {grid-template-columns:1fr;gap:16px;padding:0;min-height:0;}
+ .admin-console .admin-training-art {max-height:260px;grid-row:3;}
+ .admin-console .admin-training-heading .admin-training-badge {position:static;justify-self:start;grid-row:2;}
+}
