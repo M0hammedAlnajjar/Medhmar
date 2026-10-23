@@ -1,0 +1,94 @@
+/* Approved head-to-head challenge illustration with accessible HTML copy. */
+.admin-console .mhch-challenges-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 250px;
+  margin: 12px 0 18px;
+  padding: 30px 12px 42px;
+  overflow: hidden;
+  background: none;
+  color: #2b2016;
+}
+
+.admin-console .mhch-hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 40%;
+  min-width: 0;
+}
+
+.admin-console .mhch-hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 16px;
+  color: #986423;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: .15em;
+}
+
+.admin-console .mhch-hero-eyebrow::after {
+  content: "";
+  flex: 1;
+  max-width: 150px;
+  border-top: 1px solid #b78238;
+}
+
+.admin-console .mhch-challenges-hero h1 {
+  margin: 0 0 8px;
+  color: #2b2016;
+  font-size: clamp(28px, 2.55vw, 42px);
+  font-weight: 790;
+  line-height: 1.16;
+  letter-spacing: -.035em;
+}
+
+.admin-console .mhch-hero-copy > p {
+  max-width: 560px;
+  margin: 0;
+  color: #687180;
+  font-size: clamp(13px, 1.05vw, 16px);
+  line-height: 1.6;
+}
+
+.admin-console .mhch-hero-art {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  width: 58%;
+  height: auto;
+  max-height: 235px;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+}
+
+@media (max-width: 1000px) and (min-width: 761px) {
+  .admin-console .mhch-challenges-hero { min-height: 225px; }
+}
+
+@media (max-width: 760px) {
+  .admin-console .mhch-challenges-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 0;
+    padding: 20px 4px 12px;
+  }
+  .admin-console .mhch-hero-copy { max-width: 100%; }
+  .admin-console .mhch-hero-eyebrow {
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 10px;
+  }
+  .admin-console .mhch-challenges-hero h1 { font-size: clamp(28px, 5.3vw, 36px); }
+  .admin-console .mhch-hero-copy > p { font-size: 14px; }
+  .admin-console .mhch-hero-art {
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin-top: 18px;
+  }
+}

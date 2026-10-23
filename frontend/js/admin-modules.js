@@ -128,7 +128,7 @@ const challengeCard = c => {
   '<p class="admin-module-form-error admin-module-item-error" role="alert" hidden></p></article>';
 };
 export function adminChallengesView({data=null,error=''}={}) {
- const head='<header class="mhch-heading"><h1>Challenges</h1><p>Create challenges, pair camels, and manage public voting.</p></header>';
+ const head='<header class="mhch-heading mhch-challenges-hero" aria-labelledby="admin-challenges-title"><div class="mhch-hero-copy"><span class="mhch-hero-eyebrow">CHALLENGE MANAGEMENT</span><h1 id="admin-challenges-title">Challenges</h1><p>Create challenges, pair camels, and manage public voting.</p></div><img class="mhch-hero-art" src="/assets/admin-challenges-racing.svg" alt="" aria-hidden="true" width="1472" height="410"></header>';
  if(error||!validPage(data))return '<div class="mhch-page">'+head+
    message('Challenges unavailable',error||'Unexpected response from the server.')+'</div>';
  const list=data.content,counts={OPEN:0,DRAFT:0,CLOSED:0},totalVotes=list.reduce((sum,c)=>{
