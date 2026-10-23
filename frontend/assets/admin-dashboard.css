@@ -62,13 +62,13 @@
 .admin-console .admin-dashboard-page .admin-chart-caption { font-size:11px;color:#807568; }
 .admin-console .admin-dashboard-page .admin-chart-caption strong { color:#51463c; }
 .admin-console .admin-dashboard-page .admin-panel-events { position:relative;isolation:isolate;overflow:hidden; }
-.admin-console .admin-dashboard-page .admin-recent-list { position:relative;z-index:1;padding-bottom:85px; }
+.admin-console .admin-dashboard-page .admin-recent-list { position:relative;z-index:1;padding-bottom:185px; }
 .admin-console .admin-dashboard-page .admin-recent-event { gap:14px;min-height:76px; }
 .admin-console .admin-dashboard-page .admin-recent-event strong { font-size:13px;color:#30271e; }
 .admin-console .admin-dashboard-page .admin-recent-event small,
 .admin-console .admin-dashboard-page .admin-recent-event time { color:#7c7369; }
 .admin-console .admin-dashboard-page .admin-recent-event time { font-size:11px;max-width:120px; }
-.admin-console .admin-dashboard-track { position:absolute;bottom:0;right:0;width:100%;max-width:560px;height:auto;opacity:.5;z-index:-1;pointer-events:none; }
+.admin-console .admin-dashboard-track { position:absolute;bottom:0;right:0;width:100%;max-width:560px;height:auto;opacity:1;z-index:-1;pointer-events:none; }
 .admin-console .admin-dashboard-page .admin-dashboard-quick { grid-template-columns:130px minmax(0,1fr);padding:14px 18px;border-color:#e8e0d6;border-radius:12px;box-shadow:none; }
 .admin-console .admin-dashboard-page .admin-dashboard-quick h2 { font-size:17px;color:#2c241e; }
 .admin-console .admin-dashboard-page .admin-quick-links { gap:10px; }
@@ -106,6 +106,7 @@
  .admin-console .admin-dashboard-page .admin-overview-grid { grid-template-columns:1fr; }
  .admin-console .admin-dashboard-page .admin-panel { min-height:0;padding:18px 15px; }
  .admin-console .admin-dashboard-page .admin-panel-events { min-height:240px; }
+ .admin-console .admin-dashboard-page .admin-recent-list { padding-bottom:120px; }
  .admin-console .admin-dashboard-page .admin-panel-heading { flex-wrap:wrap; }
  .admin-console .admin-dashboard-page .admin-recent-event time { margin:0;max-width:110px;text-align:right; }
  .admin-console .admin-dashboard-page .admin-dashboard-quick { padding:16px; }
