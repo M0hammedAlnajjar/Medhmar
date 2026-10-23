@@ -33,7 +33,7 @@
 }
 .admin-console .admin-dashboard-page .admin-refresh-btn:hover { background:#f9efdF;border-color:#946020; }
 .admin-console .admin-dashboard-page .admin-metrics {
- grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;padding:18px 0;background:#fff;
+ grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;padding:18px 0;background:transparent;
  border:1px solid #e8e0d6;border-radius:12px;
 }
 .admin-console .admin-dashboard-page .admin-metrics .admin-metric-card {
@@ -135,4 +135,23 @@
 @media(max-width:760px) {
  .admin-console .admin-dashboard-page .admin-chart-tick { font-size:24px; }
  .admin-console .admin-dashboard-page .admin-chart-value { font-size:26px; }
+}
+
+/* Transparent camel illustrations with separate, live metric copy. */
+.admin-console .admin-dashboard-page .admin-metrics .admin-metric-card {
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(64px,42%);align-items:center;gap:8px;min-height:110px;
+}
+.admin-console .admin-dashboard-page .admin-metric-copy { min-width:0; }
+.admin-console .admin-dashboard-page .admin-metric-art {
+ display:block;width:100%;height:88px;object-fit:contain;object-position:center;pointer-events:none;
+}
+.admin-console .admin-dashboard-page .admin-metric-copy strong { display:block;overflow-wrap:anywhere; }
+@media(max-width:1400px) and (min-width:1151px) {
+ .admin-console .admin-dashboard-page .admin-metrics .admin-metric-card {grid-template-columns:minmax(0,1fr) minmax(54px,35%);padding:4px 12px;gap:6px;}
+}
+@media(max-width:540px) {
+ .admin-console .admin-dashboard-page .admin-metrics {grid-template-columns:1fr;}
+ .admin-console .admin-dashboard-page .admin-metrics .admin-metric-card {border-right:0;border-bottom:1px solid #e8e0d6;grid-template-columns:minmax(0,1fr) 110px;}
+ .admin-console .admin-dashboard-page .admin-metrics .admin-metric-card:nth-child(3) {border-bottom:1px solid #e8e0d6;}
+ .admin-console .admin-dashboard-page .admin-metrics .admin-metric-card:last-child {border-bottom:0;}
 }

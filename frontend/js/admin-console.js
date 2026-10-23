@@ -42,29 +42,8 @@ const adminIcon = key => ({
 })[key] || "";
 
 
-// Dashboard-only SVG icons share one viewBox, stroke style and optical weight.
-// Decorative icons are hidden from assistive technology; card labels carry meaning.
-const adminMetricIcon = key => {
-    const artwork = {
-        users: '<circle cx="24" cy="14" r="6"/>' +
-            '<circle cx="10" cy="19" r="4"/><circle cx="38" cy="19" r="4"/>' +
-            '<path d="M13 39v-3c0-6.2 4.9-11 11-11s11 4.8 11 11v3H13Z"/>' +
-            '<path d="M10 28c-3.5 0-6 2.8-6 6v5h6m28-11c3.5 0 6 2.8 6 6v5h-6"/>',
-        // Solid one-hump camel with four distinct legs; readable at 40px.
-        camel: '<path fill="currentColor" stroke="none" d="M3.5 29.2c2.1-.9 4.7-1.6 7.4-1.5 3.2-3.4 4.4-10.6 8.5-13.6 4.1-2.9 6.5-.4 9.2 6.6l1.9 4.5c2.8 1 5.4-1.7 5.6-5.4l1.7-10.3c.5-3.3 1.9-5 4.3-5.2l3.3.3 1.2 3.4-2.3 2.1-3.2-.4-1.1 11c-.5 7-3.2 10.6-7 11.4l.7 11.8h-3.8L26.4 33h-6l-2.1 10h-3.8l.6-10.1h-4.1l-.7 10.1H7L6.2 32.6c-2.6-.7-4-1.7-2.7-3.4Z"/>' +
-            '<path d="M5 28.5 2.4 26" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>' +
-            '<circle cx="43.3" cy="7.2" r=".6" fill="#faf3e9" stroke="none"/>',
-        race: '<path d="M14 7 34 42M34 7 14 42"/>' +
-            '<path d="m14 7-10 6 7 10 11-10-8-6Zm20 0 10 6-7 10-11-10 8-6Z"/>' +
-            '<path d="m10 10 7 8m-2-11 7 6m11-3-6 7m11-6-7 8"/>',
-        market: '<path d="M10 10h28l4 11H6l4-11ZM14 10V6h20v4"/>' +
-            '<path d="M9 26v15h30V26M19 41V30h10v11"/>' +
-            '<path d="M6 21c0 3 3 5 6 5s6-2 6-5c0 3 3 5 6 5s6-2 6-5c0 3 3 5 6 5s6-2 6-5"/>'
-    }[key];
-    return artwork
-        ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + artwork + '</svg>'
-        : '';
-};
+// Static decorative artwork; live metric values remain accessible HTML.
+const adminMetricArtwork = key => '<img class="admin-metric-art" src="/assets/admin-metric-'+key+'.svg" width="120" height="80" alt="" aria-hidden="true" decoding="async">';
 
 const adminProfileIcon = '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3a11 11 0 0 1 22 0v3H5Z"/></svg>';
 
@@ -230,15 +209,14 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
  const live=summary&&typeof summary==='object'?summary:null;
  const totalUsers=live?.totalUsers ?? (validCount(page?.totalElements)?page.totalElements:null);
  const metrics=[
-  {label:'Total Users',value:totalUsers,icon:'users',tone:'users',sub:'Registered platform users'},
-  {label:'Registered Camels',value:live?.activeCamels,icon:'camel',tone:'camels',sub:'Camels in the system'},
-  {label:'Upcoming / Open Races',value:live?.upcomingRaces,icon:'race',tone:'races',sub:'Open for registration'},
-  {label:'Active Listings',value:live?.activeListings,icon:'market',tone:'market',sub:'Active marketplace listings'}
+  {label:'Total Users',value:totalUsers,icon:'users',sub:'Registered platform users'},
+  {label:'Registered Camels',value:live?.activeCamels,icon:'camel',sub:'Camels in the system'},
+  {label:'Upcoming / Open Races',value:live?.upcomingRaces,icon:'race',sub:'Open for registration'},
+  {label:'Active Listings',value:live?.activeListings,icon:'market',sub:'Active marketplace listings'}
  ];
  const cards=metrics.map(m=>'<article class="admin-metric-card">'+
-   '<span class="admin-metric-icon admin-tone-'+m.tone+'">'+adminMetricIcon(m.icon)+'</span>'+
-   '<div><span class="admin-metric-label">'+m.label+'</span><strong>'+number(m.value)+'</strong>'+
-   '<small>'+m.sub+'</small></div></article>').join('');
+   '<div class="admin-metric-copy"><span class="admin-metric-label">'+m.label+'</span><strong>'+number(m.value)+'</strong>'+
+   '<small>'+m.sub+'</small></div>'+adminMetricArtwork(m.icon)+'</article>').join('');
  const events=Array.isArray(live?.recentEvents)?live.recentEvents.slice(0,4):[];
  const activityList=events.length?events.map(a=>{
    const action=String(a.actionType||'Activity recorded'), entity=String(a.entityType||'Record');
