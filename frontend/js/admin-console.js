@@ -171,9 +171,10 @@ function weeklyChart(rows) {
      '" tabindex="'+(i===0?0:-1)+'" class="admin-chart-tab" data-chart="'+m.id+'">'+m.title+'</button>').join('')+'</div>';
  const charts=metrics.map((m,i)=>{
    const values=rows.map(d=>d[m.field]);
-   const step=Math.max(1,Math.ceil(Math.max(...values)/4)), maximum=step*4;
-   const grid=Array.from({length:5},(_,j)=>{
-     const y=195-(158*j/4);
+   const peak=Math.max(...values), intervals=peak<=2?2:4;
+   const step=Math.max(1,Math.ceil(peak/intervals)), maximum=step*intervals;
+   const grid=Array.from({length:intervals+1},(_,j)=>{
+     const y=195-(158*j/intervals);
      return '<line class="admin-chart-grid" x1="42" x2="674" y1="'+y+'" y2="'+y+'"/>'+
        '<text class="admin-chart-tick" x="32" y="'+(y+4)+'" text-anchor="end">'+(j*step)+'</text>';
    }).join('');
@@ -250,9 +251,10 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
  }).join(''):'<li class="admin-empty-state">'+(live?'No audit events recorded yet.':'Recent activity unavailable.')+'</li>';
  const updated=live?.generatedAt?dateTime(live.generatedAt):'Not available';
  const pill=live?'<span class="admin-live-pill">Live platform data</span>':'<span class="admin-live-pill admin-offline-pill">Data unavailable</span>';
- return '<section class="admin-hero" aria-labelledby="admin-dashboard-title">'+
+ return '<div class="admin-dashboard-page"><section class="admin-hero" aria-labelledby="admin-dashboard-title">'+
    '<div class="admin-hero-copy"><span class="admin-hero-eyebrow">PLATFORM OVERVIEW</span>'+
    '<h1 id="admin-dashboard-title">Admin Dashboard</h1><p>Monitor and manage the Medhmar platform.</p></div>'+
+   '<img class="admin-dashboard-art" src="/assets/admin-dashboard-racing.svg" width="826" height="230" alt="" aria-hidden="true">'+
    '<div class="admin-hero-actions"><button id="admin-refresh" class="admin-refresh-btn" type="button" aria-label="Refresh dashboard data">'+adminIcon('refresh')+' Refresh</button></div></section>'+
    '<section class="admin-metrics" aria-label="Current platform figures">'+cards+'</section>'+
    '<div class="admin-data-status" role="status">'+pill+'<span>Last updated: '+esc(updated)+'</span></div>'+
@@ -263,12 +265,12 @@ export function adminDashboard({user,summary=null,error='',page=null}) {
    weeklyChart(live?.activity)+'</section>'+
    '<section class="admin-panel admin-panel-events"><div class="admin-panel-heading"><h2>Recent Activity</h2>'+
    '<a href="/admin/audit-logs" data-link>View audit logs <span aria-hidden="true">→</span></a></div>'+
-   '<ul class="admin-recent-list">'+activityList+'</ul></section></div>'+
+   '<ul class="admin-recent-list">'+activityList+'</ul><img class="admin-dashboard-track" src="/assets/admin-dashboard-track.svg" width="560" height="140" alt="" aria-hidden="true"></section></div>'+
    '<section class="admin-dashboard-quick" aria-label="Quick access"><h2>Quick access</h2><div class="admin-quick-links">'+
    '<a href="/admin/users" data-link><span class="admin-quick-icon">'+adminIcon('users')+'</span><span>Manage users</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a>'+
    '<a href="/admin/marketplace" data-link><span class="admin-quick-icon">'+adminIcon('market')+'</span><span>Review listings</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a>'+
    '<a href="/admin/system-health" data-link><span class="admin-quick-icon">'+adminIcon('database')+'</span><span>System health</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a>'+
-   '<a href="/admin/audit-logs" data-link><span class="admin-quick-icon">'+adminIcon('audit')+'</span><span>Audit logs</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a></div></section>';
+   '<a href="/admin/audit-logs" data-link><span class="admin-quick-icon">'+adminIcon('audit')+'</span><span>Audit logs</span><span class="admin-quick-chevron" aria-hidden="true">›</span></a></div></section></div>';
 }
 // Shared heading for the existing Users and Settings pages.
 const header=(k,t,d)=>'<div class="admin-heading"><p>'+esc(k)+'</p><h1>'+esc(t)+'</h1><span>'+esc(d)+'</span></div>';
