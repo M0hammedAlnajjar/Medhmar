@@ -123,19 +123,33 @@ test('reference styling stays inside the dedicated administration scope',async()
  assert.match(css,/@media\(max-width:450px\)/);
 });
 
-test('admin banner is a committed WebP asset and replaces the old image',async()=>{
+test('dashboard uses decorative vector artwork with native headings and controls',async()=>{
  const {readFile}=await import('node:fs/promises');
- const css=await readFile(new URL('../assets/admin-console.css',import.meta.url),'utf8');
- const image=await readFile(new URL('../assets/admin-dashboard-race.webp',import.meta.url));
- assert.equal(image.toString('ascii',0,4),'RIFF');
- assert.equal(image.toString('ascii',8,12),'WEBP');
- assert.ok(image.byteLength>10_000,'real banner asset must not be a placeholder');
- assert.match(css,/url\('\/assets\/admin-dashboard-race\.webp'\)/);
- const finalRule=css.slice(css.lastIndexOf('Medhmar admin banner:'));
- assert.doesNotMatch(finalRule,/home-racetrack\.jpg|racing-hero\.webp/);
- assert.match(finalRule,/background-position:62% 26%/);
- assert.match(finalRule,/background-position:center 26%/);
- assert.match(finalRule,/min-height:244px/);
+ const html=adminDashboard({});
+ assert.match(html,/class="admin-dashboard-page"/);
+ assert.match(html,/<h1 id="admin-dashboard-title">Admin Dashboard<\/h1>/);
+ assert.match(html,/id="admin-refresh"/);
+ assert.match(html,/<img class="admin-dashboard-art"[^>]*alt="" aria-hidden="true"/);
+ for(const file of ['admin-dashboard-racing.svg','admin-dashboard-track.svg']) {
+  const artwork=await readFile(new URL('../assets/'+file,import.meta.url),'utf8');
+  assert.match(artwork,/<svg[^>]+viewBox=/);
+  assert.doesNotMatch(artwork,/<image|<script|data:image|foreignObject/);
+ }
+});
+
+test('weekly chart uses a useful zero baseline for sparse and larger counts',()=>{
+ for(const peak of [0,1,37]) {
+  const activity=Array.from({length:7},(_,i)=>({date:'2026-10-'+String(i+12),newUsers:i===4?peak:0,newCamels:0,newListings:0}));
+  const html=adminDashboard({summary:{activity,recentEvents:[]}});
+  const chart=html.split('id="admin-chart-panel-users"')[1].split('</section>')[0];
+  const ticks=[...chart.matchAll(/class="admin-chart-tick" x="32"[^>]*>([0-9]+)<\/text>/g)].map(m=>Number(m[1]));
+  assert.equal(ticks[0],0);
+  assert.ok(ticks.every(Number.isSafeInteger));
+  assert.ok(ticks.at(-1)>=peak);
+  if(peak<=1)assert.equal(ticks.at(-1),2,'sparse counts should use a readable 0–2 scale');
+  else assert.ok(ticks.at(-1)<peak*2,'larger counts should fit without excessive headroom');
+  assert.match(chart,new RegExp(': '+peak+' new user'));
+ }
 });
 
 
