@@ -47,20 +47,16 @@ test('audit route and API contain no client mutation actions', async () => {
   assert.doesNotMatch(routes,/Add Audit Log|Edit Audit Log/);
 });
 
-test('audit banner uses symbolic SVG without changing read-only audit behavior', async () => {
-  const css = await readFile(new URL('../assets/admin-console.css', import.meta.url), 'utf8');
+test('approved trace artwork is decorative and audit records remain read-only', async () => {
   const svg = await readFile(new URL('../assets/admin-audit-hero.svg', import.meta.url), 'utf8');
-  const html = adminAuditListView({data:page});
-  assert.match(css, /url\(['"]\/assets\/admin-audit-hero\.svg['"]\)/);
-  assert.match(svg, /<svg[^>]+viewBox="0 0 1600 220"/);
+  assert.match(svg, /<svg[^>]+viewBox="0 0 1225 475"/);
   assert.match(svg, /Decorative audit illustration/);
-  assert.match(svg, /transform="translate\(932 45\)"/, 'document should sit within the banner safe area');
-  assert.match(svg, /transform="translate\(1186 49\)"/, 'security shield should stay fully visible');
-  assert.match(svg, /transform="translate\(1374 110\)"/, 'history clock should not overlap Read only');
-  assert.match(svg, /stroke-width="3.8"/, 'security glyph uses a clearly visible stroke');
-  assert.ok(css.includes('background:#261a16ed'), 'read-only badge has a dark contrast surface');
-  assert.match(svg, /Protection: shield with a clearly legible lock/);
-  assert.match(html, /class="admin-audit-hero"/);
-  assert.match(html, /class="admin-audit-readonly"[^>]*>Read only<\/span>/);
-  assert.doesNotMatch(html, /Add Audit|Edit Audit|Delete Audit/);
+  assert.doesNotMatch(svg, /<image|<script|foreignObject|data:image/);
+  for (const html of [adminAuditListView({data:page}),adminAuditDetailView({record}),adminAuditListView({error:'Unavailable'})]) {
+    assert.match(html, /aria-labelledby="admin-audit-title"/);
+    assert.match(html, /<img class="admin-audit-hero-art"[^>]*alt="" aria-hidden="true"/);
+    assert.match(html, /class="admin-audit-readonly" aria-label="Read-only history"/);
+    assert.match(html, /Read only<\/span>/);
+    assert.doesNotMatch(html, /Add Audit|Edit Audit|Delete Audit/);
+  }
 });
