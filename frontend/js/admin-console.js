@@ -410,11 +410,67 @@ export function adminUsersView({users,page,statistics=null,error=''}) {
  '</div>';
 }
 export function adminSettingsView({user,language='en'}) {
-  const lang=user?.preferredLanguage||language;
-  return header('ADMINISTRATION','Admin Settings','Manage your own administrator profile and language.')+
-    '<section class="card card-pad admin-settings-card"><form id="settings-form" class="form">'+
-    '<div class="field"><label for="settings-fullname">Full Name</label><input class="input" id="settings-fullname" name="fullName" autocomplete="name" maxlength="150" required value="'+esc(user?.fullName||'')+'"></div>'+
-    '<div class="field"><label for="settings-language">Preferred Language</label><select class="select" id="settings-language" name="preferredLanguage">'+
-    '<option value="en"'+(lang==='en'?' selected':'')+'>English</option><option value="ar"'+(lang==='ar'?' selected':'')+'>Arabic</option></select></div>'+
-    '<p class="admin-note">Account: '+esc(user?.email||'')+'</p><button class="btn btn-primary" type="submit">Save Changes</button></form></section>';
+  // These values come exclusively from the authenticated /api/users/me session.
+  const lang = ['en','ar'].includes(user?.preferredLanguage)
+    ? user.preferredLanguage : (['en','ar'].includes(language) ? language : 'en');
+  const fullName = esc(user?.fullName || 'Name unavailable');
+  const email = esc(user?.email || 'Email unavailable');
+  const roles = Array.isArray(user?.roles)
+    ? user.roles.map(role => String(role).replace(/^ROLE_/, '')).join(', ')
+    : '';
+  const status = user?.accountStatus ? String(user.accountStatus).replace(/_/g, ' ') : 'Unavailable';
+  // A neutral account symbol, never a hardcoded first-name initial.
+  const personIcon = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+    '<circle cx="32" cy="22" r="10"/><path d="M13 52c1-10 8.5-16 19-16s18 6 19 16"/></svg>';
+  const editIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="m4 16 10-10 4 4-10 10-5 1 1-5Z"/><path d="m12 8 4 4M16 4l2-2 4 4-2 2"/></svg>';
+  const saveIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M5 3h12l4 4v14H3V3h2Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg>';
+  return '<div class="admin-settings-view">' +
+    '<header class="admin-settings-hero" aria-labelledby="admin-settings-title">' +
+      '<div><span class="admin-settings-eyebrow">ACCOUNT &amp; PREFERENCES</span>' +
+      '<h1 id="admin-settings-title">Admin Settings</h1>' +
+      '<p>Manage your administrator profile and language from your secure account workspace.</p></div>' +
+      '<span class="admin-settings-hero-mark" aria-hidden="true">' + personIcon + '</span></header>' +
+    '<div class="admin-settings-layout"><div class="admin-settings-primary">' +
+      '<section class="admin-settings-panel" aria-labelledby="admin-settings-profile-title">' +
+        '<span class="admin-settings-panel-label">MY ACCOUNT</span>' +
+        '<div class="admin-settings-profile-head"><span class="admin-settings-person" aria-hidden="true">' + personIcon + '</span>' +
+        '<div class="admin-settings-identity"><h2 id="admin-settings-profile-title">' + fullName + '</h2>' +
+        '<p>' + email + '</p></div></div>' +
+        '<div class="admin-settings-profile-meta">' +
+          '<div class="admin-settings-meta-item"><span>Account role</span><strong>' + esc(roles || 'Unavailable') + '</strong></div>' +
+          '<div class="admin-settings-meta-item"><span>Account status</span><strong>' + esc(status) + '</strong></div>' +
+        '</div></section>' +
+      '<section class="admin-settings-panel" aria-labelledby="admin-settings-personal-title">' +
+        '<div class="admin-settings-section-heading"><span class="admin-settings-section-icon" aria-hidden="true">' + editIcon + '</span>' +
+          '<div><h2 id="admin-settings-personal-title">Personal Information</h2>' +
+          '<p>Changes here affect your own account only.</p></div></div>' +
+        '<form id="settings-form" class="admin-settings-form">' +
+          '<div class="admin-settings-field"><label for="settings-fullname">Full Name</label>' +
+            '<input type="text" id="settings-fullname" name="fullName" autocomplete="name" maxlength="150" required value="' + esc(user?.fullName || '') + '" aria-describedby="settings-name-help">' +
+            '<p id="settings-name-help" class="admin-settings-hint">Use the name you want shown in your admin workspace.</p></div>' +
+          '<div class="admin-settings-field"><label for="settings-email">Email Address</label>' +
+            '<input type="email" id="settings-email" value="' + email + '" readonly aria-describedby="settings-email-help">' +
+            '<p id="settings-email-help" class="admin-settings-hint">Your sign-in email cannot be changed here.</p></div>' +
+          '<div class="admin-settings-field"><label for="settings-language">Preferred Language</label>' +
+            '<select id="settings-language" name="preferredLanguage">' +
+              '<option value="en"' + (lang === 'en' ? ' selected' : '') + '>English</option>' +
+              '<option value="ar"' + (lang === 'ar' ? ' selected' : '') + '>Arabic</option>' +
+            '</select></div>' +
+          '<p id="settings-feedback" class="admin-settings-feedback" role="status" aria-live="polite" hidden></p>' +
+          '<div class="admin-settings-form-actions">' +
+            '<button type="submit" id="settings-save" class="admin-settings-save">' + saveIcon + '<span data-settings-save-label>Save Changes</span></button>' +
+          '</div></form></section></div>' +
+      '<aside class="admin-settings-side" aria-label="Account information">' +
+        '<section class="admin-settings-panel"><span class="admin-settings-panel-label">YOUR ACCESS</span>' +
+          '<h2>Account Overview</h2><p class="admin-settings-summary-text">Details from your signed-in account.</p>' +
+          '<div class="admin-settings-detail"><span>Account ID</span><strong>' + esc(user?.userId ?? 'Unavailable') + '</strong></div>' +
+          '<div class="admin-settings-detail"><span>Language</span><strong>' + (lang === 'ar' ? 'Arabic' : 'English') + '</strong></div>' +
+          '<div class="admin-settings-detail"><span>Account status</span><strong>' + esc(status) + '</strong></div></section>' +
+        '<section class="admin-settings-panel admin-settings-privacy">' +
+          '<span class="admin-settings-panel-label">ACCOUNT SECURITY</span>' +
+          '<h2>Your permissions stay protected</h2>' +
+          '<p>This page updates your name and language only. Account roles, status and access controls are managed separately and enforced by the backend.</p>' +
+        '</section></aside></div></div>';
 }

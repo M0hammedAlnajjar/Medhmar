@@ -104,11 +104,14 @@ export async function checkAdminRaces(browser, origin) {
         height: hero.getBoundingClientRect().height
       };
     });
-    assert.ok(!bannerStyles.background.includes("url("), "banner uses only the brown gradient background");
-    assert.equal(await page.locator(".admin-race-hero img, .admin-race-hero svg").count(), 0, "banner illustration is removed");
-    assert.equal(bannerStyles.headingColor, "rgb(255, 255, 255)", "title is white on the dark hero");
-    assert.equal(bannerStyles.cornerRadius, "14px", "hero corners match the Audit Logs design");
-    assert.ok(bannerStyles.height >= 165 && bannerStyles.height <= 225, "hero proportions match other admin banners");
+    assert.ok(!bannerStyles.background.includes("url("), "hero uses a separate decorative image instead of a CSS background");
+    const raceArtwork = page.locator(".admin-race-hero img.admin-race-hero-art");
+    assert.equal(await raceArtwork.count(), 1, "approved Race Management SVG artwork is shown");
+    assert.equal(await raceArtwork.getAttribute("src"), "/assets/admin-races/hero.svg");
+    assert.equal(await raceArtwork.getAttribute("alt"), "", "hero artwork stays decorative for assistive technology");
+    assert.equal(bannerStyles.headingColor, "rgb(38, 30, 24)", "approved illustrated hero uses dark heading on light background");
+    assert.equal(bannerStyles.cornerRadius, "0px", "illustrated race hero has no card border");
+    assert.ok(bannerStyles.height >= 285 && bannerStyles.height <= 400, "illustrated race hero has room for the new artwork");
     for (const width of [1920, 1672, 1440, 1024, 870, 768, 651, 650, 390, 320]) {
       await page.setViewportSize({ width, height: 941 });
       const layout = await page.locator(".admin-race-hero").evaluate(hero => {
