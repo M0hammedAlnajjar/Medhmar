@@ -102,7 +102,7 @@ test('published cards show only API data and use safe fallback illustration',()=
  assert.match(html,/href="\/challenges\/42"/);
  assert.doesNotMatch(html,/<script>|src="javascript:|Desert Speed Challenge|Winter Racing Cup/);
  const empty=publishedChallengeCards([]);
- assert.match(empty,/More published challenges will appear here/);
+ assert.match(empty,/More challenges will appear here/);
  assert.doesNotMatch(empty,/broadcast-published-card|Desert Speed Challenge/);
 });
 test('live standby exposes a working fullscreen action and no fictional player actions',()=>{

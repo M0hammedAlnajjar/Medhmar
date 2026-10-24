@@ -183,15 +183,15 @@ try {
   assert.equal(await page.locator('#refresh-challenges').count(),0,
     'refresh button is shown only when challenge loading fails');
   assert.match(await page.locator('.broadcast-voting').innerText(),/Al Barq|Shaheen/);
-  assert.match(await page.locator('.broadcast-voting').innerText(),/0 votes/);
+  assert.match(await page.locator('.broadcast-voting').innerText(),/0\s+votes/);
   assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/744 votes|456 votes|1.2K watching|LIVE PREVIEW|Sample event/);
   await page.locator('.broadcast-candidate .vote-btn').first().click();
-  await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
+  await page.waitForFunction(()=>document.querySelector('.broadcast-big-count')?.textContent==='1');
   assert.equal(recordedChallengeVotes,1,'real featured vote must call backend');
   assert.equal(mutations.filter(path=>path.includes('/api/challenges/42/votes')).length,1);
   await page.reload();
   await page.locator('.broadcast-live-data').waitFor();
-  await page.waitForFunction(()=>document.querySelector('.broadcast-voting')?.innerText.includes('1 votes'));
+  await page.waitForFunction(()=>document.querySelector('.broadcast-big-count')?.textContent==='1');
   assert.equal(recordedChallengeVotes,1,'recorded vote must persist after a reload');
   // Clear the expected authenticated vote before testing read-only page controls.
   mutations.length=0;
