@@ -39,25 +39,45 @@ export async function refreshCsrf() {
   return csrf;
 }
 
+// The backend distinguishes expired CSRF tokens from role-based authorization failures.
+// Previous backend versions used a combined message for both cases.
+function isCsrfRejection(response, data) {
+  return response.status === 403 && (
+    data?.code === "INVALID_CSRF" ||
+    data?.message === "Access denied or CSRF token missing/invalid."
+  );
+}
+
 export async function api(path, options = {}) {
   const method = (options.method || "GET").toUpperCase();
   const modifying = !["GET", "HEAD", "OPTIONS"].includes(method);
-  const headers = new Headers(options.headers || {});
-  if (modifying) {
-    if (!csrf) await refreshCsrf();
-    headers.set(csrf.headerName, csrf.token);
-    const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
-    if (options.body && !isFormData && !headers.has("Content-Type")) {
-      headers.set("Content-Type", "application/json");
+  const send = async () => {
+    const headers = new Headers(options.headers || {});
+    if (modifying) {
+      if (!csrf) await refreshCsrf();
+      headers.set(csrf.headerName, csrf.token);
+      const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+      if (options.body && !isFormData && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+      }
     }
+    return fetchBackend(path, {
+      ...options,
+      method,
+      headers,
+      credentials: "include",
+    });
+  };
+
+  let response = await send();
+  let data = await parse(response);
+  if (modifying && isCsrfRejection(response, data)) {
+    // A login or another tab may have rotated the session's token.
+    // Only an explicit CSRF rejection is safe to retry, and only once.
+    csrf = null;
+    response = await send();
+    data = await parse(response);
   }
-  const response = await fetchBackend(path, {
-    ...options,
-    method,
-    headers,
-    credentials: "include",
-  });
-  const data = await parse(response);
   if (!response.ok) {
     const message = data?.message || data?.code || `Request failed (${response.status})`;
     const error = new Error(message);

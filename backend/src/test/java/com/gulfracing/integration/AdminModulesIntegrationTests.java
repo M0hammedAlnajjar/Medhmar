@@ -75,9 +75,19 @@ class AdminModulesIntegrationTests extends IntegrationSupport {
             .andExpect(status().isUnauthorized());
         mvc.perform(put(endpoint).with(csrf()).session(login(creator.email()))
                 .contentType("application/json").content(jsonBody))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.code").value("FORBIDDEN"));
 
         var adminSession = admin();
+        mvc.perform(put(endpoint).session(adminSession)
+                .contentType("application/json").content(jsonBody))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.code").value("INVALID_CSRF"));
+        mvc.perform(put(endpoint).with(csrf().useInvalidToken()).session(adminSession)
+                .contentType("application/json").content(jsonBody))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.code").value("INVALID_CSRF"));
+
         mvc.perform(put(endpoint).with(csrf()).session(adminSession)
                 .contentType("application/json").content(jsonBody))
             .andExpect(status().isOk())
