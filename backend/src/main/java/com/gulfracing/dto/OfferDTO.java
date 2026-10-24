@@ -36,6 +36,9 @@ public class OfferDTO {
     @Positive(message = "Listing id must be positive")
     private Long listingId;
 
+    // Response-only display name of the buyer. No contact details are exposed.
+    private String buyerName;
+
     public static OfferDTO convertToDTO(Offer entity) {
         return OfferDTO.builder()
                 .offerId(entity.getOfferId())
@@ -45,6 +48,7 @@ public class OfferDTO {
                 .respondedAt(entity.getRespondedAt())
                 .userId(entity.getUser() != null ? entity.getUser().getUserId() : null)
                 .listingId(entity.getMarketplace() != null ? entity.getMarketplace().getListingId() : null)
+                .buyerName(entity.getUser() != null ? entity.getUser().getFullName() : null)
                 .build();
     }
 

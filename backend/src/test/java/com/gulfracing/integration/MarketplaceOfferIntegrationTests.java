@@ -610,10 +610,16 @@ class MarketplaceOfferIntegrationTests extends IntegrationSupport {
                 "ACCEPTED"
         );
 
-        // Seller can view offers belonging to their listing.
+        // Seller can view offers belonging to their listing, with the buyer's display name only.
         mvc.perform(get("/offer/listing/" + listingId)
                         .session(sellerSession))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .jsonPath("$[0].offerId").value(offerId))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .jsonPath("$[0].buyerName").value("Test User"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .jsonPath("$[0].email").doesNotExist());
 
         // Buyer cannot view all offers on seller's listing.
         mvc.perform(get("/offer/listing/" + listingId)
