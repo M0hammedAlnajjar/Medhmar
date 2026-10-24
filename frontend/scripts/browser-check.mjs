@@ -572,7 +572,7 @@ try {
         };
       });
       assert.equal(fit.width,254,active+' sidebar width must remain fixed at '+height+'px height');
-      assert.equal(fit.links,11,'all admin navigation links are present');
+      assert.equal(fit.links,12,'all admin navigation links are present');
       if(height===900) {
         assert.ok(await page.locator('.admin-sidebar-nav a').first().evaluate(el=>Number.parseFloat(getComputedStyle(el).fontSize)>=15),
           'normal laptop sidebar text must stay at least 15px');
