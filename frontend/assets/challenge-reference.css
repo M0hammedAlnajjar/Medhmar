@@ -9,7 +9,7 @@
   width:100%;
   max-width:none;
   margin:0 auto;
-  padding:48px clamp(20px,3.7vw,64px) 64px;
+  padding:clamp(48px,4.6vw,88px) clamp(20px,3.7vw,64px) 32px;
   background:
     radial-gradient(ellipse 65% 27% at 52% 8%,#fffdfb 20%,rgba(252,246,237,.18) 100%),
     linear-gradient(180deg,#fdfaf6 0%,#fffdf9 74%,#fdfaf6 100%);
@@ -81,7 +81,7 @@
   margin:0 0 1px;
   color:#16100d;
   font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(26px,2.35vw,36px);
+  font-size:clamp(26px,2.35vw,42px);
   font-weight:700;
   line-height:1.18;
   letter-spacing:-.035em;
@@ -200,7 +200,7 @@
   margin:2px 0 2px;
   color:#5d1111;
   font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(21px,1.6vw,27px);
+  font-size:clamp(21px,1.6vw,30px);
   font-weight:700;
   line-height:1.28;
   letter-spacing:-.025em;
@@ -224,7 +224,7 @@
   gap:8px;
   width:100%;
   max-width:none;
-  margin:43px 0 10px;
+  margin:clamp(43px,3.25vw,62px) 0 10px;
   min-width:0;
 }
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate,
@@ -249,7 +249,7 @@
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo{
   display:grid;
   place-items:center;
-  width:min(100%,150px);
+  width:min(100%,clamp(150px,11.2vw,215px));
   height:auto;
   aspect-ratio:1;
   margin:0 auto;
@@ -293,7 +293,7 @@
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-title h3{
   margin:0;
   font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(14px,1.45vw,19px);
+  font-size:clamp(14px,1.25vw,23px);
   font-weight:700;
   color:#1b1411;
   line-height:1.14;
@@ -317,13 +317,13 @@
   gap:0;
   align-items:center;
   justify-content:center;
-  margin:4px 0 9px;
+  margin:8px 0 15px;
   color:#15110f;
 }
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-big-count{
   display:block;
   color:#18120e;
-  font:800 clamp(22px,2vw,29px)/1.05 Arial,Helvetica,sans-serif;
+  font:800 clamp(22px,2vw,36px)/1.05 Arial,Helvetica,sans-serif;
 }
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-count>span{
   font-size:10px;
@@ -345,7 +345,7 @@
   justify-content:center;
   gap:4px;
   width:100%;
-  min-height:29px;
+  min-height:38px;
   margin-top:auto;
   padding:7px 5px;
   border:0;
@@ -366,7 +366,7 @@
   cursor:pointer;
 }
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{
-  top:clamp(74px,6.2vw,85px);
+  top:clamp(74px,6.2vw,119px);
   left:50%;
   width:38px;
   height:38px;
@@ -390,13 +390,15 @@
   font-size:9px;
   line-height:1.4;
   color:#60554c;
+  padding-right:145px;
+  min-height:14px;
   text-align:left;
 }
 .app-shell:has(.broadcast-preview) .broadcast-voting .broadcast-vote-note svg{color:#e53233}
 .app-shell:has(.broadcast-preview) .broadcast-challenge-link{
   display:inline-flex;
   align-self:flex-end;
-  margin:3px 0 0;
+  margin:-14px 0 0;
   color:#e32122;
   font-size:10px;
   font-weight:700;
@@ -463,8 +465,8 @@
   position:absolute;
   right:30px;
   bottom:0;
-  width:98px;
-  height:77px;
+  width:140px;
+  height:106px;
   opacity:.12;
   pointer-events:none;
   background:url('/assets/challenge-camel-placeholder.svg') center/contain no-repeat;
@@ -506,6 +508,8 @@
  .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{top:62px;width:32px;height:32px}
  .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs::after{font-size:19px}
  .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-title h3{font-size:14px}
+ .app-shell:has(.broadcast-preview) .broadcast-voting .broadcast-vote-note{padding-right:0}
+ .app-shell:has(.broadcast-preview) .broadcast-challenge-link{margin-top:6px}
  .app-shell:has(.broadcast-preview) .broadcast-published-heading h2{font-size:23px}
  .app-shell:has(.broadcast-preview) .broadcast-upcoming-empty{
   padding:81px 5px 10px;

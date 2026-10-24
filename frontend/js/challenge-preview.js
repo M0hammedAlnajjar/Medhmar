@@ -66,7 +66,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
   return '<article class="broadcast-candidate'+(i?' is-alternate':'')+'">'+picture+'<div class="broadcast-candidate-content">'+
     '<div class="broadcast-candidate-title"><h3>'+escapeHtml(camel.name||'Unnamed camel')+'</h3>'+
     '<span>#'+escapeHtml(camel.camelId)+'</span></div>'+
-    '<div class="broadcast-count'+(camel.voteCount===0?' is-zero':'')+'"><b class="broadcast-big-count">'+safeCount(camel.voteCount)+'</b><span>'+safeCount(camel.voteCount)+' votes</span><strong>'+
+    '<div class="broadcast-count'+(camel.voteCount===0?' is-zero':'')+'"><b class="broadcast-big-count">'+safeCount(camel.voteCount)+'</b><span aria-label="'+safeCount(camel.voteCount)+' votes">votes</span><strong>'+
     (share===null?'—':share.toFixed(0)+'%')+'</strong></div>'+
     '<div class="broadcast-meter" role="meter" aria-label="Vote share for '+escapeHtml(camel.name||'Camel')+
     '" aria-valuemin="0" aria-valuemax="100" '+(share===null?'':'aria-valuenow="'+share+'"')+
@@ -81,7 +81,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
    '<div class="broadcast-player" id="broadcast-player">'+
     '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR <span aria-hidden="true">›</span> CHALLENGE #'+escapeHtml(id)+'</div>'+
       '<h1>'+escapeHtml(String(challenge.title||'').trim().length>2?challenge.title:'Camel Racing Challenge')+'</h1>'+
-      '<p>Support your champion. Results come from the Medhmar platform.</p>'+
+      '<p>Support your champion.</p>'+
       '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
       '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
       '<div class="broadcast-demo-tag" aria-label="Live-style demonstration; no actual livestream"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div></div>'+
@@ -101,7 +101,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
     '<div class="broadcast-voting-status"><span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
     '<div class="broadcast-contenders'+(camels.length===2?' is-duel':'')+'" aria-label="Competing camels">'+candidateCards+
       (camels.length===2?'<span class="broadcast-vs" aria-hidden="true">VS</span>':'')+'</div>'+
-    '<p class="broadcast-vote-note">'+ico('check',15)+'Votes shown here are recorded results, not simulated votes.</p>'+
+    '<p class="broadcast-vote-note">'+ico('check',15)+'Recorded results from Medhmar.</p>'+
     '<a data-link class="broadcast-challenge-link" href="/challenges/'+safeId(id)+'">View challenge details →</a>'+
   '</aside></div></section>';
 }
@@ -208,7 +208,7 @@ export function publishedChallengeCards(challenges=[]) {
      '<strong>More challenges on the way</strong>'+
      '<p>Additional recorded competitions will appear here when the platform publishes them. Only real challenge results are shown.</p></div></aside>':'')+
    '</div>':
-   '<div class="broadcast-upcoming-empty">The featured challenge is shown above. More published challenges will appear here when available.</div>')+
+   '<div class="broadcast-upcoming-empty">More challenges will appear here when available.</div>')+
    '</section>';
 }
 
