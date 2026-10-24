@@ -1421,3 +1421,178 @@
  .app-shell:has(.broadcast-preview) .broadcast-stage{min-height:300px}
  .app-shell:has(.broadcast-preview) .broadcast-stage .broadcast-toolbar-note{font-size:9px}
 }
+
+/* Head-to-head champion voting: two real API contenders and a quiet Omani
+   heritage SVG. Decoration never substitutes data or alters vote permissions. */
+.app-shell:has(.broadcast-preview) .broadcast-voting{
+ background-color:#fffaf3;
+ background-image:linear-gradient(180deg,rgba(255,252,247,.76),rgba(255,252,247,.94)),
+   url('/assets/challenge-vote-heritage.svg');
+ background-size:100% 100%,cover;
+ background-position:center,center top;
+ background-repeat:no-repeat;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders{
+ position:relative;
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:18px;
+ align-items:stretch;
+ min-width:0;
+ width:100%;
+ margin:13px 0 5px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate{
+ display:flex;
+ flex-direction:column;
+ justify-content:flex-start;
+ gap:10px;
+ min-width:0;
+ margin:0;
+ padding:0;
+ border:0;
+ border-radius:0;
+ background:transparent;
+ box-shadow:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate:last-of-type,
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate:not(.is-alternate){
+ border:0;
+ background:transparent;
+ box-shadow:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate::before{
+ display:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo{
+ display:block;
+ width:100%;
+ height:clamp(120px,11.6vw,180px);
+ min-width:0;
+ border:1px solid #d7ba93;
+ border-radius:11px;
+ object-fit:cover;
+ object-position:center 36%;
+ background:#f1e5d2;
+ align-self:stretch;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-photo-placeholder{
+ display:grid;
+ place-items:center;
+ padding:9px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-photo-placeholder img{
+ display:block;
+ width:86%;
+ height:86%;
+ max-width:100%;
+ max-height:100%;
+ object-fit:contain;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-fallback-image{
+ object-fit:contain;
+ padding:9px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-content{
+ display:flex;
+ flex-direction:column;
+ align-items:stretch;
+ justify-content:flex-start;
+ flex:1;
+ min-width:0;
+ text-align:center;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-title{
+ flex-direction:column;
+ justify-content:center;
+ align-items:center;
+ gap:3px;
+ min-height:44px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-title h3{
+ font-size:clamp(14px,1.13vw,18px);
+ line-height:1.2;
+ overflow-wrap:anywhere;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-title>span{
+ font-size:10px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-count{
+ display:flex;
+ justify-content:center;
+ gap:8px;
+ flex-wrap:wrap;
+ margin:7px 0;
+ font-size:11px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-meter{
+ height:6px;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate button,
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate .broadcast-vote-link{
+ margin-top:auto;
+ min-height:43px;
+ width:100%;
+ padding:9px 6px;
+ font-size:11px;
+ white-space:normal;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{
+ position:absolute;
+ top:clamp(60px,5.8vw,90px);
+ left:50%;
+ transform:translate(-50%,-50%);
+ z-index:2;
+ display:grid;
+ place-items:center;
+ width:42px;
+ height:42px;
+ border:3px solid #fff9ee;
+ border-radius:50%;
+ background:#9e2435;
+ color:#fff;
+ font:800 13px/1 Arial,sans-serif;
+ letter-spacing:.025em;
+ box-shadow:0 3px 9px rgba(87,33,24,.18);
+ pointer-events:none;
+}
+@media(max-width:1250px){
+ .app-shell:has(.broadcast-preview) .broadcast-contenders{gap:14px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo{height:134px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{top:67px}
+}
+@media(max-width:970px){
+ .app-shell:has(.broadcast-preview) .broadcast-contenders{
+  width:min(100%,640px);
+  margin-inline:auto;
+  gap:24px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo{height:185px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{top:92px}
+}
+@media(max-width:660px){
+ .app-shell:has(.broadcast-preview) .broadcast-contenders{gap:15px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo{
+  height:clamp(116px,34vw,175px);
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{
+  top:clamp(58px,17vw,87px);
+  width:36px;
+  height:36px;
+  font-size:11px;
+ }
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-title h3{
+  font-size:15px;
+ }
+}
+@media(max-width:390px){
+ .app-shell:has(.broadcast-preview) .broadcast-contenders{gap:11px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo{height:116px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-vs{top:58px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-count{gap:4px;font-size:10px}
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate button,
+ .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate .broadcast-vote-link{
+  font-size:10px;
+  min-height:46px;
+ }
+}
