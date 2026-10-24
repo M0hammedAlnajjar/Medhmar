@@ -1292,6 +1292,7 @@ function bind(){
    createChallenge:async payload=>{await adminModulesApi.createChallenge(payload);toast('Challenge draft created.','success');await render();},
    updateChallenge:async(id,payload)=>{await adminModulesApi.updateChallenge(id,payload);toast('Challenge updated.','success');await render();},
    addCamel:async(id,camelId)=>{await adminModulesApi.addChallengeCamel(id,camelId);toast('Camel attached to challenge.','success');await render();},
+   updateStream:async(id,url)=>{await adminModulesApi.updateStream(id,url);toast(url?'Broadcast link saved.':'Broadcast link removed.','success');await render();},
    transitionChallenge:async(action,id)=>{
      if(action==='open')await adminModulesApi.openChallenge(id);
      else await adminModulesApi.closeChallenge(id);

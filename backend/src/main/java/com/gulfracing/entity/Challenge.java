@@ -36,6 +36,9 @@ public class Challenge {
     @Column(name = "status", nullable = false, length = 20)
     private ChallengeStatus status = ChallengeStatus.DRAFT;
 
+    @Column(name = "stream_url", length = 500)
+    private String streamUrl;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;

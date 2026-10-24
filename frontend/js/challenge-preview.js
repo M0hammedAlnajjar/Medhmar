@@ -17,6 +17,23 @@ const validPhoto = value => typeof value === 'string' && (
   /^https?:\/\/[^\s]+$/i.test(value) ||
   /^\/(?:assets|uploads)\/[a-z0-9/_-]+\.(?:webp|png|jpe?g)$/i.test(value)
 );
+// Never interpolate arbitrary admin-provided URLs into an iframe. Only YouTube IDs pass.
+const youtubeVideoId = value => {
+  if(typeof value !== 'string' || !value.trim())return null;
+  try {
+    const url=new URL(value);
+    if(url.protocol!=='https:'||url.username||url.password||url.port||url.hash)return null;
+    const host=url.hostname.toLowerCase();
+    let id=null;
+    if(host==='youtu.be'||host==='www.youtu.be')id=url.pathname.slice(1);
+    else if(['youtube.com','www.youtube.com','m.youtube.com'].includes(host)){
+      if(url.pathname==='/watch')id=url.searchParams.get('v');
+      else if(/^\/(live|embed|shorts)\/[A-Za-z0-9_-]{11}$/.test(url.pathname))
+        id=url.pathname.split('/')[2];
+    }
+    return /^[A-Za-z0-9_-]{11}$/.test(id||'')?id:null;
+  }catch { return null; }
+};
 const votingOpen = challenge => challenge?.status === 'OPEN' &&
   Date.now() >= new Date(challenge.opensAt).getTime() &&
   Date.now() < new Date(challenge.closesAt).getTime();
@@ -53,6 +70,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
  const id=challenge.challengeId;
  const totalVotes=safeCount(challenge.totalVotes);
  const badge=featureBadge(challenge);
+ const embedId=youtubeVideoId(challenge.streamUrl);
  const candidateCards=camels.length?camels.map((camel,i)=>{
   const share=percent(camel.votePercent);
   // Use the registered photo from the same challenge record as the admin view.
@@ -86,7 +104,10 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
       '<p>Support your champion.</p>'+
       '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
       '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
-      '<div class="broadcast-demo-tag" aria-label="Live-style demonstration; no actual livestream"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div></div>'+
+      (embedId?'<div class="broadcast-demo-tag broadcast-stream-tag" aria-label="Broadcast video link configured"><strong>'+ico('radio',15)+' VIDEO</strong><span>LINKED</span></div>':
+      '<div class="broadcast-demo-tag" aria-label="Live-style demonstration; no actual livestream"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div>')+'</div>'+
+    (embedId?'<div class="broadcast-stage broadcast-stage-connected" role="group" aria-label="Embedded YouTube broadcast">'+
+      '<iframe class="broadcast-stream-frame" src="https://www.youtube-nocookie.com/embed/'+embedId+'?rel=0" title="Medhmar challenge broadcast" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>':
     '<div class="broadcast-stage" role="group" aria-label="Black livestream placeholder. Demo only; no live video is connected.">'+
       '<div class="broadcast-stage-center" aria-hidden="true"><span class="broadcast-stage-dot"></span><strong>Live</strong></div>'+
       '<div class="broadcast-demo-player" role="group" aria-label="Broadcast placeholder controls">'+
@@ -95,7 +116,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
         '<div class="broadcast-photo-actions"><button type="button" data-preview-fullscreen aria-label="Expand broadcast preview">'+ico('expand',16)+' Full screen</button></div>'+
        '</div>'+
       '</div>'+
-    '</div>'+
+    '</div>')+
    '</div>'+
   '</div><aside class="broadcast-voting">'+
     '<div class="broadcast-voting-title"><h2>'+(challenge.status==='CLOSED'?'Challenge results':'Choose your champion')+'</h2></div>'+
@@ -233,5 +254,5 @@ export function bindBroadcastPreview(root) {
    img.classList.add('broadcast-camel-fallback-image');
   });
  });
- // The video canvas is intentionally inert until a real, authorized stream is configured.
+ // The placeholder is intentionally inert until an administrator configures a supported video.
 }

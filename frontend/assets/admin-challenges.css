@@ -92,3 +92,13 @@
     margin-top: 18px;
   }
 }
+
+/* Compact stream management stays within each existing challenge card. */
+.admin-console .mhch-stream-manager{margin:12px 0 0;padding:12px 14px;border-top:1px solid #e9e1d7}
+.admin-console .mhch-stream-manager>summary{cursor:pointer;font-size:13px;font-weight:750;color:#7c2730;list-style-position:inside}
+.admin-console .mhch-stream-form{display:grid;gap:10px;margin-top:12px}
+.admin-console .mhch-stream-form label{display:grid;gap:6px;font-size:12px;font-weight:700;color:#403429}
+.admin-console .mhch-stream-form input{width:100%;min-width:0;padding:11px 12px;border:1px solid #d3c8ba;border-radius:8px;background:#fff;color:#211d1a;font-size:13px}
+.admin-console .mhch-stream-form input:focus-visible{outline:2px solid #ad2635;outline-offset:2px}
+.admin-console .mhch-stream-hint{margin:0;color:#766c61;font-size:11px;line-height:1.5}
+.admin-console .mhch-stream-form button{justify-self:start}

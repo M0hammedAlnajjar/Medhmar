@@ -11,6 +11,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.*;
+import java.net.URI;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +42,43 @@ public class ChallengeService {
         apply(challenge, request);
         return response(challenge);
     }
+    // Stream link may be added or cleared after publication, but only via /api/admin.
+    @Transactional
+    public ChallengeResponse updateStream(Long id, String streamUrl) {
+        var challenge = locked(id);
+        String value = streamUrl == null ? "" : streamUrl.strip();
+        if (!value.isEmpty() && (value.length() > 500 || !isSupportedStream(value)))
+            throw ApiException.badRequest("Use a valid HTTPS YouTube video or live stream URL.");
+        challenge.setStreamUrl(value.isEmpty() ? null : value);
+        return response(challenge);
+    }
+
+    private boolean isSupportedStream(String value) {
+        try {
+            URI uri = URI.create(value);
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getRawUserInfo() != null
+                || uri.getPort() != -1 || uri.getRawFragment() != null) return false;
+            String host = Optional.ofNullable(uri.getHost()).orElse("").toLowerCase(Locale.ROOT);
+            String path = uri.getPath();
+            String id;
+            if ("youtu.be".equals(host) || "www.youtu.be".equals(host)) {
+                id = path.startsWith("/") ? path.substring(1) : "";
+            } else if (Set.of("youtube.com", "www.youtube.com", "m.youtube.com").contains(host)) {
+                if ("/watch".equals(path)) {
+                    String query = uri.getRawQuery();
+                    id = query == null ? "" : Arrays.stream(query.split("&"))
+                        .filter(param -> param.startsWith("v=")).findFirst()
+                        .map(param -> param.substring(2)).orElse("");
+                } else if (path.matches("^/(live|embed|shorts)/[A-Za-z0-9_-]{11}$")) {
+                    id = path.substring(path.lastIndexOf('/') + 1);
+                } else return false;
+            } else return false;
+            return id.matches("[A-Za-z0-9_-]{11}");
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
     @Transactional
     public ChallengeResponse addCamel(Long id, Long camelId, Long actorId) {
         var challenge = managedDraft(id, actorId);
@@ -169,6 +207,7 @@ public class ChallengeService {
         if (effectiveStatus == ChallengeStatus.OPEN && !clock.instant().isBefore(challenge.getClosesAt()))
             effectiveStatus = ChallengeStatus.CLOSED;
         return new ChallengeResponse(challenge.getChallengeId(), challenge.getTitle(), challenge.getOpensAt(),
-            challenge.getClosesAt(), effectiveStatus, challenge.getCreator().getUserId(), total, results);
+            challenge.getClosesAt(), effectiveStatus, challenge.getCreator().getUserId(), total, results,
+            challenge.getStreamUrl());
     }
 }
