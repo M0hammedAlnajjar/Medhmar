@@ -278,6 +278,27 @@ try {
       ' '+challengeHeaderMobile[selector][key]+' vs '+homeHeaderMobile[selector][key]);
   }
 
+  // Registered photos and short admin titles must survive the public presentation.
+  const photoRecord={challengeId:42,title:'a',status:'OPEN',
+    opensAt:new Date(Date.now()-3600000).toISOString(),
+    closesAt:new Date(Date.now()+86400000).toISOString(),totalVotes:0,
+    camels:[{camelId:1,name:'Registered first',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:0,votePercent:0},
+      {camelId:2,name:'Registered second',photoUrl:'/assets/mock-camels/camel-4.jpg',voteCount:0,votePercent:0}]};
+  const photoRoute=route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content:[photoRecord],page:0,size:20,totalPages:1,totalElements:1})});
+  await page.route('**/api/challenges?*',photoRoute);
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('http://localhost:'+port+'/challenges');
+  await page.locator('.broadcast-live-data').waitFor();
+  assert.equal(await page.locator('.broadcast-heading h1').innerText(),'a');
+  const registeredPhotos=page.locator('img.broadcast-camel-photo');
+  assert.equal(await registeredPhotos.count(),2);
+  await page.waitForFunction(()=>[...document.querySelectorAll('img.broadcast-camel-photo')].every(img=>img.complete&&img.naturalWidth>0));
+  assert.equal(await registeredPhotos.nth(1).getAttribute('src'),photoRecord.camels[1].photoUrl);
+  assert.equal(await registeredPhotos.nth(1).evaluate(img=>getComputedStyle(img).transform),'none');
+  assert.equal(await registeredPhotos.nth(1).evaluate(img=>getComputedStyle(img).objectFit),'cover');
+  await page.screenshot({path:'test-results/challenges-registered-photos.png'});
+  await page.unroute('**/api/challenges?*',photoRoute);
+
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://localhost:${port}/training`);
   await page.locator('.training-journal').waitFor();
