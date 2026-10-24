@@ -22,6 +22,7 @@ import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
 import { adminRacesView, bindAdminRaces } from './admin-races.js';
 import { adminMarketplaceView, bindAdminMarketplace } from './admin-marketplace.js';
+import { receivedOffersSection } from './received-offers.js';
 import { demo } from './data.js';
 import { authApi, challengeApi, adminApi, adminModulesApi, adminHealthApi, adminMarketplaceApi, raceCardApi, trainingApi, camelApi, marketplaceApi, offerApi, agreementApi, adminAuditApi, pedigreeApi, organizationApi, tourismApi } from './api.js';
 import { GENDERS, CAMEL_STATUSES, buildQuery, hasAnyRole, canManageCamels, fmtOmr, fmtDate, statusTone, isHttpUrl, isSafeImageSrc, isFullOwner, toCamelPayload, toListingPayload, toOfferCreatePayload, toOfferUpdatePayload } from './format.js';
@@ -693,7 +694,7 @@ const marketScreen = () => scr('/marketplace', marketTabs('/marketplace'), 'Mark
   title: 'Marketplace', sub: 'Discover camels listed for sale. Prices in Omani Rial (OMR).',
   body: marketplaceBrowse(d) + pager(d.page),
 }));
-const listingTable = (listings, camels, withActions) => `<div class="table-wrap"><table><thead><tr><th>Camel</th><th>Asking price</th><th>Status</th><th>Listed</th><th>Description</th>${withActions ? '<th>Actions</th>' : ''}</tr></thead><tbody>${listings.map(l => { const c = camels[l.camelId]; return `<tr><td><a href="/camels/${l.camelId}/profile" data-link><strong>${esc(c?.name || `Camel #${l.camelId}`)}</strong></a></td><td>${fmtOmr(l.askingPriceOmr)}</td><td>${sb(l.status)}</td><td>${fmtDate(l.createdAt)}</td><td>${esc(l.description || '')}</td>${withActions ? `<td class="table-actions">${l.status === 'AVAILABLE' ? `<a class="small-btn" href="/marketplace/${l.listingId}" data-link>Open</a> <a class="small-btn" href="/marketplace/${l.listingId}/edit" data-link>Edit</a> <button class="small-btn" data-act="cancel-listing" data-id="${l.listingId}">Cancel</button>` : '—'}</td>` : ''}</tr>`; }).join('')}</tbody></table></div>`;
+const listingTable = (listings, camels, withActions) => `<div class="table-wrap"><table><thead><tr><th>Camel</th><th>Asking price</th><th>Status</th><th>Listed</th><th>Description</th>${withActions ? '<th>Actions</th>' : ''}</tr></thead><tbody>${listings.map(l => { const c = camels[l.camelId]; return `<tr><td><a href="${withActions && l.status === 'AVAILABLE' ? `/marketplace/${l.listingId}` : `/camels/${l.camelId}/profile`}" data-link><strong>${esc(c?.name || `Camel #${l.camelId}`)}</strong></a></td><td>${fmtOmr(l.askingPriceOmr)}</td><td>${sb(l.status)}</td><td>${fmtDate(l.createdAt)}</td><td>${esc(l.description || '')}</td>${withActions ? `<td class="table-actions">${l.status === 'AVAILABLE' ? `<a class="small-btn" href="/marketplace/${l.listingId}" data-link>View offers</a> <a class="small-btn" href="/marketplace/${l.listingId}/edit" data-link>Edit</a> <button class="small-btn" data-act="cancel-listing" data-id="${l.listingId}">Cancel</button>` : '—'}</td>` : ''}</tr>`; }).join('')}</tbody></table></div>`;
 const myListingsScreen = () => scr('/marketplace', marketTabs('/marketplace/my-listings'), 'My Listings', d => ({
   title: 'My Listings', sub: 'Listings you created, including sold and cancelled ones.',
   actions: canManageCamels(state.user) ? '<a class="btn btn-primary" href="/marketplace/new" data-link>+ Create Listing</a>' : '',
@@ -716,7 +717,7 @@ const offerRows = (offers, withListing) => `<div class="table-wrap"><table><thea
 const listingScreen = () => scr('/marketplace', marketTabs(''), 'Listing', d => {
   const l = d.listing, c = d.camel, open = l.status === 'AVAILABLE';
   let side = '';
-  if (d.seller) side = `<section class="card card-pad section"><h2>Offers received</h2>${Array.isArray(d.offers) ? (d.offers.length ? offerRows(d.offers, false) : '<p class="form-help">No offers yet.</p>') : errorCard({ message: d.offers?.error || 'Offers unavailable.' })}<p class="form-help">Accepting an offer sells the camel and transfers ownership to the buyer. Other pending offers are declined automatically.</p></section>`;
+  if (d.seller) side = receivedOffersSection(d.offers, { badge: sb });
   const buyer = !d.mock && !d.seller && open ? (!signedIn() ? '<a class="btn btn-primary" href="/signin" data-link>Sign in to make an offer</a>' : d.myOffer ? `<div class="info-list">${row('Your pending offer', fmtOmr(d.myOffer.offeredPriceOmr))}</div><div class="actions"><button class="btn btn-secondary" data-act="edit-offer" data-id="${d.myOffer.offerId}" data-price="${esc(d.myOffer.offeredPriceOmr)}">Edit offer</button><button class="btn btn-danger" data-act="withdraw-offer" data-id="${d.myOffer.offerId}">Withdraw</button></div>` : `<button class="btn btn-primary" data-act="make-offer" data-listing="${l.listingId}" data-price="${esc(l.askingPriceOmr)}">Make an offer</button>`) : '';
   return {
     title: esc(c?.name || `Listing #${l.listingId}`), sub: `Asking ${fmtOmr(l.askingPriceOmr)}`, actions: d.seller && open ? `<a class="btn btn-secondary" href="/marketplace/${l.listingId}/edit" data-link>Edit listing</a><button class="btn btn-danger" data-act="cancel-listing" data-id="${l.listingId}" data-back="1">Cancel listing</button>` : '',
@@ -802,6 +803,12 @@ function terminationActionModal(id, approve = null) {
 }
 function offerModal(kind, id, price) {
   openModal(`<h2>${kind === 'add' ? 'Make an offer' : 'Edit your offer'}</h2><p>Enter your price in OMR. The seller can accept or decline.</p><form class="form" data-form="offer-${kind}" data-id="${id}"><div class="field"><label>Offered price (OMR)</label><input class="input" type="number" name="offeredPriceOmr" required min="0.001" step="any" value="${esc(price || '')}"></div><div class="modal-actions"><button class="btn btn-secondary" id="close-modal" type="button">Cancel</button><button class="btn btn-primary" type="submit">${kind === 'add' ? 'Submit offer' : 'Save'}</button></div></form>`);
+
+  const form = document.querySelector(
+      '#modal form[data-form^="offer-"]'
+  );
+
+  form?.addEventListener('submit', onMineSubmit);
 }
 function failure(err) { toast(err.message || 'Request failed.', 'error'); if (err.status === 401) go('/signin'); }
 const withQuery = (patch) => { const q = { ...qparams(), ...patch }; if (!q.page || q.page === '0') delete q.page; return location.pathname + buildQuery(q); };
