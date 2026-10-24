@@ -55,29 +55,32 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
  const badge=featureBadge(challenge);
  const candidateCards=camels.length?camels.map((camel,i)=>{
   const share=percent(camel.votePercent);
-  const picture=camelImage(camel,'broadcast-camel-photo');
+  // The reference uses a consistent, neutral silhouette in voting. Verified camel
+  // photos remain available in published challenge cards and detail screens.
+  const picture='<div class="broadcast-camel-photo broadcast-photo-placeholder" role="img" aria-label="Camel portrait placeholder for '+escapeHtml(camel.name||'Camel')+'">'+
+    '<img src="/assets/challenge-neutral-camel.svg" alt="" loading="lazy" decoding="async"></div>';
   const action=open&&signedIn
     ? '<button type="button" class="vote-btn" data-challenge="'+escapeHtml(id)+'" data-camel="'+escapeHtml(camel.camelId)+'">'+ico('check',15)+'Vote for '+escapeHtml(camel.name||'Camel')+'</button>'
     : open?'<a class="broadcast-vote-link" href="/signin" data-link>Sign in to vote</a>'
-    :'<button type="button" disabled>Voting unavailable</button>';
+    :'<button type="button" disabled>'+(challenge.status==='CLOSED'?'Voting closed':'Voting unavailable')+'</button>';
   return '<article class="broadcast-candidate'+(i?' is-alternate':'')+'">'+picture+'<div class="broadcast-candidate-content">'+
     '<div class="broadcast-candidate-title"><h3>'+escapeHtml(camel.name||'Unnamed camel')+'</h3>'+
     '<span>#'+escapeHtml(camel.camelId)+'</span></div>'+
-    '<div class="broadcast-count"><span>'+safeCount(camel.voteCount)+' votes</span><strong>'+
+    '<div class="broadcast-count'+(camel.voteCount===0?' is-zero':'')+'"><b class="broadcast-big-count">'+safeCount(camel.voteCount)+'</b><span>'+safeCount(camel.voteCount)+' votes</span><strong>'+
     (share===null?'—':share.toFixed(0)+'%')+'</strong></div>'+
     '<div class="broadcast-meter" role="meter" aria-label="Vote share for '+escapeHtml(camel.name||'Camel')+
     '" aria-valuemin="0" aria-valuemax="100" '+(share===null?'':'aria-valuenow="'+share+'"')+
     '><span style="width:'+(share===null?0:share)+'%"></span></div>'+action+'</div></article>';
  }).join(''):'<p>No participating camels are available.</p>';
- const votingNote=!open?(challenge.status==='CLOSED'?'Voting has closed. These are the recorded results.':
+ const votingNote=!open?(challenge.status==='CLOSED'?'Voting closed':
   'Voting will be available during the scheduled window.') :
-  signedIn?'One vote per account. Votes are saved to the platform and cannot be changed.':
+  signedIn?'Voting open · one recorded vote per account.':
   'Sign in to cast one recorded vote.';
  return '<section class="broadcast-preview broadcast-live-data" aria-label="Featured published challenge">'+
   '<div class="broadcast-grid"><div class="broadcast-left">'+
    '<div class="broadcast-player" id="broadcast-player">'+
     '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR <span aria-hidden="true">›</span> CHALLENGE #'+escapeHtml(id)+'</div>'+
-      '<h1>'+escapeHtml(challenge.title||'Camel Challenge')+'</h1>'+
+      '<h1>'+escapeHtml(String(challenge.title||'').trim().length>2?challenge.title:'Camel Racing Challenge')+'</h1>'+
       '<p>Support your champion. Results come from the Medhmar platform.</p>'+
       '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
       '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
@@ -93,7 +96,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
     '</div>'+
    '</div>'+
   '</div><aside class="broadcast-voting">'+
-    '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
+    '<div class="broadcast-voting-title"><h2>'+(challenge.status==='CLOSED'?'Challenge results':'Choose your champion')+'</h2></div>'+
     '<p>'+escapeHtml(votingNote)+'</p>'+
     '<div class="broadcast-voting-status"><span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
     '<div class="broadcast-contenders'+(camels.length===2?' is-duel':'')+'" aria-label="Competing camels">'+candidateCards+

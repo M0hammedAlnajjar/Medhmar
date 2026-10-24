@@ -102,25 +102,28 @@ try {
   }
   await page.setViewportSize({width:1440,height:900});
 
-  // The voting artwork must be an actual packaged image, not a CSS-only gradient.
-  const championArtwork=await page.locator('.broadcast-voting').evaluate(async panel=>{
-    const background=getComputedStyle(panel).backgroundImage;
-    const url=background.match(/url\(["']?([^"')]+)/)?.[1]||'';
-    if (!url) return {url,loaded:false};
-    const artwork=new Image();
-    artwork.src=new URL(url,location.href).href;
-    try {await artwork.decode()} catch {return {url,loaded:false}}
-    return {url,loaded:artwork.naturalWidth>0&&artwork.naturalHeight>0};
+  // The reference uses a frameless layout and two neutral circular SVG silhouettes.
+  const referenceArt=await page.locator('.broadcast-voting').evaluate(async panel=>{
+    const imgs=[...panel.querySelectorAll('.broadcast-camel-photo img')];
+    await Promise.all(imgs.map(img=>img.decode()));
+    return {
+      srcs:imgs.map(img=>img.getAttribute('src')),
+      widths:imgs.map(img=>img.naturalWidth),
+      border:getComputedStyle(panel).borderTopWidth
+    };
   });
-  assert.match(championArtwork.url,/\/assets\/challenge-vote-heritage\.svg/,'vote hero must reference packaged heritage SVG');
-  assert.ok(championArtwork.loaded,'champion voting backdrop must load successfully');
+  assert.equal(referenceArt.srcs.length,2);
+  assert.ok(referenceArt.srcs.every(src=>src==='/assets/challenge-neutral-camel.svg'));
+  assert.ok(referenceArt.widths.every(width=>width>0));
+  assert.equal(referenceArt.border,'0px');
 
   // The frame is black, displays Live, and never implies a connected stream.
   assert.equal(await page.locator('.broadcast-grid').count(),1);
   assert.equal(await page.locator('.broadcast-stage').count(),1);
   assert.equal(await page.locator('.broadcast-scene-image, [data-preview-image], [data-preview-motion]').count(),0);
   assert.match(await page.locator('.broadcast-stage-center').innerText(),/Live/);
-  assert.match(await page.locator('.broadcast-demo-tag').innerText(),/LIVE|DEMO/);
+  assert.equal(await page.locator('.broadcast-demo-tag').isVisible(),false,
+    'reference has no redundant LIVE DEMO chip above the stream');
   assert.match(await page.locator('.broadcast-toolbar-note').innerText(),/No live stream is connected/);
   assert.equal(await page.locator('.broadcast-stage').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(0, 0, 0)');
   assert.equal(await page.locator('[data-preview-fullscreen]').count(),1);
@@ -170,10 +173,10 @@ try {
       border:getComputedStyle(el).borderTopWidth,radius:getComputedStyle(el).borderTopLeftRadius,
       heightDelta:Math.abs(player.height-panel.height),frameWidth:frame.width};
   });
-  assert.ok(Math.abs(unifiedCard.gap)<2 && unifiedCard.topDelta<2 && unifiedCard.heightDelta<2,
-    'race preview and voting must share one seamless card: '+JSON.stringify(unifiedCard));
-  assert.ok(parseFloat(unifiedCard.border)>=1 && parseFloat(unifiedCard.radius)>=12,
-    'shared race card must have its own visible frame');
+  assert.ok(unifiedCard.gap>=16 && unifiedCard.topDelta<2,
+    'reference separates the stream and results with spacing: '+JSON.stringify(unifiedCard));
+  assert.equal(parseFloat(unifiedCard.border),0,'reference has no enclosing border');
+  assert.equal(parseFloat(unifiedCard.radius),0,'reference has no surrounding card');
   assert.equal(await page.locator('.broadcast-stage').count(),1);
   assert.equal(await page.locator('.broadcast-bottom-tools, .broadcast-tabs, #broadcast-info').count(),0,
     'obsolete challenge tabs, refresh strip and details row must not render');
