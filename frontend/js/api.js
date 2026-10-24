@@ -118,6 +118,7 @@ export const adminModulesApi = {
   organizations: (page = 0) => api('/api/admin/organizations' + buildQuery({page, size:20})),
   createChallenge: (payload) => api('/api/challenges', {method:'POST',body:JSON.stringify(payload)}),
   updateChallenge: (id,payload) => api('/api/challenges/'+encodeURIComponent(id), {method:'PUT',body:JSON.stringify(payload)}),
+  updateStream: (id,url) => api('/api/admin/challenges/'+encodeURIComponent(id)+'/stream', {method:'PUT',body:JSON.stringify({url})}),
   addChallengeCamel: (id,camelId) => api('/api/challenges/'+encodeURIComponent(id)+'/camels/'+encodeURIComponent(camelId), {method:'PUT'}),
   openChallenge: (id) => api('/api/challenges/'+encodeURIComponent(id)+'/open', {method:'POST'}),
   closeChallenge: (id) => api('/api/challenges/'+encodeURIComponent(id)+'/close', {method:'POST'}),

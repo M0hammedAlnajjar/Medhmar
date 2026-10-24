@@ -123,6 +123,12 @@ const challengeCard = c => {
     (cams.length>=2?' disabled':'')+'>Attach camel</button></form>'+
     '<button type="button" class="admin-module-button" data-admin-challenge-action="open" data-challenge-id="'+esc(id)+'"'+
     (cams.length!==2?' disabled title="Assign exactly two camels first"':'')+'>Publish & open voting</button></div>':'')+
+  '<details class="mhch-stream-manager"><summary>Live stream · '+(c.streamUrl?'Link configured':'Add video link')+'</summary>'+
+    '<form class="mhch-stream-form" data-admin-challenge-stream="'+esc(id)+'">'+
+    '<label>YouTube broadcast URL<input type="url" name="streamUrl" maxlength="500" value="'+esc(c.streamUrl||'')+'" placeholder="https://www.youtube.com/watch?v=..." autocomplete="url"></label>'+
+    '<p class="mhch-stream-hint">Paste a YouTube video or live broadcast link. Clear the field and save to remove it.</p>'+
+    '<p class="admin-module-form-error" role="alert" hidden></p>'+
+    '<button type="submit" class="admin-module-button">Save stream link</button></form></details>'+
   '<p class="admin-module-form-error admin-module-item-error" role="alert" hidden></p></article>';
 };
 export function adminChallengesView({data=null,error=''}={}) {
@@ -272,6 +278,9 @@ export function bindAdminModules(root,actions={}) {
  });
  root.querySelectorAll('[data-admin-challenge-edit]').forEach(form=>form.addEventListener('submit',e=>{
   e.preventDefault();run(form,()=>actions.updateChallenge(form.dataset.adminChallengeEdit,timestamps(form)));
+ }));
+ root.querySelectorAll('[data-admin-challenge-stream]').forEach(form=>form.addEventListener('submit',e=>{
+  e.preventDefault();run(form,()=>actions.updateStream(form.dataset.adminChallengeStream,form.elements.streamUrl.value.trim()));
  }));
  root.querySelectorAll('[data-admin-challenge-camel]').forEach(form=>form.addEventListener('submit',e=>{
   e.preventDefault();run(form,()=>actions.addCamel(form.dataset.adminChallengeCamel,Number(form.elements.camelId.value)));

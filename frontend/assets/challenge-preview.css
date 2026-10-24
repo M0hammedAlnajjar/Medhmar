@@ -1596,3 +1596,10 @@
   min-height:46px;
  }
 }
+
+/* Linked broadcasts replace the demonstration canvas; retain its exact footprint. */
+.app-shell:has(.broadcast-preview) .broadcast-stage-connected{display:block;background:#000}
+.app-shell:has(.broadcast-preview) .broadcast-stage-connected .broadcast-stream-frame{
+ position:absolute;inset:0;width:100%;height:100%;display:block;border:0;background:#000;
+}
+.app-shell:has(.broadcast-preview) .broadcast-stream-tag strong{background:#7b2e38}
