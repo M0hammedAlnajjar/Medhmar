@@ -21,7 +21,7 @@ test('published challenge replaces all old sample details with recorded data',()
  assert.match(html,/No live stream is connected|Not connected/);
  assert.match(html,/class="broadcast-stage"/);
  assert.match(html,/broadcast-stage-center/);
- assert.match(html,/challenge-camel-placeholder\.svg/);
+ assert.match(html,/challenge-neutral-camel\.svg/);
  assert.doesNotMatch(html,/744 votes|456 votes|1\.2K watching|Al Bashaer Evening Challenge|Try one sample vote|Reset preview vote/);
  assert.doesNotMatch(html,/data-preview-vote/);
  assert.doesNotMatch(html,/Refresh results|broadcast-bottom-tools|broadcast-tabs|broadcast-info/);
@@ -50,7 +50,7 @@ test('user supplied names and photo URLs cannot inject HTML',()=>{
      photoUrl:'javascript:alert(1)'}]},{signedIn:true});
  assert.doesNotMatch(evil,/<script>|<img src=x|src="javascript:/);
  assert.match(evil,/&lt;img src=x|&lt;script&gt;/);
- assert.match(evil,/challenge-camel-placeholder\.svg/);
+ assert.match(evil,/challenge-neutral-camel\.svg/);
 });
 test('the challenge keeps the real voting actions and gallery but omits the old details controls',()=>{
  const html=broadcastPreview(challenge,{signedIn:true});
@@ -178,13 +178,13 @@ test('upcoming challenge placeholder matches the reference using decorative inli
 test('heritage head-to-head layout places recorded opponents side-by-side with VS',async()=>{
  const {readFile}=await import('node:fs/promises');
  const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
- const fallback=await readFile(new URL('../assets/challenge-camel-placeholder.svg',import.meta.url),'utf8');
+ const fallback=await readFile(new URL('../assets/challenge-neutral-camel.svg',import.meta.url),'utf8');
  const heritage=await readFile(new URL('../assets/challenge-vote-heritage.svg',import.meta.url),'utf8');
  const html=broadcastPreview(challenge,{signedIn:true});
  assert.match(html,/class="broadcast-contenders is-duel"/);
  assert.equal((html.match(/<article class="broadcast-candidate(?: is-alternate)?">/g)||[]).length,2);
  assert.match(html,/class="broadcast-vs" aria-hidden="true">VS<\/span>/);
- assert.equal((html.match(/challenge-camel-placeholder\.svg/g)||[]).length,2);
+ assert.equal((html.match(/challenge-neutral-camel\.svg/g)||[]).length,2);
  assert.match(html,/3 votes|1 votes|75%|25%/);
  assert.match(html,/data-challenge="42" data-camel="1"/);
  assert.match(html,/data-challenge="42" data-camel="2"/);
@@ -197,6 +197,40 @@ test('heritage head-to-head layout places recorded opponents side-by-side with V
  const single=broadcastPreview({...challenge,camels:challenge.camels.slice(0,1)},{signedIn:true});
  assert.doesNotMatch(single,/class="broadcast-vs"/);
  const photo=broadcastPreview({...challenge,camels:[{...challenge.camels[0],photoUrl:'https://cdn.example.test/camel.jpg'}]},{signedIn:true});
- assert.match(photo,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
- assert.doesNotMatch(photo,/challenge-camel-placeholder\.svg/);
+ // The public challenge comparison deliberately shows neutral silhouettes,
+ // while the actual registered photo URL is still kept in API-backed card views.
+ assert.doesNotMatch(photo,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
+ assert.match(photo,/challenge-neutral-camel\.svg/);
+ const published=publishedChallengeCards([{...challenge,camels:[{...challenge.camels[0],
+   photoUrl:'https://cdn.example.test/camel.jpg'}]}]);
+ assert.match(published,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
+});
+
+test('reference screenshot hierarchy is used without a surrounding shared card',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const stylesheet=await readFile(new URL('../assets/challenge-reference.css',import.meta.url),'utf8');
+ const page=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ const avatar=await readFile(new URL('../assets/challenge-neutral-camel.svg',import.meta.url),'utf8');
+ const ornament=await readFile(new URL('../assets/challenge-edge-ornament.svg',import.meta.url),'utf8');
+ const footer=await readFile(new URL('../assets/challenge-dunes-footer.svg',import.meta.url),'utf8');
+ const closed=broadcastPreview({...challenge,title:'V',status:'CLOSED',
+  camels:challenge.camels.map(x=>({...x,voteCount:0,votePercent:0}))},{signedIn:true});
+ assert.match(closed,/<h1>Camel Racing Challenge<\/h1>/);
+ assert.match(closed,/<h2>Challenge results<\/h2>/);
+ assert.match(closed,/Voting closed/);
+ assert.match(closed,/broadcast-neutral-camel|challenge-neutral-camel\.svg/);
+ assert.equal((closed.match(/challenge-neutral-camel\.svg/g)||[]).length,2);
+ assert.equal((closed.match(/class="broadcast-vs"/g)||[]).length,1);
+ assert.doesNotMatch(closed,/src="javascript:/);
+ for(const selector of ['.broadcast-grid','.broadcast-voting','.broadcast-stage',
+  '.broadcast-contenders','.broadcast-upcoming-empty'])
+  assert.ok(stylesheet.includes(selector),selector);
+ assert.match(stylesheet,/border:0/);
+ assert.match(stylesheet,/aspect-ratio:2\.88/);
+ assert.match(stylesheet,/challenge-edge-ornament\.svg/);
+ assert.match(stylesheet,/challenge-dunes-footer\.svg/);
+ assert.ok(page.indexOf('challenge-reference.css')>page.indexOf('challenge-preview.css'));
+ assert.match(avatar,/viewBox="0 0 220 220"/);
+ assert.match(ornament,/viewBox="0 0 28 38"/);
+ assert.match(footer,/viewBox="0 0 275 92"/);
 });
