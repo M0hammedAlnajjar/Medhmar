@@ -487,8 +487,8 @@ try {
   assert.equal(await page.locator('.admin-sidebar-brand img').getAttribute('src'),'/assets/medhmar-admin-logo-approved.webp','admin uses the newly approved logo');
   assert.equal(await page.locator('.admin-sidebar-brand img').count(),1,'no duplicated admin branding');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),false,'desktop should hide mobile Menu and duplicate icons');
-  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 11, 'desktop navigation should contain eleven admin routes');
-  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),11,'desktop menu should retain its SVG icons');
+  assert.equal(await page.locator('.admin-sidebar-nav a').count(), 12, 'desktop navigation should contain twelve admin routes');
+  assert.equal(await page.locator('.admin-sidebar-nav .admin-nav-icon svg').count(),12,'desktop menu should retain its SVG icons');
   // Page-specific content must never resize or shift the navigation shell.
   const adminSidebarGeometry = () => page.locator('.admin-sidebar').evaluate(aside => {
     const side = aside.getBoundingClientRect();
@@ -557,7 +557,7 @@ try {
         };
       });
       assert.equal(fit.width,254,active+' sidebar width must remain fixed at '+height+'px height');
-      assert.equal(fit.links,11,'all admin navigation links are present');
+      assert.equal(fit.links,12,'all admin navigation links are present');
       if(height===900) {
         assert.ok(await page.locator('.admin-sidebar-nav a').first().evaluate(el=>Number.parseFloat(getComputedStyle(el).fontSize)>=15),
           'normal laptop sidebar text must stay at least 15px');
@@ -580,7 +580,7 @@ try {
   assert.equal(await page.locator('.admin-sidebar').isVisible(),false,'short desktop uses compact navigation');
   assert.equal(await page.locator('.admin-mobile-nav').isVisible(),true,'short desktop exposes its navigation dropdown');
   await page.locator('.admin-mobile-nav summary').click();
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),11,'dropdown keeps every admin route');
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(),12,'dropdown keeps every admin route');
   await page.locator('.admin-mobile-nav summary').click();
   await page.setViewportSize({width:1440,height:900});
   await page.evaluate(async()=>{
@@ -597,7 +597,7 @@ try {
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),false,'mobile links should start collapsed');
   await page.locator('.admin-mobile-nav summary').click();
   assert.equal(await page.locator('.admin-mobile-nav nav').isVisible(),true,'mobile menu should expand');
-  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 11, 'mobile navigation should contain eleven admin routes');
+  assert.equal(await page.locator('.admin-mobile-nav nav a').count(), 12, 'mobile navigation should contain twelve admin routes');
   const menuLinks=await page.locator('.admin-mobile-nav nav a').evaluateAll(nodes=>nodes.map(el=>{
     const b=el.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom};
   }));

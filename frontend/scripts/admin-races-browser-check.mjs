@@ -63,7 +63,7 @@ export async function checkAdminRaces(browser, origin) {
       "/admin/termination-requests",
       "/admin/heritage",
       "/admin/challenges",
-      "/admin/organizations",
+      "/admin/organizations", "/admin/training",
       "/admin/system-health",
       "/admin/audit-logs",
       "/admin/races",

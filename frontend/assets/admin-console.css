@@ -1434,7 +1434,7 @@ html:has(.admin-console){scrollbar-gutter:stable}
   .admin-console .admin-sidebar {padding:12px 15px 10px}
   .admin-console .admin-sidebar-brand {min-height:140px;padding:2px 5px 8px}
   .admin-console .admin-sidebar-brand img {width:183px}
-  .admin-console .admin-sidebar-nav {gap:12px}
+  .admin-console .admin-sidebar-nav {gap:8px}
   .admin-console .admin-sidebar-group {gap:4px}
   .admin-console .admin-sidebar-label {font-size:11.5px;margin:0 10px 4px}
   .admin-console .admin-sidebar-nav a {min-height:46px;padding:0 13px;gap:12px;font-size:15px}
