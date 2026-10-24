@@ -64,6 +64,7 @@ export async function checkAdminRaces(browser, origin) {
       "/admin/heritage",
       "/admin/challenges",
       "/admin/organizations",
+      "/admin/training",
       "/admin/system-health",
       "/admin/audit-logs",
       "/admin/races",
