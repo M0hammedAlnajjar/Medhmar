@@ -55,10 +55,12 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
  const badge=featureBadge(challenge);
  const candidateCards=camels.length?camels.map((camel,i)=>{
   const share=percent(camel.votePercent);
-  // The reference uses a consistent, neutral silhouette in voting. Verified camel
-  // photos remain available in published challenge cards and detail screens.
-  const picture='<div class="broadcast-camel-photo broadcast-photo-placeholder" role="img" aria-label="Camel portrait placeholder for '+escapeHtml(camel.name||'Camel')+'">'+
-    '<img src="/assets/challenge-neutral-camel.svg" alt="" loading="lazy" decoding="async"></div>';
+  // Use the registered photo from the same challenge record as the admin view.
+  // The neutral SVG is only an empty-photo fallback.
+  const picture=validPhoto(camel.photoUrl)
+    ? '<img class="broadcast-camel-photo" src="'+escapeHtml(camel.photoUrl)+'" alt="'+escapeHtml(camel.name||'Registered camel')+'" loading="lazy" referrerpolicy="no-referrer">'
+    : '<div class="broadcast-camel-photo broadcast-photo-placeholder" role="img" aria-label="Photo unavailable for '+escapeHtml(camel.name||'Camel')+'">'+
+      '<img src="/assets/challenge-neutral-camel.svg" alt="" loading="lazy" decoding="async"></div>';
   const action=open&&signedIn
     ? '<button type="button" class="vote-btn" data-challenge="'+escapeHtml(id)+'" data-camel="'+escapeHtml(camel.camelId)+'">'+ico('check',15)+'Vote for '+escapeHtml(camel.name||'Camel')+'</button>'
     : open?'<a class="broadcast-vote-link" href="/signin" data-link>Sign in to vote</a>'
@@ -80,7 +82,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
   '<div class="broadcast-grid"><div class="broadcast-left">'+
    '<div class="broadcast-player" id="broadcast-player">'+
     '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR <span aria-hidden="true">›</span> CHALLENGE #'+escapeHtml(id)+'</div>'+
-      '<h1>'+escapeHtml(String(challenge.title||'').trim().length>2?challenge.title:'Camel Racing Challenge')+'</h1>'+
+      '<h1>'+escapeHtml(String(challenge.title||'').trim()||'Camel Racing Challenge')+'</h1>'+
       '<p>Support your champion.</p>'+
       '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
       '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></div>'+
@@ -226,7 +228,7 @@ export function bindBroadcastPreview(root) {
   img.addEventListener('error',()=>{
    if(img.getAttribute('data-camel-fallback')==='true')return;
    img.setAttribute('data-camel-fallback','true');
-   img.src='/assets/challenge-camel-placeholder.svg';
+   img.src='/assets/challenge-neutral-camel.svg';
    img.alt=(img.alt||'Camel')+' illustration; photo unavailable';
    img.classList.add('broadcast-camel-fallback-image');
   });

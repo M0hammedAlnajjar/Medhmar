@@ -197,10 +197,8 @@ test('heritage head-to-head layout places recorded opponents side-by-side with V
  const single=broadcastPreview({...challenge,camels:challenge.camels.slice(0,1)},{signedIn:true});
  assert.doesNotMatch(single,/class="broadcast-vs"/);
  const photo=broadcastPreview({...challenge,camels:[{...challenge.camels[0],photoUrl:'https://cdn.example.test/camel.jpg'}]},{signedIn:true});
- // The public challenge comparison deliberately shows neutral silhouettes,
- // while the actual registered photo URL is still kept in API-backed card views.
- assert.doesNotMatch(photo,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
- assert.match(photo,/challenge-neutral-camel\.svg/);
+ assert.match(photo,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
+ assert.doesNotMatch(photo,/challenge-neutral-camel\.svg/);
  const published=publishedChallengeCards([{...challenge,camels:[{...challenge.camels[0],
    photoUrl:'https://cdn.example.test/camel.jpg'}]}]);
  assert.match(published,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
@@ -215,7 +213,7 @@ test('reference screenshot hierarchy is used without a surrounding shared card',
  const footer=await readFile(new URL('../assets/challenge-dunes-footer.svg',import.meta.url),'utf8');
  const closed=broadcastPreview({...challenge,title:'V',status:'CLOSED',
   camels:challenge.camels.map(x=>({...x,voteCount:0,votePercent:0}))},{signedIn:true});
- assert.match(closed,/<h1>Camel Racing Challenge<\/h1>/);
+ assert.match(closed,/<h1>V<\/h1>/);
  assert.match(closed,/<h2>Challenge results<\/h2>/);
  assert.match(closed,/Voting closed/);
  assert.match(closed,/broadcast-neutral-camel|challenge-neutral-camel\.svg/);
@@ -233,4 +231,21 @@ test('reference screenshot hierarchy is used without a surrounding shared card',
  assert.match(avatar,/viewBox="0 0 220 220"/);
  assert.match(ornament,/viewBox="0 0 28 38"/);
  assert.match(footer,/viewBox="0 0 275 92"/);
+});
+
+test('public spotlight preserves admin title, photos and vote identities',()=>{
+ const record={...challenge,challengeId:2,title:'a',camels:[
+  {...challenge.camels[0],photoUrl:'/uploads/camels/first.jpg'},
+  {...challenge.camels[1],photoUrl:'/uploads/camels/second.png'}]};
+ const html=broadcastPreview(record,{signedIn:true});
+ assert.match(html,/<h1>a<\/h1>/);
+ assert.match(html,/src="\/uploads\/camels\/first\.jpg"/);
+ assert.match(html,/src="\/uploads\/camels\/second\.png"/);
+ assert.match(html,/data-challenge="2" data-camel="1"/);
+ assert.match(html,/data-challenge="2" data-camel="2"/);
+ assert.doesNotMatch(html,/challenge-neutral-camel\.svg/);
+ const updated=broadcastPreview({...record,title:'Updated by admin',camels:[{...record.camels[0],photoUrl:null}]});
+ assert.match(updated,/<h1>Updated by admin<\/h1>/);
+ assert.match(updated,/challenge-neutral-camel\.svg/);
+ assert.doesNotMatch(updated,/first\.jpg/);
 });

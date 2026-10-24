@@ -260,6 +260,14 @@
   background:#eee;
   overflow:hidden;
 }
+.app-shell:has(.broadcast-preview) .broadcast-contenders img.broadcast-camel-photo{
+  display:block;
+  object-fit:cover;
+  transform:none;
+}
+.app-shell:has(.broadcast-preview) .broadcast-contenders img.broadcast-camel-fallback-image{
+  object-fit:contain;
+}
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-camel-photo img{
   display:block;
   width:100%;
@@ -270,7 +278,7 @@
   padding:0;
   object-fit:contain;
 }
-.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate.is-alternate .broadcast-camel-photo img{
+.app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate.is-alternate .broadcast-photo-placeholder img{
   transform:scaleX(-1);
 }
 .app-shell:has(.broadcast-preview) .broadcast-contenders .broadcast-candidate-content{
