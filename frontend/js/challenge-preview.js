@@ -14,7 +14,8 @@ const utc = value => {
         hour:'2-digit',minute:'2-digit',timeZone:'UTC'}) + ' UTC' : 'Unavailable';
 };
 const validPhoto = value => typeof value === 'string' && (
-  /^https?:\/\/[^\s]+$/i.test(value) || /^\/assets\/[a-z0-9/_-]+\.(?:webp|png|jpe?g)$/i.test(value)
+  /^https?:\/\/[^\s]+$/i.test(value) ||
+  /^\/(?:assets|uploads)\/[a-z0-9/_-]+\.(?:webp|png|jpe?g)$/i.test(value)
 );
 const votingOpen = challenge => challenge?.status === 'OPEN' &&
   Date.now() >= new Date(challenge.opensAt).getTime() &&
@@ -38,7 +39,8 @@ const ico = (key,size=17) => '<svg width="'+size+'" height="'+size+'" viewBox="0
 const safeId = id => encodeURIComponent(String(id));
 const camelImage = (camel,cls) => validPhoto(camel?.photoUrl)
   ? '<img class="'+cls+'" src="'+escapeHtml(camel.photoUrl)+'" alt="'+escapeHtml(camel.name||'Registered camel')+'" loading="lazy" referrerpolicy="no-referrer">'
-  : '<div class="'+cls+' broadcast-photo-placeholder" role="img" aria-label="No camel photograph available">No photo</div>';
+  : '<div class="'+cls+' broadcast-photo-placeholder" role="img" aria-label="Photo unavailable for '+escapeHtml(camel?.name||'Camel')+'; camel illustration shown">'+
+    '<img src="/assets/challenge-camel-placeholder.svg" alt="" loading="lazy" decoding="async"></div>';
 
 export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
  if(error||!challenge)return '<section class="broadcast-preview broadcast-empty" aria-label="Challenge spotlight">'+
@@ -94,7 +96,8 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
     '<div class="broadcast-voting-title"><span class="broadcast-trophy">'+ico('trophy',20)+'</span><h2>Choose your champion</h2></div>'+
     '<p>'+escapeHtml(votingNote)+'</p>'+
     '<div class="broadcast-voting-status"><span class="broadcast-live">'+escapeHtml(badge)+'<small>'+escapeHtml(totalVotes)+' recorded votes</small></span></div>'+
-    candidateCards+
+    '<div class="broadcast-contenders'+(camels.length===2?' is-duel':'')+'" aria-label="Competing camels">'+candidateCards+
+      (camels.length===2?'<span class="broadcast-vs" aria-hidden="true">VS</span>':'')+'</div>'+
     '<p class="broadcast-vote-note">'+ico('check',15)+'Votes shown here are recorded results, not simulated votes.</p>'+
     '<a data-link class="broadcast-challenge-link" href="/challenges/'+safeId(id)+'">View challenge details →</a>'+
   '</aside></div></section>';
@@ -215,6 +218,15 @@ export function bindBroadcastPreview(root) {
   try{if(player?.requestFullscreen)await player.requestFullscreen();}
   catch{/* Fullscreen is optional and cannot change voting data. */}
  });
+ // Show the decorative SVG if a stored photo URL no longer resolves.
+ section.querySelectorAll?.('img.broadcast-camel-photo').forEach(img=>{
+  img.addEventListener('error',()=>{
+   if(img.getAttribute('data-camel-fallback')==='true')return;
+   img.setAttribute('data-camel-fallback','true');
+   img.src='/assets/challenge-camel-placeholder.svg';
+   img.alt=(img.alt||'Camel')+' illustration; photo unavailable';
+   img.classList.add('broadcast-camel-fallback-image');
+  });
+ });
  // The video canvas is intentionally inert until a real, authorized stream is configured.
-
 }

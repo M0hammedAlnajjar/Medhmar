@@ -86,6 +86,21 @@ try {
   await page.locator('.broadcast-live-data').waitFor();
   assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
+  assert.equal(await page.locator('.broadcast-vs').count(),1,'two competing camels show one VS badge');
+  for (const width of [320,390,768,1440,1920]) {
+    await page.setViewportSize({width,height:900});
+    const duel=await page.locator('.broadcast-contenders').evaluate(el=>{
+      const [first,second]=el.querySelectorAll('.broadcast-candidate');
+      const left=first.getBoundingClientRect(),right=second.getBoundingClientRect();
+      const badge=el.querySelector('.broadcast-vs')?.getBoundingClientRect();
+      return {sameRow:Math.abs(left.top-right.top)<3,ordered:left.right<right.left,
+        vsCentered:badge&&Math.abs((badge.left+badge.right)/2-(left.right+right.left)/2)<7,
+        overflow:document.documentElement.scrollWidth>innerWidth+1};
+    });
+    assert.ok(duel.sameRow&&duel.ordered&&duel.vsCentered&&!duel.overflow,
+      'two images and VS must fit without overlap at '+width+'px: '+JSON.stringify(duel));
+  }
+  await page.setViewportSize({width:1440,height:900});
 
   // The voting artwork must be an actual packaged image, not a CSS-only gradient.
   const championArtwork=await page.locator('.broadcast-voting').evaluate(async panel=>{
@@ -97,7 +112,7 @@ try {
     try {await artwork.decode()} catch {return {url,loaded:false}}
     return {url,loaded:artwork.naturalWidth>0&&artwork.naturalHeight>0};
   });
-  assert.match(championArtwork.url,/\/assets\/champion-vote-landscape\.webp/,'vote hero must reference packaged landscape');
+  assert.match(championArtwork.url,/\/assets\/challenge-vote-heritage\.svg/,'vote hero must reference packaged heritage SVG');
   assert.ok(championArtwork.loaded,'champion voting backdrop must load successfully');
 
   // The frame is black, displays Live, and never implies a connected stream.

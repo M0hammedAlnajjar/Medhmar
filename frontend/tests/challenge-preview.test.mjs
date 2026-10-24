@@ -21,7 +21,7 @@ test('published challenge replaces all old sample details with recorded data',()
  assert.match(html,/No live stream is connected|Not connected/);
  assert.match(html,/class="broadcast-stage"/);
  assert.match(html,/broadcast-stage-center/);
- assert.match(html,/No photo/);
+ assert.match(html,/challenge-camel-placeholder\.svg/);
  assert.doesNotMatch(html,/744 votes|456 votes|1\.2K watching|Al Bashaer Evening Challenge|Try one sample vote|Reset preview vote/);
  assert.doesNotMatch(html,/data-preview-vote/);
  assert.doesNotMatch(html,/Refresh results|broadcast-bottom-tools|broadcast-tabs|broadcast-info/);
@@ -50,7 +50,7 @@ test('user supplied names and photo URLs cannot inject HTML',()=>{
      photoUrl:'javascript:alert(1)'}]},{signedIn:true});
  assert.doesNotMatch(evil,/<script>|<img src=x|src="javascript:/);
  assert.match(evil,/&lt;img src=x|&lt;script&gt;/);
- assert.match(evil,/No photo/);
+ assert.match(evil,/challenge-camel-placeholder\.svg/);
 });
 test('the challenge keeps the real voting actions and gallery but omits the old details controls',()=>{
  const html=broadcastPreview(challenge,{signedIn:true});
@@ -173,4 +173,30 @@ test('upcoming challenge placeholder matches the reference using decorative inli
  assert.doesNotMatch(multiple,/broadcast-placeholder-landscape|broadcast-published-placeholder/);
  const none=publishedChallengeCards([]);
  assert.doesNotMatch(none,/broadcast-placeholder-landscape/);
+});
+
+test('heritage head-to-head layout places recorded opponents side-by-side with VS',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
+ const fallback=await readFile(new URL('../assets/challenge-camel-placeholder.svg',import.meta.url),'utf8');
+ const heritage=await readFile(new URL('../assets/challenge-vote-heritage.svg',import.meta.url),'utf8');
+ const html=broadcastPreview(challenge,{signedIn:true});
+ assert.match(html,/class="broadcast-contenders is-duel"/);
+ assert.equal((html.match(/<article class="broadcast-candidate(?: is-alternate)?">/g)||[]).length,2);
+ assert.match(html,/class="broadcast-vs" aria-hidden="true">VS<\/span>/);
+ assert.equal((html.match(/challenge-camel-placeholder\.svg/g)||[]).length,2);
+ assert.match(html,/3 votes|1 votes|75%|25%/);
+ assert.match(html,/data-challenge="42" data-camel="1"/);
+ assert.match(html,/data-challenge="42" data-camel="2"/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/challenge-vote-heritage\.svg/);
+ assert.match(css,/@media\(max-width:390px\)/);
+ assert.match(fallback,/<svg[\s\S]*<path/);
+ assert.match(heritage,/id="sadu"/);
+ // No false VS badge when only one opponent is returned by the API.
+ const single=broadcastPreview({...challenge,camels:challenge.camels.slice(0,1)},{signedIn:true});
+ assert.doesNotMatch(single,/class="broadcast-vs"/);
+ const photo=broadcastPreview({...challenge,camels:[{...challenge.camels[0],photoUrl:'https://cdn.example.test/camel.jpg'}]},{signedIn:true});
+ assert.match(photo,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
+ assert.doesNotMatch(photo,/challenge-camel-placeholder\.svg/);
 });

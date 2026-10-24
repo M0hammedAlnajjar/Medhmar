@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 270" role="img" aria-labelledby="camelTitle camelDesc">
+  <title id="camelTitle">Camel photo placeholder</title>
+  <desc id="camelDesc">Traditional dromedary camel silhouette against a soft Omani desert horizon.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#f9f2e7"/><stop offset="1" stop-color="#ead7b8"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="270" rx="14" fill="url(#sky)"/>
+  <circle cx="283" cy="62" r="26" fill="#fff4d9" opacity=".7"/>
+  <path d="M0 208Q72 183 149 202T360 189V270H0Z" fill="#dbc09a" opacity=".55"/>
+  <path d="M0 232Q91 209 192 226T360 214V270H0Z" fill="#cda97d" opacity=".48"/>
+  <g fill="#805332" stroke="#805332" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M85 157Q92 144 112 143Q119 111 137 103Q148 96 160 113Q173 131 177 141Q189 128 202 143Q222 152 248 148L263 114Q274 82 279 67Q284 55 300 57L326 65Q332 67 332 74Q333 83 321 84L302 82Q291 92 289 120L281 166Q274 184 252 185L113 182Q95 179 85 157Z" stroke-width="2"/>
+    <path d="M113 170L103 232Q101 239 108 239H119L132 178M158 174L155 233Q153 239 162 239H172L182 177M225 177L224 231Q222 239 231 239H242L249 177M264 162L274 233Q274 239 283 239H293L282 163" stroke-width="9" fill="none"/>
+    <path d="M90 158Q71 153 69 177Q68 188 78 197" stroke-width="7" fill="none"/>
+  </g>
+  <circle cx="312" cy="70" r="2.4" fill="#fff8e9"/>
+  <path d="M300 82Q312 91 323 85" fill="none" stroke="#593720" stroke-width="2" stroke-linecap="round"/>
+  <path d="M65 244H299" stroke="#aa8158" stroke-width="2" opacity=".38"/>
+</svg>
