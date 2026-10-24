@@ -207,14 +207,17 @@ public class SecurityConfig {
                                         "Authentication is required."
                                 )
                         )
-                        .accessDeniedHandler((request, response, error) ->
-                                errors.write(
-                                        response,
-                                        403,
-                                        "FORBIDDEN",
-                                        "Access denied or CSRF token missing/invalid."
-                                )
-                        )
+                        .accessDeniedHandler((request, response, error) -> {
+                            boolean invalidCsrf = error instanceof CsrfException;
+                            errors.write(
+                                    response,
+                                    403,
+                                    invalidCsrf ? "INVALID_CSRF" : "FORBIDDEN",
+                                    invalidCsrf
+                                            ? "CSRF token missing or invalid. Refresh it and retry."
+                                            : "Your account does not have permission for this action."
+                            );
+                        })
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
