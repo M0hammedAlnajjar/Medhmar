@@ -59,7 +59,7 @@ const camelImage = (camel,cls) => validPhoto(camel?.photoUrl)
   : '<div class="'+cls+' broadcast-photo-placeholder" role="img" aria-label="Photo unavailable for '+escapeHtml(camel?.name||'Camel')+'; camel illustration shown">'+
     '<img src="/assets/challenge-camel-placeholder.svg" alt="" loading="lazy" decoding="async"></div>';
 
-export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
+export function broadcastPreview(challenge=null,{signedIn=false,error='',detail=false}={}) {
  if(error||!challenge)return '<section class="broadcast-preview broadcast-empty" aria-label="Challenge spotlight">'+
   '<div class="broadcast-heading"><div><div class="kicker">MEDHMAR</div><h1>Camel Challenges</h1><p>Follow published competitions and support your champion.</p></div></div>'+
   '<div class="broadcast-empty-content" role="status"><h2>'+(error?'Challenges temporarily unavailable':'No published challenges yet')+'</h2><p>'+
@@ -131,7 +131,8 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
     '<div class="broadcast-contenders'+(camels.length===2?' is-duel':'')+'" aria-label="Competing camels">'+candidateCards+
       (camels.length===2?'<span class="broadcast-vs" aria-hidden="true">VS</span>':'')+'</div>'+
     '<p class="broadcast-vote-note">'+ico('check',15)+'Recorded results from Medhmar.</p>'+
-    '<a data-link class="broadcast-challenge-link" href="/challenges/'+safeId(id)+'">View challenge details →</a>'+
+    (detail?'<a data-link class="broadcast-challenge-link" href="/challenges">Back to Challenges →</a>':
+    '<a data-link class="broadcast-challenge-link" href="/challenges/'+safeId(id)+'">View challenge details →</a>')+
   '</aside></div></section>';
 }
 
