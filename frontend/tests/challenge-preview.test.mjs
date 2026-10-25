@@ -249,3 +249,24 @@ test('public spotlight preserves admin title, photos and vote identities',()=>{
  assert.match(updated,/challenge-neutral-camel\.svg/);
  assert.doesNotMatch(updated,/first\.jpg/);
 });
+
+test('detail and spotlight keep identical registered photos, voting rules and stream',()=>{
+ const recorded={...challenge,streamUrl:'https://youtu.be/dQw4w9WgXcQ',camels:[
+  {...challenge.camels[0],photoUrl:'/uploads/barq.jpg'},
+  {...challenge.camels[1],photoUrl:'/uploads/shaheen.jpg'}
+ ]};
+ for(const signedIn of [false,true]){
+  for(const record of [recorded,{...recorded,opensAt:new Date(Date.now()+3600000).toISOString()},
+    {...recorded,status:'CLOSED'}]){
+   const spotlight=broadcastPreview(record,{signedIn});
+   const detail=broadcastPreview(record,{signedIn,detail:true});
+   // Navigation differs; the complete broadcast and voting content must agree.
+   assert.equal(detail.replace('href="/challenges">Back to Challenges →',
+     'href="/challenges/42">View challenge details →'),spotlight);
+   assert.match(detail,/src="\/uploads\/barq.jpg"/);
+   assert.match(detail,/src="\/uploads\/shaheen.jpg"/);
+   assert.match(detail,/youtube.com\/embed\/dQw4w9WgXcQ/);
+   assert.doesNotMatch(detail,/class="camel-art"/);
+  }
+ }
+});

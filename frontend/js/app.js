@@ -303,7 +303,6 @@ function settings() {
 
 function trainer(){ return shell(trainerProfile(),'/trainer-profile'); }
 
-const votingOpen = c => c?.status === 'OPEN' && Date.now() >= new Date(c.opensAt).getTime() && Date.now() < new Date(c.closesAt).getTime();
 function challenges(){
  const featured = state.challengeError ? null :
    state.challenges.find(c=>c.status==='OPEN') || state.challenges.find(c=>c.status==='CLOSED') || null;
@@ -316,10 +315,7 @@ function challenge(id){
    ? state.challengeDetail
    : state.challenges.find(x=>String(x.challengeId)===String(id));
  if(!c) return shell(`${head('Challenge unavailable','This challenge could not be loaded from the backend.')}<section class="card error"><p>${esc(state.challengeError || 'No matching live challenge was found.')}</p><a class="btn btn-primary" href="/challenges" data-link>Back to Challenges</a></section>`,'/challenges');
- const signedIn = Boolean(state.user?.userId);
- const open = votingOpen(c);
- const voteMessage = !signedIn ? 'Sign in before voting.' : !open ? 'Voting is not open for this challenge.' : 'One vote per account. Votes cannot be switched after they are recorded.';
- return shell(`${head(esc(c.title),voteMessage,badge(c.status))}<article class="card challenge-card"><div class="challenge-vs">${c.camels.map((x,i)=>`${i?'<div class="vs">VS</div>':''}<div class="camel-vote"><div class="camel-art"></div><h2>${esc(x.name)}</h2><div class="stat-value">${x.votePercent}%</div><p>${x.voteCount} votes</p><div class="vote-bar"><span style="width:${Number(x.votePercent)||0}%"></span></div>${signedIn && open ? `<button class="btn btn-primary vote-btn" data-challenge="${c.challengeId}" data-camel="${x.camelId}">Vote ${esc(x.name)}</button>` : `<button class="btn btn-primary" disabled>${signedIn ? 'Voting unavailable' : 'Sign in to vote'}</button>`}</div>`).join('')}</div></article>`,'/challenges');
+ return shell(broadcastPreview(c,{signedIn:Boolean(state.user?.userId),detail:true}),'/challenges');
 }
 
 function adminTrainingPage(){return shell(adminTrainingView(state.adminTrainingData||{error:state.adminTrainingError}),'/admin/training');}
