@@ -107,7 +107,13 @@ export function broadcastPreview(challenge=null,{signedIn=false,error=''}={}) {
       (embedId?'<div class="broadcast-demo-tag broadcast-stream-tag" aria-label="Broadcast video link configured"><strong>'+ico('radio',15)+' VIDEO</strong><span>LINKED</span></div>':
       '<div class="broadcast-demo-tag" aria-label="Live-style demonstration; no actual livestream"><strong>'+ico('radio',15)+' LIVE</strong><span>DEMO</span></div>')+'</div>'+
     (embedId?'<div class="broadcast-stage broadcast-stage-connected" role="group" aria-label="Embedded YouTube broadcast">'+
-      '<iframe class="broadcast-stream-frame" src="https://www.youtube-nocookie.com/embed/'+embedId+'?rel=0" title="Medhmar challenge broadcast" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>':
+      '<iframe class="broadcast-stream-frame" data-video-id="'+embedId+'" src="https://www.youtube.com/embed/'+embedId+'?rel=0" title="Medhmar challenge broadcast" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+
+      '<div class="broadcast-stream-tools" aria-label="Broadcast playback options">'+
+        '<span class="broadcast-stream-help">Video not loading? Try the alternate player or open YouTube.</span>'+
+        '<div class="broadcast-stream-links">'+
+          '<button type="button" data-stream-switch aria-label="Try YouTube privacy-enhanced video player">Try alternate player</button>'+
+          '<a target="_blank" rel="noopener" referrerpolicy="strict-origin-when-cross-origin" href="https://www.youtube.com/watch?v='+embedId+'">Watch on YouTube ↗</a>'+
+        '</div></div>':
     '<div class="broadcast-stage" role="group" aria-label="Black livestream placeholder. Demo only; no live video is connected.">'+
       '<div class="broadcast-stage-center" aria-hidden="true"><span class="broadcast-stage-dot"></span><strong>Live</strong></div>'+
       '<div class="broadcast-demo-player" role="group" aria-label="Broadcast placeholder controls">'+
@@ -243,6 +249,20 @@ export function bindBroadcastPreview(root) {
   const player=section.querySelector('.broadcast-player');
   try{if(player?.requestFullscreen)await player.requestFullscreen();}
   catch{/* Fullscreen is optional and cannot change voting data. */}
+ });
+ // Browsers cannot reliably expose errors from cross-origin iframe players.
+ // Keep a visible fallback and allow viewers to try another official YouTube host.
+ const switcher=section.querySelector('[data-stream-switch]');
+ const frame=section.querySelector('.broadcast-stream-frame');
+ switcher?.addEventListener('click',()=>{
+  const id=frame?.dataset?.videoId;
+  if(!/^[A-Za-z0-9_-]{11}$/.test(id||''))return;
+  const privacy=switcher.dataset.streamMode!=='privacy';
+  switcher.dataset.streamMode=privacy?'privacy':'standard';
+  frame.src='https://'+(privacy?'www.youtube-nocookie.com':'www.youtube.com')+
+    '/embed/'+id+'?rel=0';
+  switcher.textContent=privacy?'Try standard player':'Try alternate player';
+  switcher.setAttribute('aria-label',privacy?'Try standard YouTube player':'Try YouTube privacy-enhanced video player');
  });
  // Show the decorative SVG if a stored photo URL no longer resolves.
  section.querySelectorAll?.('img.broadcast-camel-photo').forEach(img=>{
