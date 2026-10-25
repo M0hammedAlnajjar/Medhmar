@@ -24,7 +24,7 @@ function send(res, status, data = "", headers = {}) {
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Cache-Control": "no-cache",
     "Content-Security-Policy":
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http: https:; connect-src 'self' http://localhost:8080 http://127.0.0.1:8080 https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http: https:; connect-src 'self' http://localhost:8080 http://127.0.0.1:8080 https:; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
     ...headers
   });
   res.end(data);
