@@ -214,6 +214,9 @@ export function publishedChallengeCards(challenges=[]) {
      const state=closed?'CLOSED':open?'OPEN':'SCHEDULED';
      const stateClass=closed?'closed':open?'open':'scheduled';
      const gallery=camels.slice(0,3).map(camel=>camelImage(camel,'broadcast-mini-avatar')).join('');
+     const portraits=camels.slice(0,2).map(camel=>
+       '<figure class="broadcast-card-contender">'+camelImage(camel,'broadcast-card-contender-photo')+
+       '<figcaption>'+escapeHtml(camel.name||'Unnamed camel')+'</figcaption></figure>').join('');
      const shares=closed&&camels.length?
        '<div class="broadcast-card-results">'+camels.slice(0,2).map(camel=>{
          const share=percent(camel.votePercent);
@@ -222,7 +225,8 @@ export function publishedChallengeCards(challenges=[]) {
        }).join('')+'</div>':
        '<div class="broadcast-card-avatars" aria-label="Registered contender portraits">'+gallery+'</div>';
      return '<article class="broadcast-published-card">'+
-       '<div class="broadcast-card-top"><div class="broadcast-card-photo" role="img" aria-label="Illustrative racing photograph">'+
+       '<div class="broadcast-card-top"><div class="broadcast-card-photo" role="group" aria-label="Registered challenge contenders">'+
+       (portraits||'<p class="broadcast-card-no-photos">No participating camels available.</p>')+
        '<span class="broadcast-card-badge broadcast-badge-'+stateClass+'">'+state+'</span></div>'+
        '<div class="broadcast-card-copy"><h3>'+escapeHtml(c.title||'Camel Challenge')+'</h3>'+
        '<p>'+ico('calendar',15)+escapeHtml(utc(c.opensAt))+' – '+escapeHtml(utc(c.closesAt))+'</p>'+
@@ -266,7 +270,7 @@ export function bindBroadcastPreview(root) {
   switcher.setAttribute('aria-label',privacy?'Try standard YouTube player':'Try YouTube privacy-enhanced video player');
  });
  // Show the decorative SVG if a stored photo URL no longer resolves.
- section.querySelectorAll?.('img.broadcast-camel-photo').forEach(img=>{
+ root.querySelectorAll?.('img.broadcast-camel-photo, img.broadcast-card-contender-photo').forEach(img=>{
   img.addEventListener('error',()=>{
    if(img.getAttribute('data-camel-fallback')==='true')return;
    img.setAttribute('data-camel-fallback','true');

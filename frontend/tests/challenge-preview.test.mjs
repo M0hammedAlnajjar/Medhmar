@@ -143,7 +143,8 @@ test('approved compact challenge layout keeps true status and fullscreen',async(
  assert.match(css,/display:contents/);
  assert.match(css,/grid-template-columns:minmax\(0,33%\) minmax\(0,1fr\)/);
  assert.doesNotMatch(css,/fonts\.googleapis\.com|https?:\/\/|@import/);
- assert.match(css,/url\('\/assets\/racing-hero\.webp'\)/);
+ assert.match(css,/\.broadcast-card-contender-photo/);
+ assert.doesNotMatch(css,/url\('\/assets\/racing-hero\.webp'\)/);
  for(const label of ['data-preview-fullscreen','class="broadcast-stage"','DEMO PREVIEW'])assert.ok(html.includes(label),label);
  assert.doesNotMatch(html,/data-preview-tab|id="refresh-challenges"|broadcast-bottom-tools/);
  assert.match(html,/Sign in to vote/);
@@ -269,4 +270,29 @@ test('detail and spotlight keep identical registered photos, voting rules and st
    assert.doesNotMatch(detail,/class="camel-art"/);
   }
  }
+});
+
+test('published cards preserve registered portraits and recorded results when closed',()=>{
+ const record={...challenge,camels:[
+  {...challenge.camels[0],photoUrl:'/uploads/barq.jpg'},
+  {...challenge.camels[1],photoUrl:'/uploads/shaheen.jpg'}
+ ]};
+ for(const status of ['OPEN','CLOSED']){
+  const html=publishedChallengeCards([{...record,status}]);
+  assert.match(html,/src="\/uploads\/barq.jpg"/);
+  assert.match(html,/src="\/uploads\/shaheen.jpg"/);
+  assert.match(html,/<figcaption>Al Barq<\/figcaption>/);
+  assert.match(html,/<figcaption>Shaheen<\/figcaption>/);
+  assert.doesNotMatch(html,/Illustrative racing photograph|racing-hero.webp/);
+  if(status==='CLOSED'){
+   assert.match(html,/broadcast-badge-closed/);
+   assert.match(html,/75%/);
+   assert.match(html,/25%/);
+  }
+ }
+ const missing=publishedChallengeCards([{...record,status:'CLOSED',camels:[
+  {...record.camels[0],name:'<script>unsafe</script>',photoUrl:'javascript:alert(1)'}]}]);
+ assert.match(missing,/challenge-camel-placeholder.svg/);
+ assert.match(missing,/&lt;script&gt;unsafe&lt;\/script&gt;/);
+ assert.doesNotMatch(missing,/<script>|src="javascript:/);
 });
