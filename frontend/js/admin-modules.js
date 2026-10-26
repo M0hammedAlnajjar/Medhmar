@@ -136,6 +136,10 @@ const challengeCard = (c,camelChoices=[],camelError='') => {
     '<label>Choose a registered camel<select name="camelId" required'+(cams.length>=2||!available.length||camelError?' disabled':'')+'>'+
       '<option value="">'+(camelError?'Unable to load camels':cams.length>=2?'Two camels already attached':available.length?'Select a camel':'No available camels')+'</option>'+
       available.map(camel=>'<option value="'+esc(camel.camelId)+'">'+esc(camel.name||'Unnamed camel')+' · #'+esc(camel.camelId)+(camel.breed?' · '+esc(camel.breed):'')+'</option>').join('')+'</select></label>'+
+    (!camelError&&cams.length<2&&available.length?'<div class="mhch-camel-choices" role="group" aria-label="Choose a camel by photo">'+
+      available.map(camel=>'<button type="button" class="mhch-camel-choice" data-camel-choice="'+esc(camel.camelId)+'" aria-pressed="false" aria-label="Choose '+esc(camel.name||'Unnamed camel')+' number '+esc(camel.camelId)+'">'+
+        '<span class="mhch-choice-photo">'+challengePhoto(camel)+'</span><span class="mhch-choice-name">'+esc(camel.name||'Unnamed camel')+'</span>'+
+        '<span class="mhch-choice-meta">#'+esc(camel.camelId)+(camel.breed?' · '+esc(camel.breed):'')+'</span></button>').join('')+'</div>':'')+
     (camelError?'<p class="admin-module-form-error" role="alert">'+esc(camelError)+'</p>':'')+
     '<p class="admin-module-form-error" role="alert" hidden></p><button type="submit" class="admin-module-outline"'+
     (cams.length>=2||!available.length||camelError?' disabled':'')+'>Attach camel</button></form>'+
@@ -300,9 +304,12 @@ export function bindAdminModules(root,actions={}) {
  root.querySelectorAll('[data-admin-challenge-stream]').forEach(form=>form.addEventListener('submit',e=>{
   e.preventDefault();run(form,()=>actions.updateStream(form.dataset.adminChallengeStream,form.elements.streamUrl.value.trim()));
  }));
- root.querySelectorAll('[data-admin-challenge-camel]').forEach(form=>form.addEventListener('submit',e=>{
-  e.preventDefault();run(form,()=>actions.addCamel(form.dataset.adminChallengeCamel,Number(form.elements.camelId.value)));
- }));
+ root.querySelectorAll('[data-admin-challenge-camel]').forEach(form=>{
+  bindCamelPhotoPicker(form);
+  form.addEventListener('submit',e=>{
+   e.preventDefault();run(form,()=>actions.addCamel(form.dataset.adminChallengeCamel,Number(form.elements.camelId.value)));
+  });
+ });
  root.querySelectorAll('[data-admin-challenge-action]').forEach(button=>button.addEventListener('click',async()=>{
   if(button.disabled)return;
   const type=button.dataset.adminChallengeAction,id=button.dataset.challengeId;
@@ -327,4 +334,26 @@ export function bindAdminModules(root,actions={}) {
   run(form,()=>actions.updateOrganization(form.dataset.adminOrganizationEdit,fields));
  }));
  root.querySelector('[data-admin-module-retry]')?.addEventListener('click',()=>actions.refresh());
+}
+
+// Photo buttons and the native select share one submitted camel ID.
+export function bindCamelPhotoPicker(form) {
+ const select=form.querySelector?.('select[name="camelId"]');
+ if(!select)return;
+ const buttons=Array.from(form.querySelectorAll('[data-camel-choice]'));
+ const sync=()=>buttons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.camelChoice===select.value)));
+ select.addEventListener('change',sync);
+ buttons.forEach(button=>button.addEventListener('click',()=>{
+  if(select.disabled)return;
+  select.value=button.dataset.camelChoice;
+  sync();
+ }));
+ form.querySelectorAll('.mhch-choice-photo img').forEach(img=>img.addEventListener('error',()=>{
+  if(img.dataset.photoFallback)return;
+  img.dataset.photoFallback='true';
+  img.src='/assets/medhmar-logo-icon.svg';
+  img.alt='Camel photo unavailable';
+  img.classList.add('mhch-choice-fallback');
+ }));
+ sync();
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {adminChallengesView,adminOrganizationsView,loadChallengeCamels} from '../js/admin-modules.js';
+import {adminChallengesView,adminOrganizationsView,loadChallengeCamels,bindCamelPhotoPicker} from '../js/admin-modules.js';
 import {adminShell} from '../js/admin-console.js';
 import {matchRoute,canAccessRoute} from '../js/routes.js';
 
@@ -145,4 +145,30 @@ test('camel picker loads every API page and rejects directory failures',async()=
  await assert.rejects(loadChallengeCamels({list:async()=>({content:[]})}),/Invalid camel directory/);
  await assert.rejects(loadChallengeCamels({list:async()=>{throw new Error('offline');}}),/offline/);
  assert.deepEqual(await loadChallengeCamels({list:async()=>({content:[],totalPages:1})},()=>false),[]);
+});
+
+test('camel picker renders stored photos and safe missing-photo placeholders',()=>{
+ const camels=[{camelId:8,name:'Shaheen',photoUrl:'/uploads/shaheen.jpg'},
+  {camelId:9,name:'<script>bad</script>',photoUrl:'javascript:alert(1)'}];
+ const html=adminChallengesView({data:page([{...draft,camels:[]}]),camels});
+ assert.match(html,/data-camel-choice="8" aria-pressed="false"/);
+ assert.match(html,/src="\/uploads\/shaheen.jpg"/);
+ assert.match(html,/Choose a camel by photo/);
+ assert.match(html,/Photo unavailable/);
+ assert.match(html,/&lt;script&gt;bad&lt;\/script&gt;/);
+ assert.doesNotMatch(html,/<script>|src="javascript:/);
+});
+
+test('photo choices synchronize with native selection without submitting a challenge',()=>{
+ const select={value:'',disabled:false,addEventListener(type,fn){this[type]=fn;}};
+ const choice=id=>({dataset:{camelChoice:id},setAttribute(key,value){this[key]=value;},
+  addEventListener(type,fn){this[type]=fn;}});
+ const first=choice('8'),second=choice('9');
+ bindCamelPhotoPicker({querySelector:()=>select,querySelectorAll:selector=>selector==='[data-camel-choice]'?[first,second]:[]});
+ first.click();
+ assert.equal(select.value,'8');assert.equal(first['aria-pressed'],'true');
+ assert.equal(second['aria-pressed'],'false');
+ select.value='9';select.change();
+ assert.equal(first['aria-pressed'],'false');assert.equal(second['aria-pressed'],'true');
+ select.disabled=true;first.click();assert.equal(select.value,'9');
 });
