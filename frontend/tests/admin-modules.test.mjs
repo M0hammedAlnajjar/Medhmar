@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {adminChallengesView,adminOrganizationsView} from '../js/admin-modules.js';
+import {adminChallengesView,adminOrganizationsView,loadChallengeCamels} from '../js/admin-modules.js';
 import {adminShell} from '../js/admin-console.js';
 import {matchRoute,canAccessRoute} from '../js/routes.js';
 
@@ -119,4 +119,30 @@ test('administrator can hide, show and delete challenges with recorded votes',()
  assert.match(hidden,/Closed · Hidden/);
  assert.match(hidden,/data-admin-challenge-action="delete"/);
  assert.doesNotMatch(hidden,/data-admin-challenge-action="hide"/);
+});
+
+test('draft camel picker lists API names and excludes already attached camels',()=>{
+ const camels=[{camelId:1,name:'Al Barq',breed:'Omani'},{camelId:2,name:'Shaheen',breed:'Omani'}];
+ const html=adminChallengesView({data:page([{...draft,camels:[camels[0]]}]),camels});
+ assert.match(html,/<select name="camelId" required>/);
+ assert.match(html,/<option value="2">Shaheen · #2 · Omani<\/option>/);
+ assert.doesNotMatch(html,/<option value="1">|Registered camel ID|Attach camel ID/);
+ const full=adminChallengesView({data:page([{...draft,camels}]),camels});
+ assert.match(full,/<select name="camelId" required disabled>/);
+ assert.match(full,/Two camels already attached/);
+ const failed=adminChallengesView({data:page([draft]),camelError:'Unable to load registered camels.'});
+ assert.match(failed,/Unable to load registered camels/);
+ assert.match(failed,/<select name="camelId" required disabled>/);
+});
+
+test('camel picker loads every API page and rejects directory failures',async()=>{
+ const calls=[];
+ const result=await loadChallengeCamels({list:async q=>{
+  calls.push(q);return {totalPages:2,content:q.page===0?[{camelId:1,name:'First'}]:[{camelId:2,name:'Second'}]};
+ }});
+ assert.deepEqual(result.map(c=>c.camelId),[1,2]);
+ assert.deepEqual(calls,[{page:0,size:100},{page:1,size:100}]);
+ await assert.rejects(loadChallengeCamels({list:async()=>({content:[]})}),/Invalid camel directory/);
+ await assert.rejects(loadChallengeCamels({list:async()=>{throw new Error('offline');}}),/offline/);
+ assert.deepEqual(await loadChallengeCamels({list:async()=>({content:[],totalPages:1})},()=>false),[]);
 });

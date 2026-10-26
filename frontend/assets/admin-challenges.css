@@ -102,3 +102,6 @@
 .admin-console .mhch-stream-form input:focus-visible{outline:2px solid #ad2635;outline-offset:2px}
 .admin-console .mhch-stream-hint{margin:0;color:#766c61;font-size:11px;line-height:1.5}
 .admin-console .mhch-stream-form button{justify-self:start}
+
+.mhch-draft-tools .admin-module-camel-form select{width:100%;min-width:0;min-height:42px;padding:9px 12px;border:1px solid #dbc9b9;border-radius:8px;background:#fff;color:#402719;font:inherit}
+.mhch-draft-tools .admin-module-camel-form select:focus-visible{outline:2px solid #9b652f;outline-offset:2px}

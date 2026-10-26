@@ -17,7 +17,7 @@ import { pedigreeView, bindPedigreeImages } from './pedigree-view.js';
 import { matchRoute, normalizePath, canAccessRoute } from './routes.js';
 import { renderAccount } from './account-view.js';
 import { adminShell, adminDashboard, adminUsersView, adminSettingsView, bindAdminChartTabs, mountAdminScreen } from './admin-console.js';
-import { adminChallengesView, adminOrganizationsView, bindAdminModules } from './admin-modules.js';
+import { adminChallengesView, adminOrganizationsView, bindAdminModules, loadChallengeCamels } from './admin-modules.js';
 import { adminSystemHealthView } from './admin-system-health.js';
 import { adminAuditListView, adminAuditDetailView } from './admin-audit.js';
 import { adminRacesView, bindAdminRaces } from './admin-races.js';
@@ -41,6 +41,8 @@ const state = {
   adminError: '',
   adminPage: 0,
   adminModuleData: null,
+  adminChallengeCamels: [],
+  adminCamelError: '',
   adminModuleError: '',
   adminHealthData: null,
   adminHealthSamples: [],
@@ -345,7 +347,7 @@ function adminMarketplacePage() {
    auditEvents:state.adminMarketAudit,auditError:state.adminMarketAuditError}),'/admin/marketplace');
 }
 function adminChallengesPage() {
- return shell(adminChallengesView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/challenges');
+ return shell(adminChallengesView({data:state.adminModuleData,error:state.adminModuleError,camels:state.adminChallengeCamels,camelError:state.adminCamelError}),'/admin/challenges');
 }
 function adminOrganizationsPage() {
  return shell(adminOrganizationsView({data:state.adminModuleData,error:state.adminModuleError}),'/admin/organizations');
@@ -1074,6 +1076,18 @@ async function render() {
            !Number.isInteger(data.page)||!Number.isInteger(data.totalPages))
          throw new Error('Invalid administration directory response.');
        state.adminModuleData=data;
+       if(path==='/admin/challenges'){
+         state.adminChallengeCamels=[];state.adminCamelError='';
+         try{
+           const camels=await loadChallengeCamels(camelApi,()=>epoch===renderEpoch);
+           if(epoch!==renderEpoch)return;
+           state.adminChallengeCamels=camels;
+         }catch(err){
+           if(epoch!==renderEpoch)return;
+           if(err.status===401||err.status===403)throw err;
+           state.adminCamelError='Unable to load registered camels. Reload this page to retry.';
+         }
+       }
      }catch(err){
        if(epoch!==renderEpoch)return;
        if(err.status===401)throw err;
