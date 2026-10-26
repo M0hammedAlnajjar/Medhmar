@@ -76,8 +76,21 @@ const challengePager = page => {
   (current+1<last?'<a href="/admin/challenges?page='+(current+1)+'" data-link aria-label="Next page">›</a>':
     '<span class="is-disabled" aria-hidden="true">›</span>')+'</div></nav>';
 };
-const challengeCard = c => {
+export async function loadChallengeCamels(api,isCurrent=()=>true) {
+ const camels=[];
+ for(let page=0;;page++){
+  const result=await api.list({page,size:100});
+  if(!isCurrent())return [];
+  if(!result||!Array.isArray(result.content)||!Number.isInteger(result.totalPages)||result.totalPages<0)
+   throw new Error('Invalid camel directory response.');
+  camels.push(...result.content);
+  if(page+1>=result.totalPages)break;
+ }
+ return [...new Map(camels.map(c=>[String(c.camelId),c])).values()];
+}
+const challengeCard = (c,camelChoices=[],camelError='') => {
  const cams=Array.isArray(c.camels)?c.camels:[],id=c.challengeId,draft=c.status==='DRAFT',open=c.status==='OPEN';
+ const available=camelChoices.filter(camel=>!cams.some(attached=>String(attached.camelId)===String(camel.camelId)));
  const search=[c.title,id,c.creatorId,...cams.map(cam=>cam.name||'')].join(' ').toLocaleLowerCase();
  const photoCards=Array.from({length:2},(_,i)=>{
    const camel=cams[i];
@@ -120,9 +133,12 @@ const challengeCard = c => {
     '<label>Closes (Muscat)<input name="closesAt" type="datetime-local" required value="'+esc(localDate(c.closesAt))+'"></label>'+
     '<p class="admin-module-form-error" role="alert" hidden></p><button type="submit" class="admin-module-button">Save draft</button></form></details>'+
     '<form data-admin-challenge-camel="'+esc(id)+'" class="admin-module-camel-form">'+
-    '<label>Attach camel ID<input name="camelId" type="number" min="1" step="1" required placeholder="Registered camel ID"></label>'+
+    '<label>Choose a registered camel<select name="camelId" required'+(cams.length>=2||!available.length||camelError?' disabled':'')+'>'+
+      '<option value="">'+(camelError?'Unable to load camels':cams.length>=2?'Two camels already attached':available.length?'Select a camel':'No available camels')+'</option>'+
+      available.map(camel=>'<option value="'+esc(camel.camelId)+'">'+esc(camel.name||'Unnamed camel')+' · #'+esc(camel.camelId)+(camel.breed?' · '+esc(camel.breed):'')+'</option>').join('')+'</select></label>'+
+    (camelError?'<p class="admin-module-form-error" role="alert">'+esc(camelError)+'</p>':'')+
     '<p class="admin-module-form-error" role="alert" hidden></p><button type="submit" class="admin-module-outline"'+
-    (cams.length>=2?' disabled':'')+'>Attach camel</button></form>'+
+    (cams.length>=2||!available.length||camelError?' disabled':'')+'>Attach camel</button></form>'+
     '<button type="button" class="admin-module-button" data-admin-challenge-action="open" data-challenge-id="'+esc(id)+'"'+
     (cams.length!==2?' disabled title="Assign exactly two camels first"':'')+'>Publish & open voting</button></div>':'')+
   '<details class="mhch-stream-manager"><summary>Live stream · '+(c.streamUrl?'Link configured':'Add video link')+'</summary>'+
@@ -133,7 +149,7 @@ const challengeCard = c => {
     '<button type="submit" class="admin-module-button">Save stream link</button></form></details>'+
   '<p class="admin-module-form-error admin-module-item-error" role="alert" hidden></p></article>';
 };
-export function adminChallengesView({data=null,error=''}={}) {
+export function adminChallengesView({data=null,error='',camels=[],camelError=''}={}) {
  const head='<header class="mhch-heading mhch-challenges-hero" aria-labelledby="admin-challenges-title"><div class="mhch-hero-copy"><span class="mhch-hero-eyebrow">CHALLENGE MANAGEMENT</span><h1 id="admin-challenges-title">Challenges</h1><p>Create challenges, pair camels, and manage public voting.</p></div><img class="mhch-hero-art" src="/assets/admin-challenges-racing.svg" alt="" aria-hidden="true" width="1472" height="410"></header>';
  if(error||!validPage(data))return '<div class="mhch-page">'+head+
    message('Challenges unavailable',error||'Unexpected response from the server.')+'</div>';
@@ -158,7 +174,7 @@ export function adminChallengesView({data=null,error=''}={}) {
   '</div><label class="mhch-search">'+challengeIcon('search')+
   '<input id="admin-challenge-search" type="search" placeholder="Search challenges..." aria-label="Search challenges on this page" autocomplete="off"></label></div>';
  const left='<section class="mhch-directory" aria-label="Challenge directory">'+tabBar+
-   (list.length?'<div class="mhch-list">'+list.map(challengeCard).join('')+'</div>':
+   (list.length?'<div class="mhch-list">'+list.map(c=>challengeCard(c,camels,camelError)).join('')+'</div>':
      '<div class="mhch-empty">No challenges yet. Create your first challenge using the form.</div>')+
    '<p class="mhch-no-match" id="admin-challenge-no-match" hidden>No challenges match your search or status filter on this page.</p>'+
    challengePager(data)+'</section>';
