@@ -39,6 +39,12 @@ public class Challenge {
     @Column(name = "stream_url", length = 500)
     private String streamUrl;
 
+    @Column(name = "hidden", nullable = false)
+    private boolean hidden;
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;

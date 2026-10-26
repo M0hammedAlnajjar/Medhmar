@@ -10,8 +10,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
-    Page<Challenge> findByStatusIn(Collection<ChallengeStatus> statuses, Pageable pageable);
-    Page<Challenge> findByCreator_UserId(Long creatorId, Pageable pageable);
+    Page<Challenge> findByStatusInAndHiddenFalseAndDeletedFalse(Collection<ChallengeStatus> statuses, Pageable pageable);
+    Page<Challenge> findByDeletedFalse(Pageable pageable);
+    Page<Challenge> findByCreator_UserIdAndHiddenFalseAndDeletedFalse(Long creatorId, Pageable pageable);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Challenge c where c.challengeId = :id")
     Optional<Challenge> findLockedById(@Param("id") Long id);

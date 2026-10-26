@@ -13,10 +13,11 @@ public final class ChallengeDtos {
         @NotNull Instant opensAt,
         @NotNull Instant closesAt
     ) {}
+    public record VisibilityRequest(@NotNull Boolean hidden) {}
     public record StreamRequest(@NotNull @Size(max = 500) String url) {}
     public record VoteRequest(@NotNull @Positive Long camelId) {}
     public record CamelResult(Long camelId, String name, String photoUrl, long voteCount, BigDecimal votePercent) {}
     public record ChallengeResponse(Long challengeId, String title, Instant opensAt, Instant closesAt,
-        ChallengeStatus status, Long creatorId, long totalVotes, List<CamelResult> camels, String streamUrl) {}
+        ChallengeStatus status, Long creatorId, long totalVotes, List<CamelResult> camels, String streamUrl, boolean hidden) {}
     public record VoteResponse(Long voteId, Long challengeId, Long camelId, Instant votedAt) {}
 }

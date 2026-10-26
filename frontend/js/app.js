@@ -1291,7 +1291,13 @@ function bind(){
    updateStream:async(id,url)=>{await adminModulesApi.updateStream(id,url);toast(url?'Broadcast link saved.':'Broadcast link removed.','success');await render();},
    transitionChallenge:async(action,id)=>{
      if(action==='open')await adminModulesApi.openChallenge(id);
-     else await adminModulesApi.closeChallenge(id);
+     else if(action==='close')await adminModulesApi.closeChallenge(id);
+     else if(action==='hide'||action==='show')await adminModulesApi.setChallengeHidden(id,action==='hide');
+     else if(action==='delete')await adminModulesApi.deleteChallenge(id);
+     else throw new Error('Unsupported challenge action.');
+     state.challengeDetail=null;
+     try{const page=await challengeApi.list();state.challenges=page?.content||[];state.challengeError='';}
+     catch{state.challenges=[];state.challengeError='Unable to refresh public challenges.';}
      toast('Challenge status updated.','success');await render();
    },
    createOrganization:async payload=>{await adminModulesApi.createOrganization(payload);toast('Organization created.','success');await render();},

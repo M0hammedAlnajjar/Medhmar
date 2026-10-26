@@ -94,7 +94,7 @@ const challengeCard = c => {
   '" data-challenge-search="'+esc(search)+'">'+
   '<div class="mhch-card-heading"><div><span class="mhch-card-overline">CHALLENGE #'+esc(id)+
    ' · USER #'+esc(c.creatorId??'—')+'</span><h3>'+esc(c.title||'Untitled challenge')+'</h3></div>'+
-   '<span class="mhch-status mhch-status-'+tone+'"><span aria-hidden="true"></span>'+stage+'</span></div>'+
+   '<span class="mhch-status mhch-status-'+tone+'"><span aria-hidden="true"></span>'+stage+(c.hidden?' · Hidden':'')+'</span></div>'+
   '<div class="mhch-duo" aria-label="Challenge camel pair">'+photoCards+
    (cams.length===2?'<span class="mhch-vs" aria-hidden="true">VS</span>':'')+'</div>'+
   '<dl class="mhch-card-stats">'+
@@ -109,6 +109,8 @@ const challengeCard = c => {
       esc(Number(cam.votePercent).toFixed(1))+'%':'')+'</li>').join('')+'</ul>':
       '<p>No camels assigned.</p>')+
     '</div></details>'+
+  '<button type="button" class="admin-module-outline" data-admin-challenge-action="'+(c.hidden?'show':'hide')+'" data-challenge-id="'+esc(id)+'">'+(c.hidden?'Show publicly':'Hide from public')+'</button>'+
+  '<button type="button" class="mhch-outline-danger" data-admin-challenge-action="delete" data-challenge-id="'+esc(id)+'">Delete</button>'+
   (open?'<button type="button" class="mhch-outline-danger" data-admin-challenge-action="close" data-challenge-id="'+esc(id)+'">Close voting</button>':'')+
   '</div></div>'+
   (draft?'<div class="mhch-draft-tools"><details class="admin-module-edit"><summary>Edit draft details</summary>'+
@@ -288,10 +290,14 @@ export function bindAdminModules(root,actions={}) {
  root.querySelectorAll('[data-admin-challenge-action]').forEach(button=>button.addEventListener('click',async()=>{
   if(button.disabled)return;
   const type=button.dataset.adminChallengeAction,id=button.dataset.challengeId;
-  if(!globalThis.confirm((type==='open'?'Publish this challenge and start voting when its opening time arrives?':'Close voting for this challenge?')))return;
+  const prompts={open:'Publish this challenge and start voting when its opening time arrives?',close:'Close voting for this challenge?',
+   hide:'Hide this challenge from public pages and stop accepting votes? You can show it again.',
+   show:'Show this challenge publicly again? Voting follows its status and schedule.',
+   delete:'Delete this challenge from all lists? Its recorded votes will be retained in the database.'};
+  if(!prompts[type]||!globalThis.confirm(prompts[type]))return;
   button.disabled=true;
   try {await actions.transitionChallenge(type,id);}
-  catch(error) {const p=button.closest('.admin-module-item').querySelector('.admin-module-item-error');p.textContent=error?.message||'Request failed.';p.hidden=false;}
+  catch(error) {const p=button.closest('.admin-challenge-card').querySelector('.admin-module-item-error');p.textContent=error?.message||'Request failed.';p.hidden=false;}
   finally {if(button.isConnected)button.disabled=false;}
  }));
  root.querySelector('#admin-organization-create')?.addEventListener('submit',e=>{

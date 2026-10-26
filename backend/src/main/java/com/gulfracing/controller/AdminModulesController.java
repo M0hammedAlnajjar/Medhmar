@@ -2,6 +2,7 @@ package com.gulfracing.controller;
 
 import com.gulfracing.dto.ChallengeDtos.ChallengeResponse;
 import com.gulfracing.dto.ChallengeDtos.StreamRequest;
+import com.gulfracing.dto.ChallengeDtos.VisibilityRequest;
 import com.gulfracing.dto.OrganizationDtos.View;
 import com.gulfracing.dto.PageResponse;
 import com.gulfracing.service.ChallengeService;
@@ -34,6 +35,17 @@ public class AdminModulesController {
     public ChallengeResponse updateStream(@PathVariable @Positive Long id,
             @Valid @RequestBody StreamRequest request) {
         return challenges.updateStream(id, request.url());
+    }
+
+    @PutMapping("/challenges/{id}/visibility")
+    public ChallengeResponse visibility(@PathVariable @Positive Long id,
+            @Valid @RequestBody VisibilityRequest request) {
+        return challenges.setHidden(id, request.hidden());
+    }
+    @DeleteMapping("/challenges/{id}")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void deleteChallenge(@PathVariable @Positive Long id) {
+        challenges.delete(id);
     }
 
     @GetMapping("/organizations")

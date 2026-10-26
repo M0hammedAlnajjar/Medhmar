@@ -128,7 +128,7 @@ public class ChallengeService {
         var challenge = locked(id);
         var user = users.getActive(actorId);
         Instant now = clock.instant();
-        if (challenge.getStatus() != ChallengeStatus.OPEN || now.isBefore(challenge.getOpensAt())
+        if (challenge.isHidden() || challenge.getStatus() != ChallengeStatus.OPEN || now.isBefore(challenge.getOpensAt())
             || !now.isBefore(challenge.getClosesAt()))
             throw ApiException.conflict("Voting is not open for this challenge.");
         if (votes.existsByUser_UserIdAndChallengeCamel_Id_ChallengeId(actorId, id))
@@ -145,6 +145,8 @@ public class ChallengeService {
     @Transactional(readOnly = true)
     public ChallengeResponse get(Long id, Long viewerId) {
         var challenge = challenges.findById(id).orElseThrow(() -> ApiException.notFound("Challenge"));
+        if (challenge.isDeleted() || (challenge.isHidden() && (viewerId == null || !users.isAdmin(viewerId))))
+            throw ApiException.notFound("Challenge");
         if (challenge.getStatus() == ChallengeStatus.DRAFT
             && (viewerId == null || (!challenge.getCreator().getUserId().equals(viewerId) && !users.isAdmin(viewerId))))
             throw ApiException.notFound("Challenge");
@@ -152,23 +154,38 @@ public class ChallengeService {
     }
     @Transactional(readOnly = true)
     public PageResponse<ChallengeResponse> list(int page, int size) {
-        return PageResponse.from(challenges.findByStatusIn(List.of(ChallengeStatus.OPEN, ChallengeStatus.CLOSED),
+        return PageResponse.from(challenges.findByStatusInAndHiddenFalseAndDeletedFalse(List.of(ChallengeStatus.OPEN, ChallengeStatus.CLOSED),
             pageable(page, size)), this::response);
     }
     // Administrative view includes drafts. Public list() deliberately excludes drafts.
     @Transactional(readOnly = true)
     public PageResponse<ChallengeResponse> adminList(int page, int size) {
-        return PageResponse.from(challenges.findAll(pageable(page, size)), this::response);
+        return PageResponse.from(challenges.findByDeletedFalse(pageable(page, size)), this::response);
     }
     @Transactional(readOnly = true)
     public PageResponse<ChallengeResponse> mine(Long userId, int page, int size) {
-        return PageResponse.from(challenges.findByCreator_UserId(userId, pageable(page, size)), this::response);
+        return PageResponse.from(challenges.findByCreator_UserIdAndHiddenFalseAndDeletedFalse(userId, pageable(page, size)), this::response);
+    }
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public ChallengeResponse setHidden(Long id, boolean hidden) {
+        var challenge = locked(id);
+        challenge.setHidden(hidden);
+        return response(challenge);
+    }
+    // Retain recorded votes and foreign-key history while removing the challenge from all views.
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void delete(Long id) {
+        var challenge = locked(id);
+        challenge.setHidden(true);
+        challenge.setDeleted(true);
     }
     private Pageable pageable(int page, int size) {
         return PageRequest.of(page, size, Sort.by("challengeId").descending());
     }
     private Challenge locked(Long id) {
-        return challenges.findLockedById(id).orElseThrow(() -> ApiException.notFound("Challenge"));
+        return challenges.findLockedById(id).filter(c -> !c.isDeleted()).orElseThrow(() -> ApiException.notFound("Challenge"));
     }
     private Challenge managedDraft(Long id, Long actorId) {
         var challenge = locked(id);
@@ -208,6 +225,6 @@ public class ChallengeService {
             effectiveStatus = ChallengeStatus.CLOSED;
         return new ChallengeResponse(challenge.getChallengeId(), challenge.getTitle(), challenge.getOpensAt(),
             challenge.getClosesAt(), effectiveStatus, challenge.getCreator().getUserId(), total, results,
-            challenge.getStreamUrl());
+            challenge.getStreamUrl(), challenge.isHidden());
     }
 }
