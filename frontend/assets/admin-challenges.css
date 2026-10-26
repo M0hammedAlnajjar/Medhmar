@@ -105,3 +105,16 @@
 
 .mhch-draft-tools .admin-module-camel-form select{width:100%;min-width:0;min-height:42px;padding:9px 12px;border:1px solid #dbc9b9;border-radius:8px;background:#fff;color:#402719;font:inherit}
 .mhch-draft-tools .admin-module-camel-form select:focus-visible{outline:2px solid #9b652f;outline-offset:2px}
+
+.admin-console .mhch-camel-choices{flex:0 0 100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px;max-height:340px;overflow-y:auto;padding:3px}
+.admin-console .mhch-camel-choice{display:flex;flex-direction:column;align-items:stretch;gap:5px;min-width:0;padding:8px;border:1px solid #dfd0c1;border-radius:10px;background:#fff;color:#402719;text-align:left;cursor:pointer;font:inherit}
+.admin-console .mhch-camel-choice:hover{border-color:#a47743;background:#fffaf2}
+.admin-console .mhch-camel-choice[aria-pressed="true"]{border-color:#8e2022;box-shadow:0 0 0 2px #8e2022;background:#fff5ef}
+.admin-console .mhch-camel-choice:focus-visible{outline:3px solid #9b652f;outline-offset:2px}
+.admin-console .mhch-choice-photo{display:grid;place-items:center;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#f4ece1}
+.admin-console .mhch-choice-photo>img{display:block;width:100%;height:100%;object-fit:cover}
+.admin-console .mhch-choice-photo .mhch-photo-placeholder{display:grid;place-items:center;height:100%;width:100%;padding:8px;font-size:10px}
+.admin-console .mhch-choice-photo .mhch-photo-placeholder img{width:42px;height:42px;object-fit:contain}
+.admin-console .mhch-choice-photo img.mhch-choice-fallback{object-fit:contain;padding:18px}
+.admin-console .mhch-choice-name{font-weight:750;font-size:13px;overflow-wrap:anywhere}
+.admin-console .mhch-choice-meta{font-size:11px;color:#77604e;overflow-wrap:anywhere}
