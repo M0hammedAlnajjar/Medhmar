@@ -24,7 +24,7 @@
   width:28px;
   pointer-events:none;
   background:url('/assets/challenge-edge-ornament.svg') center top/28px 38px repeat-y;
-  opacity:.65;
+  opacity:.85;
   z-index:-1;
 }
 .app-shell:has(.broadcast-preview) .main::before{left:0}
