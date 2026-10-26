@@ -106,3 +106,17 @@ test('module data is loaded after server-side admin verification',async()=>{
  assert.match(api,/\/api\/admin\/challenges/);
  assert.match(api,/\/api\/admin\/organizations/);
 });
+
+test('administrator can hide, show and delete challenges with recorded votes',()=>{
+ const visible=adminChallengesView({data:page([{...draft,status:'OPEN',totalVotes:12,hidden:false}])});
+ assert.match(visible,/data-admin-challenge-action="hide"/);
+ assert.match(visible,/Hide from public/);
+ assert.match(visible,/data-admin-challenge-action="delete"/);
+ assert.match(visible,/data-admin-challenge-action="close"/);
+ const hidden=adminChallengesView({data:page([{...draft,status:'CLOSED',totalVotes:12,hidden:true}])});
+ assert.match(hidden,/data-admin-challenge-action="show"/);
+ assert.match(hidden,/Show publicly/);
+ assert.match(hidden,/Closed · Hidden/);
+ assert.match(hidden,/data-admin-challenge-action="delete"/);
+ assert.doesNotMatch(hidden,/data-admin-challenge-action="hide"/);
+});

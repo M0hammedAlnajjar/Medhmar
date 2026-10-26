@@ -11,6 +11,43 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ChallengesIntegrationTests extends IntegrationSupport {
     @Test
+    void onlyAdminCanHideShowAndDeleteWhileVotesAreRetained() throws Exception {
+        var owner = register("visibility-owner@example.com");
+        var first = camel("First"); var second = camel("Second");
+        var challenge = openChallenge(owner.userId(),first.getCamelId(),second.getCamelId());
+        long id = challenge.challengeId();
+        challenges.vote(id,first.getCamelId(),owner.userId());
+        var manager = admin();
+        String url = "/api/admin/challenges/"+id;
+        mvc.perform(put(url+"/visibility").session(login(owner.email())).with(csrf())
+            .contentType("application/json").content("{\"hidden\":true}"))
+            .andExpect(status().isForbidden());
+        mvc.perform(delete(url).session(login(owner.email())).with(csrf()))
+            .andExpect(status().isForbidden());
+        mvc.perform(put(url+"/visibility").session(manager).with(csrf())
+            .contentType("application/json").content("{\"hidden\":true}"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.hidden").value(true));
+        mvc.perform(get("/api/challenges/"+id)).andExpect(status().isNotFound());
+        mvc.perform(get("/api/challenges/"+id+"/results")).andExpect(status().isNotFound());
+        mvc.perform(get("/api/challenges")).andExpect(jsonPath("$.totalElements").value(0));
+        var voter = register("visibility-voter@example.com");
+        mvc.perform(post("/api/challenges/"+id+"/votes").session(login(voter.email())).with(csrf())
+            .contentType("application/json").content(payload(Map.of("camelId",second.getCamelId()))))
+            .andExpect(status().isConflict());
+        mvc.perform(get("/api/admin/challenges").session(manager))
+            .andExpect(jsonPath("$.content[0].hidden").value(true));
+        mvc.perform(put(url+"/visibility").session(manager).with(csrf())
+            .contentType("application/json").content("{\"hidden\":false}"))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/challenges/"+id)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalVotes").value(1));
+        mvc.perform(delete(url).session(manager).with(csrf())).andExpect(status().isNoContent());
+        mvc.perform(get("/api/challenges/"+id).session(manager)).andExpect(status().isNotFound());
+        mvc.perform(get("/api/admin/challenges").session(manager))
+            .andExpect(jsonPath("$.totalElements").value(0));
+        assertThat(voteRepository.existsByUser_UserIdAndChallengeCamel_Id_ChallengeId(owner.userId(),id)).isTrue();
+    }
+    @Test
     void draftIsPrivateAndOnlyCreatorCanEdit() throws Exception {
         var owner = register("owner@example.com");
         var other = register("other@example.com");
