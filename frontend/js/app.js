@@ -106,8 +106,7 @@ function topbar(active='', compact=false){
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
   const corePaths = ['/home', '/races', '/camels', '/pedigree', '/marketplace'];
   const primaryDesktopPaths = [
-    '/home', '/challenges', '/training', '/organizations', '/tourism',
-    '/races', '/race-cards', '/camels', '/pedigree', '/marketplace', '/trainer-profile'
+    '/home', '/challenges', '/races', '/camels', '/marketplace'
   ];
   const visiblePaths = compact ? corePaths : primaryDesktopPaths;
   const desktopItems = visiblePaths.map(path => items.find(([p]) => p === path)).filter(Boolean);

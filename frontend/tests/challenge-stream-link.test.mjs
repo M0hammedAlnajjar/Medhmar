@@ -22,7 +22,7 @@ test('valid YouTube watch, share and live links offer embedded playback and a di
   assert.ok(html.includes('href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"'));
   assert.match(html,/target="_blank" rel="noopener"/);
   assert.match(html,/class="broadcast-stream-frame"/);
-  assert.match(html,/VIDEO<\/strong><span>LINKED/);
+  assert.doesNotMatch(html,/BROADCAST OFFLINE|Broadcast unavailable/);
   assert.doesNotMatch(html,/DEMO PREVIEW/);
  }
 });
@@ -33,7 +33,7 @@ test('unconfigured or malicious video links never become iframe sources',()=>{
                    'https://youtube.com/watch?v=%22%3E%3Cscript%3E']) {
   const html=broadcastPreview({...source,streamUrl:url});
   assert.doesNotMatch(html,/<iframe/);
-  assert.match(html,/No live stream is connected/);
+  assert.match(html,/No stream is connected/);
  }
 });
 

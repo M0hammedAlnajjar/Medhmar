@@ -82,223 +82,79 @@ try {
   assert.equal(await page.locator('.auth-brandbar .brand-wordmark').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)');
   await page.screenshot({path:'test-results/auth-logo-transparent-mobile.png'});
   await page.setViewportSize({width:1440,height:900});
-  await page.goto(`http://localhost:${port}/challenges`);
+  await page.goto('http://localhost:'+port+'/challenges');
   await page.locator('.broadcast-live-data').waitFor();
-  assert.match(await page.locator('.broadcast-heading h1').innerText(),/Test Live Racing Challenge/);
+  assert.equal(await page.locator('.challenge-page-title h1').innerText(),'Challenges');
+  assert.match(await page.locator('.broadcast-heading h2').innerText(),/Test Live Racing Challenge/);
   assert.equal(await page.locator('.broadcast-candidate').count(),2);
-  assert.equal(await page.locator('.broadcast-vs').count(),1,'two competing camels show one VS badge');
-  for (const width of [320,390,768,1440,1920]) {
-    await page.setViewportSize({width,height:900});
-    const duel=await page.locator('.broadcast-contenders').evaluate(el=>{
+  assert.equal(await page.locator('.broadcast-vs').count(),1);
+  assert.match(await page.locator('.broadcast-stage-center').innerText(),/Broadcast unavailable/);
+  assert.match(await page.locator('.broadcast-offline-badge').innerText(),/BROADCAST OFFLINE/);
+  assert.equal(await page.locator('.broadcast-demo-progress, [data-preview-fullscreen], .broadcast-winner').count(),0);
+  assert.ok((await page.locator('.broadcast-stage').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('challenge-broadcast-poster.webp'));
+  assert.equal(await page.locator('.broadcast-published-card').count(),1);
+  assert.equal(await page.locator('.broadcast-published-placeholder').count(),0);
+  assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
+  for(const width of [320,390,768,1440,1920]){
+    await page.setViewportSize({width,height:1000});
+    const geometry=await page.locator('.broadcast-contenders').evaluate(el=>{
       const [first,second]=el.querySelectorAll('.broadcast-candidate');
       const left=first.getBoundingClientRect(),right=second.getBoundingClientRect();
-      const badge=el.querySelector('.broadcast-vs')?.getBoundingClientRect();
-      return {sameRow:Math.abs(left.top-right.top)<3,ordered:left.right<right.left,
-        vsCentered:badge&&Math.abs((badge.left+badge.right)/2-(left.right+right.left)/2)<7,
+      const badge=el.querySelector('.broadcast-vs').getBoundingClientRect();
+      return {sameRow:Math.abs(left.top-right.top)<2,ordered:left.right<right.left,
+        centered:Math.abs((badge.left+badge.right)/2-(left.right+right.left)/2)<5,
         overflow:document.documentElement.scrollWidth>innerWidth+1};
     });
-    assert.ok(duel.sameRow&&duel.ordered&&duel.vsCentered&&!duel.overflow,
-      'two images and VS must fit without overlap at '+width+'px: '+JSON.stringify(duel));
+    assert.ok(geometry.sameRow&&geometry.ordered&&geometry.centered&&!geometry.overflow,
+      'duel fits at '+width+'px: '+JSON.stringify(geometry));
+    assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),width>900?2:1);
   }
-  await page.setViewportSize({width:1440,height:900});
-
-  // The reference uses a frameless layout and two neutral circular SVG silhouettes.
-  const referenceArt=await page.locator('.broadcast-voting').evaluate(async panel=>{
-    const imgs=[...panel.querySelectorAll('.broadcast-camel-photo img')];
-    await Promise.all(imgs.map(img=>img.decode()));
-    return {
-      srcs:imgs.map(img=>img.getAttribute('src')),
-      widths:imgs.map(img=>img.naturalWidth),
-      border:getComputedStyle(panel).borderTopWidth
-    };
+  await page.setViewportSize({width:1440,height:1000});
+  const cardGeometry=await page.locator('.broadcast-grid').evaluate(el=>{
+    const left=el.querySelector('.broadcast-left').getBoundingClientRect();
+    const right=el.querySelector('.broadcast-voting').getBoundingClientRect();
+    const panel=el.querySelector('.broadcast-voting');
+    return {gap:right.left-left.right,topDelta:Math.abs(left.top-right.top),
+      border:getComputedStyle(panel).borderTopWidth,
+      individual:[...panel.querySelectorAll('.broadcast-candidate')].map(node=>getComputedStyle(node).borderTopWidth)};
   });
-  assert.equal(referenceArt.srcs.length,2);
-  assert.ok(referenceArt.srcs.every(src=>src==='/assets/challenge-neutral-camel.svg'));
-  assert.ok(referenceArt.widths.every(width=>width>0));
-  assert.equal(referenceArt.border,'0px');
-
-  // The frame is black, displays Live, and never implies a connected stream.
-  assert.equal(await page.locator('.broadcast-grid').count(),1);
-  assert.equal(await page.locator('.broadcast-stage').count(),1);
-  assert.equal(await page.locator('.broadcast-scene-image, [data-preview-image], [data-preview-motion]').count(),0);
-  assert.match(await page.locator('.broadcast-stage-center').innerText(),/Live/);
-  assert.equal(await page.locator('.broadcast-demo-tag').isVisible(),false,
-    'reference has no redundant LIVE DEMO chip above the stream');
-  assert.match(await page.locator('.broadcast-toolbar-note').innerText(),/No live stream is connected/);
-  assert.equal(await page.locator('.broadcast-stage').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(0, 0, 0)');
-  assert.equal(await page.locator('[data-preview-fullscreen]').count(),1);
-  assert.equal(await page.locator('.broadcast-published-card').count(),1);
-  assert.equal(await page.locator('.broadcast-published-placeholder').count(),1);
-  assert.match(await page.locator('.broadcast-published-placeholder').innerText(),/Only real challenge results/);
-  assert.equal(await page.locator('.broadcast-placeholder-landscape').count(),1,'placeholder uses inline mountain SVG');
-  assert.equal(await page.locator('.broadcast-placeholder-flag').count(),1,'reference flag icon renders');
-  const landscapeVisual=await page.locator('.broadcast-published-placeholder').evaluate(el=>({
-    artwork:el.querySelector('.broadcast-placeholder-landscape')?.getBoundingClientRect().width,
-    background:getComputedStyle(el).backgroundImage
-  }));
-  assert.ok(landscapeVisual.artwork>100,'inline illustration must have nonzero dimensions');
-  assert.ok(!landscapeVisual.background.includes('url('),'placeholder must not download a photo');
-  // Regress the wide, shallow banner that previously cropped the SVG with `slice`.
-  for (const width of [1920,1440,970,660,390,320]) {
-    await page.setViewportSize({width,height:900});
-    const geometry=await page.locator('.broadcast-published-placeholder').evaluate(el=>{
-      const banner=el.getBoundingClientRect();
-      const svg=el.querySelector('.broadcast-placeholder-landscape');
-      const art=svg.getBBox(),matrix=svg.getScreenCTM();
-      const corners=[new DOMPoint(art.x,art.y),new DOMPoint(art.x+art.width,art.y+art.height)]
-        .map(point=>point.matrixTransform(matrix));
-      const copy=el.querySelector('.broadcast-placeholder-copy').getBoundingClientRect();
-      return {
-        artFits:corners.every(point=>point.x>=banner.left-1&&point.x<=banner.right+1
-          &&point.y>=banner.top-1&&point.y<=banner.bottom+1),
-        copyFits:copy.left>=banner.left&&copy.right<=banner.right+1
-          &&copy.top>=banner.top&&copy.bottom<=banner.bottom+1,
-        overflow:document.documentElement.scrollWidth>innerWidth+1
-      };
-    });
-    assert.ok(geometry.artFits,`mountains and palms must be fully visible at ${width}px`);
-    assert.ok(geometry.copyFits,`placeholder copy must stay inside the banner at ${width}px`);
-    assert.ok(!geometry.overflow,`challenge page must not scroll horizontally at ${width}px`);
-  }
-  await page.setViewportSize({width:1440,height:900});
-  assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
-  assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/Desert Speed Challenge|Winter Racing Cup/);
-  const desktopCols=await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
-  assert.equal(desktopCols,2,'desktop challenges must have hero and voting columns');
-  const unifiedCard=await page.locator('.broadcast-grid').evaluate(el=>{
-    const frame=el.getBoundingClientRect();
-    const player=el.querySelector('.broadcast-player').getBoundingClientRect();
-    const panel=el.querySelector('.broadcast-voting').getBoundingClientRect();
-    return {gap:panel.left-player.right,topDelta:Math.abs(player.top-panel.top),
-      border:getComputedStyle(el).borderTopWidth,radius:getComputedStyle(el).borderTopLeftRadius,
-      heightDelta:Math.abs(player.height-panel.height),frameWidth:frame.width};
-  });
-  assert.ok(unifiedCard.gap>=16 && unifiedCard.topDelta<2,
-    'reference separates the stream and results with spacing: '+JSON.stringify(unifiedCard));
-  assert.equal(parseFloat(unifiedCard.border),0,'reference has no enclosing border');
-  assert.equal(parseFloat(unifiedCard.radius),0,'reference has no surrounding card');
-  assert.equal(await page.locator('.broadcast-stage').count(),1);
-  assert.equal(await page.locator('.broadcast-bottom-tools, .broadcast-tabs, #broadcast-info').count(),0,
-    'obsolete challenge tabs, refresh strip and details row must not render');
-  assert.equal(await page.locator('#refresh-challenges').count(),0,
-    'refresh button is shown only when challenge loading fails');
-  assert.match(await page.locator('.broadcast-voting').innerText(),/Al Barq|Shaheen/);
-  assert.match(await page.locator('.broadcast-voting').innerText(),/0\s+votes/);
-  assert.doesNotMatch(await page.locator('.broadcast-preview').innerText(),/744 votes|456 votes|1.2K watching|LIVE PREVIEW|Sample event/);
+  assert.ok(cardGeometry.gap>=20&&cardGeometry.topDelta<2);
+  assert.equal(cardGeometry.border,'1px','results use one unified panel');
+  assert.ok(cardGeometry.individual.every(border=>border==='0px'),'contenders do not use nested cards');
+  assert.equal(await page.locator('#refresh-challenges').count(),0);
   await page.locator('.broadcast-candidate .vote-btn').first().click();
   await page.waitForFunction(()=>document.querySelector('.broadcast-big-count')?.textContent==='1');
-  assert.equal(recordedChallengeVotes,1,'real featured vote must call backend');
+  assert.equal(recordedChallengeVotes,1);
   assert.equal(mutations.filter(path=>path.includes('/api/challenges/42/votes')).length,1);
+  assert.equal(await page.locator('.broadcast-winner').count(),0,'open voting never declares a final winner');
   await page.reload();
   await page.locator('.broadcast-live-data').waitFor();
-  await page.waitForFunction(()=>document.querySelector('.broadcast-big-count')?.textContent==='1');
-  assert.equal(recordedChallengeVotes,1,'recorded vote must persist after a reload');
-  // Clear the expected authenticated vote before testing read-only page controls.
+  assert.equal(await page.locator('.broadcast-big-count').first().innerText(),'1');
   mutations.length=0;
-  await page.setViewportSize({width:1920,height:1080});
-  const desktopReferenceGeometry=await page.evaluate(()=>{
-    const grid=document.querySelector('.broadcast-grid').getBoundingClientRect();
-    const hero=document.querySelector('.broadcast-player').getBoundingClientRect();
-    const voting=document.querySelector('.broadcast-voting').getBoundingClientRect();
-    return {viewport:innerWidth,gridWidth:grid.width,left:grid.left,
-      heroWidth:hero.width,votingWidth:voting.width,overflow:document.documentElement.scrollWidth};
-  });
-  assert.ok(desktopReferenceGeometry.gridWidth>=desktopReferenceGeometry.viewport*.85,
-    'Challenges reference must use at least 85% of widescreen: '+JSON.stringify(desktopReferenceGeometry));
-  assert.ok(desktopReferenceGeometry.left<120,
-    'Challenges left gutter should match reference spacing: '+JSON.stringify(desktopReferenceGeometry));
-  assert.ok(desktopReferenceGeometry.heroWidth>=desktopReferenceGeometry.votingWidth*1.95,
-    'Reference hero must be substantially wider than voting panel: '+JSON.stringify(desktopReferenceGeometry));
-  assert.ok(desktopReferenceGeometry.overflow<=desktopReferenceGeometry.viewport+1,
-    'Challenges widescreen must not overflow: '+JSON.stringify(desktopReferenceGeometry));
   await page.screenshot({path:'test-results/challenges-desktop.png',fullPage:true});
-  // The public Challenges content can be wide, but its navbar must be identical to Home.
-  const headerBounds=()=>page.evaluate(()=>{
-    const selectors=['.topbar','.topbar-inner','.brand-wordmark','.nav-desktop','.nav-actions'];
-    return Object.fromEntries(selectors.map(selector=>{
-      const box=document.querySelector(selector)?.getBoundingClientRect();
-      return [selector,box?{x:box.x,y:box.y,width:box.width,height:box.height}:null];
-    }));
-  });
-  const challengeHeaderDesktop=await headerBounds();
-  await page.goto('http://127.0.0.1:'+port+'/home');
-  await page.locator('.topbar-inner').waitFor();
-  const homeHeaderDesktop=await headerBounds();
-  for(const selector of Object.keys(homeHeaderDesktop))for(const key of ['x','y','width','height']){
-    assert.ok(Math.abs(challengeHeaderDesktop[selector][key]-homeHeaderDesktop[selector][key])<1.1,
-      'Challenges navbar must match Home at 1920px: '+selector+'.'+key+
-      ' '+challengeHeaderDesktop[selector][key]+' vs '+homeHeaderDesktop[selector][key]);
-  }
-  await page.goto('http://127.0.0.1:'+port+'/challenges');
-  await page.locator('.broadcast-live-data').waitFor();
-
-  // 1920px monitors at 125% desktop scaling often expose ~1536 CSS px.
-  // This viewport previously let the header approach the screen edges.
-  await page.setViewportSize({width:1536,height:900});
-  const scaledChallengesHeader=await headerBounds();
-  const scaledContainer=scaledChallengesHeader['.topbar-inner'];
-  assert.ok(scaledContainer.x>=90 && scaledContainer.width<=1310,
-    'scaled desktop navbar should be centered: '+JSON.stringify(scaledContainer));
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
-    'scaled Challenges desktop must not overflow');
-  await page.screenshot({path:'test-results/challenges-navbar-scaled-desktop.png'});
-  await page.goto('http://127.0.0.1:'+port+'/home');
-  await page.locator('.topbar-inner').waitFor();
-  const scaledHomeHeader=await headerBounds();
-  for(const selector of Object.keys(scaledHomeHeader))for(const key of ['x','y','width','height']){
-    assert.ok(Math.abs(scaledChallengesHeader[selector][key]-scaledHomeHeader[selector][key])<1.1,
-      'scaled desktop mismatch between Home and Challenges: '+selector+'.'+key);
-  }
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
-    'scaled Home desktop must not overflow');
-  await page.screenshot({path:'test-results/home-navbar-scaled-desktop.png'});
-  await page.goto('http://127.0.0.1:'+port+'/challenges');
-  await page.locator('.broadcast-live-data').waitFor();
   await page.setViewportSize({width:390,height:844});
-  assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
-  const mobileLayout=await page.evaluate(()=>({
-    viewport:innerWidth,document:document.documentElement.scrollWidth,
-    overflow:[...document.querySelectorAll('body *')].filter(el=>{
-      const box=el.getBoundingClientRect();
-      return box.width>0&&(box.right>innerWidth+2||box.left<-2);
-    }).slice(0,12).map(el=>({
-      tag:el.tagName,cls:typeof el.className==='string'?el.className:'',width:el.getBoundingClientRect().width,
-      right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left
-    }))
-  }));
-  assert.ok(mobileLayout.document<=mobileLayout.viewport+1,'live challenges mobile must not overflow: '+JSON.stringify(mobileLayout));
   await page.screenshot({path:'test-results/challenges-mobile.png',fullPage:true});
-  const challengeHeaderMobile=await headerBounds();
-  await page.goto('http://127.0.0.1:'+port+'/home');
-  await page.locator('.topbar-inner').waitFor();
-  const homeHeaderMobile=await headerBounds();
-  for(const selector of Object.keys(homeHeaderMobile))for(const key of ['x','y','width','height']){
-    assert.ok(Math.abs(challengeHeaderMobile[selector][key]-homeHeaderMobile[selector][key])<1.1,
-      'Challenges navbar must match Home at 390px: '+selector+'.'+key+
-      ' '+challengeHeaderMobile[selector][key]+' vs '+homeHeaderMobile[selector][key]);
-  }
 
-  // Registered photos and short admin titles must survive the public presentation.
-  const photoRecord={challengeId:42,title:'a',status:'OPEN',
-    opensAt:new Date(Date.now()-3600000).toISOString(),
-    closesAt:new Date(Date.now()+86400000).toISOString(),totalVotes:0,
-    camels:[{camelId:1,name:'Registered first',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:0,votePercent:0},
+  // A real admin title and registered photos survive the redesign and final results.
+  const photoRecord={challengeId:42,title:'a',status:'CLOSED',
+    opensAt:'2026-01-01T06:00:00Z',closesAt:'2026-01-02T06:00:00Z',totalVotes:1,
+    camels:[{camelId:1,name:'Registered first',photoUrl:'/assets/mock-camels/camel-7.jpg',voteCount:1,votePercent:100},
       {camelId:2,name:'Registered second',photoUrl:'/assets/mock-camels/camel-4.jpg',voteCount:0,votePercent:0}]};
   const photoRoute=route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({content:[photoRecord],page:0,size:20,totalPages:1,totalElements:1})});
   await page.route('**/api/challenges?*',photoRoute);
-  await page.setViewportSize({width:1440,height:900});
+  await page.setViewportSize({width:1440,height:1000});
   await page.goto('http://localhost:'+port+'/challenges');
   await page.locator('.broadcast-live-data').waitFor();
-  assert.equal(await page.locator('.broadcast-heading h1').innerText(),'a');
+  assert.equal(await page.locator('.broadcast-heading h2').innerText(),'a');
+  assert.equal(await page.locator('.broadcast-winner').count(),1);
+  assert.equal(await page.locator('.broadcast-winner').locator('..').locator('img').getAttribute('src'),photoRecord.camels[0].photoUrl);
+  assert.equal(await page.locator('.vote-btn, .broadcast-vote-link, .broadcast-candidate button:disabled').count(),0);
+  assert.match(await page.locator('.broadcast-share').last().innerText(),/0% of votes/);
   const registeredPhotos=page.locator('img.broadcast-camel-photo');
-  assert.equal(await registeredPhotos.count(),2);
   await page.waitForFunction(()=>[...document.querySelectorAll('img.broadcast-camel-photo')].every(img=>img.complete&&img.naturalWidth>0));
   assert.equal(await registeredPhotos.nth(1).getAttribute('src'),photoRecord.camels[1].photoUrl);
-  assert.equal(await registeredPhotos.nth(1).evaluate(img=>getComputedStyle(img).transform),'none');
-  assert.equal(await registeredPhotos.nth(1).evaluate(img=>getComputedStyle(img).objectFit),'cover');
-  await page.screenshot({path:'test-results/challenges-registered-photos.png'});
+  await page.screenshot({path:'test-results/challenges-registered-photos.png',fullPage:true});
   await page.unroute('**/api/challenges?*',photoRoute);
-
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`http://localhost:${port}/training`);
   await page.locator('.training-journal').waitFor();

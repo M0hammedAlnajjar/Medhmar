@@ -1,298 +1,177 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {broadcastPreview, publishedChallengeCards, bindBroadcastPreview} from '../js/challenge-preview.js';
+import {broadcastPreview,publishedChallengeCards,bindBroadcastPreview} from '../js/challenge-preview.js';
 
-const challenge = {
-  challengeId: 42,title: 'TEST - Camel Racing Challenge',
-  status: 'OPEN', opensAt: new Date(Date.now()-3600000).toISOString(),
-  closesAt: new Date(Date.now()+86400000).toISOString(),
-  totalVotes: 4,
-  camels:[
-    {camelId:1,name:'Al Barq',voteCount:3,votePercent:75,photoUrl:null},
-    {camelId:2,name:'Shaheen',voteCount:1,votePercent:25,photoUrl:null}
-  ]
+const challenge={
+ challengeId:42,title:'Registered challenge',status:'OPEN',
+ opensAt:new Date(Date.now()-3600000).toISOString(),
+ closesAt:new Date(Date.now()+86400000).toISOString(),totalVotes:4,
+ camels:[
+  {camelId:1,name:'Al Barq',voteCount:3,votePercent:75,photoUrl:'/uploads/camels/barq.jpg'},
+  {camelId:2,name:'Shaheen',voteCount:1,votePercent:25,photoUrl:'/uploads/camels/shaheen.png'}
+ ]
 };
-test('published challenge replaces all old sample details with recorded data',()=>{
- const html=broadcastPreview(challenge,{signedIn:true});
- assert.match(html,/TEST - Camel Racing Challenge|CHALLENGE #42/);
- assert.match(html,/Al Barq|Shaheen|3 votes|1 votes|75%|25%/);
- assert.match(html,/data-challenge="42" data-camel="1"/);
- assert.match(html,/data-challenge="42" data-camel="2"/);
- assert.match(html,/No live stream is connected|Not connected/);
- assert.match(html,/class="broadcast-stage"/);
- assert.match(html,/broadcast-stage-center/);
- assert.match(html,/challenge-neutral-camel\.svg/);
- assert.doesNotMatch(html,/744 votes|456 votes|1\.2K watching|Al Bashaer Evening Challenge|Try one sample vote|Reset preview vote/);
- assert.doesNotMatch(html,/data-preview-vote/);
- assert.doesNotMatch(html,/Refresh results|broadcast-bottom-tools|broadcast-tabs|broadcast-info/);
-});
-test('unsigned visitors see only authenticated vote links; future/closed challenges cannot vote',()=>{
- const publicView=broadcastPreview(challenge,{signedIn:false});
- assert.match(publicView,/Sign in to vote/);
- assert.doesNotMatch(publicView,/class="vote-btn"/);
- const future=broadcastPreview({...challenge,opensAt:new Date(Date.now()+3600000).toISOString()},{signedIn:true});
- assert.match(future,/VOTING SCHEDULED|Voting unavailable/);
- assert.doesNotMatch(future,/class="vote-btn"/);
- const closed=broadcastPreview({...challenge,status:'CLOSED'},{signedIn:true});
- assert.match(closed,/CLOSED · RESULTS|Voting has closed/);
- assert.doesNotMatch(closed,/class="vote-btn"/);
-});
-test('empty and API-error states do not advertise fictional events',()=>{
- const noData=broadcastPreview();
- assert.match(noData,/No published challenges yet/);
- assert.match(broadcastPreview(null,{error:'Network error'}),/Challenges temporarily unavailable/);
- for(const html of [noData,broadcastPreview(null,{error:'Network error'})])
-  assert.doesNotMatch(html,/Al Barq|Shaheen|live preview|sample votes|744/gi);
-});
-test('user supplied names and photo URLs cannot inject HTML',()=>{
- const evil=broadcastPreview({...challenge,title:'<img src=x onerror=alert(1)>',
-   camels:[{camelId:1,name:'<script>alert(1)</script>',voteCount:0,votePercent:0,
-     photoUrl:'javascript:alert(1)'}]},{signedIn:true});
- assert.doesNotMatch(evil,/<script>|<img src=x|src="javascript:/);
- assert.match(evil,/&lt;img src=x|&lt;script&gt;/);
- assert.match(evil,/challenge-neutral-camel\.svg/);
-});
-test('the challenge keeps the real voting actions and gallery but omits the old details controls',()=>{
- const html=broadcastPreview(challenge,{signedIn:true});
- for(const removed of ['broadcast-bottom-tools','broadcast-tabs','broadcast-info',
-   'data-preview-tab','Refresh results','Voting opens'])assert.ok(!html.includes(removed),removed);
- assert.match(html,/data-preview-fullscreen/);
- assert.doesNotMatch(html,/data-preview-image|data-preview-motion|broadcast-scene-image/);
- assert.match(html,/data-challenge="42" data-camel="1"/);
+
+test('the page preserves registered identities, photos, schedule and vote targets',()=>{
+ const html=broadcastPreview({...challenge,title:'a'},{signedIn:true});
+ assert.match(html,/<h1>Challenges<\/h1>/);
+ assert.match(html,/<h2>a<\/h2>/);
+ for(const value of ['CHALLENGE #42','Al Barq','Shaheen','75% of votes','25% of votes',
+   '/uploads/camels/barq.jpg','/uploads/camels/shaheen.png',
+   'data-challenge="42" data-camel="1"','data-challenge="42" data-camel="2"','4 total votes'])
+  assert.ok(html.includes(value),value);
+ assert.match(html,/Opens .* UTC/);
+ assert.match(html,/Closes .* UTC/);
+ assert.doesNotMatch(html,/challenge-neutral-camel\.svg|broadcast-winner/);
 });
 
-test('approved black live standby keeps real challenge metadata and voting data',()=>{
- const html=broadcastPreview(challenge,{signedIn:true});
- assert.match(html,/class="broadcast-grid"/);
- assert.match(html,/class="broadcast-player"/);
- assert.match(html,/class="broadcast-heading"/);
- assert.match(html,/class="broadcast-voting"/);
- assert.match(html,/class="broadcast-stage"/);
- assert.match(html,/broadcast-stage-dot/);
- assert.match(html,/data-preview-fullscreen/);
- assert.doesNotMatch(html,/data-preview-image|data-preview-motion|broadcast-scene-image/);
- assert.doesNotMatch(html,/data-preview-tab|data-results=|broadcast-info/);
- assert.match(html,/3 votes|75%/);
- assert.doesNotMatch(html,/class="broadcast-facts"|Opens \(UTC\)|Closes \(UTC\)|<small>Broadcast<\/small>/);
- assert.match(html,/CLOSED · RESULTS|VOTING OPEN|VOTING SCHEDULED/);
- assert.match(html,/DEMO PREVIEW · No live stream is connected/);
- assert.match(html,/broadcast-demo-tag|LIVE<\/strong>/);
- assert.match(html,/DEMO|PHOTO PREVIEW/);
- assert.match(html,/broadcast-demo-progress/);
- assert.match(html,/Black livestream placeholder/);
- assert.doesNotMatch(html,/2,300 viewers|Live broadcast connected|1234 votes/);
-});
-test('published cards show only API data and use safe fallback illustration',()=>{
- const html=publishedChallengeCards([{
-  ...challenge,status:'CLOSED',title:'<script>unsafe</script>',
-  camels:[
-   {camelId:1,name:'Al Barq',voteCount:3,votePercent:75,photoUrl:'javascript:alert(1)'},
-   {camelId:2,name:'Shaheen',voteCount:1,votePercent:25,photoUrl:null}
-  ]
- }]);
- assert.match(html,/More Published Challenges/);
- assert.match(html,/broadcast-published-card/);
- assert.match(html,/broadcast-published-placeholder/);
- assert.match(html,/More challenges on the way/);
- assert.equal((html.match(/broadcast-published-card/g)||[]).length,1);
- const two=publishedChallengeCards([{...challenge,status:'CLOSED'}, {...challenge,challengeId:43,title:'Real second recorded challenge'}]);
- assert.doesNotMatch(two,/broadcast-published-placeholder|More challenges on the way/);
- assert.match(html,/&lt;script&gt;unsafe&lt;\/script&gt;/);
- assert.match(html,/Al Barq|Shaheen|75%|25%/);
- assert.match(html,/href="\/challenges\/42"/);
- assert.doesNotMatch(html,/<script>|src="javascript:|Desert Speed Challenge|Winter Racing Cup/);
- const empty=publishedChallengeCards([]);
- assert.match(empty,/More challenges will appear here/);
- assert.doesNotMatch(empty,/broadcast-published-card|Desert Speed Challenge/);
-});
-test('live standby exposes a working fullscreen action and no fictional player actions',()=>{
- const html=broadcastPreview(challenge,{signedIn:true});
- assert.match(html,/data-preview-fullscreen/);
- assert.doesNotMatch(html,/data-preview-image|data-preview-motion|broadcast-scene-image/);
- assert.match(html,/DEMO/);
- const button={addEventListener(kind,listener){this.click=listener;}};
- let requested=0;
- const player={requestFullscreen(){requested++;return Promise.resolve();}};
- const section={querySelector(sel){if(sel==='[data-preview-fullscreen]')return button;if(sel==='.broadcast-player')return player;return null;}};
- bindBroadcastPreview({querySelector:sel=>sel==='.broadcast-preview'?section:null});
- assert.equal(typeof button.click,'function');
- return button.click().then(()=>assert.equal(requested,1));
+test('offline media has an honest unavailable state and no pretend playback controls',()=>{
+ const html=broadcastPreview(challenge);
+ assert.match(html,/BROADCAST OFFLINE/);
+ assert.match(html,/Broadcast unavailable/);
+ assert.match(html,/No stream is connected to this challenge/);
+ assert.doesNotMatch(html,/<iframe|broadcast-demo|broadcast-stage-dot|data-preview-fullscreen|>Live</);
 });
 
-test('challenge retains schedule on hero but removes extra navigation and times row',()=>{
- const html=broadcastPreview(challenge,{signedIn:true});
- assert.doesNotMatch(html,/broadcast-facts|<small>Challenge ID<\/small>|<small>Opens \(UTC\)<\/small>|<small>Closes \(UTC\)<\/small>|<small>Broadcast<\/small>/);
- assert.match(html,/CHALLENGE #42/);
- assert.match(html,/Opens .* UTC|Opens /);
- assert.doesNotMatch(html,/Voting opens|broadcast-bottom-tools|broadcast-info|data-preview-tab|Refresh results/);
- assert.match(html,/No live stream is connected/);
+test('only signed-in accounts can vote inside the valid open window',()=>{
+ assert.match(broadcastPreview(challenge,{signedIn:true}),/class="vote-btn"/);
+ const guest=broadcastPreview(challenge);
+ assert.match(guest,/href="\/signin" data-link>Sign in to vote/);
+ assert.doesNotMatch(guest,/class="vote-btn"/);
+ for(const record of [
+  {...challenge,status:'CLOSED'},
+  {...challenge,opensAt:new Date(Date.now()+3600000).toISOString()},
+  {...challenge,closesAt:new Date(Date.now()-1000).toISOString()}
+ ])assert.doesNotMatch(broadcastPreview(record,{signedIn:true}),/class="vote-btn"/);
 });
 
-test('approved compact challenge layout keeps true status and fullscreen',async()=>{
- const {readFile}=await import('node:fs/promises');
- const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
- const html=broadcastPreview(challenge,{signedIn:false});
- for(const selector of [
-  '.app-shell:has(.broadcast-preview) .broadcast-grid',
-  '.app-shell:has(.broadcast-preview) .broadcast-voting',
-  '.app-shell:has(.broadcast-preview) .broadcast-published-card',
-  '.app-shell:has(.broadcast-preview) .broadcast-published-placeholder',
-  '@media(max-width:970px)','@media(max-width:660px)'
- ])assert.ok(css.includes(selector),selector);
- assert.match(css,/border-left:1px solid #e9dfd2/);
- assert.match(css,/display:contents/);
- assert.match(css,/grid-template-columns:minmax\(0,33%\) minmax\(0,1fr\)/);
- assert.doesNotMatch(css,/fonts\.googleapis\.com|https?:\/\/|@import/);
- assert.match(css,/\.broadcast-card-contender-photo/);
- assert.doesNotMatch(css,/url\('\/assets\/racing-hero\.webp'\)/);
- for(const label of ['data-preview-fullscreen','class="broadcast-stage"','DEMO PREVIEW'])assert.ok(html.includes(label),label);
- assert.doesNotMatch(html,/data-preview-tab|id="refresh-challenges"|broadcast-bottom-tools/);
- assert.match(html,/Sign in to vote/);
- assert.doesNotMatch(html,/broadcast-facts/);
+test('final results highlight exactly one positive winner, without disabled vote buttons',()=>{
+ const html=broadcastPreview({...challenge,status:'CLOSED'});
+ assert.match(html,/<h2 id="broadcast-results-title">Final results<\/h2>/);
+ assert.match(html,/Voting closed/);
+ assert.equal((html.match(/class="broadcast-winner"/g)||[]).length,1);
+ assert.match(html,/<article class="broadcast-candidate is-winner">[^]*?<h3>Al Barq<\/h3>/);
+ assert.doesNotMatch(html,/<button|class="vote-btn"|Sign in to vote/);
 });
 
-test('upcoming challenge placeholder matches the reference using decorative inline SVG only',async()=>{
- const {readFile}=await import('node:fs/promises');
- const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
- const single=publishedChallengeCards([challenge]);
- const placeholder=single.match(/<aside class="broadcast-published-placeholder"[^]*?<\/aside>/)?.[0];
- assert.ok(placeholder,'the one-record placeholder must render');
- assert.match(placeholder,/class="broadcast-placeholder-landscape"/);
- assert.match(placeholder,/class="broadcast-placeholder-flag"/);
- assert.match(placeholder,/viewBox="0 0 640 185"/);
- assert.match(placeholder,/aria-hidden="true" focusable="false"/);
- assert.match(placeholder,/challenge-mountains/);
- assert.match(placeholder,/More challenges on the way/);
- assert.match(placeholder,/Only real challenge results are shown/);
- assert.doesNotMatch(placeholder,/<img|https?:\/\/|<script|<button/);
- assert.equal((placeholder.match(/<svg/g)||[]).length,2);
- assert.match(css,/\.broadcast-placeholder-landscape/);
- assert.match(css,/\.broadcast-placeholder-copy/);
- assert.match(css,/\.broadcast-placeholder-flag/);
- assert.doesNotMatch(css,/url\('\/assets\/racing-hero\.webp'\) center 43%\/cover no-repeat/);
- const multiple=publishedChallengeCards([challenge,{...challenge,challengeId:43}]);
- assert.doesNotMatch(multiple,/broadcast-placeholder-landscape|broadcast-published-placeholder/);
- const none=publishedChallengeCards([]);
- assert.doesNotMatch(none,/broadcast-placeholder-landscape/);
+test('ties, zero votes, missing counts and inconsistent totals never invent a winner',()=>{
+ for(const record of [
+  {...challenge,totalVotes:0,camels:challenge.camels.map(c=>({...c,voteCount:0,votePercent:0}))},
+  {...challenge,camels:challenge.camels.map(c=>({...c,voteCount:2,votePercent:50}))},
+  {...challenge,totalVotes:5},
+  {...challenge,totalVotes:null},
+  {...challenge,camels:[{...challenge.camels[0],voteCount:-1},challenge.camels[1]]},
+  {...challenge,camels:[]}
+ ])assert.doesNotMatch(broadcastPreview({...record,status:'CLOSED'}),/broadcast-winner|is-winner/);
+ assert.doesNotMatch(broadcastPreview(challenge),/broadcast-winner|is-winner/);
 });
 
-test('heritage head-to-head layout places recorded opponents side-by-side with VS',async()=>{
- const {readFile}=await import('node:fs/promises');
- const css=await readFile(new URL('../assets/challenge-preview.css',import.meta.url),'utf8');
- const fallback=await readFile(new URL('../assets/challenge-neutral-camel.svg',import.meta.url),'utf8');
- const heritage=await readFile(new URL('../assets/challenge-vote-heritage.svg',import.meta.url),'utf8');
- const html=broadcastPreview(challenge,{signedIn:true});
- assert.match(html,/class="broadcast-contenders is-duel"/);
- assert.equal((html.match(/<article class="broadcast-candidate(?: is-alternate)?">/g)||[]).length,2);
- assert.match(html,/class="broadcast-vs" aria-hidden="true">VS<\/span>/);
- assert.equal((html.match(/challenge-neutral-camel\.svg/g)||[]).length,2);
- assert.match(html,/3 votes|1 votes|75%|25%/);
- assert.match(html,/data-challenge="42" data-camel="1"/);
- assert.match(html,/data-challenge="42" data-camel="2"/);
- assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
- assert.match(css,/challenge-vote-heritage\.svg/);
- assert.match(css,/@media\(max-width:390px\)/);
- assert.match(fallback,/<svg[\s\S]*<path/);
- assert.match(heritage,/id="sadu"/);
- // No false VS badge when only one opponent is returned by the API.
- const single=broadcastPreview({...challenge,camels:challenge.camels.slice(0,1)},{signedIn:true});
- assert.doesNotMatch(single,/class="broadcast-vs"/);
- const photo=broadcastPreview({...challenge,camels:[{...challenge.camels[0],photoUrl:'https://cdn.example.test/camel.jpg'}]},{signedIn:true});
- assert.match(photo,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
- assert.doesNotMatch(photo,/challenge-neutral-camel\.svg/);
- const published=publishedChallengeCards([{...challenge,camels:[{...challenge.camels[0],
-   photoUrl:'https://cdn.example.test/camel.jpg'}]}]);
- assert.match(published,/src="https:\/\/cdn\.example\.test\/camel\.jpg"/);
+test('unknown and zero vote shares remain visible without fabricated percentages',()=>{
+ const html=broadcastPreview({...challenge,camels:[
+  {...challenge.camels[0],voteCount:0,votePercent:0},
+  {...challenge.camels[1],votePercent:NaN}
+ ]});
+ assert.match(html,/0% of votes/);
+ assert.match(html,/Vote share unavailable/);
+ assert.doesNotMatch(html,/NaN%|undefined%/);
 });
 
-test('reference screenshot hierarchy is used without a surrounding shared card',async()=>{
- const {readFile}=await import('node:fs/promises');
- const stylesheet=await readFile(new URL('../assets/challenge-reference.css',import.meta.url),'utf8');
- const page=await readFile(new URL('../index.html',import.meta.url),'utf8');
- const avatar=await readFile(new URL('../assets/challenge-neutral-camel.svg',import.meta.url),'utf8');
- const ornament=await readFile(new URL('../assets/challenge-edge-ornament.svg',import.meta.url),'utf8');
- const footer=await readFile(new URL('../assets/challenge-dunes-footer.svg',import.meta.url),'utf8');
- const closed=broadcastPreview({...challenge,title:'V',status:'CLOSED',
-  camels:challenge.camels.map(x=>({...x,voteCount:0,votePercent:0}))},{signedIn:true});
- assert.match(closed,/<h1>V<\/h1>/);
- assert.match(closed,/<h2>Challenge results<\/h2>/);
- assert.match(closed,/Voting closed/);
- assert.match(closed,/broadcast-neutral-camel|challenge-neutral-camel\.svg/);
- assert.equal((closed.match(/challenge-neutral-camel\.svg/g)||[]).length,2);
- assert.equal((closed.match(/class="broadcast-vs"/g)||[]).length,1);
- assert.doesNotMatch(closed,/src="javascript:/);
- for(const selector of ['.broadcast-grid','.broadcast-voting','.broadcast-stage',
-  '.broadcast-contenders','.broadcast-upcoming-empty'])
-  assert.ok(stylesheet.includes(selector),selector);
- assert.match(stylesheet,/border:0/);
- assert.match(stylesheet,/aspect-ratio:2\.88/);
- assert.match(stylesheet,/challenge-edge-ornament\.svg/);
- assert.match(stylesheet,/challenge-dunes-footer\.svg/);
- assert.ok(page.indexOf('challenge-reference.css')>page.indexOf('challenge-preview.css'));
- assert.match(avatar,/viewBox="0 0 220 220"/);
- assert.match(ornament,/viewBox="0 0 28 38"/);
- assert.match(footer,/viewBox="0 0 275 92"/);
+test('missing or broken data shows a retryable state without a fabricated event',()=>{
+ for(const [html,title] of [
+  [broadcastPreview(),'No published challenges yet'],
+  [broadcastPreview(null,{error:'Network error'}),'Challenges temporarily unavailable']
+ ]){
+  assert.ok(html.includes(title));
+  assert.match(html,/id="refresh-challenges"/);
+  assert.doesNotMatch(html,/Al Barq|Shaheen|broadcast-stage|total votes|sample event/i);
+ }
 });
 
-test('public spotlight preserves admin title, photos and vote identities',()=>{
- const record={...challenge,challengeId:2,title:'a',camels:[
-  {...challenge.camels[0],photoUrl:'/uploads/camels/first.jpg'},
-  {...challenge.camels[1],photoUrl:'/uploads/camels/second.png'}]};
- const html=broadcastPreview(record,{signedIn:true});
- assert.match(html,/<h1>a<\/h1>/);
- assert.match(html,/src="\/uploads\/camels\/first\.jpg"/);
- assert.match(html,/src="\/uploads\/camels\/second\.png"/);
- assert.match(html,/data-challenge="2" data-camel="1"/);
- assert.match(html,/data-challenge="2" data-camel="2"/);
- assert.doesNotMatch(html,/challenge-neutral-camel\.svg/);
- const updated=broadcastPreview({...record,title:'Updated by admin',camels:[{...record.camels[0],photoUrl:null}]});
- assert.match(updated,/<h1>Updated by admin<\/h1>/);
- assert.match(updated,/challenge-neutral-camel\.svg/);
- assert.doesNotMatch(updated,/first\.jpg/);
-});
-
-test('detail and spotlight keep identical registered photos, voting rules and stream',()=>{
- const recorded={...challenge,streamUrl:'https://youtu.be/dQw4w9WgXcQ',camels:[
-  {...challenge.camels[0],photoUrl:'/uploads/barq.jpg'},
-  {...challenge.camels[1],photoUrl:'/uploads/shaheen.jpg'}
+test('HTML and unsafe photo URLs remain escaped on both public presentations',()=>{
+ const record={...challenge,title:'<img src=x onerror=alert(1)>',camels:[
+  {...challenge.camels[0],name:'<script>unsafe</script>',photoUrl:'javascript:alert(1)'},
+  {...challenge.camels[1],photoUrl:'https://cdn.example.test/photo.jpg" onerror="alert(1)'}
  ]};
+ for(const html of [broadcastPreview(record),publishedChallengeCards([record])]){
+  assert.match(html,/&lt;img src=x|&lt;script&gt;/);
+  assert.match(html,/challenge-neutral-camel\.svg/);
+  assert.doesNotMatch(html,/<script>|<img src=x|src="javascript:|src="[^"]*" onerror=/);
+ }
+});
+
+test('head-to-head markup is used only for two registered contenders',()=>{
+ const duel=broadcastPreview(challenge);
+ assert.equal((duel.match(/class="broadcast-vs"/g)||[]).length,1);
+ for(const camels of [[],challenge.camels.slice(0,1),[...challenge.camels,{...challenge.camels[0],camelId:3}]]){
+  const html=broadcastPreview({...challenge,camels});
+  assert.doesNotMatch(html,/class="broadcast-vs"/);
+  assert.equal((html.match(/<article class="broadcast-candidate/g)||[]).length,camels.length);
+ }
+});
+
+test('detail and spotlight render the same data, stream and voting rules',()=>{
+ const record={...challenge,streamUrl:'https://youtu.be/dQw4w9WgXcQ'};
  for(const signedIn of [false,true]){
-  for(const record of [recorded,{...recorded,opensAt:new Date(Date.now()+3600000).toISOString()},
-    {...recorded,status:'CLOSED'}]){
-   const spotlight=broadcastPreview(record,{signedIn});
-   const detail=broadcastPreview(record,{signedIn,detail:true});
-   // Navigation differs; the complete broadcast and voting content must agree.
-   assert.equal(detail.replace('href="/challenges">Back to Challenges →',
-     'href="/challenges/42">View challenge details →'),spotlight);
-   assert.match(detail,/src="\/uploads\/barq.jpg"/);
-   assert.match(detail,/src="\/uploads\/shaheen.jpg"/);
-   assert.match(detail,/youtube.com\/embed\/dQw4w9WgXcQ/);
-   assert.doesNotMatch(detail,/class="camel-art"/);
-  }
+  const spotlight=broadcastPreview(record,{signedIn}).split('<div class="broadcast-grid">')[1];
+  const detail=broadcastPreview(record,{signedIn,detail:true}).split('<div class="broadcast-grid">')[1];
+  assert.equal(detail.replace('href="/challenges">Back to Challenges',
+   'href="/challenges/42">View challenge details'),spotlight);
  }
 });
 
-test('published cards preserve registered portraits and recorded results when closed',()=>{
- const record={...challenge,camels:[
-  {...challenge.camels[0],photoUrl:'/uploads/barq.jpg'},
-  {...challenge.camels[1],photoUrl:'/uploads/shaheen.jpg'}
- ]};
- for(const status of ['OPEN','CLOSED']){
-  const html=publishedChallengeCards([{...record,status}]);
-  assert.match(html,/src="\/uploads\/barq.jpg"/);
-  assert.match(html,/src="\/uploads\/shaheen.jpg"/);
-  assert.match(html,/<figcaption>Al Barq<\/figcaption>/);
-  assert.match(html,/<figcaption>Shaheen<\/figcaption>/);
-  assert.doesNotMatch(html,/Illustrative racing photograph|racing-hero.webp/);
-  if(status==='CLOSED'){
-   assert.match(html,/broadcast-badge-closed/);
-   assert.match(html,/75%/);
-   assert.match(html,/25%/);
-  }
- }
- const missing=publishedChallengeCards([{...record,status:'CLOSED',camels:[
-  {...record.camels[0],name:'<script>unsafe</script>',photoUrl:'javascript:alert(1)'}]}]);
- assert.match(missing,/challenge-camel-placeholder.svg/);
- assert.match(missing,/&lt;script&gt;unsafe&lt;\/script&gt;/);
- assert.doesNotMatch(missing,/<script>|src="javascript:/);
+test('archive rows preserve registered portraits, final percentages and detail links',()=>{
+ const html=publishedChallengeCards([{...challenge,status:'CLOSED'}]);
+ assert.match(html,/Past challenges/);
+ assert.match(html,/broadcast-badge-closed/);
+ assert.equal((html.match(/<article class="broadcast-published-card"/g)||[]).length,1);
+ for(const value of ['/uploads/camels/barq.jpg','/uploads/camels/shaheen.png',
+   '<figcaption>Al Barq</figcaption>','75%','25%','href="/challenges/42"','View results'])
+  assert.ok(html.includes(value),value);
+ assert.doesNotMatch(html,/More challenges on the way|Upcoming published challenges/);
+});
+
+test('an archive without votes says so instead of showing meaningless percentage bars',()=>{
+ const html=publishedChallengeCards([{...challenge,status:'CLOSED',totalVotes:0,
+  camels:challenge.camels.map(c=>({...c,voteCount:0,votePercent:0}))}]);
+ assert.match(html,/No votes recorded/);
+ assert.doesNotMatch(html,/\d+%|broadcast-meter|broadcast-winner/);
+});
+
+test('empty and mixed-status archives never create records or label open events as past',()=>{
+ const empty=publishedChallengeCards();
+ assert.match(empty,/No other published challenges yet/);
+ assert.doesNotMatch(empty,/broadcast-published-card|Registered challenge/);
+ const mixed=publishedChallengeCards([challenge,{...challenge,challengeId:43,status:'CLOSED'}]);
+ assert.match(mixed,/>More challenges</);
+ assert.doesNotMatch(mixed,/>Past challenges</);
+ assert.equal((mixed.match(/<article class="broadcast-published-card"/g)||[]).length,2);
+});
+
+test('a failed or cached-broken registered photo falls back once to a labeled illustration',()=>{
+ let onError;
+ const img={
+  src:'/uploads/missing.jpg',alt:'Al Barq',complete:true,naturalWidth:0,attrs:{},
+  getAttribute(name){return this.attrs[name];},
+  setAttribute(name,value){this.attrs[name]=value;},
+  classList:{add(){}},
+  addEventListener(type,listener){if(type==='error')onError=listener;}
+ };
+ const section={querySelector:()=>null};
+ bindBroadcastPreview({querySelector:()=>section,querySelectorAll:()=>[img]});
+ assert.equal(img.src,'/assets/challenge-neutral-camel.svg');
+ assert.equal(img.alt,'Al Barq illustration; photo unavailable');
+ onError();
+ assert.equal(img.alt,'Al Barq illustration; photo unavailable');
+});
+
+test('connected broadcasts retain a real fullscreen action',async()=>{
+ let click,requested=0;
+ const button={addEventListener(type,listener){click=listener;}};
+ const stage={requestFullscreen:async()=>requested++};
+ const section={querySelector(selector){
+  return selector==='[data-preview-fullscreen]'?button:selector==='.broadcast-stage'?stage:null;
+ }};
+ bindBroadcastPreview({querySelector:()=>section});
+ await click();
+ assert.equal(requested,1);
 });
