@@ -1,13 +1,13 @@
 /* Public challenge components. A single layout replaces the accumulated demo overrides. */
 .broadcast-preview,.broadcast-published{color:#2e2018}
 .broadcast-preview h1,.broadcast-preview h2,.broadcast-preview h3,.broadcast-published h2,.broadcast-published h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.035em}
-.challenge-page-heading{position:relative;margin-bottom:32px;isolation:isolate}
-.challenge-breadcrumb{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;color:#7a6e64;font-size:12px;line-height:1.5}
+.challenge-page-heading{position:relative;margin-bottom:24px;isolation:isolate}
+.challenge-breadcrumb{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;color:#7a6e64;font-size:12px;line-height:1.5}
 .challenge-breadcrumb a:hover,.broadcast-challenge-link:hover{text-decoration:underline;text-underline-offset:4px}
 .challenge-breadcrumb [aria-current]{color:#7b5136}
 .challenge-page-title{display:flex;align-items:center;justify-content:space-between;gap:24px}
-.challenge-page-title h1{margin:0;font-size:clamp(36px,3.4vw,58px);line-height:1.08;color:#291910}
-.challenge-page-title p{margin:10px 0 0;color:#746c65;font-size:clamp(14px,1.15vw,18px);line-height:1.5}
+.challenge-page-title h1{margin:0;font-size:clamp(36px,2.9vw,48px);line-height:1.08;color:#291910}
+.challenge-page-title p{margin:8px 0 0;color:#746c65;font-size:clamp(14px,1.05vw,16px);line-height:1.5}
 .challenge-outline-link,.broadcast-refresh{display:inline-flex;align-items:center;justify-content:center;min-height:42px;flex-shrink:0;padding:10px 23px;border:1px solid #bb8b4d;border-radius:999px;background:transparent;color:#503320;font-size:13px;font-weight:650}
 .challenge-outline-link:hover,.broadcast-refresh:hover{background:#f0e5d6}
 .broadcast-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:stretch;gap:clamp(22px,1.8vw,36px)}
@@ -15,12 +15,13 @@
 .broadcast-heading{margin:0 0 16px}
 .broadcast-feature-kicker{margin-bottom:8px;color:#946523;font-size:11px;font-weight:750;letter-spacing:.17em;line-height:1.5}
 .broadcast-feature-kicker span{font-weight:500;letter-spacing:.07em}
-.broadcast-heading h2{margin:0 0 10px;color:#2f1c11;font-size:clamp(25px,2.1vw,36px);line-height:1.15;overflow-wrap:anywhere}
+.broadcast-heading h2{margin:0 0 10px;color:#2f1c11;font-size:clamp(25px,1.9vw,32px);line-height:1.15;overflow-wrap:anywhere}
 .broadcast-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;color:#77695e;font-size:11px;line-height:1.5}
 .broadcast-meta>span{display:inline-flex;align-items:center;gap:7px;min-width:0}
 .broadcast-meta svg{flex-shrink:0;color:#815c40}
 .broadcast-player{display:flex;flex:1;flex-direction:column;width:100%;min-width:0}
 .broadcast-stage{position:relative;display:grid;flex:1;place-items:center;width:100%;aspect-ratio:2.1;min-height:280px;overflow:hidden;border-radius:12px;background:linear-gradient(#241d1959,#241a1a78),url('/assets/challenge-broadcast-poster.webp') right center/cover no-repeat;color:#fff}
+.broadcast-stage:not(.broadcast-stage-connected){max-height:400px}
 .broadcast-offline-badge{position:absolute;top:20px;left:20px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#201c1bdd;color:#fff;font-size:10px;font-weight:750;letter-spacing:.04em}
 .broadcast-offline-badge>span{width:8px;height:8px;flex:none;border-radius:50%;background:#bbb9b4}
 .broadcast-stage-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:64px 20px 40px;text-align:center;text-shadow:0 1px 6px #0008}
@@ -33,31 +34,34 @@
 .broadcast-stream-links{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .broadcast-stream-links a,.broadcast-stream-links button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;padding:5px 0;border:0;border-bottom:1px solid #c5aa85;background:none;color:#51361f;font-size:11px;cursor:pointer}
 .broadcast-stage:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;border-radius:0}
-.broadcast-voting{--portrait-size:clamp(112px,12.2vw,224px);display:flex;flex-direction:column;min-width:0;padding:clamp(20px,1.8vw,32px);border:1px solid #e6d9c8;border-radius:12px;background:#fffcf8b3}
+.broadcast-voting{--portrait-size:clamp(112px,11.5vw,196px);display:flex;flex-direction:column;min-width:0;padding:24px;border:1px solid #e6d9c8;border-radius:12px;background:#fffcf8b3}
 .broadcast-voting-title{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
-.broadcast-voting-title h2{margin:0;color:#2d1b10;font-size:clamp(25px,2.05vw,35px);line-height:1.2}
+.broadcast-voting-title h2{margin:0;color:#2d1b10;font-size:clamp(25px,1.85vw,30px);line-height:1.2}
 .broadcast-voting-status,.broadcast-card-badge{display:inline-flex;align-items:center;align-self:flex-start;padding:6px 11px;border-radius:8px;background:#efe4d8;color:#785239;font-size:11px;font-weight:600;line-height:1.3}
 .broadcast-voting-status.is-open{background:#eaf0e6;color:#436238}
-.broadcast-contenders{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:24px 34px;align-items:start;flex:1;margin:26px 0 24px}
+.broadcast-contenders{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:24px 34px;align-items:start;flex:1;margin:20px 0}
 .broadcast-contenders.is-duel{grid-template-columns:repeat(2,minmax(0,1fr))}
 .broadcast-candidate{min-width:0;text-align:center}
-.broadcast-portrait{position:relative;width:min(100%,var(--portrait-size));margin:0 auto 20px}
-.broadcast-camel-photo{display:grid;place-items:center;width:100%;height:auto;aspect-ratio:1;border:3px solid #e9e2d8;border-radius:50%;overflow:hidden;background:#f3ece2;object-fit:cover;object-position:center}
+.broadcast-portrait{position:relative;width:min(100%,var(--portrait-size));margin:0 auto 16px}
+/* Registered full-body photos need a landscape frame; circular cover crops remove
+   heads and legs. Keep the entire original image inside a gently rounded frame. */
+.broadcast-camel-photo{display:grid;place-items:center;width:100%;height:auto;aspect-ratio:4/3;padding:4px;border:3px solid #e9e2d8;border-radius:12px;overflow:hidden;background:#f3ece2;object-fit:contain;object-position:center}
+.broadcast-camel-photo.broadcast-photo-placeholder{padding:0}
 .broadcast-camel-photo img{width:100%;height:100%;object-fit:contain;padding:8px}
 .broadcast-camel-photo.broadcast-camel-fallback-image{object-fit:contain;padding:8px}
 .is-winner .broadcast-camel-photo{border-color:#b88331;outline:3px solid #fffdf9;outline-offset:-6px}
 .broadcast-winner{position:absolute;bottom:-8px;left:50%;display:inline-flex;align-items:center;gap:7px;transform:translateX(-50%);padding:7px 13px;border:2px solid #fffcf8;border-radius:999px;background:#b48132;color:white;font-size:12px;font-weight:700;white-space:nowrap}
-.broadcast-candidate-content h3{min-height:2.4em;margin:0 0 9px;font-size:clamp(17px,1.5vw,24px);line-height:1.2;overflow-wrap:anywhere}
+.broadcast-candidate-content h3{min-height:2.4em;margin:0 0 8px;font-size:clamp(17px,1.35vw,21px);line-height:1.2;overflow-wrap:anywhere}
 .broadcast-count{display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2}
-.broadcast-big-count{font-size:clamp(30px,2.7vw,44px);font-weight:750;line-height:1.1;font-variant-numeric:tabular-nums}
+.broadcast-big-count{font-size:clamp(30px,2.3vw,38px);font-weight:750;line-height:1.1;font-variant-numeric:tabular-nums}
 .broadcast-count>span{font-size:12px;color:#655344}
-.broadcast-share{margin:18px 0 0;color:#7e4c2d;font-size:13px;line-height:1.4}
-.broadcast-vs{position:absolute;top:calc(var(--portrait-size)/2 - 12px);left:50%;transform:translateX(-50%);font:700 19px/24px Georgia,"Times New Roman",serif;color:#a8762d}
+.broadcast-share{margin:12px 0 0;color:#7e4c2d;font-size:13px;line-height:1.4}
+.broadcast-vs{position:absolute;top:calc(var(--portrait-size)*.375 - 12px);left:50%;transform:translateX(-50%);font:700 19px/24px Georgia,"Times New Roman",serif;color:#a8762d}
 .broadcast-candidate button,.broadcast-vote-link{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;min-height:44px;margin-top:18px;padding:10px 8px;border:1px solid #4d321f;border-radius:8px;background:#4d321f;color:#fff;font-size:12px;font-weight:650;line-height:1.3;cursor:pointer}
 .broadcast-candidate button:hover,.broadcast-vote-link:hover,.broadcast-card-button:hover{background:#302014}
 .broadcast-candidate button:disabled{opacity:.6;cursor:wait}
 .broadcast-vote-note{margin:0 0 14px;text-align:center;color:#7a6a5e;font-size:11px;line-height:1.5}
-.broadcast-results-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:19px;border-top:1px solid #e8dccd;font-size:12px;line-height:1.5}
+.broadcast-results-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:15px;border-top:1px solid #e8dccd;font-size:12px;line-height:1.5}
 .broadcast-total{font-weight:650;font-variant-numeric:tabular-nums}
 .broadcast-challenge-link{padding:3px 0;border-bottom:1px solid #a78260;color:#6c4226;font-weight:650}
 .broadcast-no-contenders{grid-column:1/-1;align-self:center;color:#78685b;text-align:center}
@@ -71,7 +75,7 @@
 .broadcast-published-card{display:grid;grid-template-columns:clamp(130px,12vw,200px) minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;gap:6px 20px;min-width:0;padding:15px;border:1px solid #e5d8c6;border-radius:12px;background:#fffdf947}
 .broadcast-card-photo{grid-row:1/span 2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-width:0;overflow:hidden}
 .broadcast-card-contender{position:relative;min-width:0;margin:0}
-.broadcast-card-contender-photo{display:grid;place-items:center;aspect-ratio:.88;width:100%;height:auto;border-radius:6px;object-fit:cover;background:#efe5d6}
+.broadcast-card-contender-photo{display:grid;place-items:center;aspect-ratio:.88;width:100%;height:auto;padding:4px;border-radius:6px;object-fit:contain;background:#efe5d6}
 .broadcast-card-contender-photo img{width:100%;height:100%;object-fit:contain}
 .broadcast-card-contender-photo.broadcast-camel-fallback-image{object-fit:contain}
 .broadcast-card-contender figcaption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
@@ -103,6 +107,7 @@
 @media(max-width:900px){
  .broadcast-grid{grid-template-columns:minmax(0,1fr);gap:24px}
  .broadcast-stage{aspect-ratio:16/9;min-height:0}
+ .broadcast-stage:not(.broadcast-stage-connected){max-height:none}
  .broadcast-voting{--portrait-size:180px;padding:24px}
  .broadcast-contenders{margin:24px 0}
  .broadcast-candidate-content h3{min-height:0}

@@ -153,6 +153,32 @@ try {
   const registeredPhotos=page.locator('img.broadcast-camel-photo');
   await page.waitForFunction(()=>[...document.querySelectorAll('img.broadcast-camel-photo')].every(img=>img.complete&&img.naturalWidth>0));
   assert.equal(await registeredPhotos.nth(1).getAttribute('src'),photoRecord.camels[1].photoUrl);
+  for(const width of [390,1440,1920]){
+    await page.setViewportSize({width,height:889});
+    const photos=await registeredPhotos.evaluateAll(imgs=>imgs.map(img=>{
+      const css=getComputedStyle(img),box=img.getBoundingClientRect();
+      const w=box.width-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)
+        -parseFloat(css.borderLeftWidth)-parseFloat(css.borderRightWidth);
+      const h=box.height-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom)
+        -parseFloat(css.borderTopWidth)-parseFloat(css.borderBottomWidth);
+      const scale=css.objectFit==='contain'?Math.min(w/img.naturalWidth,h/img.naturalHeight)
+        :Math.max(w/img.naturalWidth,h/img.naturalHeight);
+      return {fullImage:img.naturalWidth*scale<=w+.5&&img.naturalHeight*scale<=h+.5,
+        landscapeFrame:box.width>box.height};
+    }));
+    assert.ok(photos.every(photo=>photo.fullImage&&photo.landscapeFrame),
+      'complete registered photos must fit without cropped heads or legs at '+width+'px');
+    if(width===1920){
+      const layout=await page.evaluate(()=>({
+        viewportHeight:innerHeight,
+        mediaHeight:document.querySelector('.broadcast-stage').getBoundingClientRect().height,
+        archiveTop:document.querySelector('#broadcast-published-title').getBoundingClientRect().top
+      }));
+      assert.ok(layout.mediaHeight<=401,'offline poster must not expand indefinitely on wide screens');
+      assert.ok(layout.archiveTop<layout.viewportHeight-40,'past challenges remain discoverable at desktop height');
+    }
+  }
+  await page.setViewportSize({width:1440,height:1000});
   await page.screenshot({path:'test-results/challenges-registered-photos.png',fullPage:true});
   await page.unroute('**/api/challenges?*',photoRoute);
   await page.setViewportSize({width:1440,height:900});

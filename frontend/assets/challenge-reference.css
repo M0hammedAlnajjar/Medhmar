@@ -1,8 +1,8 @@
 /* Approved warm-ivory Challenges page, scoped away from every admin screen. */
 .app-shell:has(.broadcast-preview){background:#faf7f1}
 .app-shell:has(.broadcast-preview) .main{
- position:relative;width:100%;max-width:1880px;margin:0 auto;
- padding:30px clamp(20px,3.7vw,70px) 90px;background:transparent;isolation:isolate;
+ position:relative;width:100%;max-width:1760px;margin:0 auto;
+ padding:24px clamp(20px,3.2vw,56px) 90px;background:transparent;isolation:isolate;
 }
 .app-shell:has(.broadcast-preview) .main::before,
 .app-shell:has(.broadcast-preview) .main::after{content:none}
