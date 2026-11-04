@@ -616,7 +616,7 @@ footer{max-width:var(--max);margin:30px auto 0;padding:26px 28px 36px;color:var(
 .topbar .brand-wordmark img{width:180px;height:48px}
 .topbar .nav.nav-desktop{
   display:flex;flex:1 1 auto;flex-wrap:nowrap;align-items:stretch;
-  justify-content:flex-start;min-width:0;height:100%;width:auto;
+  justify-content:safe center;min-width:0;height:100%;width:auto;
   padding:0;gap:0;border:0;white-space:nowrap;
   overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
   scrollbar-color:rgba(212,163,115,.5) transparent;
