@@ -81,7 +81,7 @@ const go = p => {
 function toast(msg,type=''){ const el=document.createElement('div'); el.className=`toast ${type}`; el.textContent=msg; toastRoot.append(el); setTimeout(()=>el.remove(),3200); }
 
 
-// Public and regular role-specific navigation. Administrative links never enter "More".
+// Public and regular role-specific navigation, filtered by route permissions.
 const userNavItems = [
   ['/home', 'Home'], ['/challenges', 'Challenges'], ['/training', 'Training'],
   ['/organizations', 'Organizations'], ['/tourism', 'Heritage'],
@@ -100,30 +100,20 @@ const toAdminPath = path => {
  return adminArea(path) ? path : '/admin';
 };
 
-function topbar(active='', compact=false){
+function topbar(active=''){
   const signedIn = Boolean(state.user?.userId);
   const items = visibleNavItems();
   const navLink = ([p,l]) => `<a href="${p}" data-link class="${active===p?'active':''}">${l}</a>`;
-  const corePaths = ['/home', '/races', '/camels', '/pedigree', '/marketplace'];
-  const primaryDesktopPaths = [
-    '/home', '/challenges', '/races', '/camels', '/marketplace'
-  ];
-  const visiblePaths = compact ? corePaths : primaryDesktopPaths;
-  const desktopItems = visiblePaths.map(path => items.find(([p]) => p === path)).filter(Boolean);
-  const extraItems = items.filter(([path]) => !visiblePaths.includes(path));
-  const moreMenu = extraItems.length ? `<details class="pedigree-more"><summary>More <span aria-hidden="true">⌄</span></summary><div class="pedigree-more-menu">${extraItems.map(navLink).join('')}</div></details>` : '';
   const accountActions = signedIn
     ? `<a class="profile-btn" href="/settings" data-link aria-label="Open profile settings"><span class="avatar">${esc(state.user.fullName?.[0]||'U')}</span><span class="profile-name">${esc(state.user.fullName?.split(' ')[0]||'User')}</span><span class="profile-chevron" aria-hidden="true">⌄</span></a>`
     : `<a class="nav-account nav-account-secondary" href="/signin" data-link>Sign In</a><a class="nav-account nav-account-primary" href="/signup" data-link>Create Account</a>`;
 
   const searchAction = `<a class="nav-search" href="/races" data-link aria-label="Search races" title="Search races"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg></a>`;
   const language = '<span class="nav-language-single" aria-label="English language">EN</span>';
-  const mobileMenu = `<details class="nav-mobile"><summary aria-label="Open navigation"><span aria-hidden="true">☰</span></summary><div class="nav-mobile-menu"><nav class="nav-mobile-user" aria-label="User pages">${items.map(navLink).join('')}</nav></div></details>`;
 
   return `<header class="topbar"><div class="topbar-inner">
-    ${mobileMenu}
     <a class="brand brand-wordmark" href="/home" data-link aria-label="Medhmar home"><img src="/assets/medhmar-logo.svg" alt="MEDHMAR — Oman Camel Racing"></a>
-    <nav class="nav nav-desktop" aria-label="Primary navigation">${desktopItems.map(navLink).join('')}${moreMenu}</nav>
+    <nav class="nav nav-desktop" aria-label="Primary navigation">${items.map(navLink).join('')}</nav>
     <div class="nav-actions" dir="ltr">${searchAction}${accountActions}${language}</div>
   </div></header>`;
 }
@@ -169,7 +159,7 @@ function homeFooter() {
 const shell = (body,active='', compact=false) => state.user?.userId && hasAnyRole(state.user,'ADMIN') &&
   (adminArea(normalizePath()) || !publicWebsiteMode())
   ? adminShell({user:state.user,active:normalizePath(),body})
-  : `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active, compact)}<main class="main">${body}</main>${active === "/home" ? homeFooter() : ""}</div>`;
+  : `<div class="app-shell${compact?' pedigree-shell':''}">${topbar(active)}<main class="main">${body}</main>${active === "/home" ? homeFooter() : ""}</div>`;
 const demoNote = () => `<div class="demo-note">Connected screens use the Spring Boot API when available; preview data is shown when it is offline.</div>`;
 
 const auth = authView;
