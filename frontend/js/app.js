@@ -8,7 +8,7 @@ import { organizationDirectory, bindOrganizationDirectory } from './organization
 import { bindHomePhotoFallbacks } from "./home-photo-fallbacks.js";
 import { adminHeritageView, bindAdminHeritage } from './admin-heritage.js';
 import { trainingJournal, bindTrainingJournal } from "./training-journal.js";
-import { broadcastPreview, publishedChallengeCards, bindBroadcastPreview } from "./challenge-preview.js";
+import { broadcastPreview, bindBroadcastPreview } from "./challenge-preview.js";
 import { renderRacesListing, renderRaceDetails, renderRaceParticipants } from "./race-app.js";
 import { renderRaceArchive, renderRaceResults, renderRaceRegistration, renderMyRegistrations, renderOrganizerDashboard, renderCreateRace, renderManageRace } from "./race-extra-app.js";
 import { authView, requireRegisteredRole } from './auth-view.js';
@@ -297,9 +297,7 @@ function trainer(){ return shell(trainerProfile(),'/trainer-profile'); }
 function challenges(){
  const featured = state.challengeError ? null :
    state.challenges.find(c=>c.status==='OPEN') || state.challenges.find(c=>c.status==='CLOSED') || null;
- const other = featured ? state.challenges.filter(c=>String(c.challengeId)!==String(featured.challengeId)) : [];
- return shell(broadcastPreview(featured,{signedIn:Boolean(state.user?.userId),error:state.challengeError})+
-   (state.challenges.length && !state.challengeError ? publishedChallengeCards(other) : ''),'/challenges');
+ return shell(broadcastPreview(featured,{signedIn:Boolean(state.user?.userId),error:state.challengeError}),'/challenges');
 }
 function challenge(id){
  const c = (state.challengeDetail && String(state.challengeDetail.challengeId)===String(id))
