@@ -62,8 +62,7 @@ function pageHeading(detail,challenge) {
     (detail?'<a href="/challenges" data-link>Challenges</a><span aria-hidden="true">/</span><span aria-current="page">Challenge #'+escapeHtml(challenge.challengeId)+'</span>':
       '<span aria-current="page">Challenges</span>')+'</nav>'+
     '<div class="challenge-page-title"><div><h1>'+(detail?'Challenge details':'Challenges')+'</h1><p>Follow the competition. Explore the results.</p></div>'+
-    (detail?'<a class="challenge-outline-link" href="/challenges" data-link>All challenges</a>':
-      challenge?'<a class="challenge-outline-link" href="#published-challenges">View all challenges</a>':'')+'</div></header>';
+    (detail?'<a class="challenge-outline-link" href="/challenges" data-link>All challenges</a>':'')+'</div></header>';
 }
 
 // A badge is earned only by a unique positive final result with consistent API totals.
