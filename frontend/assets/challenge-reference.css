@@ -19,3 +19,69 @@
  .app-shell:has(.broadcast-preview) .main{padding:24px 16px 100px}
  .challenge-page-heading::after{width:80%;height:100px;bottom:32px}
 }
+/* Scoped camel-racing arena; shared navigation remains unchanged. */
+.broadcast-live-data .broadcast-grid{position:relative;isolation:isolate;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px 28px;padding:28px 0;color:#fff2dd}
+.broadcast-live-data .broadcast-grid::before{content:"";position:absolute;inset:0 calc(-1 * clamp(20px,3.2vw,56px));z-index:-1;background:linear-gradient(90deg,#27170be0,#27170b26 70%,#27170b40),url('/assets/challenge-arena.webp') center top/cover no-repeat,#2b190d;border-block:1px solid #a97742}
+.broadcast-live-data .broadcast-heading{grid-column:1/-1;margin:0;min-height:76px;padding-right:34%}
+.broadcast-live-data .broadcast-heading h2,.broadcast-live-data .broadcast-voting-title h2,.broadcast-live-data .broadcast-candidate-content h3{color:#fff2dd}
+.broadcast-live-data .broadcast-feature-kicker{color:#efb766}
+.broadcast-live-data .broadcast-meta,.broadcast-live-data .broadcast-meta svg{color:#e8d3b5}
+.broadcast-live-data .broadcast-stage{flex:0 0 auto;aspect-ratio:16/9;min-height:0;border:1px solid #bd967066}
+.broadcast-live-data .broadcast-voting{padding:22px;background:#27180ee8;border-color:#b9987180;box-shadow:0 10px 28px #160c0829}
+.broadcast-live-data .broadcast-contenders{flex:0;margin:20px 0 16px}
+.broadcast-live-data .broadcast-portrait{margin-bottom:10px}
+.broadcast-live-data .broadcast-camel-photo{border-color:#a78968;background:#3e2c1f}
+.broadcast-live-data .broadcast-candidate-content h3{min-height:0}
+.broadcast-live-data .broadcast-count>span,.broadcast-live-data .broadcast-share,.broadcast-live-data .broadcast-vote-note{color:#e6cfb1}
+.broadcast-live-data .broadcast-vs{color:#e4ad63}
+.broadcast-live-data .broadcast-voting-status{background:#66513c;color:#fff0d9}
+.broadcast-live-data .broadcast-voting-status.is-open{background:#334a32;color:#edffe8}
+.broadcast-live-data .broadcast-candidate button,.broadcast-live-data .broadcast-vote-link{background:#b67e3d;border-color:#ddad6a;color:#20140b}
+.broadcast-live-data .broadcast-candidate button:hover,.broadcast-live-data .broadcast-vote-link:hover{background:#e2b777}
+.broadcast-live-data .broadcast-results-footer{border-color:#a8896666}
+.broadcast-live-data .broadcast-challenge-link{padding:7px 14px;border:1px solid #c5a077;border-radius:999px;color:#ffebcc}
+.broadcast-live-data .broadcast-stream-tools,.broadcast-live-data .broadcast-stream-links a,.broadcast-live-data .broadcast-stream-links button,.broadcast-live-data .broadcast-no-contenders{color:#efdcc3}
+.broadcast-zero-note{margin:0 0 16px;padding:10px 14px;border-radius:8px;background:#b5946c26;color:#efdcc3;text-align:center;font-size:13px;line-height:1.5}
+.broadcast-live-data :focus-visible{outline-color:#f5c880}
+.broadcast-published{border-top:0;margin-top:26px;padding-top:0}
+.broadcast-archive-body.is-single{grid-template-columns:minmax(0,1fr)}
+.broadcast-archive-art{display:none}
+.broadcast-published-card{grid-template-columns:126px minmax(0,1fr) minmax(100px,.5fr) auto;grid-template-rows:auto;gap:18px;padding:16px 18px;background:#fffdf9}
+.broadcast-card-photo{grid-row:1;grid-column:1}
+.broadcast-card-contender-photo{aspect-ratio:1;height:auto}
+.broadcast-card-copy{grid-column:2}
+.broadcast-card-copy h3{font-size:20px}
+.broadcast-card-results{grid-column:3;grid-row:1;font-size:12px}
+.broadcast-card-button{grid-column:4;grid-row:1}
+.broadcast-card-copy p{font-size:12px}
+.broadcast-archive-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px;color:#78614e;font-size:12px}
+.broadcast-archive-tools input,.broadcast-archive-tools select{min-height:40px;border:1px solid #d8c3aa;border-radius:999px;background:#fffcf8;color:#51351f;padding:8px 14px;font:inherit;max-width:100%}
+.broadcast-archive-tools input{width:220px}
+.broadcast-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.broadcast-published-card[hidden],.broadcast-filter-empty[hidden]{display:none}
+.broadcast-filter-empty{padding:24px;color:#78614e;text-align:center}
+@media(max-width:1100px){
+ .broadcast-published-heading{align-items:flex-start;flex-wrap:wrap}
+ .broadcast-published-card{grid-template-columns:110px minmax(0,1fr) auto;gap:12px 16px}
+ .broadcast-card-photo{grid-row:1/span 2}.broadcast-card-results{grid-column:2;grid-row:2}
+ .broadcast-card-button{grid-column:3;grid-row:1/span 2}
+}
+@media(max-width:900px){
+ .broadcast-live-data .broadcast-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+ .broadcast-live-data .broadcast-grid::before{inset-inline:-28px;background-size:auto 100%;background-position:60% top}
+ .broadcast-live-data .broadcast-heading{padding-right:0}
+ .broadcast-live-data .broadcast-voting{--portrait-size:180px}
+}
+@media(max-width:600px){
+ .broadcast-live-data .broadcast-grid::before{inset-inline:-16px}
+ .broadcast-live-data .broadcast-grid{padding-block:22px}
+ .broadcast-live-data .broadcast-voting{padding:20px 16px;--portrait-size:clamp(94px,30vw,155px)}
+ .broadcast-archive-tools{width:100%;gap:10px}.broadcast-archive-tools>span{width:100%}
+ .broadcast-search{flex:1;min-width:130px}.broadcast-archive-tools input{width:100%}
+ .broadcast-archive-tools select{max-width:145px}
+ .broadcast-published-card{grid-template-columns:100px minmax(0,1fr);padding:14px;gap:10px 14px}
+ .broadcast-card-copy{grid-column:2;grid-row:1}
+ .broadcast-card-results{grid-column:2;grid-row:2}
+ .broadcast-card-button{grid-column:1/-1;grid-row:3}
+ .broadcast-card-copy h3{font-size:19px}
+}

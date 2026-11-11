@@ -97,7 +97,7 @@ export function broadcastPreview(challenge=null,{signedIn=false,error='',detail=
       (won?'<span class="broadcast-winner">'+ico('trophy',17)+'Winner</span>':'')+'</div>'+
       '<div class="broadcast-candidate-content"><h3>'+escapeHtml(camel.name||'Unnamed camel')+'</h3>'+
       '<div class="broadcast-count"><b class="broadcast-big-count">'+safeCount(camel.voteCount)+'</b><span>'+(camel.voteCount===1?'vote':'votes')+'</span></div>'+
-      '<p class="broadcast-share">'+(share===null?'Vote share unavailable':share.toLocaleString('en-US',{maximumFractionDigits:2})+'% of votes')+'</p>'+action+'</div></article>';
+      (challenge.totalVotes===0?'':'<p class="broadcast-share">'+(share===null?'Vote share unavailable':share.toLocaleString('en-US',{maximumFractionDigits:2})+'% of votes')+'</p>')+action+'</div></article>';
   }).join('');
   const media=embedId
     ? '<div class="broadcast-stage broadcast-stage-connected" role="group" aria-label="Embedded YouTube broadcast">'+
@@ -110,17 +110,18 @@ export function broadcastPreview(challenge=null,{signedIn=false,error='',detail=
       '<span class="broadcast-offline-badge"><span aria-hidden="true"></span>BROADCAST OFFLINE</span>'+
       '<div class="broadcast-stage-center">'+ico('videoOff',46)+'<h3>Broadcast unavailable</h3><p>No stream is connected to this challenge.</p></div></div>';
   return '<section class="broadcast-preview broadcast-live-data" aria-label="Featured published challenge">'+pageHeading(detail,challenge)+
-    '<div class="broadcast-grid"><div class="broadcast-left"><header class="broadcast-heading">'+
+    '<div class="broadcast-grid"><header class="broadcast-heading">'+
     '<div class="broadcast-feature-kicker">FEATURED CHALLENGE <span>· CHALLENGE #'+escapeHtml(id)+'</span></div>'+
     '<h2>'+escapeHtml(String(challenge.title||'').trim()||'Camel Racing Challenge')+'</h2>'+
     '<div class="broadcast-meta"><span>'+ico('pin')+'Muscat, Oman</span><span>'+ico('calendar')+'Opens '+escapeHtml(utc(challenge.opensAt))+'</span>'+
     '<span>'+ico('calendar')+'Closes '+escapeHtml(utc(challenge.closesAt))+'</span></div></header>'+
-    '<div class="broadcast-player" id="broadcast-player">'+media+'</div></div>'+
+    '<div class="broadcast-left"><div class="broadcast-player" id="broadcast-player">'+media+'</div></div>'+
     '<aside class="broadcast-voting" aria-labelledby="broadcast-results-title"><div class="broadcast-voting-title"><h2 id="broadcast-results-title">'+
     (closed?'Final results':open?'Choose your champion':'Challenge results')+'</h2><span class="broadcast-voting-status'+(open?' is-open':'')+'">'+escapeHtml(votingNote)+'</span></div>'+
     '<div class="broadcast-contenders'+(camels.length===2?' is-duel':'')+'" aria-label="Competing camels">'+
     (candidateCards||'<p class="broadcast-no-contenders">No participating camels are available.</p>')+
     (camels.length===2?'<span class="broadcast-vs" aria-hidden="true">VS</span>':'')+'</div>'+
+    (challenge.totalVotes===0?'<p class="broadcast-zero-note">No votes have been recorded'+(closed?' for this challenge.':' yet.')+'</p>':'')+
     (open?'<p class="broadcast-vote-note">'+(signedIn?'One recorded vote per account.':'Sign in to cast one recorded vote.')+'</p>':'')+
     '<div class="broadcast-results-footer"><span class="broadcast-total">'+safeCount(challenge.totalVotes)+' total '+(challenge.totalVotes===1?'vote':'votes')+'</span>'+
     (detail?'<a data-link class="broadcast-challenge-link" href="/challenges">Back to Challenges</a>':
@@ -131,7 +132,9 @@ export function publishedChallengeCards(challenges=[]) {
   const allClosed=challenges.every(c=>c.status==='CLOSED');
   return '<section class="broadcast-published" id="published-challenges" aria-labelledby="broadcast-published-title">'+
     '<div class="broadcast-published-heading"><h2 id="broadcast-published-title">'+(allClosed?'Past challenges':'More challenges')+'</h2>'+
-    '<span>'+challenges.length+' '+(challenges.length===1?'challenge':'challenges')+'</span></div>'+
+    '<div class="broadcast-archive-tools"><span>'+challenges.length+' '+(challenges.length===1?'challenge':'challenges')+'</span>'+
+    '<label class="broadcast-search"><span class="broadcast-sr-only">Search challenges</span><input type="search" data-challenge-search placeholder="Search challenges"></label>'+
+    '<label><span class="broadcast-sr-only">Challenge status</span><select data-challenge-filter><option value="all">All challenges</option><option value="closed">Completed</option><option value="open">Voting open</option><option value="scheduled">Scheduled</option></select></label></div></div>'+
     '<div class="broadcast-archive-body'+(challenges.length<=1?' is-single':'')+'"><div class="broadcast-upcoming">'+
     (challenges.length?challenges.map(c=>{
       const camels=Array.isArray(c.camels)?c.camels:[],closed=c.status==='CLOSED';
@@ -142,7 +145,7 @@ export function publishedChallengeCards(challenges=[]) {
           const share=percent(camel.votePercent);
           return escapeHtml(camel.name||'Camel')+' '+(share===null?'—':share.toLocaleString('en-US',{maximumFractionDigits:2})+'%');
         }).join(' · '):safeCount(c.totalVotes)+' recorded '+(c.totalVotes===1?'vote':'votes');
-      return '<article class="broadcast-published-card"><div class="broadcast-card-photo" role="group" aria-label="Registered challenge contenders">'+
+      return '<article class="broadcast-published-card" data-archive-status="'+(closed?'closed':votingOpen(c)?'open':'scheduled')+'"><div class="broadcast-card-photo" role="group" aria-label="Registered challenge contenders">'+
         (portraits||'<span class="broadcast-card-no-photos">No contender photos</span>')+'</div>'+
         '<div class="broadcast-card-copy"><span class="broadcast-card-badge'+(closed?' broadcast-badge-closed':'')+'">'+featureBadge(c)+'</span>'+
         '<h3>'+escapeHtml(c.title||'Camel Challenge')+'</h3><p class="broadcast-archive-date">'+ico('calendar',15)+escapeHtml(utc(c.opensAt))+' – '+escapeHtml(utc(c.closesAt))+'</p>'+
@@ -150,10 +153,27 @@ export function publishedChallengeCards(challenges=[]) {
         '<div class="broadcast-card-results">'+result+'</div><a href="/challenges/'+safeId(c.challengeId)+'" class="broadcast-card-button" data-link>'+
         (closed?'View results':'View challenge')+'</a></article>';
     }).join(''):'<p class="broadcast-upcoming-empty">No other published challenges yet.</p>')+'</div>'+
-    (challenges.length<=1?'<img class="broadcast-archive-art" src="/assets/challenge-track-landscape.svg" alt="" aria-hidden="true" loading="lazy">':'')+'</div></section>';
+    (challenges.length<=1?'<img class="broadcast-archive-art" src="/assets/challenge-track-landscape.svg" alt="" aria-hidden="true" loading="lazy">':'')+'<p class="broadcast-filter-empty" hidden role="status">No challenges match your search.</p></div></section>';
 }
 
 export function bindBroadcastPreview(root) {
+  const archive=root.querySelector('.broadcast-published');
+  const search=archive?.querySelector('[data-challenge-search]');
+  const filter=archive?.querySelector('[data-challenge-filter]');
+  const filterArchive=()=>{
+    const query=(search?.value||'').trim().toLocaleLowerCase();
+    let matches=0;
+    archive.querySelectorAll('.broadcast-published-card').forEach(card=>{
+      const show=(!query||card.textContent.toLocaleLowerCase().includes(query))&&
+        (!filter||filter.value==='all'||card.dataset.archiveStatus===filter.value);
+      card.hidden=!show;
+      if(show)matches++;
+    });
+    const empty=archive.querySelector('.broadcast-filter-empty');
+    if(empty)empty.hidden=matches>0||(!query&&filter?.value==='all');
+  };
+  search?.addEventListener('input',filterArchive);
+  filter?.addEventListener('change',filterArchive);
   const section=root.querySelector('.broadcast-preview');
   if(!section)return;
   section.querySelector('[data-preview-fullscreen]')?.addEventListener('click',async()=>{
