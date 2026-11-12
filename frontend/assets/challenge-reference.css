@@ -1,87 +1,117 @@
-/* Approved warm-ivory Challenges page, scoped away from every admin screen. */
-.app-shell:has(.broadcast-preview){background:#faf7f1}
+/* Public challenge arena. Route-scoped so other pages keep their own theme. */
+.app-shell:has(.broadcast-preview){background:#57402c;color:#fff4e5}
+.app-shell:has(.broadcast-preview) > .topbar{
+ background:#201610;border-bottom:2px solid #b99055;
+ box-shadow:0 3px 12px #160e0866;
+}
 .app-shell:has(.broadcast-preview) .main{
- position:relative;width:100%;max-width:1760px;margin:0 auto;
- padding:24px clamp(20px,3.2vw,56px) 90px;background:transparent;isolation:isolate;
+ position:relative;width:100%;max-width:none;margin:0;padding:0 0 76px;
+ background:transparent;isolation:isolate;
 }
 .app-shell:has(.broadcast-preview) .main::before,
 .app-shell:has(.broadcast-preview) .main::after{content:none}
-.challenge-page-heading::after{
- content:"";position:absolute;right:0;bottom:8px;width:min(58%,780px);height:130px;
- background:url('/assets/challenge-track-landscape.svg') right center/contain no-repeat;
- opacity:.18;pointer-events:none;z-index:-1;
+.broadcast-preview{color:#fff4e5}
+/* Retain the page heading for assistive technology, without a duplicate title strip. */
+.broadcast-live-data .challenge-page-heading{
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+ overflow:hidden;clip-path:inset(50%);white-space:nowrap;
 }
-@media(max-width:900px){
- .app-shell:has(.broadcast-preview) .main{padding:26px 28px 100px}
- .challenge-page-heading::after{opacity:.1}
+.broadcast-live-data .challenge-page-heading:focus-within{
+ position:relative;width:auto;height:auto;margin:0;padding:16px 6%;clip-path:none;white-space:normal;
 }
-@media(max-width:600px){
- .app-shell:has(.broadcast-preview) .main{padding:24px 16px 100px}
- .challenge-page-heading::after{width:80%;height:100px;bottom:32px}
+.broadcast-live-data .broadcast-grid{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding:0;color:#fff4e5;
 }
-/* Scoped camel-racing arena; shared navigation remains unchanged. */
-.broadcast-live-data .broadcast-grid{position:relative;isolation:isolate;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px 28px;padding:28px 0;color:#fff2dd}
-.broadcast-live-data .broadcast-grid::before{content:"";position:absolute;inset:0 calc(-1 * clamp(20px,3.2vw,56px));z-index:-1;background:linear-gradient(90deg,#27170be0,#27170b26 70%,#27170b40),url('/assets/challenge-arena.webp') center top/cover no-repeat,#2b190d;border-block:1px solid #a97742}
-.broadcast-live-data .broadcast-heading{grid-column:1/-1;margin:0;min-height:76px;padding-right:34%}
-.broadcast-live-data .broadcast-heading h2,.broadcast-live-data .broadcast-voting-title h2,.broadcast-live-data .broadcast-candidate-content h3{color:#fff2dd}
-.broadcast-live-data .broadcast-feature-kicker{color:#efb766}
-.broadcast-live-data .broadcast-meta,.broadcast-live-data .broadcast-meta svg{color:#e8d3b5}
-.broadcast-live-data .broadcast-stage{flex:0 0 auto;aspect-ratio:16/9;min-height:0;border:1px solid #bd967066}
-.broadcast-live-data .broadcast-voting{padding:22px;background:#27180ee8;border-color:#b9987180;box-shadow:0 10px 28px #160c0829}
-.broadcast-live-data .broadcast-contenders{flex:0;margin:20px 0 16px}
-.broadcast-live-data .broadcast-portrait{margin-bottom:10px}
-.broadcast-live-data .broadcast-camel-photo{border-color:#a78968;background:#3e2c1f}
-.broadcast-live-data .broadcast-candidate-content h3{min-height:0}
-.broadcast-live-data .broadcast-count>span,.broadcast-live-data .broadcast-share,.broadcast-live-data .broadcast-vote-note{color:#e6cfb1}
-.broadcast-live-data .broadcast-vs{color:#e4ad63}
-.broadcast-live-data .broadcast-voting-status{background:#66513c;color:#fff0d9}
-.broadcast-live-data .broadcast-voting-status.is-open{background:#334a32;color:#edffe8}
-.broadcast-live-data .broadcast-candidate button,.broadcast-live-data .broadcast-vote-link{background:#b67e3d;border-color:#ddad6a;color:#20140b}
-.broadcast-live-data .broadcast-candidate button:hover,.broadcast-live-data .broadcast-vote-link:hover{background:#e2b777}
-.broadcast-live-data .broadcast-results-footer{border-color:#a8896666}
-.broadcast-live-data .broadcast-challenge-link{padding:7px 14px;border:1px solid #c5a077;border-radius:999px;color:#ffebcc}
-.broadcast-live-data .broadcast-stream-tools,.broadcast-live-data .broadcast-stream-links a,.broadcast-live-data .broadcast-stream-links button,.broadcast-live-data .broadcast-no-contenders{color:#efdcc3}
-.broadcast-zero-note{margin:0 0 16px;padding:10px 14px;border-radius:8px;background:#b5946c26;color:#efdcc3;text-align:center;font-size:13px;line-height:1.5}
-.broadcast-live-data :focus-visible{outline-color:#f5c880}
-.broadcast-published{border-top:0;margin-top:26px;padding-top:0}
-.broadcast-archive-body.is-single{grid-template-columns:minmax(0,1fr)}
-.broadcast-archive-art{display:none}
-.broadcast-published-card{grid-template-columns:126px minmax(0,1fr) minmax(100px,.5fr) auto;grid-template-rows:auto;gap:18px;padding:16px 18px;background:#fffdf9}
-.broadcast-card-photo{grid-row:1;grid-column:1}
-.broadcast-card-contender-photo{aspect-ratio:1;height:auto}
-.broadcast-card-copy{grid-column:2}
-.broadcast-card-copy h3{font-size:20px}
-.broadcast-card-results{grid-column:3;grid-row:1;font-size:12px}
-.broadcast-card-button{grid-column:4;grid-row:1}
-.broadcast-card-copy p{font-size:12px}
-.broadcast-archive-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px;color:#78614e;font-size:12px}
-.broadcast-archive-tools input,.broadcast-archive-tools select{min-height:40px;border:1px solid #d8c3aa;border-radius:999px;background:#fffcf8;color:#51351f;padding:8px 14px;font:inherit;max-width:100%}
-.broadcast-archive-tools input{width:220px}
-.broadcast-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.broadcast-published-card[hidden],.broadcast-filter-empty[hidden]{display:none}
-.broadcast-filter-empty{padding:24px;color:#78614e;text-align:center}
-@media(max-width:1100px){
- .broadcast-published-heading{align-items:flex-start;flex-wrap:wrap}
- .broadcast-published-card{grid-template-columns:110px minmax(0,1fr) auto;gap:12px 16px}
- .broadcast-card-photo{grid-row:1/span 2}.broadcast-card-results{grid-column:2;grid-row:2}
- .broadcast-card-button{grid-column:3;grid-row:1/span 2}
+.broadcast-live-data .broadcast-heading{
+ grid-column:1/-1;position:relative;isolation:isolate;margin:0;
+ padding:30px max(24px,calc((100% - 1240px)/2));min-height:170px;
+ display:flex;flex-direction:column;justify-content:center;
+ background:linear-gradient(90deg,#201610e8,#38251680 55%,#38251622),
+ url('/assets/challenge-arena.webp') center 38%/cover no-repeat,#67462c;
 }
-@media(max-width:900px){
- .broadcast-live-data .broadcast-grid{grid-template-columns:minmax(0,1fr);gap:20px}
- .broadcast-live-data .broadcast-grid::before{inset-inline:-28px;background-size:auto 100%;background-position:60% top}
- .broadcast-live-data .broadcast-heading{padding-right:0}
- .broadcast-live-data .broadcast-voting{--portrait-size:180px}
+.broadcast-live-data .broadcast-heading h2{margin:0 0 12px;font-size:clamp(30px,3vw,46px);color:#fff4e5}
+.broadcast-live-data .broadcast-feature-kicker{color:#ffd18a;letter-spacing:.18em}
+.broadcast-live-data .broadcast-meta,.broadcast-live-data .broadcast-meta svg{color:#fff0de;font-size:12px}
+.broadcast-live-data .broadcast-left,
+.broadcast-live-data .broadcast-voting{width:min(1240px,88%);margin-inline:auto;min-width:0}
+.broadcast-live-data .broadcast-stage{
+ flex:0 0 auto;aspect-ratio:16/9;min-height:0;max-height:none;border:0;border-radius:0;box-shadow:none;
 }
-@media(max-width:600px){
- .broadcast-live-data .broadcast-grid::before{inset-inline:-16px}
- .broadcast-live-data .broadcast-grid{padding-block:22px}
- .broadcast-live-data .broadcast-voting{padding:20px 16px;--portrait-size:clamp(94px,30vw,155px)}
- .broadcast-archive-tools{width:100%;gap:10px}.broadcast-archive-tools>span{width:100%}
- .broadcast-search{flex:1;min-width:130px}.broadcast-archive-tools input{width:100%}
- .broadcast-archive-tools select{max-width:145px}
- .broadcast-published-card{grid-template-columns:100px minmax(0,1fr);padding:14px;gap:10px 14px}
- .broadcast-card-copy{grid-column:2;grid-row:1}
- .broadcast-card-results{grid-column:2;grid-row:2}
- .broadcast-card-button{grid-column:1/-1;grid-row:3}
- .broadcast-card-copy h3{font-size:19px}
+.broadcast-live-data .broadcast-stage:fullscreen{width:100vw;height:100vh;aspect-ratio:auto}
+.broadcast-live-data .broadcast-stream-tools,
+.broadcast-live-data .broadcast-stream-links a,
+.broadcast-live-data .broadcast-stream-links button{color:#fff0de;font-size:12px}
+.broadcast-live-data .broadcast-stream-links a,
+.broadcast-live-data .broadcast-stream-links button{border-bottom:0;min-height:44px}
+.broadcast-live-data .broadcast-voting{
+ --portrait-size:132px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;
+}
+.broadcast-live-data .broadcast-voting-title{justify-content:center;gap:18px}
+.broadcast-live-data .broadcast-voting-title h2{color:#fff4e5;font-size:clamp(26px,2.4vw,34px)}
+.broadcast-live-data .broadcast-voting-status{align-self:center;background:#785235;color:#fff4e5}
+.broadcast-live-data .broadcast-voting-status.is-open{background:#304b2d;color:#f1ffe8}
+.broadcast-live-data .broadcast-contenders{
+ flex:0;gap:32px 80px;align-items:center;margin:28px 0 12px;
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+}
+.broadcast-live-data .broadcast-contenders.is-duel{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:180px}
+.broadcast-live-data .broadcast-candidate{display:flex;align-items:center;justify-content:center;gap:24px;text-align:left}
+.broadcast-live-data .is-duel .broadcast-candidate.is-alternate{flex-direction:row-reverse;text-align:right}
+.broadcast-live-data .broadcast-portrait{flex:0 0 var(--portrait-size);width:var(--portrait-size);margin:0}
+.broadcast-live-data .broadcast-camel-photo{
+ aspect-ratio:1;padding:0;border:0;border-radius:50%;object-fit:cover;object-position:center;background:#6c5038;
+}
+.broadcast-live-data .broadcast-photo-placeholder img,
+.broadcast-live-data .broadcast-camel-fallback-image{object-fit:contain;padding:12px}
+.broadcast-live-data .is-winner .broadcast-camel-photo{outline:2px solid #e3b76c;outline-offset:4px}
+.broadcast-live-data .broadcast-winner{border:0;background:#77521e;color:#fff7e9}
+.broadcast-live-data .broadcast-candidate-content{min-width:0}
+.broadcast-live-data .broadcast-candidate-content h3{min-height:0;color:#fff4e5;font-size:clamp(21px,2vw,30px)}
+.broadcast-live-data .broadcast-count{flex-direction:row;align-items:baseline;gap:10px}
+.broadcast-live-data .is-duel .is-alternate .broadcast-count{justify-content:flex-end}
+.broadcast-live-data .broadcast-big-count{font-size:clamp(36px,3.2vw,48px)}
+.broadcast-live-data .broadcast-count>span,.broadcast-live-data .broadcast-share,
+.broadcast-live-data .broadcast-vote-note{color:#f5e4d0}
+.broadcast-live-data .broadcast-vs{top:50%;transform:translate(-50%,-50%);font-size:34px;color:#efbd80}
+.broadcast-live-data .broadcast-zero-note{margin:4px 0 18px;padding:0;background:none;color:#fff0df;text-align:center;font-size:14px;line-height:1.5}
+.broadcast-live-data .broadcast-results-footer{border:0;margin-top:10px;padding-top:10px;font-size:14px}
+.broadcast-live-data .broadcast-challenge-link{
+ display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+ padding:10px 24px;border:0;border-radius:8px;background:#785235;color:#fff4e5;
+}
+.broadcast-live-data .broadcast-candidate button,
+.broadcast-live-data .broadcast-vote-link{background:#f0c581;color:#291a0e;border:0}
+.broadcast-live-data .broadcast-candidate button:hover,
+.broadcast-live-data .broadcast-vote-link:hover{background:#ffe0ad}
+.broadcast-live-data .broadcast-challenge-link:hover{background:#89603d}
+.broadcast-live-data .broadcast-no-contenders{color:#f5e4d0}
+.broadcast-preview :focus-visible{outline:3px solid #ffcf83;outline-offset:4px}
+/* Empty and failed requests must remain readable on the same brown surface. */
+.broadcast-empty{max-width:1240px;margin:auto;padding:32px 24px}
+.broadcast-empty-content{border:0;color:#f0c581}
+.broadcast-empty-content h2,.broadcast-empty-content p,
+.challenge-page-title h1,.challenge-page-title p,.challenge-breadcrumb,
+.challenge-breadcrumb [aria-current],.challenge-outline-link,.broadcast-refresh{color:#fff0df}
+.broadcast-refresh:hover,.challenge-outline-link:hover{background:#785235}
+@media(max-width:760px){
+ .broadcast-live-data .broadcast-left,.broadcast-live-data .broadcast-voting{width:calc(100% - 32px)}
+ .broadcast-live-data .broadcast-heading{padding:26px 20px;min-height:180px}
+ .broadcast-live-data .broadcast-voting{--portrait-size:104px}
+ .broadcast-live-data .broadcast-candidate,
+ .broadcast-live-data .is-duel .broadcast-candidate.is-alternate{flex-direction:column;text-align:center;gap:16px}
+ .broadcast-live-data .broadcast-contenders.is-duel{column-gap:48px}
+ .broadcast-live-data .broadcast-count,
+ .broadcast-live-data .is-duel .is-alternate .broadcast-count{justify-content:center}
+ .broadcast-live-data .broadcast-vs{top:52px;font-size:24px}
+ .broadcast-live-data .broadcast-stream-tools{gap:0}
+ .broadcast-live-data .broadcast-stream-links{gap:8px 16px}
+}
+@media(max-width:420px){
+ .broadcast-live-data .broadcast-voting{--portrait-size:88px}
+ .broadcast-live-data .broadcast-contenders.is-duel{column-gap:30px}
+ .broadcast-live-data .broadcast-vs{top:44px;font-size:20px}
+ .broadcast-live-data .broadcast-voting-title{gap:10px}
+ .broadcast-live-data .broadcast-voting-title h2{font-size:25px}
+ .broadcast-live-data .broadcast-candidate-content h3{font-size:20px}
+ .broadcast-live-data .broadcast-results-footer{font-size:12px}
 }
