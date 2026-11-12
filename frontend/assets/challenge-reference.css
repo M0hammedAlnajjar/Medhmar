@@ -1,5 +1,5 @@
 /* Public challenge arena. Route-scoped so other pages keep their own theme. */
-.app-shell:has(.broadcast-preview){background:radial-gradient(ellipse at top,#725035,#57402c 75%);color:#fff4e5}
+.app-shell:has(.broadcast-preview){background:radial-gradient(ellipse at 50% 35%,#62422e,#42291d 90%);color:#fff4e5}
 .app-shell:has(.broadcast-preview) > .topbar{
  background:#201610;border-bottom:2px solid #b99055;
  box-shadow:0 3px 12px #160e0866;
@@ -20,11 +20,11 @@
  position:relative;width:auto;height:auto;margin:0;padding:16px 6%;clip-path:none;white-space:normal;
 }
 .broadcast-live-data .broadcast-grid{
- display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding:0;color:#fff4e5;
+ display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:0;color:#fff4e5;
 }
 .broadcast-live-data .broadcast-heading{
  grid-column:1/-1;position:relative;isolation:isolate;margin:0;
- padding:30px max(24px,calc((100% - min(1480px,80%))/2));min-height:170px;
+ padding:30px max(24px,calc((100% - min(1400px,88%))/2));min-height:170px;
  display:flex;flex-direction:column;justify-content:center;
  background:linear-gradient(90deg,#201610e8,#38251680 55%,#38251622),
  url('/assets/challenge-arena.webp') center top/cover no-repeat,#67462c;
@@ -33,9 +33,9 @@
 .broadcast-live-data .broadcast-feature-kicker{color:#ffd18a;letter-spacing:.18em}
 .broadcast-live-data .broadcast-meta,.broadcast-live-data .broadcast-meta svg{color:#fff0de;font-size:12px}
 .broadcast-live-data .broadcast-left,
-.broadcast-live-data .broadcast-voting{width:min(1480px,80%);margin-inline:auto;min-width:0}
+.broadcast-live-data .broadcast-voting{width:min(1400px,88%);margin-inline:auto;min-width:0}
 .broadcast-live-data .broadcast-stage{
- flex:0 0 auto;aspect-ratio:3/1;min-height:0;max-height:44vh;border:0;border-radius:0;box-shadow:none;
+ flex:0 0 auto;aspect-ratio:3.5/1;min-height:0;max-height:44vh;border:0;border-radius:0;box-shadow:none;
 }
 .broadcast-live-data .broadcast-stage:fullscreen{width:100vw;height:100vh;aspect-ratio:auto}
 .broadcast-live-data .broadcast-stream-tools,
@@ -44,14 +44,14 @@
 .broadcast-live-data .broadcast-stream-links a,
 .broadcast-live-data .broadcast-stream-links button{border-bottom:0;min-height:44px}
 .broadcast-live-data .broadcast-voting{
- --portrait-size:132px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;
+ --portrait-size:132px;position:relative;padding:0;background:none;border:0;border-radius:0;box-shadow:none;
 }
-.broadcast-live-data .broadcast-voting-title{justify-content:center;gap:18px}
+.broadcast-live-data .broadcast-voting-title{justify-content:space-between;gap:18px;padding-bottom:12px;border-bottom:1px solid #b99055}
 .broadcast-live-data .broadcast-voting-title h2{color:#fff4e5;font-size:clamp(26px,2.4vw,34px)}
 .broadcast-live-data .broadcast-voting-status{align-self:center;background:#785235;color:#fff4e5}
 .broadcast-live-data .broadcast-voting-status.is-open{background:#304b2d;color:#f1ffe8}
 .broadcast-live-data .broadcast-contenders{
- flex:0;gap:32px 80px;align-items:center;margin:28px 0 12px;
+ flex:0;gap:32px 80px;align-items:center;margin:20px 0 18px;
  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 }
 .broadcast-live-data .broadcast-contenders.is-duel{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:180px}
@@ -74,16 +74,16 @@
 .broadcast-live-data .broadcast-vote-note{color:#f5e4d0}
 .broadcast-live-data .broadcast-vs{top:50%;transform:translate(-50%,-50%);font-size:34px;color:#efbd80}
 .broadcast-live-data .broadcast-zero-note{margin:4px 0 18px;padding:0;background:none;color:#fff0df;text-align:center;font-size:14px;line-height:1.5}
-.broadcast-live-data .broadcast-results-footer{border:0;margin-top:10px;padding-top:10px;font-size:14px}
+.broadcast-live-data .broadcast-results-footer{border-top:1px solid #b99055;margin-top:0;padding-top:12px;font-size:14px}
 .broadcast-live-data .broadcast-challenge-link{
  display:inline-flex;align-items:center;justify-content:center;min-height:44px;
- padding:10px 24px;border:0;border-radius:8px;background:#785235;color:#fff4e5;
+ padding:10px 24px;border:0;border-radius:8px;background:linear-gradient(#c49445,#926420);color:#fffaf0;border:1px solid #e1b566;
 }
 .broadcast-live-data .broadcast-candidate button,
 .broadcast-live-data .broadcast-vote-link{background:#f0c581;color:#291a0e;border:0}
 .broadcast-live-data .broadcast-candidate button:hover,
 .broadcast-live-data .broadcast-vote-link:hover{background:#ffe0ad}
-.broadcast-live-data .broadcast-challenge-link:hover{background:#89603d}
+.broadcast-live-data .broadcast-challenge-link:hover{background:#a97b32}
 .broadcast-live-data .broadcast-no-contenders{color:#f5e4d0}
 .broadcast-preview :focus-visible{outline:3px solid #ffcf83;outline-offset:4px}
 /* Empty and failed requests must remain readable on the same brown surface. */
@@ -115,4 +115,17 @@
  .broadcast-live-data .broadcast-voting-title h2{font-size:25px}
  .broadcast-live-data .broadcast-candidate-content h3{font-size:20px}
  .broadcast-live-data .broadcast-results-footer{font-size:12px}
+}
+
+/* The selected reference uses an open score row, with the empty state at its centre. */
+@media(min-width:761px){
+ .broadcast-live-data .broadcast-voting:has(.is-duel) .broadcast-zero-note{
+  position:absolute;left:50%;top:calc(78px + var(--portrait-size)/2);
+  transform:translateX(-50%);width:160px;margin:0;font-size:12px;
+ }
+ .broadcast-live-data .broadcast-vs{margin-top:-14px}
+}
+@media(max-width:760px){
+ .broadcast-live-data .broadcast-zero-note{margin:2px 0 16px}
+ .broadcast-live-data .broadcast-voting-title{padding-bottom:12px}
 }
