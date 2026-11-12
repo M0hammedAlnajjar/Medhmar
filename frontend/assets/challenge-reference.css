@@ -1,5 +1,5 @@
 /* Public challenge arena. Route-scoped so other pages keep their own theme. */
-.app-shell:has(.broadcast-preview){background:#57402c;color:#fff4e5}
+.app-shell:has(.broadcast-preview){background:radial-gradient(ellipse at top,#725035,#57402c 75%);color:#fff4e5}
 .app-shell:has(.broadcast-preview) > .topbar{
  background:#201610;border-bottom:2px solid #b99055;
  box-shadow:0 3px 12px #160e0866;
@@ -24,18 +24,18 @@
 }
 .broadcast-live-data .broadcast-heading{
  grid-column:1/-1;position:relative;isolation:isolate;margin:0;
- padding:30px max(24px,calc((100% - 1240px)/2));min-height:170px;
+ padding:30px max(24px,calc((100% - min(1480px,80%))/2));min-height:170px;
  display:flex;flex-direction:column;justify-content:center;
  background:linear-gradient(90deg,#201610e8,#38251680 55%,#38251622),
- url('/assets/challenge-arena.webp') center 38%/cover no-repeat,#67462c;
+ url('/assets/challenge-arena.webp') center top/cover no-repeat,#67462c;
 }
 .broadcast-live-data .broadcast-heading h2{margin:0 0 12px;font-size:clamp(30px,3vw,46px);color:#fff4e5}
 .broadcast-live-data .broadcast-feature-kicker{color:#ffd18a;letter-spacing:.18em}
 .broadcast-live-data .broadcast-meta,.broadcast-live-data .broadcast-meta svg{color:#fff0de;font-size:12px}
 .broadcast-live-data .broadcast-left,
-.broadcast-live-data .broadcast-voting{width:min(1240px,88%);margin-inline:auto;min-width:0}
+.broadcast-live-data .broadcast-voting{width:min(1480px,80%);margin-inline:auto;min-width:0}
 .broadcast-live-data .broadcast-stage{
- flex:0 0 auto;aspect-ratio:16/9;min-height:0;max-height:none;border:0;border-radius:0;box-shadow:none;
+ flex:0 0 auto;aspect-ratio:3/1;min-height:0;max-height:44vh;border:0;border-radius:0;box-shadow:none;
 }
 .broadcast-live-data .broadcast-stage:fullscreen{width:100vw;height:100vh;aspect-ratio:auto}
 .broadcast-live-data .broadcast-stream-tools,
@@ -94,6 +94,7 @@
 .challenge-breadcrumb [aria-current],.challenge-outline-link,.broadcast-refresh{color:#fff0df}
 .broadcast-refresh:hover,.challenge-outline-link:hover{background:#785235}
 @media(max-width:760px){
+ .broadcast-live-data .broadcast-stage{aspect-ratio:16/9;max-height:none}
  .broadcast-live-data .broadcast-left,.broadcast-live-data .broadcast-voting{width:calc(100% - 32px)}
  .broadcast-live-data .broadcast-heading{padding:26px 20px;min-height:180px}
  .broadcast-live-data .broadcast-voting{--portrait-size:104px}
