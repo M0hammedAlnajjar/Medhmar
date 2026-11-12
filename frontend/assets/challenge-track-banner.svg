@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 240" fill="none">
+  <title>Medhmar sand racetrack</title>
+  <desc>Quiet vector racetrack with sweeping rails on the right and clear space for the challenge title on the left.</desc>
+  <defs>
+    <linearGradient id="fade" x1="600" y1="0" x2="1500" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity="0"/><stop offset=".55" stop-color="white" stop-opacity=".6"/><stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <mask id="art"><path fill="url(#fade)" d="M0 0h1600v240H0z"/></mask>
+  </defs>
+  <g mask="url(#art)">
+    <path d="M650 240c130-75 383-110 950-105v105Z" fill="#a58150" opacity=".06"/>
+    <g stroke="#c7a475" stroke-linecap="round">
+      <path d="M720 240c75-87 348-137 880-125" stroke-width="2" opacity=".38"/>
+      <path d="M790 240c75-69 324-107 810-100" stroke-width="1.5" opacity=".22"/>
+      <path d="M870 240c86-48 320-76 730-73" opacity=".13"/>
+      <path d="M660 240c60-104 366-164 940-148" stroke-width="2.5" opacity=".5"/>
+      <path d="M665 224v16m39-39v27m50-50v29m59-50v30m70-47v31m80-45v31m91-43v30m103-39v29m113-35v28m120-31v27m125-28v27" stroke-width="2" opacity=".33"/>
+      <path d="M1350 93V44m0 0 42 11-42 11" stroke-width="2" opacity=".48"/>
+      <path d="M1440 95V57m0 0 33 9-33 9" stroke-width="1.5" opacity=".28"/>
+    </g>
+  </g>
+</svg>
