@@ -117,13 +117,11 @@
  .broadcast-live-data .broadcast-results-footer{font-size:12px}
 }
 
-/* The selected reference uses an open score row, with the empty state at its centre. */
-@media(min-width:761px){
- .broadcast-live-data .broadcast-voting:has(.is-duel) .broadcast-zero-note{
-  position:absolute;left:50%;top:calc(78px + var(--portrait-size)/2);
-  transform:translateX(-50%);width:160px;margin:0;font-size:12px;
- }
- .broadcast-live-data .broadcast-vs{margin-top:-14px}
+/* Keep status copy in normal flow: open voting buttons can change row height. */
+.broadcast-live-data .broadcast-zero-note{
+ position:static;transform:none;width:auto;max-width:100%;
+ margin:4px 0 16px;padding:0 12px;line-height:1.6;
+ overflow-wrap:anywhere;
 }
 @media(max-width:760px){
  .broadcast-live-data .broadcast-zero-note{margin:2px 0 16px}
