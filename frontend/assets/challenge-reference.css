@@ -23,8 +23,7 @@
  grid-column:1/-1;position:relative;isolation:isolate;margin:0;
  padding:30px max(24px,calc((100% - min(1400px,88%))/2));min-height:170px;
  display:flex;flex-direction:column;justify-content:center;
- background:linear-gradient(90deg,#201610e8,#38251680 55%,#38251622),
- url('/assets/challenge-arena.webp') center top/cover no-repeat,#67462c;
+ background:#302116 url('/assets/challenge-track-banner.svg') right center/auto 100% no-repeat;
 }
 .broadcast-live-data .broadcast-heading h2{margin:0 0 12px;font-size:clamp(30px,3vw,46px);color:#fff4e5}
 .broadcast-live-data .broadcast-feature-kicker{color:#ffd18a;letter-spacing:.18em}
