@@ -1,9 +1,6 @@
 /* Public challenge arena. Route-scoped so other pages keep their own theme. */
 .app-shell:has(.broadcast-preview){background:radial-gradient(ellipse at 50% 35%,#62422e,#42291d 90%);color:#fff4e5}
-.app-shell:has(.broadcast-preview) > .topbar{
- background:#201610;border-bottom:2px solid #b99055;
- box-shadow:0 3px 12px #160e0866;
-}
+/* Navigation inherits the original shared Medhmar header theme. */
 .app-shell:has(.broadcast-preview) .main{
  position:relative;width:100%;max-width:none;margin:0;padding:0 0 76px;
  background:transparent;isolation:isolate;
