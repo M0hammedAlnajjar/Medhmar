@@ -92,9 +92,9 @@ try {
   assert.match(await page.locator('.broadcast-offline-badge').innerText(),/BROADCAST OFFLINE/);
   assert.equal(await page.locator('.broadcast-demo-progress, [data-preview-fullscreen], .broadcast-winner').count(),0);
   assert.ok((await page.locator('.broadcast-stage').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('challenge-broadcast-poster.webp'));
-  assert.equal(await page.locator('.broadcast-published-card').count(),1);
-  assert.equal(await page.locator('.broadcast-published-placeholder').count(),0);
-  assert.match(await page.locator('.broadcast-published-card').innerText(),/Recorded Heritage Challenge|Sahm/);
+  // This page presents one featured challenge; an archive is not rendered here.
+  assert.equal(await page.locator('.broadcast-published-card').count(),0);
+  assert.match(await page.locator('.broadcast-voting').innerText(),/Al Barq|Shaheen/);
   for(const width of [320,390,768,1440,1920]){
     await page.setViewportSize({width,height:1000});
     const geometry=await page.locator('.broadcast-contenders').evaluate(el=>{
@@ -107,19 +107,20 @@ try {
     });
     assert.ok(geometry.sameRow&&geometry.ordered&&geometry.centered&&!geometry.overflow,
       'duel fits at '+width+'px: '+JSON.stringify(geometry));
-    assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),width>900?2:1);
+    assert.equal(await page.locator('.broadcast-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),1);
   }
   await page.setViewportSize({width:1440,height:1000});
   const cardGeometry=await page.locator('.broadcast-grid').evaluate(el=>{
     const left=el.querySelector('.broadcast-left').getBoundingClientRect();
     const right=el.querySelector('.broadcast-voting').getBoundingClientRect();
     const panel=el.querySelector('.broadcast-voting');
-    return {gap:right.left-left.right,topDelta:Math.abs(left.top-right.top),
+    return {gap:right.top-left.bottom,leftDelta:Math.abs(left.left-right.left),
       border:getComputedStyle(panel).borderTopWidth,
       individual:[...panel.querySelectorAll('.broadcast-candidate')].map(node=>getComputedStyle(node).borderTopWidth)};
   });
-  assert.ok(cardGeometry.gap>=20&&cardGeometry.topDelta<2);
-  assert.equal(cardGeometry.border,'1px','results use one unified panel');
+  assert.ok(cardGeometry.gap>=16&&cardGeometry.leftDelta<2,
+    'voting appears directly below the wide video');
+  assert.equal(cardGeometry.border,'0px','results have no distracting outer card');
   assert.ok(cardGeometry.individual.every(border=>border==='0px'),'contenders do not use nested cards');
   assert.equal(await page.locator('#refresh-challenges').count(),0);
   await page.locator('.broadcast-candidate .vote-btn').first().click();
@@ -157,25 +158,19 @@ try {
     await page.setViewportSize({width,height:889});
     const photos=await registeredPhotos.evaluateAll(imgs=>imgs.map(img=>{
       const css=getComputedStyle(img),box=img.getBoundingClientRect();
-      const w=box.width-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)
-        -parseFloat(css.borderLeftWidth)-parseFloat(css.borderRightWidth);
-      const h=box.height-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom)
-        -parseFloat(css.borderTopWidth)-parseFloat(css.borderBottomWidth);
-      const scale=css.objectFit==='contain'?Math.min(w/img.naturalWidth,h/img.naturalHeight)
-        :Math.max(w/img.naturalWidth,h/img.naturalHeight);
-      return {fullImage:img.naturalWidth*scale<=w+.5&&img.naturalHeight*scale<=h+.5,
-        landscapeFrame:box.width>box.height};
+      return {round:css.borderRadius==='50%',square:Math.abs(box.width-box.height)<2,
+        loaded:img.complete&&img.naturalWidth>0};
     }));
-    assert.ok(photos.every(photo=>photo.fullImage&&photo.landscapeFrame),
-      'complete registered photos must fit without cropped heads or legs at '+width+'px');
+    assert.ok(photos.every(photo=>photo.round&&photo.square&&photo.loaded),
+      'registered portraits stay circular, square and loaded at '+width+'px');
     if(width===1920){
       const layout=await page.evaluate(()=>({
         viewportHeight:innerHeight,
         mediaHeight:document.querySelector('.broadcast-stage').getBoundingClientRect().height,
-        archiveTop:document.querySelector('#broadcast-published-title').getBoundingClientRect().top
+        votingTop:document.querySelector('.broadcast-voting-title').getBoundingClientRect().top
       }));
       assert.ok(layout.mediaHeight<=401,'offline poster must not expand indefinitely on wide screens');
-      assert.ok(layout.archiveTop<layout.viewportHeight-40,'past challenges remain discoverable at desktop height');
+      assert.ok(layout.votingTop<layout.viewportHeight-40,'the voting section remains discoverable at desktop height');
     }
   }
   await page.setViewportSize({width:1440,height:1000});
