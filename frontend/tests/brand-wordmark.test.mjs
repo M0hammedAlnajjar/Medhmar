@@ -56,10 +56,11 @@ test("navbar spans the viewport without external white gaps at any breakpoint", 
 test("the original navbar logo, routes, search and language controls remain", () => {
   assert.match(css, /\.topbar \.brand-wordmark\{padding:0;background:transparent;border:0/);
   assert.match(css, /\.topbar \.nav\{gap:0;justify-content:flex-start;padding-left:18px\}/);
-  assert.match(app, /const primaryDesktopPaths = \[/);
+  assert.match(app, /const userNavItems = \[/);
   for (const path of ['/races','/race-cards','/camels','/pedigree','/marketplace'])
     assert.ok(app.includes("['"+path+"',"), path+' remains reachable from public navigation');
-  assert.match(app, /const extraItems = items.filter\(\(\[path\]\) => !visiblePaths.includes\(path\)\);/);
+  assert.match(app, /const visibleNavItems = \(\) => userNavItems.filter/);
+  assert.match(app, /<nav class="nav nav-desktop" aria-label="Primary navigation">\$\{items.map\(navLink\).join\(''\)\}<\/nav>/);
   assert.match(app, /class="nav-search"/);
   assert.match(app, /class="nav-language-single"/);
 });
