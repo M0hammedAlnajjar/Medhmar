@@ -26,11 +26,11 @@ test('regular navigation never contains admin tools, regardless of role',()=>{
   assert.doesNotMatch(html,/class="nav-admin"|class="nav-mobile-admin"|Admin Dashboard|Manage Users|Audit Log|href="\/admin"/);
  }
 });
-test('owner and trainer keep their agreements in regular More',()=>{
+test('owner and trainer keep their agreements in the public navigation',()=>{
  for(const role of ['OWNER','TRAINER']){
   const html=navbar(user(role));
-  assert.match(html,/class="pedigree-more"/);
-  assert.match(html,/href="\/agreements"/);
+  assert.match(html,/<nav class="nav nav-desktop" aria-label="Primary navigation">/);
+  assert.match(html,/<a href="\/agreements" data-link class="">Agreements<\/a>/);
  }
 });
 test('admin uses a completely separate shell with no community navigation',()=>{
